@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -13,6 +16,7 @@ import { PrismaModule } from './prisma/prisma.module';
     }),
 
     // Configuração global do Prisma
+    EmailModule,
     PrismaModule,
   ],
   controllers: [AppController],

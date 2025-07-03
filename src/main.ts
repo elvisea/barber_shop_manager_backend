@@ -58,7 +58,7 @@ async function bootstrap(): Promise<void> {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/apis/docs', app, document);
+  SwaggerModule.setup('/api/docs', app, document);
 
   /* Obtém o serviço de configuração para acessar variáveis de ambiente */
   const configService = app.get<ConfigService>(ConfigService);
