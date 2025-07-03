@@ -20,146 +20,132 @@ enum Role {
   ADMIN
 }
 
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
 model User {
-  id            String   @id @default(uuid()) @map("id")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-  email         String   @unique @map("email")
-  name          String   @map("name")
-  phone         String   @map("phone")
-  password      String   @map("password")
-  emailVerified Boolean  @default(false) @map("email_verified")
-
-  // Relação com a tabela pivô
-  memberships EstablishmentMember[]
-
-  // Relação com a verificação de email
+  id                String                @id @default(uuid()) @map("id")
+  createdAt         DateTime              @default(now()) @map("created_at")
+  updatedAt         DateTime              @updatedAt @map("updated_at")
+  email             String                @unique @map("email")
+  name              String                @map("name")
+  phone             String                @map("phone")
+  password          String                @map("password")
+  emailVerified     Boolean               @default(false) @map("email_verified")
+  memberships       EstablishmentMember[]
   emailVerification EmailVerification?
-
-  // Relação com os refresh tokens
-  refreshTokens RefreshToken[]
+  refreshTokens     RefreshToken[]
 
   @@index([email])
   @@map("users")
 }
 
 model Establishment {
-  id        String   @id @default(uuid()) @map("id")
-  name      String   @map("name")
-  address   String   @map("address")
-  phone     String   @map("phone")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relação com a tabela pivô
+  id             String                  @id @default(uuid()) @map("id")
+  name           String                  @map("name")
+  address        String                  @map("address")
+  phone          String                  @map("phone")
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
   members        EstablishmentMember[]
   products       EstablishmentProduct[]
   services       EstablishmentService[]
   customers      EstablishmentCustomer[]
   openingHours   OpeningHours[]
   closurePeriods ClosurePeriod[]
+  appointments   Appointment[]
 
   @@map("establishments")
 }
 
 // Tabela Pivô: A "cola" entre User e Establishment
 model EstablishmentMember {
-  // Relações que formam a chave primária
-  userId          String @map("user_id")
-  establishmentId String @map("establishment_id")
+  userId          String                @map("user_id")
+  establishmentId String                @map("establishment_id")
+  role            Role
+  isActive        Boolean               @default(true) @map("is_active")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  memberServices  MemberService[]
+  memberProducts  MemberProduct[]
+  workingHours    MemberWorkingHours[]
+  absencePeriods  MemberAbsencePeriod[]
+  appointments    Appointment[]
 
-  // Dados específicos da relação
-  role     Role // O papel do usuário NESTE estabelecimento
-  isActive Boolean @default(true) @map("is_active")
-
-  updatedAt DateTime @updatedAt @map("updated_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  // Definindo as relações com o Prisma
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-
-  // Relação com a tabela de sobrescrita
-  MemberService  MemberService[]
-  memberProducts MemberProduct[]
-  workingHours   MemberWorkingHours[]
-  absencePeriods MemberAbsencePeriod[]
-
-  // Chave primária composta para garantir que um usuário só tenha um registro por estabelecimento
   @@id([userId, establishmentId])
   @@map("establishment_members")
 }
 
 model EstablishmentProduct {
-  id              String        @id @default(uuid()) @map("id")
-  name            String        @map("name")
-  description     String?       @map("description")
-  price           Int           @map("price") // Armazenado em centavos
-  commission      Decimal       @map("commission") @db.Decimal(5, 4)
-  stock           Int           @map("stock")
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-
-  // Relação com a tabela de sobrescrita
-  memberProducts MemberProduct[]
+  id              String          @id @default(uuid()) @map("id")
+  name            String          @map("name")
+  description     String?         @map("description")
+  price           Int             @map("price")
+  commission      Decimal         @map("commission") @db.Decimal(5, 4)
+  stock           Int             @map("stock")
+  establishmentId String          @map("establishment_id")
+  establishment   Establishment   @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  memberProducts  MemberProduct[]
 
   @@unique([establishmentId, name])
   @@map("establishment_products")
 }
 
 model EstablishmentService {
-  id              String        @id @default(uuid()) @map("id")
-  name            String        @map("name")
-  description     String?       @map("description")
-  duration        Int           @map("duration")
-  price           Int           @map("price") // Armazenado em centavos
-  commission      Decimal       @map("commission") @db.Decimal(5, 4)
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-
-  // Relação com a tabela de sobrescrita
-  memberServices MemberService[]
+  id                  String               @id @default(uuid()) @map("id")
+  name                String               @map("name")
+  description         String?              @map("description")
+  duration            Int                  @map("duration")
+  price               Int                  @map("price")
+  commission          Decimal              @map("commission") @db.Decimal(5, 4)
+  establishmentId     String               @map("establishment_id")
+  establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  memberServices      MemberService[]
+  appointmentServices AppointmentService[]
 
   @@unique([establishmentId, name])
   @@map("establishment_services")
 }
 
-// Tabela de Sobrescrita: Valores de produto específicos para um membro
 model MemberProduct {
-  id              String   @id @default(uuid()) @map("id")
-  price           Int      @map("price") // Preço customizado em centavos
-  commission      Decimal  @map("commission") @db.Decimal(5, 4) // Comissão customizada
-  userId          String   @map("user_id")
-  establishmentId String   @map("establishment_id")
-  productId       String   @map("product_id")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  member  EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  product EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id              String               @id @default(uuid()) @map("id")
+  price           Int                  @map("price")
+  commission      Decimal              @map("commission") @db.Decimal(5, 4)
+  userId          String               @map("user_id")
+  establishmentId String               @map("establishment_id")
+  productId       String               @map("product_id")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId, productId])
   @@map("member_products")
 }
 
-// Tabela de Sobrescrita: Valores de serviço específicos para um membro
 model MemberService {
-  id              String   @id @default(uuid()) @map("id")
-  price           Int      @map("price") // Preço customizado em centavos
-  commission      Decimal  @map("commission") @db.Decimal(5, 4) // Comissão customizada
-  duration        Int      @map("duration") // Duração customizada
-  userId          String   @map("user_id")
-  establishmentId String   @map("establishment_id")
-  serviceId       String   @map("service_id")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  member  EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  service EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  id              String               @id @default(uuid()) @map("id")
+  price           Int                  @map("price")
+  commission      Decimal              @map("commission") @db.Decimal(5, 4)
+  duration        Int                  @map("duration")
+  userId          String               @map("user_id")
+  establishmentId String               @map("establishment_id")
+  serviceId       String               @map("service_id")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId, serviceId])
   @@map("member_services")
@@ -174,6 +160,7 @@ model EstablishmentCustomer {
   phone           String?       @map("phone")
   establishmentId String        @map("establishment_id")
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  appointments    Appointment[]
 
   @@unique([establishmentId, email])
   @@unique([establishmentId, phone])
@@ -214,42 +201,30 @@ model ClosurePeriod {
 }
 
 model MemberWorkingHours {
-  id        String @id @default(uuid()) @map("id")
-  // 0 = domingo, 1 = segunda, ..., 6 = sábado
-  dayOfWeek Int    @map("day_of_week")
-  // Hora de início no formato HH:mm
-  startTime String @map("start_time")
-  // Hora de término no formato HH:mm
-  endTime   String @map("end_time")
-
-  // Chaves estrangeiras para EstablishmentMember
-  userId          String @map("user_id")
-  establishmentId String @map("establishment_id")
-
-  member    EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  createdAt DateTime            @default(now()) @map("created_at")
-  updatedAt DateTime            @updatedAt @map("updated_at")
+  id              String              @id @default(uuid()) @map("id")
+  dayOfWeek       Int                 @map("day_of_week")
+  startTime       String              @map("start_time")
+  endTime         String              @map("end_time")
+  userId          String              @map("user_id")
+  establishmentId String              @map("establishment_id")
+  member          EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
   @@unique([userId, establishmentId, dayOfWeek])
   @@map("member_working_hours")
 }
 
 model MemberAbsencePeriod {
-  id        String   @id @default(uuid()) @map("id")
-  // Motivo da ausência (opcional)
-  reason    String?  @map("reason")
-  // Data de início da ausência
-  startDate DateTime @map("start_date")
-  // Data de término da ausência
-  endDate   DateTime @map("end_date")
-
-  // Chaves estrangeiras para EstablishmentMember
-  userId          String @map("user_id")
-  establishmentId String @map("establishment_id")
-
-  member    EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  createdAt DateTime            @default(now()) @map("created_at")
-  updatedAt DateTime            @updatedAt @map("updated_at")
+  id              String              @id @default(uuid()) @map("id")
+  reason          String?             @map("reason")
+  startDate       DateTime            @map("start_date")
+  endDate         DateTime            @map("end_date")
+  userId          String              @map("user_id")
+  establishmentId String              @map("establishment_id")
+  member          EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
   @@map("member_absence_periods")
 }
@@ -260,10 +235,8 @@ model EmailVerification {
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relação direta com o usuário
-  userId String @unique @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("email_verifications")
 }
@@ -277,10 +250,43 @@ model RefreshToken {
   ipAddress String?  @map("ip_address")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relação com o usuário
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+}
+
+model Appointment {
+  id              String                @id @default(uuid()) @map("id")
+  startTime       DateTime              @map("start_time")
+  endTime         DateTime              @map("end_time")
+  totalAmount     Int                   @map("total_amount")
+  totalDuration   Int                   @map("total_duration")
+  status          AppointmentStatus     @default(PENDING) @map("status")
+  notes           String?               @map("notes")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+  customerId      String                @map("customer_id")
+  customer        EstablishmentCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  memberId        String                @map("member_id")
+  establishmentId String                @map("establishment_id")
+  member          EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
+  establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  services        AppointmentService[]
+
+  @@map("appointments")
+}
+
+model AppointmentService {
+  id            String               @id @default(uuid()) @map("id")
+  price         Int                  @map("price")
+  duration      Int                  @map("duration")
+  commission    Decimal              @map("commission") @db.Decimal(5, 4)
+  appointmentId String               @map("appointment_id")
+  appointment   Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceId     String               @map("service_id")
+  service       EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@unique([appointmentId, serviceId])
+  @@map("appointment_services")
 }
