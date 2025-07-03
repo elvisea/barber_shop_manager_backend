@@ -7,36 +7,36 @@ import { AppModule } from '@/app.module';
 import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
 
 /**
- * Arquivo principal de inicialização da aplicação Barber Shop Manager.
- * Configura filtros globais, pipes, Swagger e inicia o servidor.
+ * Main bootstrap file for the Barber Shop Manager application.
+ * Configures global filters, pipes, Swagger and starts the server.
  *
  * @module main
  */
 
 /**
- * Função de bootstrap responsável por:
- * - Criar a aplicação NestJS
- * - Aplicar filtros globais de exceção
- * - Aplicar pipes globais de validação
- * - Configurar e expor a documentação Swagger
- * - Obter configurações do serviço de ambiente
- * - Iniciar o servidor HTTP na porta configurada
+ * Bootstrap function responsible for:
+ * - Creating the NestJS application
+ * - Applying global exception filters
+ * - Applying global validation pipes
+ * - Configuring and exposing Swagger documentation
+ * - Getting environment service configurations
+ * - Starting the HTTP server on the configured port
  *
  * @async
  * @function bootstrap
- * @returns {Promise<void>} Promise que resolve quando o servidor está rodando
+ * @returns {Promise<void>} Promise that resolves when the server is running
  */
 async function bootstrap(): Promise<void> {
-  /* Cria a aplicação principal usando o módulo AppModule */
+  /* Create the main application using AppModule */
   const app = await NestFactory.create(AppModule);
 
-  /* Aplica o filtro global de exceções personalizadas */
+  /* Apply global custom exception filter */
   app.useGlobalFilters(new AllExceptionsFilter());
 
   /*
-   * Aplica o pipe global de validação:
-   * - transform: converte payloads para os tipos esperados
-   * - whitelist: remove propriedades não declaradas nos DTOs
+   * Apply global validation pipe:
+   * - transform: converts payloads to expected types
+   * - whitelist: removes properties not declared in DTOs
    */
   app.useGlobalPipes(
     new ValidationPipe({
@@ -46,13 +46,13 @@ async function bootstrap(): Promise<void> {
   );
 
   /*
-   * Configura a documentação Swagger:
-   * - Título, descrição, versão e autenticação Bearer
-   * - Disponível em /apis/docs
+   * Configure Swagger documentation:
+   * - Title, description, version and Bearer authentication
+   * - Available at /api/docs
    */
   const config = new DocumentBuilder()
     .setTitle('Barber Shop Manager')
-    .setDescription('API do sistema Barber Shop Manager para gestão de barbearias')
+    .setDescription('Barber Shop Manager system API for barbershop management')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -60,15 +60,15 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api/docs', app, document);
 
-  /* Obtém o serviço de configuração para acessar variáveis de ambiente */
+  /* Get configuration service to access environment variables */
   const configService = app.get<ConfigService>(ConfigService);
 
-  /* Obtém a porta do servidor a partir das variáveis de ambiente ou usa 3333 como padrão */
+  /* Get server port from environment variables or use 3333 as default */
   const port = configService.get<number>('PORT') ?? 3333;
 
-  /* Inicia o servidor HTTP na porta definida */
+  /* Start HTTP server on defined port */
   await app.listen(port);
 }
 
-// Inicializa a aplicação
+// Initialize the application
 bootstrap();

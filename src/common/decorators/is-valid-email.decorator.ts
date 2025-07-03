@@ -13,14 +13,14 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
             return false;
           }
 
-          // Regex mais rigorosa para email
+          // More rigorous email regex
           const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
           if (!emailRegex.test(value)) {
             return false;
           }
 
-          // Verificar se não tem domínios suspeitos
+          // Check for suspicious domains
           const suspiciousDomains = [
             '.com.com',
             '.org.org',
@@ -40,12 +40,12 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
             }
           }
 
-          // Verificar se não tem caracteres consecutivos suspeitos
+          // Check for consecutive suspicious characters
           if (lowerValue.includes('..') || lowerValue.includes('@@')) {
             return false;
           }
 
-          // Verificar se não começa ou termina com caracteres especiais
+          // Check if starts or ends with special characters
           if (lowerValue.startsWith('.') || lowerValue.endsWith('.') ||
             lowerValue.startsWith('-') || lowerValue.endsWith('-')) {
             return false;
@@ -54,7 +54,7 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
           return true;
         },
         defaultMessage(args: ValidationArguments) {
-          return 'Email deve ter um formato válido e usar um domínio real';
+          return 'Email must have a valid format and use a real domain';
         },
       },
     });

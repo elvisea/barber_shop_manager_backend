@@ -5,25 +5,25 @@ import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from 'class-v
 
 export class CreateUserRequestDTO {
   @ApiProperty({
-    example: 'João da Silva',
-    description: 'Nome completo do usuário'
+    example: 'John Silva',
+    description: 'User full name'
   })
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    example: 'joao.silva@gmail.com',
-    description: 'Email do usuário (será convertido para lowercase)'
+    example: 'john.silva@gmail.com',
+    description: 'User email (will be converted to lowercase)'
   })
-  @IsEmail({}, { message: 'Email deve ter um formato válido' })
-  @IsValidEmail({ message: 'Email deve ter um formato válido e usar um domínio real' })
+  @IsEmail({}, { message: 'Email must have a valid format' })
+  @IsValidEmail({ message: 'Email must have a valid format and use a real domain' })
   @Transform(({ value }) => value.toLowerCase())
   email: string;
 
   @ApiProperty({
     example: '123456789',
-    description: 'Senha do usuário (mínimo 6 caracteres)'
+    description: 'User password (minimum 6 characters)'
   })
   @IsString()
   @MinLength(6)
@@ -31,7 +31,7 @@ export class CreateUserRequestDTO {
 
   @ApiProperty({
     example: '11999999999',
-    description: 'Telefone do usuário'
+    description: 'User phone number'
   })
   @IsPhoneNumber('BR')
   phone: string;

@@ -23,15 +23,15 @@ export class CreateUserService {
 
   async execute(userData: CreateUserRequestDTO): Promise<CreateUserResponseDTO> {
     this.logger.log(
-      `Iniciando a criação do usuário com e-mail: ${userData.email}`,
+      `Starting user creation with email: ${userData.email}`,
     );
 
-    // Verificar se o usuário já existe
+    // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(userData.email);
 
     if (existingUser) {
       this.logger.warn(
-        `Usuário com o e-mail ${userData.email} já existe no sistema.`,
+        `User with email ${userData.email} already exists in the system.`,
       );
 
       const errorMessage = this.errorMessageService.getMessage(
@@ -47,43 +47,43 @@ export class CreateUserService {
     }
 
     this.logger.log(
-      `Email ${userData.email} não encontrado. Prosseguindo com a criação do usuário.`,
+      `Email ${userData.email} not found. Proceeding with user creation.`,
     );
 
     try {
-      // Criptografar a senha
+      // Hash the password
       const saltOrRounds = 10;
       const hashedPassword = await bcrypt.hash(userData.password, saltOrRounds);
-      this.logger.log(`Senha do usuário foi criptografada com sucesso.`);
+      this.logger.log(`User password was hashed successfully.`);
 
-      // Preparar dados para criação
+      // Prepare data for creation
       const userDataToCreate = {
         ...userData,
         password: hashedPassword,
       };
 
-      // Criar usuário no banco
+      // Create user in database
       const newUser = await this.userRepository.createUser(userDataToCreate);
-      this.logger.log(`Usuário com ID ${newUser.id} criado com sucesso.`);
+      this.logger.log(`User with ID ${newUser.id} created successfully.`);
 
-      // Enviar email de boas-vindas
+      // Send welcome email
       await this.emailService.sendEmail(
         newUser.email,
-        'Bem-vindo!',
-        `Olá ${newUser.name}, sua conta foi criada com sucesso!`,
+        'Welcome!',
+        `Hello ${newUser.name}, your account has been created successfully!`,
       );
 
-      // Criar response DTO
+      // Create response DTO
       const createUserResponseDTO = this.createUserResponse(newUser);
 
       this.logger.log(
-        `Criação do usuário com e-mail ${createUserResponseDTO.email} concluída com sucesso.`,
+        `User creation with email ${createUserResponseDTO.email} completed successfully.`,
       );
 
       return createUserResponseDTO;
     } catch (error) {
       this.logger.error(
-        `Erro ao criar usuário com e-mail ${userData.email}: ${error.message}`,
+        `Error creating user with email ${userData.email}: ${error.message}`,
       );
 
       const errorMessage = this.errorMessageService.getMessage(
@@ -99,7 +99,7 @@ export class CreateUserService {
     }
   }
 
-  // Função privada para criar o CreateUserResponseDTO
+  // Private function to create CreateUserResponseDTO
   private createUserResponse(user: User): CreateUserResponseDTO {
     const createUserResponseDTO = new CreateUserResponseDTO();
     createUserResponseDTO.id = user.id;
