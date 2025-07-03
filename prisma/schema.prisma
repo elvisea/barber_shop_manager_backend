@@ -21,16 +21,20 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(uuid()) @map("id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  email     String   @unique @map("email")
-  name      String   @map("name")
-  phone     String   @map("phone")
-  password  String   @map("password")
+  id            String   @id @default(uuid()) @map("id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  email         String   @unique @map("email")
+  name          String   @map("name")
+  phone         String   @map("phone")
+  password      String   @map("password")
+  emailVerified Boolean  @default(false) @map("email_verified")
 
   // Relação com a tabela pivô
   memberships EstablishmentMember[]
+
+  // Relação com a verificação de email
+  emailVerification EmailVerification?
 
   @@index([email])
   @@map("users")
@@ -245,4 +249,18 @@ model MemberAbsencePeriod {
   updatedAt DateTime            @updatedAt @map("updated_at")
 
   @@map("member_absence_periods")
+}
+
+model EmailVerification {
+  id        String   @id @default(uuid()) @map("id")
+  token     String   @unique @map("token")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relação direta com o usuário
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verifications")
 }
