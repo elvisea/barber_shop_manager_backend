@@ -16,7 +16,7 @@ async function main() {
         email: 'joao@barbershop.com',
         phone: '(11) 99999-1111',
         password: 'hashed_password_123', // Em produção, usar hash real
-        role: 'BARBER',
+
       },
     }),
     prisma.user.create({
@@ -25,7 +25,7 @@ async function main() {
         email: 'pedro@barbershop.com',
         phone: '(11) 99999-2222',
         password: 'hashed_password_123',
-        role: 'BARBER',
+
       },
     }),
     prisma.user.create({
@@ -34,7 +34,7 @@ async function main() {
         email: 'maria@barbershop.com',
         phone: '(11) 99999-3333',
         password: 'hashed_password_123',
-        role: 'HAIRDRESSER',
+
       },
     }),
     prisma.user.create({
@@ -43,7 +43,7 @@ async function main() {
         email: 'ana@barbershop.com',
         phone: '(11) 99999-4444',
         password: 'hashed_password_123',
-        role: 'RECEPTIONIST',
+
       },
     }),
     prisma.user.create({
@@ -52,7 +52,7 @@ async function main() {
         email: 'admin@barbershop.com',
         phone: '(11) 99999-0000',
         password: 'hashed_password_123',
-        role: 'ADMIN',
+
       },
     }),
   ]);

@@ -28,8 +28,46 @@ model User {
   name      String   @map("name")
   phone     String   @map("phone")
   password  String   @map("password")
-  role      Role     @map("role")
+
+  // Relação com a tabela pivô
+  memberships EstablishmentMember[]
 
   @@index([email])
   @@map("users")
+}
+
+model Establishment {
+  id        String   @id @default(uuid()) @map("id")
+  name      String   @map("name")
+  address   String   @map("address")
+  phone     String   @map("phone")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relação com a tabela pivô
+  members EstablishmentMember[]
+
+  @@map("establishments")
+}
+
+// Tabela Pivô: A "cola" entre User e Establishment
+model EstablishmentMember {
+  // Relações que formam a chave primária
+  userId          String @map("user_id")
+  establishmentId String @map("establishment_id")
+
+  // Dados específicos da relação
+  role     Role // O papel do usuário NESTE estabelecimento
+  isActive Boolean @default(true) @map("is_active")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Definindo as relações com o Prisma
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  // Chave primária composta para garantir que um usuário só tenha um registro por estabelecimento
+  @@id([userId, establishmentId])
+  @@map("establishment_members")
 }
