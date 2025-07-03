@@ -69,6 +69,10 @@ model EstablishmentMember {
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
+  // Relação com a tabela de sobrescrita
+  MemberService  MemberService[]
+  memberProducts MemberProduct[]
+
   // Chave primária composta para garantir que um usuário só tenha um registro por estabelecimento
   @@id([userId, establishmentId])
   @@map("establishment_members")
@@ -86,6 +90,9 @@ model EstablishmentProduct {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  // Relação com a tabela de sobrescrita
+  memberProducts MemberProduct[]
+
   @@unique([establishmentId, name])
   @@map("establishment_products")
 }
@@ -102,6 +109,46 @@ model EstablishmentService {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  // Relação com a tabela de sobrescrita
+  memberServices MemberService[]
+
   @@unique([establishmentId, name])
   @@map("establishment_services")
+}
+
+// Tabela de Sobrescrita: Valores de produto específicos para um membro
+model MemberProduct {
+  id              String   @id @default(uuid()) @map("id")
+  price           Int      @map("price") // Preço customizado em centavos
+  commission      Decimal  @map("commission") @db.Decimal(5, 4) // Comissão customizada
+  userId          String   @map("user_id")
+  establishmentId String   @map("establishment_id")
+  productId       String   @map("product_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  member  EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  product EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, establishmentId, productId])
+  @@map("member_products")
+}
+
+// Tabela de Sobrescrita: Valores de serviço específicos para um membro
+model MemberService {
+  id              String   @id @default(uuid()) @map("id")
+  price           Int      @map("price") // Preço customizado em centavos
+  commission      Decimal  @map("commission") @db.Decimal(5, 4) // Comissão customizada
+  duration        Int      @map("duration") // Duração customizada
+  userId          String   @map("user_id")
+  establishmentId String   @map("establishment_id")
+  serviceId       String   @map("service_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  member  EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  service EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, establishmentId, serviceId])
+  @@map("member_services")
 }
