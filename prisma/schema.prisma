@@ -45,10 +45,11 @@ model Establishment {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relação com a tabela pivô
-  members   EstablishmentMember[]
-  products  EstablishmentProduct[]
-  services  EstablishmentService[]
-  customers EstablishmentCustomer[]
+  members      EstablishmentMember[]
+  products     EstablishmentProduct[]
+  services     EstablishmentService[]
+  customers    EstablishmentCustomer[]
+  openingHours OpeningHours[]
 
   @@map("establishments")
 }
@@ -167,4 +168,21 @@ model EstablishmentCustomer {
   @@unique([establishmentId, email])
   @@unique([establishmentId, phone])
   @@map("establishment_customers")
+}
+
+model OpeningHours {
+  id              String        @id @default(uuid()) @map("id")
+  // Representa o dia da semana (0 = domingo, 1 = segunda, ..., 6 = sábado)
+  dayOfWeek       Int           @map("day_of_week")
+  // Horário de abertura no formato "HH:mm"
+  openingTime     String        @map("opening_time")
+  // Horário de fechamento no formato "HH:mm"
+  closingTime     String        @map("closing_time")
+  establishmentId String        @map("establishment_id")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@unique([establishmentId, dayOfWeek])
+  @@map("opening_hours")
 }
