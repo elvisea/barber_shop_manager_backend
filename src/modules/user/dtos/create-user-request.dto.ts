@@ -1,3 +1,4 @@
+import { IsValidEmail } from '@/common/decorators/is-valid-email.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from 'class-validator';
@@ -12,10 +13,11 @@ export class CreateUserRequestDTO {
   name: string;
 
   @ApiProperty({
-    example: 'joao.silva@email.com',
+    example: 'joao.silva@gmail.com',
     description: 'Email do usuário (será convertido para lowercase)'
   })
-  @IsEmail()
+  @IsEmail({}, { message: 'Email deve ter um formato válido' })
+  @IsValidEmail({ message: 'Email deve ter um formato válido e usar um domínio real' })
   @Transform(({ value }) => value.toLowerCase())
   email: string;
 
