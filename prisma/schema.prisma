@@ -36,6 +36,9 @@ model User {
   // Relação com a verificação de email
   emailVerification EmailVerification?
 
+  // Relação com os refresh tokens
+  refreshTokens RefreshToken[]
+
   @@index([email])
   @@map("users")
 }
@@ -263,4 +266,21 @@ model EmailVerification {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("email_verifications")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @map("id")
+  token     String   @unique @map("token")
+  expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false) @map("revoked")
+  userAgent String?  @map("user_agent")
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relação com o usuário
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
