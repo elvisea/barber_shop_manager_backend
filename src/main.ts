@@ -1,12 +1,13 @@
-import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+
+import { AppModule } from '@/app.module';
+import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
 
 /**
- * Arquivo principal de inicialização da aplicação Barber Master.
+ * Arquivo principal de inicialização da aplicação Barber Shop Manager.
  * Configura filtros globais, pipes, Swagger e inicia o servidor.
  *
  * @module main
@@ -63,10 +64,10 @@ async function bootstrap(): Promise<void> {
   const configService = app.get<ConfigService>(ConfigService);
 
   /* Obtém a porta do servidor a partir das variáveis de ambiente ou usa 3333 como padrão */
-  const port = configService.get<number>('PORT');
+  const port = configService.get<number>('PORT') ?? 3333;
 
   /* Inicia o servidor HTTP na porta definida */
-  await app.listen(port || 3333);
+  await app.listen(port);
 }
 
 // Inicializa a aplicação
