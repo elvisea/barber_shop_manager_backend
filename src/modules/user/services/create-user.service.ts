@@ -1,12 +1,12 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { User } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
+import { hashValue } from '../../../utils/hash-value';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
 import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
 import { UserRepository } from '../repositories/user.repository';
@@ -52,8 +52,7 @@ export class CreateUserService {
 
     try {
       // Hash the password
-      const saltOrRounds = 10;
-      const hashedPassword = await bcrypt.hash(userData.password, saltOrRounds);
+      const hashedPassword = await hashValue(userData.password);
       this.logger.log(`User password was hashed successfully.`);
 
       // Prepare data for creation
