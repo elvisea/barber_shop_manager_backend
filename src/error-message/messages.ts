@@ -23,4 +23,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.INVALID_EMAIL_OR_PASSWORD]: {
     message: 'Invalid email or password for email [EMAIL].',
   },
+  [ErrorCode.ESTABLISHMENT_PHONE_ALREADY_EXISTS]: {
+    message: 'Establishment with phone [PHONE] already exists for user [USER_ID].',
+  },
 } as const;
