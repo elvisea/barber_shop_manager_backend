@@ -75,6 +75,8 @@ model EstablishmentMember {
   // Relação com a tabela de sobrescrita
   MemberService  MemberService[]
   memberProducts MemberProduct[]
+  workingHours   MemberWorkingHours[]
+  absencePeriods MemberAbsencePeriod[]
 
   // Chave primária composta para garantir que um usuário só tenha um registro por estabelecimento
   @@id([userId, establishmentId])
@@ -202,4 +204,45 @@ model ClosurePeriod {
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
   @@map("closure_periods")
+}
+
+model MemberWorkingHours {
+  id        String @id @default(uuid()) @map("id")
+  // 0 = domingo, 1 = segunda, ..., 6 = sábado
+  dayOfWeek Int    @map("day_of_week")
+  // Hora de início no formato HH:mm
+  startTime String @map("start_time")
+  // Hora de término no formato HH:mm
+  endTime   String @map("end_time")
+
+  // Chaves estrangeiras para EstablishmentMember
+  userId          String @map("user_id")
+  establishmentId String @map("establishment_id")
+
+  member    EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  @@unique([userId, establishmentId, dayOfWeek])
+  @@map("member_working_hours")
+}
+
+model MemberAbsencePeriod {
+  id        String   @id @default(uuid()) @map("id")
+  // Motivo da ausência (opcional)
+  reason    String?  @map("reason")
+  // Data de início da ausência
+  startDate DateTime @map("start_date")
+  // Data de término da ausência
+  endDate   DateTime @map("end_date")
+
+  // Chaves estrangeiras para EstablishmentMember
+  userId          String @map("user_id")
+  establishmentId String @map("establishment_id")
+
+  member    EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  @@map("member_absence_periods")
 }
