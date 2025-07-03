@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+
 import { ErrorMessageService } from './error-message.service';
 
 @Global()
@@ -6,4 +7,4 @@ import { ErrorMessageService } from './error-message.service';
   providers: [ErrorMessageService],
   exports: [ErrorMessageService],
 })
-export class ErrorMessageModule { }
+export class ErrorMessageModule {}

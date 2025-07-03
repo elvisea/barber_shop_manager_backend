@@ -8,24 +8,26 @@ import { CreateUserService } from '../services/create-user.service';
 @ApiTags('Users')
 @Controller('users')
 export class CreateUserController {
-  constructor(private readonly createUserService: CreateUserService) { }
+  constructor(private readonly createUserService: CreateUserService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
-    type: CreateUserResponseDTO
+    type: CreateUserResponseDTO,
   })
   @ApiResponse({
     status: 409,
-    description: 'User already exists with this email'
+    description: 'User already exists with this email',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid data'
+    description: 'Invalid data',
   })
-  async handle(@Body() dto: CreateUserRequestDTO): Promise<CreateUserResponseDTO> {
+  async handle(
+    @Body() dto: CreateUserRequestDTO,
+  ): Promise<CreateUserResponseDTO> {
     return this.createUserService.execute(dto);
   }
-} 
+}

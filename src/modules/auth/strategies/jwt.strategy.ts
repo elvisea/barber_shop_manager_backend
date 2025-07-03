@@ -8,9 +8,7 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-
   constructor(config: ConfigService) {
-
     const publicKey = config.get<string>('JWT_SECRET_PUBLIC_KEY');
 
     if (!publicKey) {
@@ -26,4 +24,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     return { id: payload.sub };
   }
-} 
+}

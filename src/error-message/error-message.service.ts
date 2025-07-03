@@ -1,5 +1,6 @@
-import { ErrorCode } from '@/enums/error-code';
 import { messages } from './messages';
+
+import { ErrorCode } from '@/enums/error-code';
 
 export class ErrorMessageService {
   private readonly messages = messages;

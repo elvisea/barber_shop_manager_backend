@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -27,4 +27,4 @@ export class AuthController {
   ): Promise<CreateAuthResponseDTO> {
     return this.authService.execute(authRequest);
   }
-} 
+}

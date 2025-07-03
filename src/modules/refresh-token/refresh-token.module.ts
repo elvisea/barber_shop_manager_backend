@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 
-import { PrismaModule } from '@/prisma/prisma.module';
-
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
+
+import { PrismaModule } from '@/prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule],
   providers: [RefreshTokenRepository],
   exports: [RefreshTokenRepository],
 })
-export class RefreshTokenModule { } 
+export class RefreshTokenModule {}

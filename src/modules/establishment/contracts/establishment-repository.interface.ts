@@ -1,4 +1,5 @@
 import { Establishment } from '@prisma/client';
+
 import { CreateEstablishmentRequestDTO } from '../dtos/create-establishment-request.dto';
 
 export interface IEstablishmentRepository {
@@ -11,4 +12,4 @@ export interface IEstablishmentRepository {
     phone: string,
     userId: string,
   ): Promise<Establishment | null>;
-} 
+}

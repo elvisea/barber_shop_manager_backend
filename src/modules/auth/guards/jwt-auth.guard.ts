@@ -1,11 +1,21 @@
-import { ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   private readonly logger = new Logger(JwtAuthGuard.name);
 
-  handleRequest(err: Error | null, user: any, info: Error | undefined, context: ExecutionContext) {
+  handleRequest(
+    err: Error | null,
+    user: any,
+    info: Error | undefined,
+    context: ExecutionContext,
+  ) {
     if (info && info.name === 'TokenExpiredError') {
       const req = context.switchToHttp().getRequest();
       this.logger.warn(

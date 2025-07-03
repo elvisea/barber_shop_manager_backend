@@ -1,15 +1,16 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { compare } from 'bcryptjs';
 
+import { CreateAuthRequestDTO } from '../dtos/create-auth-request.dto';
+import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
+
+import { TokenService } from './token.service';
+
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { RefreshTokenRepository } from '@/modules/refresh-token/repositories/refresh-token.repository';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
-
-import { CreateAuthRequestDTO } from '../dtos/create-auth-request.dto';
-import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
-import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokenService: TokenService,
     private readonly errorMessagesService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async execute(
     authRequest: CreateAuthRequestDTO,
@@ -69,9 +70,8 @@ export class AuthService {
       `Authentication successful for email [${authRequest.email}].`,
     );
 
-    const { accessToken, refreshToken } = await this.tokenService.generateTokens(
-      user.id,
-    );
+    const { accessToken, refreshToken } =
+      await this.tokenService.generateTokens(user.id);
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
@@ -91,4 +91,4 @@ export class AuthService {
       refreshToken,
     };
   }
-} 
+}

@@ -36,4 +36,4 @@ export class EstablishmentResponseDTO {
     example: '2024-07-03T10:00:00Z',
   })
   updatedAt: Date;
-} 
+}

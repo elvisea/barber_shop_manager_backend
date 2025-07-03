@@ -6,13 +6,7 @@ import { CreateUserService } from './services/create-user.service';
 
 @Module({
   controllers: [CreateUserController],
-  providers: [
-    UserRepository,
-    CreateUserService,
-  ],
-  exports: [
-    UserRepository,
-    CreateUserService,
-  ],
+  providers: [UserRepository, CreateUserService],
+  exports: [UserRepository, CreateUserService],
 })
-export class UserModule { } 
+export class UserModule {}

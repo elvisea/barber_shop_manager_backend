@@ -6,9 +6,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { PrismaService } from '@/prisma/prisma.service';
-
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+
+import { PrismaService } from '@/prisma/prisma.service';
 
 /**
  * Checks if the authenticated user is a member of the establishment
@@ -17,7 +17,7 @@ import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
  */
 @Injectable()
 export class EstablishmentMemberGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -53,4 +53,4 @@ export class EstablishmentMemberGuard implements CanActivate {
     request.member = member;
     return true;
   }
-} 
+}

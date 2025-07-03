@@ -11,4 +11,4 @@ export const GetRequestId = createParamDecorator(
     const user = request.user as AuthenticatedUser;
     return user.id;
   },
-); 
+);

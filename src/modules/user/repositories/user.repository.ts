@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 
-import { PrismaService } from '@/prisma/prisma.service';
-
 import { IUserRepository } from '../contracts/user-repository.interface';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
 
+import { PrismaService } from '@/prisma/prisma.service';
+
 @Injectable()
 export class UserRepository implements IUserRepository {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async createUser(data: CreateUserRequestDTO): Promise<User> {
     return this.prismaService.user.create({
@@ -46,4 +46,4 @@ export class UserRepository implements IUserRepository {
       where: { id },
     });
   }
-} 
+}

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { RefreshToken } from '@prisma/client';
 
-import { PrismaService } from '@/prisma/prisma.service';
-
 import { IRefreshTokenRepository } from '../contracts/refresh-token-repository.interface';
 import { CreateRefreshTokenDTO } from '../dtos/create-refresh-token.dto';
 
+import { PrismaService } from '@/prisma/prisma.service';
+
 @Injectable()
 export class RefreshTokenRepository implements IRefreshTokenRepository {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   /**
    * The method to create a refresh token.
@@ -26,4 +26,4 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
       },
     });
   }
-} 
+}

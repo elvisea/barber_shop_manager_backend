@@ -1,7 +1,6 @@
 import { ErrorCode } from '@/enums/error-code';
 
 export const messages: Record<ErrorCode, { message: string }> = {
-
   [ErrorCode.USER_NOT_FOUND]: {
     message: 'User with ID [USER_ID] not found.',
   },
@@ -24,6 +23,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message: 'Invalid email or password for email [EMAIL].',
   },
   [ErrorCode.ESTABLISHMENT_PHONE_ALREADY_EXISTS]: {
-    message: 'Establishment with phone [PHONE] already exists for user [USER_ID].',
+    message:
+      'Establishment with phone [PHONE] already exists for user [USER_ID].',
   },
 } as const;

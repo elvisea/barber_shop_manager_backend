@@ -1,15 +1,15 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { User } from '@prisma/client';
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { EmailService } from '@/email/email.service';
-import { ErrorCode } from '@/enums/error-code';
-import { ErrorMessageService } from '@/error-message/error-message.service';
-
 import { hashValue } from '../../../utils/hash-value';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
 import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
 import { UserRepository } from '../repositories/user.repository';
+
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { EmailService } from '@/email/email.service';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
 
 @Injectable()
 export class CreateUserService {
@@ -19,12 +19,12 @@ export class CreateUserService {
     private readonly emailService: EmailService,
     private readonly userRepository: UserRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
-  async execute(userData: CreateUserRequestDTO): Promise<CreateUserResponseDTO> {
-    this.logger.log(
-      `Starting user creation with email: ${userData.email}`,
-    );
+  async execute(
+    userData: CreateUserRequestDTO,
+  ): Promise<CreateUserResponseDTO> {
+    this.logger.log(`Starting user creation with email: ${userData.email}`);
 
     // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(userData.email);
@@ -110,4 +110,4 @@ export class CreateUserService {
 
     return createUserResponseDTO;
   }
-} 
+}

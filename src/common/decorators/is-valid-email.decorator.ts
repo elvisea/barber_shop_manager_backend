@@ -1,7 +1,11 @@
-import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+} from 'class-validator';
 
 export function IsValidEmail(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isValidEmail',
       target: object.constructor,
@@ -30,7 +34,7 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
             '.test.test',
             '.example.example',
             '.localhost',
-            '.invalid'
+            '.invalid',
           ];
 
           const lowerValue = value.toLowerCase();
@@ -46,8 +50,12 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
           }
 
           // Check if starts or ends with special characters
-          if (lowerValue.startsWith('.') || lowerValue.endsWith('.') ||
-            lowerValue.startsWith('-') || lowerValue.endsWith('-')) {
+          if (
+            lowerValue.startsWith('.') ||
+            lowerValue.endsWith('.') ||
+            lowerValue.startsWith('-') ||
+            lowerValue.endsWith('-')
+          ) {
             return false;
           }
 
@@ -59,4 +67,4 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
       },
     });
   };
-} 
+}

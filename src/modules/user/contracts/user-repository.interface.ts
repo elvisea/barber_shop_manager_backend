@@ -1,4 +1,5 @@
 import { User } from '@prisma/client';
+
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
 
 export interface IUserRepository {
@@ -7,4 +8,4 @@ export interface IUserRepository {
   findById(id: string): Promise<User | null>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
   deleteUser(id: string): Promise<User>;
-} 
+}

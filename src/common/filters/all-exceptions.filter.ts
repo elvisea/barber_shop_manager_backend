@@ -1,5 +1,3 @@
-import { Response } from 'express';
-
 import {
   Catch,
   ExceptionFilter,
@@ -7,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { Response } from 'express';
 
 @Catch(HttpException)
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -24,7 +23,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = (errorResponse as any).message || 'Erro desconhecido';
       errorCode = (errorResponse as any).errorCode || '';
     } else {
-      message = errorResponse as string;
+      message = errorResponse;
     }
 
     // Formatar a resposta com statusCode, message, error, e errorCode

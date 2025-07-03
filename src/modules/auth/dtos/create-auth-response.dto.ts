@@ -18,4 +18,4 @@ export class CreateAuthResponseDTO {
     description: 'The refresh token for the authenticated user.',
   })
   refreshToken: string;
-} 
+}

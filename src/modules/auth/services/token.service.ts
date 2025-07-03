@@ -9,7 +9,7 @@ export class TokenService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async generateTokens(id: string) {
     const environment = this.configService.get<string>(
@@ -38,4 +38,4 @@ export class TokenService {
 
     return { accessToken, refreshToken };
   }
-} 
+}

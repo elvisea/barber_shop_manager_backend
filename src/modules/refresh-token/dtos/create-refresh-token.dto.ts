@@ -35,4 +35,4 @@ export class CreateRefreshTokenDTO {
   @IsString()
   @IsOptional()
   userAgent?: string;
-} 
+}
