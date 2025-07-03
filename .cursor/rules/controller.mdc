@@ -1,0 +1,37 @@
+---
+alwaysApply: true
+---
+
+# 🧭 Controller
+
+Controllers são responsáveis por receber requisições HTTP, acionar os services e devolver uma resposta adequada. Eles não devem conter regras de negócio.
+
+## ✅ Regras
+
+- Utilizar DTOs validados com `class-validator` como entrada.
+- Documentar endpoints com `@ApiTags`, `@ApiOperation`, `@ApiResponse` (Swagger).
+- Usar guards (`JwtAuthGuard`, `RolesGuard`, etc.) quando necessário.
+- Deve delegar toda lógica para o service correspondente.
+
+## 📌 Exemplo
+
+```ts
+@ApiTags('Funcionários')
+@ApiBearerAuth()
+@Controller('employees')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class EmployeeCreateController {
+  constructor(private readonly employeeCreateService: EmployeeCreateService) {}
+
+  @Post()
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Criar novo funcionário' })
+  @ApiResponse({ status: 201, type: EmployeeResponseDTO })
+  async handle(
+    @GetRequestId() id: number,
+    @Body() dto: EmployeeRequestDTO,
+  ): Promise<EmployeeResponseDTO> {
+    return this.employeeCreateService.execute(dto, id);
+  }
+}
+```

@@ -1,0 +1,48 @@
+---
+alwaysApply: true
+---
+
+# 🧠 Service
+
+Services contêm a lógica de negócio da aplicação. São responsáveis por validar dados, aplicar regras do domínio e interagir com repositórios.
+
+## ✅ Regras
+
+- Não acessa diretamente o banco (usa repositórios).
+- Lança exceções com `CustomHttpException`.
+- Utiliza `ErrorMessagesService` para mensagens padronizadas.
+- Pode fazer validações com base nas regras do negócio.
+
+## 📌 Exemplo
+
+```ts
+@Injectable()
+export class EmployeeCreateService {
+  constructor(
+    private readonly employeeRepository: IEmployeeRepository,
+    private readonly errorMessagesService: ErrorMessagesService,
+    private readonly logger: Logger,
+  ) {}
+
+  async execute(dto: EmployeeRequestDTO, ownerId: number): Promise<EmployeeResponseDTO> {
+    const establishment = await this.employeeRepository.findEstablishmentById(dto.establishmentId, ownerId);
+
+    if (!establishment) {
+      const message = this.errorMessagesService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        { ESTABLISHMENT_ID: dto.establishmentId, OWNER_ID: ownerId },
+      );
+
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      );
+    }
+
+    const employee = await this.employeeRepository.createEmployee(dto);
+    return employee;
+  }
+}
+```

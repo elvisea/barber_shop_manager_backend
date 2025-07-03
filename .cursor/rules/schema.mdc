@@ -1,0 +1,140 @@
+---
+alwaysApply: true
+---
+
+# 📘 Documentação do Prisma Schema
+
+Este documento descreve a estrutura, organização e diretrizes do arquivo `schema.prisma`, utilizado no projeto backend com NestJS + Prisma ORM. Ele define a modelagem do banco de dados PostgreSQL e a maneira como os dados fluem entre as entidades do sistema.
+
+---
+
+## 🎯 Objetivo
+
+A modelagem visa suportar uma aplicação multi-tenant voltada para estabelecimentos que gerenciam atendimentos, produtos, clientes, funcionários e operações financeiras. Utilizamos **Prisma ORM** pela produtividade, tipagem forte e integração com o TypeScript.
+
+---
+
+## 🧱 Estrutura Geral
+
+O schema é dividido em:
+
+- **Enums**: Valores fixos (papéis, status, métodos de pagamento, tipo de item).
+- **Models**: Entidades que representam tabelas no banco de dados.
+- **Relacionamentos**: Definidos com `@relation`, promovem integridade e organização.
+
+---
+
+## 🧾 Convenções Utilizadas
+
+- Todos os campos usam `snake_case` no banco (com `@map`) e `camelCase` no código TypeScript.
+- Chaves primárias e estrangeiras são nomeadas explicitamente.
+- Campos `createdAt` e `updatedAt` estão presentes em todas as entidades.
+- Todas as datas são armazenadas em UTC.
+- IDs são `uuid` para consistência e segurança.
+- Mapeamentos com `@@map("nome_tabela")` garantem clareza e legibilidade no banco.
+
+---
+
+## 🧭 Fluxo das Informações
+
+### 1. **Usuário se cadastra**
+- Criado um `User` com `email`, `phone`, `password`, etc.
+- O campo `emailVerified` controla se ele já confirmou o email.
+- Um `EmailVerification` é criado com token e expiração.
+
+### 2. **Usuário cria um estabelecimento**
+- Criado um `Establishment` com dados básicos.
+- O `User` é vinculado como `EstablishmentMember` com papel `ADMIN`.
+
+### 3. **Usuário cadastra serviços e produtos**
+- Registros em `EstablishmentProduct` e `EstablishmentService`.
+- Comissão e preços definidos por padrão.
+
+### 4. **Usuário associa membros e define regras**
+- Adição de outros `EstablishmentMember` (funcionários).
+- Serviços e produtos são associados via `MemberService` e `MemberProduct`.
+- Horários e ausências são definidos em `MemberWorkingHours` e `MemberAbsencePeriod`.
+
+### 5. **Cliente é cadastrado**
+- Criado um `EstablishmentCustomer`, vinculado a um `Establishment`.
+
+### 6. **Agendamento de um atendimento**
+- Criado `Appointment` com `startTime`, `endTime`, `notes`, etc.
+- Relacionado ao cliente e membro (funcionário).
+- Serviços realizados são definidos em `AppointmentService`.
+
+### 7. **Finalização de atendimento e pagamento**
+- Gerado um `Transaction` com os valores, status de pagamento e comissão.
+- Os itens da transação (produto ou serviço) estão em `TransactionItem`.
+
+### 8. **Geração de pagamento ao funcionário**
+- Criada uma `PaymentOrder` para o `EstablishmentMember`.
+- Define o período, valor e status do pagamento.
+
+---
+
+## 🧩 Entidades-Chave
+
+### `User`
+Usuários do sistema (donos ou funcionários). Pode estar ligado a vários estabelecimentos via `EstablishmentMember`.
+
+### `Establishment`
+Barbearias ou estabelecimentos. Entidade central.
+
+### `EstablishmentMember`
+Pivô entre `User` e `Establishment`. Define o papel do usuário no estabelecimento (`Role`).
+
+### `EstablishmentProduct` / `EstablishmentService`
+Catálogo de produtos e serviços oferecidos por um estabelecimento.
+
+### `MemberProduct` / `MemberService`
+Customizações de produtos/serviços por membro (comissão, preço, duração).
+
+### `EstablishmentCustomer`
+Clientes que consomem serviços e produtos.
+
+### `Appointment`
+Agendamentos entre clientes e membros. Pode conter múltiplos serviços.
+
+### `Transaction` / `TransactionItem`
+Registro financeiro das transações realizadas (pagamento do cliente).
+
+### `PaymentOrder`
+Ordem de pagamento de comissões ao funcionário.
+
+---
+
+## 🧠 Enums
+
+- `Role`: Define papéis no sistema (ex: ADMIN, BARBER).
+- `AppointmentStatus`: Estado de um agendamento.
+- `PaymentStatus`: Estado de um pagamento.
+- `PaymentMethod`: Forma de pagamento (PIX, CARTÃO, etc).
+- `ItemType`: Tipo de item transacionado (PRODUCT, SERVICE).
+
+---
+
+## 💡 Boas Práticas
+
+- Nunca modifique os nomes mapeados com `@map` após deploy.
+- Sempre adicionar novas entidades com `createdAt` e `updatedAt`.
+- Use `enum` para evitar valores livres e inconsistentes.
+- Utilize migrations com `prisma migrate` em ambiente controlado.
+- Gere o client após alterações com `npx prisma generate`.
+
+---
+
+## 🛠️ Comandos úteis
+
+```bash
+# Rodar migrations
+npx prisma migrate dev
+
+# Ver estrutura do banco de dados
+npx prisma studio
+
+# Gerar client
+npx prisma generate
+
+# Validar schema
+npx prisma validate

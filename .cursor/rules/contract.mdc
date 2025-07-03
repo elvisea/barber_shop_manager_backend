@@ -1,0 +1,23 @@
+---
+alwaysApply: true
+---
+
+# 📜 Contratos de Repositório
+
+As interfaces (contratos) dos repositórios definem os métodos obrigatórios a serem implementados por suas respectivas classes.
+
+## ✅ Regras
+
+- Nome do arquivo deve seguir o padrão: `nome-repository.interface.ts`
+- Os métodos devem ser claramente tipados.
+- Utiliza tipos do Prisma para entrada e saída.
+
+## 📌 Exemplo
+
+```ts
+export interface IEmployeeRepository {
+  createEmployee(data: EmployeeCreateDTO): Promise<Employee>;
+  findByEmail(email: string): Promise<Employee | null>;
+  findEstablishmentById(establishmentId: number, ownerId: number): Promise<Establishment | null>;
+}
+```

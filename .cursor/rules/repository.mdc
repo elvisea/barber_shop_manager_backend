@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+
+# 🗃️ Repositório
+
+Repositórios são responsáveis por encapsular o acesso ao banco de dados utilizando o Prisma Client.
+
+## ✅ Regras
+
+- Cada repositório deve implementar sua interface.
+- Usa `@Injectable()` e injeta `PrismaService`.
+- Não contém lógica de negócio.
+- Retorna tipos do Prisma (`User`, `Employee`, etc).
+
+## 📌 Exemplo
+
+```ts
+@Injectable()
+export class EmployeeRepository implements IEmployeeRepository {
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async createEmployee(data: EmployeeCreateDTO): Promise<Employee> {
+    return this.prismaService.employee.create({
+      data: {
+        ...data,
+        establishment: { connect: { id: data.establishmentId } },
+      },
+    });
+  }
+
+  async findByEmail(email: string): Promise<Employee | null> {
+    return this.prismaService.employee.findUnique({ where: { email } });
+  }
+}
+```

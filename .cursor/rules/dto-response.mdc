@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+---
+
+# 📤 DTOs de Saída (Response)
+
+DTOs de saída são usados para definir o formato da resposta retornada pela API, e também são documentados com Swagger.
+
+## ✅ Regras
+
+- Deve conter apenas os campos que o frontend precisa.
+- Cada propriedade deve estar documentada com `@ApiProperty`.
+
+## 📌 Exemplo
+
+```ts
+export class EmployeeResponseDTO {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 1 })
+  establishmentId: number;
+
+  @ApiProperty({ example: 'João da Silva' })
+  name: string;
+
+  @ApiProperty({ example: 'email@email.com' })
+  email: string;
+
+  @ApiProperty({ example: '11999999999' })
+  phone: string;
+
+  @ApiProperty({ example: '2024-01-21T10:00:00Z' })
+  createdAt: Date;
+
+  @ApiProperty({ example: '2024-01-21T10:00:00Z' })
+  updatedAt: Date;
+}
+```

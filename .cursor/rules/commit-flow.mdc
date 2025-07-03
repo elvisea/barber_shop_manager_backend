@@ -1,0 +1,151 @@
+---
+alwaysApply: true
+---
+
+
+# 📘 Commit Flow — Boas Práticas de Alterações e Versionamento
+
+Este documento define o fluxo padrão de trabalho para **realizar alterações no código**, **comentar essas alterações** e **enviá-las para o repositório remoto** de forma segura, clara e padronizada.
+
+---
+
+## ✅ Visão Geral
+
+Após **qualquer alteração no código**, o desenvolvedor deverá:
+
+1. Revisar as modificações realizadas.
+2. Confirmar se deseja seguir com o commit.
+3. Comentar as mudanças com clareza e padrão.
+4. Enviar para a branch atual após revisão.
+
+---
+
+## 🧭 Passo a Passo
+
+### 1. Verificar alterações no projeto
+
+Antes de realizar qualquer commit, é obrigatório verificar o que foi modificado:
+
+```bash
+git status
+````
+
+Para ver detalhes das alterações em cada arquivo:
+
+```bash
+git diff
+```
+
+> 🔍 **Boa prática**: revise sempre as diferenças para ter total controle sobre o que será commitado.
+
+---
+
+### 2. Adicionar arquivos ao staging
+
+Evite usar `git add .` de forma automática. Prefira adicionar os arquivos de forma seletiva ou interativa:
+
+```bash
+git add <arquivo1> <arquivo2>
+# ou
+git add -p
+```
+
+> ✨ Use `git add -p` para revisar e aprovar trecho por trecho do código alterado.
+
+---
+
+### 3. Criar commit com mensagem padronizada
+
+Utilize o padrão **[Conventional Commits](https://www.conventionalcommits.org/)** para manter o histórico claro e rastreável.
+
+**Formato recomendado:**
+
+```
+<tipo>(<escopo opcional>): <mensagem clara e objetiva>
+```
+
+#### Exemplos:
+
+* `feat(user): add user registration validation`
+* `fix(auth): handle expired token error`
+* `refactor(core): simplify service initialization`
+* `docs(readme): update project setup instructions`
+
+#### Tipos aceitos:
+
+| Tipo       | Significado                        |
+| ---------- | ---------------------------------- |
+| `feat`     | Nova funcionalidade                |
+| `fix`      | Correção de erro                   |
+| `docs`     | Alteração de documentação          |
+| `style`    | Estilo (espaços, formatação, etc.) |
+| `refactor` | Refatoração de código              |
+| `perf`     | Melhoria de performance            |
+| `test`     | Adição ou ajuste de testes         |
+| `chore`    | Manutenção, scripts, configs, etc. |
+
+---
+
+### 4. Confirmar e realizar o commit
+
+Após preparar a mensagem, execute:
+
+```bash
+git commit -m "tipo(escopo): descrição"
+```
+
+---
+
+### 5. Enviar para a branch atual
+
+Identifique a branch atual com:
+
+```bash
+git branch --show-current
+```
+
+Então execute:
+
+```bash
+git push origin <nome-da-branch>
+```
+
+> ✅ **Exemplo prático completo:**
+>
+> ```bash
+> git status
+> git diff
+> git add -p
+> git commit -m "fix(auth): prevent login with expired token"
+> git push origin $(git branch --show-current)
+> ```
+
+---
+
+## ⚠️ Importante
+
+* **Confirme sempre com o time** se deve commitar e enviar após alterações.
+* Nunca envie alterações não revisadas.
+* Utilize commits pequenos, coesos e bem descritos.
+* Se houver alterações críticas, comunique na PR ou via canal oficial.
+
+---
+
+## 🔄 Fluxo Resumido
+
+```bash
+# Revisar alterações
+git status
+git diff
+
+# Adicionar com revisão
+git add -p
+
+# Criar commit com padrão
+git commit -m "feat(auth): add password reset flow"
+
+# Enviar para branch atual
+git push origin $(git branch --show-current)
+
+
+
