@@ -37,13 +37,13 @@ async function main() {
   });
 
   const barberUser = await prisma.user.create({
-    data: {
+      data: {
       name: 'Roberto Carlos',
       email: 'roberto.carlos@barbershop.com',
       phone: '(11) 98888-0002',
       password: plainPassword,
       emailVerified: true,
-    },
+      },
   });
 
   console.log('✅ Usuários criados:', { adminUser, barberUser });
@@ -51,26 +51,26 @@ async function main() {
   // 3. Criar um Estabelecimento
   console.log('🏢 Criando estabelecimento...');
   const establishment = await prisma.establishment.create({
-    data: {
+      data: {
       name: 'Barbearia Clássica',
       address: 'Rua das Tesouras, 123, São Paulo, SP',
       phone: '(11) 5555-1234',
-    },
+      },
   });
   console.log('✅ Estabelecimento criado:', establishment);
 
   // 4. Associar usuários ao estabelecimento (criar membros)
   console.log('🤝 Associando membros ao estabelecimento...');
   const adminMember = await prisma.establishmentMember.create({
-    data: {
+      data: {
       userId: adminUser.id,
       establishmentId: establishment.id,
       role: Role.ADMIN,
-    },
+      },
   });
 
   const barberMember = await prisma.establishmentMember.create({
-    data: {
+      data: {
       userId: barberUser.id,
       establishmentId: establishment.id,
       role: Role.BARBER,
@@ -129,12 +129,12 @@ async function main() {
   // 7. Adicionar um Cliente ao Estabelecimento
   console.log('👨‍🦱 Adicionando um cliente...');
   const customer = await prisma.establishmentCustomer.create({
-    data: {
+      data: {
       name: 'Cliente Fiel da Silva',
       email: 'cliente.fiel@email.com',
       phone: '(11) 97777-7777',
       establishmentId: establishment.id,
-    },
+      },
   });
   console.log('✅ Cliente adicionado:', customer);
 

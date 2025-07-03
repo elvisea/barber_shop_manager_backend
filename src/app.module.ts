@@ -4,8 +4,10 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
+
+import { EmailModule } from './email/email.module';
+import { ErrorMessageModule } from './error-message/error-message.module';
 
 @Module({
   imports: [
@@ -15,9 +17,10 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: '.env',
     }),
 
-    // Configuração global do Prisma
-    EmailModule,
+    // Configurações globais
     PrismaModule,
+    EmailModule,
+    ErrorMessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
