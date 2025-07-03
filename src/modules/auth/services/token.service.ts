@@ -12,22 +12,28 @@ export class TokenService {
   ) { }
 
   async generateTokens(id: string) {
+    const environment = this.configService.get<string>(
+      'NODE_ENV',
+      'development',
+    );
+
     const accessTokenExpiration = this.configService.get<string>(
       'ACCESS_TOKEN_EXPIRATION',
-      '15m',
+      '60s',
     );
     const refreshTokenExpiration = this.configService.get<string>(
       'REFRESH_TOKEN_EXPIRATION',
       '7d',
     );
+
     const payload: JwtPayload = { sub: id };
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: accessTokenExpiration,
+      expiresIn: environment === 'development' ? '15m' : accessTokenExpiration,
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: refreshTokenExpiration,
+      expiresIn: environment === 'development' ? '30d' : refreshTokenExpiration,
     });
 
     return { accessToken, refreshToken };

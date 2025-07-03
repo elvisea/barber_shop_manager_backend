@@ -16,7 +16,6 @@ Generate code, corrections, and refactorings that comply with the basic principl
   * Avoid using `any`.
   * Create necessary types.
 * Use JSDoc to document public classes and methods.
-* Don't leave blank lines within a function.
 * One export per file.
 
 ### Nomenclature
