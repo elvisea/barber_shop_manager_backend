@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo para clientes
+model Client {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  phone      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relacionamentos
+  appointments Appointment[]
+
+  @@map("clients")
+}
+
+// Modelo para barbeiros
+model Barber {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  phone      String?
+  specialty  String? // Especialidade do barbeiro
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relacionamentos
+  appointments Appointment[]
+
+  @@map("barbers")
+}
+
+// Modelo para serviços
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  duration    Int // Duração em minutos
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relacionamentos
+  appointment_services AppointmentService[]
+
+  @@map("services")
+}
+
+// Modelo para agendamentos
+model Appointment {
+  id          String            @id @default(cuid())
+  client_id   String
+  barber_id   String
+  date_time   DateTime
+  status      AppointmentStatus @default(SCHEDULED)
+  total_price Decimal           @db.Decimal(10, 2)
+  notes       String?
+  created_at  DateTime          @default(now())
+  updated_at  DateTime          @updatedAt
+
+  // Relacionamentos
+  client   Client               @relation(fields: [client_id], references: [id])
+  barber   Barber               @relation(fields: [barber_id], references: [id])
+  services AppointmentService[]
+
+  @@map("appointments")
+}
+
+// Tabela de junção para agendamentos e serviços
+model AppointmentService {
+  id             String @id @default(cuid())
+  appointment_id String
+  service_id     String
+
+  // Relacionamentos
+  appointment Appointment @relation(fields: [appointment_id], references: [id], onDelete: Cascade)
+  service     Service     @relation(fields: [service_id], references: [id])
+
+  @@unique([appointment_id, service_id])
+  @@map("appointment_services")
+}
+
+// Enum para status do agendamento
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
