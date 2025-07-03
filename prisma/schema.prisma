@@ -28,18 +28,39 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  PIX
+  OTHER
+}
+
+enum ItemType {
+  PRODUCT
+  SERVICE
+}
+
 model User {
-  id                String                @id @default(uuid()) @map("id")
-  createdAt         DateTime              @default(now()) @map("created_at")
-  updatedAt         DateTime              @updatedAt @map("updated_at")
-  email             String                @unique @map("email")
-  name              String                @map("name")
-  phone             String                @map("phone")
-  password          String                @map("password")
-  emailVerified     Boolean               @default(false) @map("email_verified")
-  memberships       EstablishmentMember[]
-  emailVerification EmailVerification?
-  refreshTokens     RefreshToken[]
+  id                   String                @id @default(uuid()) @map("id")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  email                String                @unique @map("email")
+  name                 String                @map("name")
+  phone                String                @map("phone")
+  password             String                @map("password")
+  emailVerified        Boolean               @default(false) @map("email_verified")
+  memberships          EstablishmentMember[]
+  emailVerification    EmailVerification?
+  refreshTokens        RefreshToken[]
+  createdPaymentOrders PaymentOrder[]
 
   @@index([email])
   @@map("users")
@@ -78,23 +99,26 @@ model EstablishmentMember {
   workingHours    MemberWorkingHours[]
   absencePeriods  MemberAbsencePeriod[]
   appointments    Appointment[]
+  transactions    Transaction[]
+  paymentOrders   PaymentOrder[]
 
   @@id([userId, establishmentId])
   @@map("establishment_members")
 }
 
 model EstablishmentProduct {
-  id              String          @id @default(uuid()) @map("id")
-  name            String          @map("name")
-  description     String?         @map("description")
-  price           Int             @map("price")
-  commission      Decimal         @map("commission") @db.Decimal(5, 4)
-  stock           Int             @map("stock")
-  establishmentId String          @map("establishment_id")
-  establishment   Establishment   @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
-  memberProducts  MemberProduct[]
+  id               String            @id @default(uuid()) @map("id")
+  name             String            @map("name")
+  description      String?           @map("description")
+  price            Int               @map("price")
+  commission       Decimal           @map("commission") @db.Decimal(5, 4)
+  stock            Int               @map("stock")
+  establishmentId  String            @map("establishment_id")
+  establishment    Establishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  memberProducts   MemberProduct[]
+  transactionItems TransactionItem[]
 
   @@unique([establishmentId, name])
   @@map("establishment_products")
@@ -113,6 +137,7 @@ model EstablishmentService {
   updatedAt           DateTime             @updatedAt @map("updated_at")
   memberServices      MemberService[]
   appointmentServices AppointmentService[]
+  transactionItems    TransactionItem[]
 
   @@unique([establishmentId, name])
   @@map("establishment_services")
@@ -161,6 +186,7 @@ model EstablishmentCustomer {
   establishmentId String        @map("establishment_id")
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   appointments    Appointment[]
+  transactions    Transaction[]
 
   @@unique([establishmentId, email])
   @@unique([establishmentId, phone])
@@ -273,6 +299,7 @@ model Appointment {
   member          EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
   establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   services        AppointmentService[]
+  transaction     Transaction?
 
   @@map("appointments")
 }
@@ -289,4 +316,67 @@ model AppointmentService {
 
   @@unique([appointmentId, serviceId])
   @@map("appointment_services")
+}
+
+model Transaction {
+  id               String                @id @default(uuid()) @map("id")
+  totalAmount      Int                   @map("total_amount")
+  discount         Int                   @default(0) @map("discount")
+  finalAmount      Int                   @map("final_amount")
+  commissionAmount Int                   @map("commission_amount")
+  paymentMethod    PaymentMethod         @map("payment_method")
+  paymentStatus    PaymentStatus         @map("payment_status")
+  notes            String?               @map("notes")
+  transactionDate  DateTime              @default(now()) @map("transaction_date")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  appointmentId    String?               @unique @map("appointment_id")
+  appointment      Appointment?          @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  customerId       String                @map("customer_id")
+  customer         EstablishmentCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  memberId         String                @map("member_id")
+  establishmentId  String                @map("establishment_id")
+  member           EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
+  items            TransactionItem[]
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id            String                @id @default(uuid()) @map("id")
+  itemType      ItemType              @map("item_type")
+  quantity      Int                   @default(1) @map("quantity")
+  unitPrice     Int                   @map("unit_price")
+  totalPrice    Int                   @map("total_price")
+  commission    Decimal               @map("commission") @db.Decimal(5, 4)
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+  transactionId String                @map("transaction_id")
+  transaction   Transaction           @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  productId     String?               @map("product_id")
+  product       EstablishmentProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
+  serviceId     String?               @map("service_id")
+  service       EstablishmentService? @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@map("transaction_items")
+}
+
+model PaymentOrder {
+  id              String              @id @default(uuid()) @map("id")
+  totalAmount     Int                 @map("total_amount")
+  status          PaymentStatus       @map("status")
+  paymentMethod   PaymentMethod       @map("payment_method")
+  paymentDate     DateTime?           @map("payment_date")
+  periodStart     DateTime            @map("period_start")
+  periodEnd       DateTime            @map("period_end")
+  notes           String?             @map("notes")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  memberId        String              @map("member_id")
+  establishmentId String              @map("establishment_id")
+  member          EstablishmentMember @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
+  createdById     String              @map("created_by_id")
+  createdBy       User                @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@map("payment_orders")
 }
