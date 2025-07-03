@@ -68,13 +68,14 @@ Cada funcionalidade da aplicação deve ser organizada em **módulos isolados**,
 ```
 /src/modules/<nome-do-modulo>/
 ├── controllers/         # Entrada e saída HTTP
-├── services/            # Regras de negócio
-├── repositories/        # Acesso a dados / banco
-├── dtos/                # Contratos de entrada (validados)
-├── interfaces/          # Contratos de saída / compartilhados
+├── services/            # Regras de negócio  
+├── repositories/        # Implementações de acesso a dados
+├── dtos/                # Contratos de entrada/saída (validados)
 ├── contracts/           # Interfaces dos métodos de repositório
-└── implementations/     # Implementações concretas de repositório
+└── <module>.module.ts   # Configuração do módulo
 ```
+
+**Observação**: Utilizamos os tipos gerados automaticamente pelo Prisma (`User`, `Establishment`, etc.) em vez de interfaces customizadas, evitando duplicação e mantendo sincronização automática com o schema do banco.
 
 ---
 
@@ -239,11 +240,16 @@ export class EmployeeRepository implements IEmployeeRepository {
 
 ## 📊 Resumo das Regras
 
-| Camada     | Entrada (contrato)    | Saída (contrato) | Validação | Swagger |
-| ---------- | --------------------- | ---------------- | --------- | ------- |
-| Controller | DTO (class-validator) | DTO/interface    | ✅         | ✅       |
-| Service    | DTO/interface         | Interface        | Opcional  | -       |
-| Repository | Interface             | Interface        | -         | -       |
+| Camada     | Entrada (contrato)    | Saída (contrato)     | Validação | Swagger |
+| ---------- | --------------------- | -------------------- | --------- | ------- |
+| Controller | DTO (class-validator) | DTO Response         | ✅         | ✅       |
+| Service    | DTO Request           | DTO Response         | Opcional  | -       |
+| Repository | Tipos Prisma          | Tipos Prisma         | -         | -       |
+
+**Tipos utilizados:**
+- **DTOs**: Para validação de entrada e contratos de saída da API
+- **Tipos Prisma**: Gerados automaticamente (`User`, `Establishment`, etc.)
+- **Interfaces de Contrato**: Apenas para definir métodos dos repositórios (`IUserRepository`)
 
 ---
 
