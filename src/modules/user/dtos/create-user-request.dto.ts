@@ -13,7 +13,7 @@ export class CreateUserRequestDTO {
   name: string;
 
   @ApiProperty({
-    example: 'john.silva@gmail.com',
+    example: 'admin@bytefulcode.tech',
     description: 'User email (will be converted to lowercase)'
   })
   @IsEmail({}, { message: 'Email must have a valid format' })
@@ -22,7 +22,7 @@ export class CreateUserRequestDTO {
   email: string;
 
   @ApiProperty({
-    example: '123456789',
+    example: 'Str0ngP@ssw0rd!',
     description: 'User password (minimum 6 characters)'
   })
   @IsString()

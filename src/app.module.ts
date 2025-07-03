@@ -3,32 +3,29 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
-import { PrismaModule } from './prisma/prisma.module';
-
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { EmailModule } from './email/email.module';
 import { ErrorMessageModule } from './error-message/error-message.module';
-
-// Módulos de funcionalidades
+import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
-    // Configuração global do ambiente
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-
-    // Configurações globais
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
-    EmailModule,
-    ErrorMessageModule,
-
-    // Módulos de funcionalidades
     UserModule,
+    ErrorMessageModule,
+    EmailModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'APP_FILTER',
+      useClass: AllExceptionsFilter,
+    },
+  ],
 })
 export class AppModule { }

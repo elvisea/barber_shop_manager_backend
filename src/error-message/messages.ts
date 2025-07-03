@@ -20,5 +20,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.USER_CREATION_FAILED]: {
     message: 'Failed to create user with email [EMAIL].',
   },
-
+  [ErrorCode.INVALID_EMAIL_OR_PASSWORD]: {
+    message: 'Invalid email or password for email [EMAIL].',
+  },
 } as const;
