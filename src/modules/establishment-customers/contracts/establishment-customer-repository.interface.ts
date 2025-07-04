@@ -14,4 +14,9 @@ export interface IEstablishmentCustomerRepository {
     customerId: string,
     establishmentId: string,
   ): Promise<EstablishmentCustomer | null>;
+  findAllByEstablishmentPaginated(params: {
+    establishmentId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: EstablishmentCustomer[]; total: number }>;
 }

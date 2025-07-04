@@ -61,5 +61,26 @@ export class EstablishmentCustomerRepository
     });
   }
 
+  async findAllByEstablishmentPaginated({
+    establishmentId,
+    skip,
+    take,
+  }: {
+    establishmentId: string;
+    skip: number;
+    take: number;
+  }) {
+    const [data, total] = await Promise.all([
+      this.prisma.establishmentCustomer.findMany({
+        where: { establishmentId },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.establishmentCustomer.count({ where: { establishmentId } }),
+    ]);
+    return { data, total };
+  }
+
   // Métodos CRUD serão implementados conforme os recursos forem criados
 }
