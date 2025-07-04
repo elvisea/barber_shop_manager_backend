@@ -3,7 +3,6 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiForbiddenResponse,
-  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -23,7 +22,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentFindOneController {
   constructor(
     private readonly establishmentFindOneService: EstablishmentFindOneService,
-  ) {}
+  ) { }
 
   @Get(':establishmentId')
   @ApiOperation({ summary: 'Find establishment by id' })
@@ -39,22 +38,12 @@ export class EstablishmentFindOneController {
     },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: user is not a member of the establishment.',
+    description: 'Forbidden: establishment not found or access denied.',
     schema: {
       example: {
         statusCode: 403,
         message: 'Establishment not found or access denied',
         error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
-  })
-  @ApiNotFoundResponse({
-    description: 'Establishment not found.',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Establishment not found',
-        error: 'ESTABLISHMENT_NOT_FOUND',
       },
     },
   })
