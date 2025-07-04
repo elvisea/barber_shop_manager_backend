@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -18,7 +18,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
-@Controller('establishment-customers')
+@Controller('establishments/:establishmentId/customers')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerCreateController {
   constructor(
@@ -71,8 +71,13 @@ export class EstablishmentCustomerCreateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Body() dto: EstablishmentCustomerCreateRequestDTO,
+    @Param('establishmentId') establishmentId: string,
+    @Body() dto: Omit<EstablishmentCustomerCreateRequestDTO, 'establishmentId'>,
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
-    return this.establishmentCustomerCreateService.execute(dto, userId);
+    return this.establishmentCustomerCreateService.execute(
+      dto,
+      userId,
+      establishmentId,
+    );
   }
 }

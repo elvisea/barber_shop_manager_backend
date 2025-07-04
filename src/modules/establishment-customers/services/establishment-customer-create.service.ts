@@ -20,22 +20,23 @@ export class EstablishmentCustomerCreateService {
   ) {}
 
   async execute(
-    dto: EstablishmentCustomerCreateRequestDTO,
+    dto: Omit<EstablishmentCustomerCreateRequestDTO, 'establishmentId'>,
     userId: string,
+    establishmentId: string,
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
     this.logger.log(
-      `Creating customer '${dto.name}' for establishment ${dto.establishmentId} by user ${userId}`,
+      `Creating customer '${dto.name}' for establishment ${establishmentId} by user ${userId}`,
     );
 
     // Validar se o usuário é owner/admin do estabelecimento
     const establishment = await this.establishmentRepository.findByIdAndUser(
-      dto.establishmentId,
+      establishmentId,
       userId,
     );
     if (!establishment) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: dto.establishmentId, USER_ID: userId },
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
       );
 
       this.logger.warn(message);
@@ -50,13 +51,13 @@ export class EstablishmentCustomerCreateService {
     // Verificar duplicidade de email/telefone
     if (dto.email) {
       const exists = await this.establishmentCustomerRepository.existsByEmail(
-        dto.establishmentId,
+        establishmentId,
         dto.email,
       );
       if (exists) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS,
-          { ESTABLISHMENT_ID: dto.establishmentId, EMAIL: dto.email },
+          { ESTABLISHMENT_ID: establishmentId, EMAIL: dto.email },
         );
 
         this.logger.warn(message);
@@ -71,13 +72,13 @@ export class EstablishmentCustomerCreateService {
 
     if (dto.phone) {
       const exists = await this.establishmentCustomerRepository.existsByPhone(
-        dto.establishmentId,
+        establishmentId,
         dto.phone,
       );
       if (exists) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS,
-          { ESTABLISHMENT_ID: dto.establishmentId, PHONE: dto.phone },
+          { ESTABLISHMENT_ID: establishmentId, PHONE: dto.phone },
         );
 
         this.logger.warn(message);
@@ -90,8 +91,10 @@ export class EstablishmentCustomerCreateService {
       }
     }
 
-    const customer =
-      await this.establishmentCustomerRepository.createCustomer(dto);
+    const customer = await this.establishmentCustomerRepository.createCustomer(
+      dto,
+      establishmentId,
+    );
 
     this.logger.log(`Customer created with ID: ${customer.id}`);
 

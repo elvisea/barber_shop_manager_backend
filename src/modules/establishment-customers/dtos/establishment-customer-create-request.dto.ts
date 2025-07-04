@@ -2,11 +2,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class EstablishmentCustomerCreateRequestDTO {
-  @ApiProperty({ example: 'uuid-estabelecimento' })
-  @IsNotEmpty()
-  @IsString()
-  establishmentId: string;
-
   @ApiProperty({ example: 'João da Silva' })
   @IsNotEmpty()
   @IsString()

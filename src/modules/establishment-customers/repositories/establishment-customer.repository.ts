@@ -33,11 +33,12 @@ export class EstablishmentCustomerRepository
   }
 
   async createCustomer(
-    dto: EstablishmentCustomerCreateRequestDTO,
+    dto: Omit<EstablishmentCustomerCreateRequestDTO, 'establishmentId'>,
+    establishmentId: string,
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
     const customer = await this.prisma.establishmentCustomer.create({
       data: {
-        establishmentId: dto.establishmentId,
+        establishmentId,
         name: dto.name,
         email: dto.email,
         phone: dto.phone,

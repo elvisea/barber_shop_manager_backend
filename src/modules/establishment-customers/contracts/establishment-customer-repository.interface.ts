@@ -5,6 +5,7 @@ export interface IEstablishmentCustomerRepository {
   existsByEmail(establishmentId: string, email: string): Promise<boolean>;
   existsByPhone(establishmentId: string, phone: string): Promise<boolean>;
   createCustomer(
-    dto: EstablishmentCustomerCreateRequestDTO,
+    dto: Omit<EstablishmentCustomerCreateRequestDTO, 'establishmentId'>,
+    establishmentId: string,
   ): Promise<EstablishmentCustomerCreateResponseDTO>;
 }
