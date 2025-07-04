@@ -101,4 +101,16 @@ export class EstablishmentRepository implements IEstablishmentRepository {
       data: dto,
     });
   }
+
+  async deleteByIdAndUser(
+    establishmentId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.prisma.establishment.delete({
+      where: {
+        id: establishmentId,
+        // Não há userId direto, mas a validação deve ser feita antes no service
+      },
+    });
+  }
 }
