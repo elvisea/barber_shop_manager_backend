@@ -8,6 +8,7 @@ import { EmailModule } from './email/email.module';
 import { ErrorMessageModule } from './error-message/error-message.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EstablishmentModule } from './modules/establishment/establishment.module';
+import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
 import { EstablishmentMembersModule } from './modules/establishment-members/establishment-members.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
@@ -26,6 +27,7 @@ import { PrismaModule } from './prisma/prisma.module';
     EstablishmentServicesModule,
     EstablishmentMembersModule,
     EstablishmentProductsModule,
+    EstablishmentCustomerModule,
   ],
   controllers: [AppController],
   providers: [
