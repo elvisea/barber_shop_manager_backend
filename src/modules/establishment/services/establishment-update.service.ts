@@ -21,7 +21,7 @@ export class EstablishmentUpdateService {
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly establishmentMembershipService: EstablishmentMembershipService,
-  ) { }
+  ) {}
 
   async execute(
     establishmentId: string,

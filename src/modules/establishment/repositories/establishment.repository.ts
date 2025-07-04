@@ -8,7 +8,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class EstablishmentRepository implements IEstablishmentRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(
     data: EstablishmentCreateRequestDTO,

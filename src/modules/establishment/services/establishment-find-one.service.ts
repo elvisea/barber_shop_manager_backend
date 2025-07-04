@@ -16,7 +16,7 @@ export class EstablishmentFindOneService {
   constructor(
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentMembershipService: EstablishmentMembershipService,
-  ) { }
+  ) {}
 
   async execute(
     establishmentId: string,

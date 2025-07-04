@@ -10,7 +10,7 @@ export class EstablishmentFindAllService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-  ) { }
+  ) {}
 
   async execute(
     query: EstablishmentFindAllQueryDTO,
