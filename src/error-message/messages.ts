@@ -34,4 +34,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'User [USER_ID] does not have the required role [ROLE] for establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS]: {
+    message:
+      'A service with name [NAME] already exists in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

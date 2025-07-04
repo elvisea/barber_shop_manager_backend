@@ -8,6 +8,7 @@ import { EmailModule } from './email/email.module';
 import { ErrorMessageModule } from './error-message/error-message.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EstablishmentModule } from './modules/establishment/establishment.module';
+import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
     EmailModule,
     AuthModule,
     EstablishmentModule,
+    EstablishmentServicesModule,
   ],
   controllers: [AppController],
   providers: [

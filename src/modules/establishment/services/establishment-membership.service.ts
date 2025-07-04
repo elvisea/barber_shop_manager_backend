@@ -46,7 +46,7 @@ export class EstablishmentMembershipService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async validateMembership(
     establishmentId: string,

@@ -11,11 +11,10 @@ import { EstablishmentFindService } from './services/establishment-find.service'
 import { EstablishmentMembershipService } from './services/establishment-membership.service';
 import { EstablishmentUpdateService } from './services/establishment-update.service';
 
-import { ErrorMessageModule } from '@/error-message/error-message.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule, ErrorMessageModule],
+  imports: [PrismaModule],
   controllers: [
     EstablishmentCreateController,
     EstablishmentFindController,
@@ -29,6 +28,6 @@ import { PrismaModule } from '@/prisma/prisma.module';
     EstablishmentRepository,
     JwtAuthGuard,
   ],
-  exports: [EstablishmentRepository],
+  exports: [EstablishmentRepository, EstablishmentMembershipService],
 })
 export class EstablishmentModule {}
