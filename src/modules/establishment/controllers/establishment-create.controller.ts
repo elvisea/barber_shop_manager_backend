@@ -5,7 +5,7 @@ import {
   ApiConflictResponse,
   ApiOperation,
   ApiResponse,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment' })

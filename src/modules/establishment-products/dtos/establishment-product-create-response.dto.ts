@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class EstablishmentProductCreateResponseDTO {
   @ApiProperty({ example: 'uuid-produto' })
@@ -10,7 +10,7 @@ export class EstablishmentProductCreateResponseDTO {
   @ApiProperty({ example: 'Cera Modeladora Efeito Matte' })
   name: string;
 
-  @ApiProperty({ example: 'Alta fixação e sem brilho.' })
+  @ApiPropertyOptional({ example: 'Alta fixação e sem brilho.' })
   description?: string;
 
   @ApiProperty({ example: 4500 })

@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentUpdateController {
   constructor(
     private readonly establishmentUpdateService: EstablishmentUpdateService,
-  ) { }
+  ) {}
 
   @Patch(':establishmentId')
   @ApiOperation({ summary: 'Update an establishment' })

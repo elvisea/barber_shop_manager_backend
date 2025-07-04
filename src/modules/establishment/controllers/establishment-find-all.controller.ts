@@ -4,7 +4,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 
 import { EstablishmentFindAllQueryDTO } from '../dtos/establishment-find-all-query.dto';
@@ -21,7 +21,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentFindAllController {
   constructor(
     private readonly establishmentFindAllService: EstablishmentFindAllService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Find establishments (paginated)' })
