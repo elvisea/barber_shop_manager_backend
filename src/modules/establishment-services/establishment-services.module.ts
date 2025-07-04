@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 
+import { EstablishmentMembersModule } from '../establishment-members/establishment-members.module';
+
 import { EstablishmentServiceCreateController } from './controllers/establishment-service-create.controller';
 import { EstablishmentServiceFindAllController } from './controllers/establishment-service-find-all.controller';
 import { EstablishmentServiceFindByIdController } from './controllers/establishment-service-find-by-id.controller';
@@ -10,11 +12,10 @@ import { EstablishmentServiceFindByIdService } from './services/establishment-se
 
 import { ErrorMessageModule } from '@/error-message/error-message.module';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
-import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule, EstablishmentModule, ErrorMessageModule],
+  imports: [PrismaModule, ErrorMessageModule, EstablishmentMembersModule],
   controllers: [
     EstablishmentServiceCreateController,
     EstablishmentServiceFindAllController,

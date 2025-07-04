@@ -1,9 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Role } from '@prisma/client';
 
+import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
-
-import { EstablishmentMembershipService } from './establishment-membership.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
@@ -14,8 +12,8 @@ export class EstablishmentFindOneService {
   private readonly logger = new Logger(EstablishmentFindOneService.name);
 
   constructor(
+    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly establishmentMembershipService: EstablishmentMembershipService,
   ) {}
 
   async execute(
@@ -26,15 +24,14 @@ export class EstablishmentFindOneService {
       `Finding establishment with ID ${establishmentId} for userId=${userId}`,
     );
 
-    const memberWithEstablishment =
-      await this.establishmentMembershipService.validateMembership(
+    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
+    const establishmentMember =
+      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
         establishmentId,
         userId,
-        [Role.ADMIN],
       );
-    const establishment = memberWithEstablishment.establishment;
 
-    if (!establishment) {
+    if (!establishmentMember) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {
@@ -52,13 +49,8 @@ export class EstablishmentFindOneService {
       );
     }
 
-    return {
-      id: establishment.id,
-      name: establishment.name,
-      address: establishment.address,
-      phone: establishment.phone,
-      createdAt: establishment.createdAt,
-      updatedAt: establishment.updatedAt,
-    };
+    const establishment = establishmentMember.establishment;
+
+    return establishment;
   }
 }

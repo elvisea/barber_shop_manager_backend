@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
+import { CustomHttpException } from '../../../common/exceptions/custom-http-exception';
+import { ErrorCode } from '../../../enums/error-code';
+import { ErrorMessageService } from '../../../error-message/error-message.service';
+import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
 import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-service-find-all-query.dto';
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
-
-import { EstablishmentMembershipService } from '@/modules/establishment/services/establishment-membership.service';
 
 @Injectable()
 export class EstablishmentServiceFindAllService {
@@ -12,7 +14,8 @@ export class EstablishmentServiceFindAllService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentMembershipService: EstablishmentMembershipService,
+    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -27,9 +30,33 @@ export class EstablishmentServiceFindAllService {
       `Finding all services for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    await this.establishmentMembershipService.validateMembership(
-      establishmentId,
-      userId,
+    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
+    const establishmentMember =
+      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
+        establishmentId,
+        userId,
+      );
+
+    if (!establishmentMember) {
+      const errorMessage = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        {
+          USER_ID: userId,
+          ESTABLISHMENT_ID: establishmentId,
+        },
+      );
+
+      this.logger.warn(errorMessage);
+
+      throw new CustomHttpException(
+        errorMessage,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      );
+    }
+
+    this.logger.log(
+      `Establishment ${establishmentId} found for user ${userId}. Proceeding with service find all.`,
     );
 
     const { data, total } =

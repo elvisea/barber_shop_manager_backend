@@ -1,12 +1,12 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
+import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentMembershipService } from '@/modules/establishment/services/establishment-membership.service';
 
 @Injectable()
 export class EstablishmentServiceFindByIdService {
@@ -16,7 +16,7 @@ export class EstablishmentServiceFindByIdService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentMembershipService: EstablishmentMembershipService,
+    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -29,9 +29,33 @@ export class EstablishmentServiceFindByIdService {
       `Finding service with ID ${serviceId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    await this.establishmentMembershipService.validateMembership(
-      establishmentId,
-      userId,
+    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
+    const establishmentMember =
+      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
+        establishmentId,
+        userId,
+      );
+
+    if (!establishmentMember) {
+      const errorMessage = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        {
+          USER_ID: userId,
+          ESTABLISHMENT_ID: establishmentId,
+        },
+      );
+
+      this.logger.warn(errorMessage);
+
+      throw new CustomHttpException(
+        errorMessage,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      );
+    }
+
+    this.logger.log(
+      `Establishment ${establishmentId} found for user ${userId}. Proceeding with service find all.`,
     );
 
     const service =
