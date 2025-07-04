@@ -3,7 +3,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CustomHttpException } from '../../../common/exceptions/custom-http-exception';
 import { ErrorCode } from '../../../enums/error-code';
 import { ErrorMessageService } from '../../../error-message/error-message.service';
-import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
+import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-service-find-all-query.dto';
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
@@ -14,7 +14,7 @@ export class EstablishmentServiceFindAllService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
+    private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -30,14 +30,16 @@ export class EstablishmentServiceFindAllService {
       `Finding all services for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
-    const establishmentMember =
-      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
-        establishmentId,
-        userId,
-      );
+    this.logger.log(
+      `Finding establishment with ID ${establishmentId} for userId=${userId}`,
+    );
 
-    if (!establishmentMember) {
+    const establishment = await this.establishmentRepository.findByIdAndUser(
+      establishmentId,
+      userId,
+    );
+
+    if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {

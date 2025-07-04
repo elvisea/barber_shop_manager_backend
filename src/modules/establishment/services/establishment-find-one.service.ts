@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
+import { EstablishmentRepository } from '../repositories/establishment.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
@@ -12,7 +12,7 @@ export class EstablishmentFindOneService {
   private readonly logger = new Logger(EstablishmentFindOneService.name);
 
   constructor(
-    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
+    private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -24,14 +24,12 @@ export class EstablishmentFindOneService {
       `Finding establishment with ID ${establishmentId} for userId=${userId}`,
     );
 
-    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
-    const establishmentMember =
-      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
-        establishmentId,
-        userId,
-      );
+    const establishment = await this.establishmentRepository.findByIdAndUser(
+      establishmentId,
+      userId,
+    );
 
-    if (!establishmentMember) {
+    if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {
@@ -49,7 +47,9 @@ export class EstablishmentFindOneService {
       );
     }
 
-    const establishment = establishmentMember.establishment;
+    this.logger.log(
+      `Establishment ${establishmentId} found for user ${userId}.`,
+    );
 
     return establishment;
   }

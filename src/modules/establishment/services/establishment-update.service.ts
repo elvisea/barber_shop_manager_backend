@@ -3,7 +3,6 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CustomHttpException } from '../../../common/exceptions/custom-http-exception';
 import { ErrorCode } from '../../../enums/error-code';
 import { ErrorMessageService } from '../../../error-message/error-message.service';
-import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
@@ -21,7 +20,6 @@ export class EstablishmentUpdateService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -34,14 +32,12 @@ export class EstablishmentUpdateService {
       `Updating establishment ${establishmentId} by user ${userId}`,
     );
 
-    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
-    const establishmentMember =
-      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
-        establishmentId,
-        userId,
-      );
+    const establishment = await this.establishmentRepository.findByIdAndUser(
+      establishmentId,
+      userId,
+    );
 
-    if (!establishmentMember) {
+    if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {

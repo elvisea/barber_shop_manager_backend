@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { EstablishmentMembersModule } from '../establishment-members/establishment-members.module';
 
 import { EstablishmentCreateController } from './controllers/establishment-create.controller';
 import { EstablishmentFindAllController } from './controllers/establishment-find-all.controller';
@@ -13,10 +12,8 @@ import { EstablishmentFindAllService } from './services/establishment-find-all.s
 import { EstablishmentFindOneService } from './services/establishment-find-one.service';
 import { EstablishmentUpdateService } from './services/establishment-update.service';
 
-import { PrismaModule } from '@/prisma/prisma.module';
-
 @Module({
-  imports: [PrismaModule, EstablishmentMembersModule],
+  imports: [],
   controllers: [
     EstablishmentCreateController,
     EstablishmentFindAllController,

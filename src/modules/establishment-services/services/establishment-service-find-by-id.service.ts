@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
+import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
 
@@ -16,7 +16,7 @@ export class EstablishmentServiceFindByIdService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
+    private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -29,14 +29,16 @@ export class EstablishmentServiceFindByIdService {
       `Finding service with ID ${serviceId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
-    const establishmentMember =
-      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
-        establishmentId,
-        userId,
-      );
+    this.logger.log(
+      `Finding establishment with ID ${establishmentId} for userId=${userId}`,
+    );
 
-    if (!establishmentMember) {
+    const establishment = await this.establishmentRepository.findByIdAndUser(
+      establishmentId,
+      userId,
+    );
+
+    if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {
@@ -55,7 +57,7 @@ export class EstablishmentServiceFindByIdService {
     }
 
     this.logger.log(
-      `Establishment ${establishmentId} found for user ${userId}. Proceeding with service find all.`,
+      `Establishment ${establishmentId} found for user ${userId}.`,
     );
 
     const service =

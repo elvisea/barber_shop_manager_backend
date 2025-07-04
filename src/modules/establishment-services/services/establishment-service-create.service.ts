@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 import { ErrorMessageService } from '../../../error-message/error-message.service';
-import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
+import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
@@ -16,7 +16,7 @@ export class EstablishmentServiceCreateService {
   constructor(
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
+    private readonly establishmentRepository: EstablishmentRepository,
   ) {}
 
   async execute(
@@ -28,14 +28,16 @@ export class EstablishmentServiceCreateService {
       `Creating service "${dto.name}" for establishment ${establishmentId} by user ${userId}`,
     );
 
-    // Validar se o usuário é membro do estabelecimento e tem permissão ADMIN
-    const establishmentMember =
-      await this.establishmentMemberRepository.findEstablishmentByIdAndAdmin(
-        establishmentId,
-        userId,
-      );
+    this.logger.log(
+      `Finding establishment with ID ${establishmentId} for userId=${userId}`,
+    );
 
-    if (!establishmentMember) {
+    const establishment = await this.establishmentRepository.findByIdAndUser(
+      establishmentId,
+      userId,
+    );
+
+    if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {
@@ -57,7 +59,10 @@ export class EstablishmentServiceCreateService {
       `Establishment ${establishmentId} found for user ${userId}. Proceeding with service creation.`,
     );
 
-    // Verificar se já existe serviço com o mesmo nome no estabelecimento
+    this.logger.log(
+      `Checking if service with name "${dto.name}" already exists in establishment ${establishmentId}`,
+    );
+
     const alreadyExists =
       await this.establishmentServiceRepository.existsByName(
         establishmentId,
