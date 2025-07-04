@@ -41,11 +41,22 @@ export class EstablishmentCustomerCreateController {
   @ApiConflictResponse({
     description: 'Conflict: customer email or phone already exists',
     schema: {
-      example: {
-        statusCode: 409,
-        message: 'A customer with email already exists',
-        error: 'ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS',
-      },
+      oneOf: [
+        {
+          example: {
+            statusCode: 409,
+            message: 'A customer with email already exists',
+            error: 'ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS',
+          },
+        },
+        {
+          example: {
+            statusCode: 409,
+            message: 'A customer with phone already exists',
+            error: 'ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS',
+          },
+        },
+      ],
     },
   })
   @ApiBadRequestResponse({
