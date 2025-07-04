@@ -1,5 +1,5 @@
-import { Controller, Delete, Param, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Delete, HttpCode, Param, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiNoContentResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
@@ -16,17 +16,19 @@ export class EstablishmentServiceDeleteController {
   ) { }
 
   @Delete()
+  @HttpCode(204)
   @ApiOperation({ summary: 'Delete service by ID' })
-  @ApiResponse({ status: 200, description: 'Service deleted', schema: { example: { deleted: true } } })
+  @ApiNoContentResponse({ description: 'Service deleted successfully' })
   @ApiResponse({ status: 404, description: 'Service or establishment not found.' })
   async handle(
     @GetRequestId() userId: string,
     @Param() params: EstablishmentServiceFindByIdParamDTO,
-  ): Promise<{ deleted: boolean }> {
-    return this.establishmentServiceDeleteService.execute(
+  ): Promise<void> {
+    await this.establishmentServiceDeleteService.execute(
       params.serviceId,
       params.establishmentId,
       userId,
     );
+    // 204 No Content: não retorna body
   }
 } 
