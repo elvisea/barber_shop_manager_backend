@@ -1,6 +1,9 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,9 +28,35 @@ export class EstablishmentFindAllController {
   @Get()
   @ApiOperation({ summary: 'Find establishments (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentFindAllResponseDTO })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden: user is not a member of the establishment.',
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['page must be a positive integer'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: user is not allowed to view establishments.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'User is not allowed to view establishments',
+        error: 'FORBIDDEN',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'No establishments found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'No establishments found',
+        error: 'NOT_FOUND',
+      },
+    },
   })
   async handle(
     @GetRequestId() userId: string,

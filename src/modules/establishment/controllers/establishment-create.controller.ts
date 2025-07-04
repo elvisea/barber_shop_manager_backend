@@ -1,6 +1,9 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,6 +28,39 @@ export class EstablishmentCreateController {
   @Post()
   @ApiOperation({ summary: 'Create a new establishment' })
   @ApiResponse({ status: 201, type: EstablishmentFindOneResponseDTO })
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: [
+          'name should not be empty',
+          'phone must be a valid phone number',
+        ],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: user is not allowed to create establishment.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'User is not allowed to create establishment',
+        error: 'FORBIDDEN',
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Conflict: establishment already exists',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'Establishment already exists',
+        error: 'ESTABLISHMENT_ALREADY_EXISTS',
+      },
+    },
+  })
   async handle(
     @GetRequestId() userId: string,
     @Body() dto: EstablishmentCreateRequestDTO,
