@@ -30,4 +30,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Establishment with ID [ESTABLISHMENT_ID] not found or access denied for user [USER_ID].',
   },
+  [ErrorCode.INSUFFICIENT_ROLE]: {
+    message:
+      'User [USER_ID] does not have the required role [ROLE] for establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

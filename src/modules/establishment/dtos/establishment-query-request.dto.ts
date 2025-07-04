@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
 
 export class EstablishmentQueryRequestDTO {
   @ApiPropertyOptional({
@@ -8,7 +8,7 @@ export class EstablishmentQueryRequestDTO {
     example: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
   })
   @IsOptional()
-  @IsString()
+  @IsUUID()
   establishmentId?: string;
 
   @ApiPropertyOptional({ description: 'Page number', example: 1, default: 1 })

@@ -7,7 +7,6 @@ import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { UserModule } from '../user/user.module';
 
 import { AuthController } from './controllers/auth.controller';
-import { EstablishmentMemberGuard } from './guards/establishment-member.guard';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -39,6 +38,6 @@ import { ErrorMessageModule } from '@/error-message/error-message.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [JwtStrategy, TokenService, AuthService, EstablishmentMemberGuard],
+  providers: [JwtStrategy, TokenService, AuthService],
 })
 export class AuthModule {}

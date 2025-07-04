@@ -27,6 +27,10 @@ export class EstablishmentFindController {
   @ApiOperation({ summary: 'Find establishments (paginated or by id)' })
   @ApiResponse({ status: 200, type: EstablishmentPaginatedResponse })
   @ApiResponse({ status: 200, type: EstablishmentResponseDTO })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden: user is not a member of the establishment.',
+  })
   async handle(
     @GetRequestId() userId: string,
     @Query() query: EstablishmentQueryRequestDTO,

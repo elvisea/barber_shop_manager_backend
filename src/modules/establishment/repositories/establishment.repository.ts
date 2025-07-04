@@ -91,4 +91,14 @@ export class EstablishmentRepository implements IEstablishmentRepository {
 
     return { data, total };
   }
+
+  async update(
+    establishmentId: string,
+    dto: Partial<{ name: string; address: string; phone: string }>,
+  ): Promise<Establishment> {
+    return this.prisma.establishment.update({
+      where: { id: establishmentId },
+      data: dto,
+    });
+  }
 }

@@ -1,0 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsUUID } from 'class-validator';
+
+export class EstablishmentIdParamDTO {
+  @ApiProperty({
+    description: 'Establishment ID (optional)',
+    example: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  establishmentId: string;
+}

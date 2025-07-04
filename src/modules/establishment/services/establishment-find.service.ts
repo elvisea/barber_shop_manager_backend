@@ -1,9 +1,12 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Role } from '@prisma/client';
 
 import { EstablishmentPaginatedResponse } from '../dtos/establishment-paginated-response.dto';
 import { EstablishmentQueryRequestDTO } from '../dtos/establishment-query-request.dto';
 import { EstablishmentResponseDTO } from '../dtos/establishment-response.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
+
+import { EstablishmentMembershipService } from './establishment-membership.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
@@ -16,7 +19,8 @@ export class EstablishmentFindService {
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+    private readonly establishmentMembershipService: EstablishmentMembershipService,
+  ) {}
 
   async execute(
     query: EstablishmentQueryRequestDTO,
@@ -37,10 +41,13 @@ export class EstablishmentFindService {
       `Finding establishment with ID ${establishmentId} for userId=${userId}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
-      establishmentId,
-      userId,
-    );
+    const memberWithEstablishment =
+      await this.establishmentMembershipService.validateMembership(
+        establishmentId,
+        userId,
+        [Role.ADMIN],
+      );
+    const establishment = memberWithEstablishment.establishment;
 
     if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(

@@ -11,7 +11,6 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 
 /**
  * Checks if the user's role (from request.member) matches the required roles.
- * This guard MUST run AFTER EstablishmentMemberGuard.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
