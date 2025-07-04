@@ -2,29 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { EstablishmentCustomerCreateResponseDTO } from './establishment-customer-create-response.dto';
 
-class MetaTotal {
-  @ApiProperty({ example: 1 })
-  items: number;
+import { BasePaginatedResponseDTO } from '@/common/dtos/base-paginated-response.dto';
 
-  @ApiProperty({ example: 1 })
-  pages: number;
-}
-
-class Meta {
-  @ApiProperty({ example: 1 })
-  page: number;
-
-  @ApiProperty({ example: 10 })
-  limit: number;
-
-  @ApiProperty({ type: MetaTotal })
-  total: MetaTotal;
-}
-
-export class EstablishmentCustomerFindAllResponseDTO {
+export class EstablishmentCustomerFindAllResponseDTO extends BasePaginatedResponseDTO<EstablishmentCustomerCreateResponseDTO> {
   @ApiProperty({ type: [EstablishmentCustomerCreateResponseDTO] })
-  data: EstablishmentCustomerCreateResponseDTO[];
-
-  @ApiProperty({ type: Meta })
-  meta: Meta;
+  declare data: EstablishmentCustomerCreateResponseDTO[];
 }
