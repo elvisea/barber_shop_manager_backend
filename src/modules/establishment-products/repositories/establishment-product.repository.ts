@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EstablishmentProduct } from '@prisma/client';
 
 import { EstablishmentProductCreateRequestDTO } from '../dtos/establishment-product-create-request.dto';
 
@@ -34,5 +35,26 @@ export class EstablishmentProductRepository {
         establishmentId,
       },
     });
+  }
+
+  async findAllByEstablishmentPaginated(params: {
+    establishmentId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: EstablishmentProduct[]; total: number }> {
+    const { establishmentId, skip, take } = params;
+
+    const [data, total] = await Promise.all([
+      this.prisma.establishmentProduct.findMany({
+        where: { establishmentId },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+
+      this.prisma.establishmentProduct.count({ where: { establishmentId } }),
+    ]);
+
+    return { data, total };
   }
 }
