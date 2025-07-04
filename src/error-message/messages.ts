@@ -46,4 +46,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'A product with name [NAME] already exists in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND]: {
+    message:
+      'Product with ID [PRODUCT_ID] not found in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;
