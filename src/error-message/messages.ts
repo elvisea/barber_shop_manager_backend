@@ -50,4 +50,12 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Product with ID [PRODUCT_ID] not found in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS]: {
+    message:
+      'A customer with email [EMAIL] already exists in establishment [ESTABLISHMENT_ID].',
+  },
+  [ErrorCode.ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS]: {
+    message:
+      'A customer with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;
