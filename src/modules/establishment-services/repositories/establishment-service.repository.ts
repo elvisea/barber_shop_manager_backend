@@ -3,6 +3,7 @@ import { EstablishmentService } from '@prisma/client';
 
 import { IEstablishmentServiceRepository } from '../contracts/establishment-service-repository.interface';
 import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
+import { EstablishmentServiceUpdateRequestDTO } from '../dtos/establishment-service-update-request.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -107,6 +108,16 @@ export class EstablishmentServiceRepository
   async deleteById(serviceId: string): Promise<void> {
     await this.prisma.establishmentService.delete({
       where: { id: serviceId },
+    });
+  }
+
+  async updateById(
+    serviceId: string,
+    dto: EstablishmentServiceUpdateRequestDTO,
+  ) {
+    return this.prisma.establishmentService.update({
+      where: { id: serviceId },
+      data: dto,
     });
   }
 }
