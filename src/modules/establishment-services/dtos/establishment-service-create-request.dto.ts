@@ -7,7 +7,7 @@ import {
   Min,
 } from 'class-validator';
 
-export class EstablishmentServiceRequestDTO {
+export class EstablishmentServiceCreateRequestDTO {
   @ApiProperty({ example: 'Corte Masculino' })
   @IsString()
   @IsNotEmpty()

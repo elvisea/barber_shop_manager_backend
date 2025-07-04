@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { CreateEstablishmentRequestDTO } from '../dtos/create-establishment-request.dto';
-import { EstablishmentResponseDTO } from '../dtos/establishment-response.dto';
+import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
+import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -18,9 +18,9 @@ export class EstablishmentCreateService {
   ) {}
 
   async execute(
-    dto: CreateEstablishmentRequestDTO,
+    dto: EstablishmentCreateRequestDTO,
     userId: string,
-  ): Promise<EstablishmentResponseDTO> {
+  ): Promise<EstablishmentFindOneResponseDTO> {
     this.logger.log(
       `Starting establishment creation for userId=${userId} with phone=${dto.phone}`,
     );

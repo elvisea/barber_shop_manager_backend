@@ -6,9 +6,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentServiceEstablishmentParamDTO } from '../dtos/establishment-service-establishment-param.dto';
-import { EstablishmentServiceRequestDTO } from '../dtos/establishment-service-request.dto';
-import { EstablishmentServiceResponseDTO } from '../dtos/establishment-service-response.dto';
+import { EstablishmentServiceCreateParamDTO } from '../dtos/establishment-service-create-param.dto';
+import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
+import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceCreateService } from '../services/establishment-service-create.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
@@ -25,7 +25,7 @@ export class EstablishmentServiceCreateController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment service' })
-  @ApiResponse({ status: 201, type: EstablishmentServiceResponseDTO })
+  @ApiResponse({ status: 201, type: EstablishmentServiceCreateResponseDTO })
   @ApiResponse({
     status: 403,
     description:
@@ -33,9 +33,9 @@ export class EstablishmentServiceCreateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentServiceEstablishmentParamDTO,
-    @Body() dto: EstablishmentServiceRequestDTO,
-  ): Promise<EstablishmentServiceResponseDTO> {
+    @Param() params: EstablishmentServiceCreateParamDTO,
+    @Body() dto: EstablishmentServiceCreateRequestDTO,
+  ): Promise<EstablishmentServiceCreateResponseDTO> {
     return this.establishmentServiceCreateService.execute(
       dto,
       params.establishmentId,

@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { EstablishmentResponseDTO } from './establishment-response.dto';
+import { EstablishmentFindOneResponseDTO } from './establishment-find-one-response.dto';
 
-export class EstablishmentPaginatedResponse {
-  @ApiProperty({ type: [EstablishmentResponseDTO] })
-  data: EstablishmentResponseDTO[];
+export class EstablishmentFindAllResponseDTO {
+  @ApiProperty({ type: [EstablishmentFindOneResponseDTO] })
+  data: EstablishmentFindOneResponseDTO[];
 
   @ApiProperty({
     example: {

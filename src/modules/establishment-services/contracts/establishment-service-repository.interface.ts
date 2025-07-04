@@ -1,10 +1,10 @@
 import { EstablishmentService } from '@prisma/client';
 
-import { EstablishmentServiceRequestDTO } from '../dtos/establishment-service-request.dto';
+import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
 
 export interface IEstablishmentServiceRepository {
   createService(
-    data: EstablishmentServiceRequestDTO,
+    data: EstablishmentServiceCreateRequestDTO,
     establishmentId: string,
   ): Promise<EstablishmentService>;
 
@@ -22,7 +22,7 @@ export interface IEstablishmentServiceRepository {
   updateService(
     serviceId: string,
     establishmentId: string,
-    data: Partial<EstablishmentServiceRequestDTO>,
+    data: Partial<EstablishmentServiceCreateRequestDTO>,
   ): Promise<EstablishmentService>;
 
   deleteService(serviceId: string, establishmentId: string): Promise<void>;

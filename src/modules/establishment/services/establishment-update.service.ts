@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Role } from '@prisma/client';
 
-import { EstablishmentResponseDTO } from '../dtos/establishment-response.dto';
+import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
 
@@ -21,13 +21,13 @@ export class EstablishmentUpdateService {
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly establishmentMembershipService: EstablishmentMembershipService,
-  ) {}
+  ) { }
 
   async execute(
     establishmentId: string,
     userId: string,
     dto: EstablishmentUpdateRequestDTO,
-  ): Promise<EstablishmentResponseDTO> {
+  ): Promise<EstablishmentFindOneResponseDTO> {
     this.logger.log(
       `Updating establishment ${establishmentId} by user ${userId}`,
     );

@@ -38,4 +38,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'A service with name [NAME] already exists in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.ESTABLISHMENT_SERVICE_NOT_FOUND]: {
+    message:
+      'Service with ID [SERVICE_ID] not found in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

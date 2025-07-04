@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EstablishmentService } from '@prisma/client';
 
 import { IEstablishmentServiceRepository } from '../contracts/establishment-service-repository.interface';
-import { EstablishmentServiceRequestDTO } from '../dtos/establishment-service-request.dto';
+import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -13,7 +13,7 @@ export class EstablishmentServiceRepository
   constructor(private readonly prisma: PrismaService) {}
 
   async createService(
-    data: EstablishmentServiceRequestDTO,
+    data: EstablishmentServiceCreateRequestDTO,
     establishmentId: string,
   ): Promise<EstablishmentService> {
     return this.prisma.establishmentService.create({
@@ -63,7 +63,7 @@ export class EstablishmentServiceRepository
   async updateService(
     serviceId: string,
     establishmentId: string,
-    data: Partial<EstablishmentServiceRequestDTO>,
+    data: Partial<EstablishmentServiceCreateRequestDTO>,
   ): Promise<EstablishmentService> {
     return this.prisma.establishmentService.update({
       where: {

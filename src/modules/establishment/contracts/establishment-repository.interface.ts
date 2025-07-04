@@ -1,10 +1,10 @@
 import { Establishment } from '@prisma/client';
 
-import { CreateEstablishmentRequestDTO } from '../dtos/create-establishment-request.dto';
+import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
 
 export interface IEstablishmentRepository {
   create(
-    data: CreateEstablishmentRequestDTO,
+    data: EstablishmentCreateRequestDTO,
     userId: string,
   ): Promise<Establishment>;
 

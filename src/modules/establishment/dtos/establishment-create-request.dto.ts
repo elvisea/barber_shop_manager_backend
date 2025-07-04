@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateEstablishmentRequestDTO {
+export class EstablishmentCreateRequestDTO {
   @ApiProperty({
     description: 'Full address of the establishment',
     example: '123 Main St, Downtown, São Paulo - SP',

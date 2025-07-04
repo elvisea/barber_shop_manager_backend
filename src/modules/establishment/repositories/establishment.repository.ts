@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { Establishment } from '@prisma/client';
 
 import { IEstablishmentRepository } from '../contracts/establishment-repository.interface';
-import { CreateEstablishmentRequestDTO } from '../dtos/create-establishment-request.dto';
+import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class EstablishmentRepository implements IEstablishmentRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(
-    data: CreateEstablishmentRequestDTO,
+    data: EstablishmentCreateRequestDTO,
     userId: string,
   ): Promise<Establishment> {
     // Cria o estabelecimento e já associa o usuário como ADMIN

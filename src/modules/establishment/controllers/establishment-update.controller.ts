@@ -7,8 +7,8 @@ import {
 } from '@nestjs/swagger';
 
 import { GetRequestId } from '../../auth/decorators/get-request-id.decorator';
-import { EstablishmentIdParamDTO } from '../dtos/establishment-param.dto';
-import { EstablishmentResponseDTO } from '../dtos/establishment-response.dto';
+import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
+import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentUpdateService } from '../services/establishment-update.service';
 
@@ -25,16 +25,16 @@ export class EstablishmentUpdateController {
 
   @Patch(':establishmentId')
   @ApiOperation({ summary: 'Update an establishment' })
-  @ApiResponse({ status: 200, type: EstablishmentResponseDTO })
+  @ApiResponse({ status: 200, type: EstablishmentFindOneResponseDTO })
   @ApiResponse({
     status: 403,
     description: 'Forbidden: user is not a member of the establishment.',
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentIdParamDTO,
+    @Param() params: EstablishmentUpdateParamDTO,
     @Body() dto: EstablishmentUpdateRequestDTO,
-  ): Promise<EstablishmentResponseDTO> {
+  ): Promise<EstablishmentFindOneResponseDTO> {
     return this.establishmentUpdateService.execute(
       params.establishmentId,
       userId,

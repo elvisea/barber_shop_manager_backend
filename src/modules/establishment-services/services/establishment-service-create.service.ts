@@ -2,8 +2,8 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Role } from '@prisma/client';
 
 import { ErrorMessageService } from '../../../error-message/error-message.service';
-import { EstablishmentServiceRequestDTO } from '../dtos/establishment-service-request.dto';
-import { EstablishmentServiceResponseDTO } from '../dtos/establishment-service-response.dto';
+import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
+import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -21,10 +21,10 @@ export class EstablishmentServiceCreateService {
   ) {}
 
   async execute(
-    dto: EstablishmentServiceRequestDTO,
+    dto: EstablishmentServiceCreateRequestDTO,
     establishmentId: string,
     userId: string,
-  ): Promise<EstablishmentServiceResponseDTO> {
+  ): Promise<EstablishmentServiceCreateResponseDTO> {
     this.logger.log(
       `Creating service "${dto.name}" for establishment ${establishmentId} by user ${userId}`,
     );

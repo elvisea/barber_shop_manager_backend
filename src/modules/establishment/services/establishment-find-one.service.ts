@@ -1,10 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Role } from '@prisma/client';
 
-import { EstablishmentPaginatedResponse } from '../dtos/establishment-paginated-response.dto';
-import { EstablishmentQueryRequestDTO } from '../dtos/establishment-query-request.dto';
-import { EstablishmentResponseDTO } from '../dtos/establishment-response.dto';
-import { EstablishmentRepository } from '../repositories/establishment.repository';
+import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 
 import { EstablishmentMembershipService } from './establishment-membership.service';
 
@@ -13,30 +10,18 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 @Injectable()
-export class EstablishmentFindService {
-  private readonly logger = new Logger(EstablishmentFindService.name);
+export class EstablishmentFindOneService {
+  private readonly logger = new Logger(EstablishmentFindOneService.name);
 
   constructor(
-    private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentMembershipService: EstablishmentMembershipService,
-  ) {}
+  ) { }
 
   async execute(
-    query: EstablishmentQueryRequestDTO,
-    userId: string,
-  ): Promise<EstablishmentPaginatedResponse | EstablishmentResponseDTO> {
-    if (query.establishmentId) {
-      return this.findById(query.establishmentId, userId);
-    }
-
-    return this.findAll(query, userId);
-  }
-
-  private async findById(
     establishmentId: string,
     userId: string,
-  ): Promise<EstablishmentResponseDTO> {
+  ): Promise<EstablishmentFindOneResponseDTO> {
     this.logger.log(
       `Finding establishment with ID ${establishmentId} for userId=${userId}`,
     );
@@ -74,39 +59,6 @@ export class EstablishmentFindService {
       phone: establishment.phone,
       createdAt: establishment.createdAt,
       updatedAt: establishment.updatedAt,
-    };
-  }
-
-  private async findAll(
-    query: EstablishmentQueryRequestDTO,
-    userId: string,
-  ): Promise<EstablishmentPaginatedResponse> {
-    const { page = 1, limit = 10 } = query;
-    const skip = (page - 1) * limit;
-
-    this.logger.log(
-      `Finding all establishments for userId=${userId} with page ${page}, limit ${limit}`,
-    );
-
-    const { data, total } =
-      await this.establishmentRepository.findAllByUserPaginated({
-        userId,
-        skip,
-        take: limit,
-      });
-
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: totalPages,
-        },
-      },
     };
   }
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class EstablishmentServiceResponseDTO {
+export class EstablishmentServiceCreateResponseDTO {
   @ApiProperty({ example: 'uuid-do-servico' })
   id: string;
 

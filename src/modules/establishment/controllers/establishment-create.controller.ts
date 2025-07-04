@@ -6,8 +6,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { CreateEstablishmentRequestDTO } from '../dtos/create-establishment-request.dto';
-import { EstablishmentResponseDTO } from '../dtos/establishment-response.dto';
+import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
+import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentCreateService } from '../services/establishment-create.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
@@ -24,11 +24,11 @@ export class EstablishmentCreateController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment' })
-  @ApiResponse({ status: 201, type: EstablishmentResponseDTO })
+  @ApiResponse({ status: 201, type: EstablishmentFindOneResponseDTO })
   async handle(
     @GetRequestId() userId: string,
-    @Body() dto: CreateEstablishmentRequestDTO,
-  ): Promise<EstablishmentResponseDTO> {
+    @Body() dto: EstablishmentCreateRequestDTO,
+  ): Promise<EstablishmentFindOneResponseDTO> {
     return this.establishmentCreateService.execute(dto, userId);
   }
 }
