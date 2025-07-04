@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment' })
@@ -41,6 +41,16 @@ export class EstablishmentCreateController {
       },
     },
   })
+  @ApiConflictResponse({
+    description: 'Conflict: phone already exists',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'Phone already exists',
+        error: 'ESTABLISHMENT_PHONE_ALREADY_EXISTS',
+      },
+    },
+  })
   @ApiForbiddenResponse({
     description: 'Forbidden: user is not allowed to create establishment.',
     schema: {
@@ -48,16 +58,6 @@ export class EstablishmentCreateController {
         statusCode: 403,
         message: 'User is not allowed to create establishment',
         error: 'FORBIDDEN',
-      },
-    },
-  })
-  @ApiConflictResponse({
-    description: 'Conflict: establishment already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'Establishment already exists',
-        error: 'ESTABLISHMENT_ALREADY_EXISTS',
       },
     },
   })
