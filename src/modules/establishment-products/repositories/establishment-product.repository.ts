@@ -69,4 +69,24 @@ export class EstablishmentProductRepository {
       },
     });
   }
+
+  async updateByIdAndEstablishment(
+    productId: string,
+    establishmentId: string,
+    dto: Partial<{
+      name: string;
+      description?: string;
+      price: number;
+      commission: number;
+      stock: number;
+    }>,
+  ) {
+    return this.prisma.establishmentProduct.update({
+      where: {
+        id: productId,
+        establishmentId,
+      },
+      data: dto,
+    });
+  }
 }
