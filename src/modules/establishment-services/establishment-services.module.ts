@@ -32,4 +32,4 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
   ],
   exports: [EstablishmentServiceCreateService, EstablishmentServiceRepository],
 })
-export class EstablishmentServicesModule { }
+export class EstablishmentServicesModule {}

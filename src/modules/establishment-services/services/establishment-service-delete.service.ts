@@ -15,7 +15,7 @@ export class EstablishmentServiceDeleteService {
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async execute(
     serviceId: string,
