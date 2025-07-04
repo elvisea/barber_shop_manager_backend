@@ -57,4 +57,16 @@ export class EstablishmentProductRepository {
 
     return { data, total };
   }
+
+  async deleteByIdAndEstablishment(
+    productId: string,
+    establishmentId: string,
+  ): Promise<void> {
+    await this.prisma.establishmentProduct.delete({
+      where: {
+        id: productId,
+        establishmentId,
+      },
+    });
+  }
 }
