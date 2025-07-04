@@ -26,4 +26,13 @@ export class EstablishmentProductRepository {
       },
     });
   }
+
+  async findByIdAndEstablishment(productId: string, establishmentId: string) {
+    return this.prisma.establishmentProduct.findFirst({
+      where: {
+        id: productId,
+        establishmentId,
+      },
+    });
+  }
 }
