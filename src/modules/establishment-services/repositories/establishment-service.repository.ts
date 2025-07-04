@@ -8,9 +8,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class EstablishmentServiceRepository
-  implements IEstablishmentServiceRepository
-{
-  constructor(private readonly prisma: PrismaService) {}
+  implements IEstablishmentServiceRepository {
+  constructor(private readonly prisma: PrismaService) { }
 
   async createService(
     data: EstablishmentServiceCreateRequestDTO,
@@ -102,5 +101,11 @@ export class EstablishmentServiceRepository
       },
     });
     return count > 0;
+  }
+
+  async deleteById(serviceId: string): Promise<void> {
+    await this.prisma.establishmentService.delete({
+      where: { id: serviceId },
+    });
   }
 }
