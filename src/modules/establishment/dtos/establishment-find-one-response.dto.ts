@@ -21,7 +21,7 @@ export class EstablishmentFindOneResponseDTO {
 
   @ApiProperty({
     description: 'Phone number of the establishment',
-    example: '11999999999',
+    example: '+5511999999999',
   })
   phone: string;
 

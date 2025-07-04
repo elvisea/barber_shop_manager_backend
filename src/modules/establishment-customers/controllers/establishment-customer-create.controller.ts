@@ -9,6 +9,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { EstablishmentCustomerCreateParamDTO } from '../dtos/establishment-customer-create-param.dto';
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerCreateService } from '../services/establishment-customer-create.service';
@@ -71,13 +72,13 @@ export class EstablishmentCustomerCreateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param('establishmentId') establishmentId: string,
-    @Body() dto: Omit<EstablishmentCustomerCreateRequestDTO, 'establishmentId'>,
+    @Param() params: EstablishmentCustomerCreateParamDTO,
+    @Body() dto: EstablishmentCustomerCreateRequestDTO,
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
     return this.establishmentCustomerCreateService.execute(
       dto,
       userId,
-      establishmentId,
+      params.establishmentId,
     );
   }
 }

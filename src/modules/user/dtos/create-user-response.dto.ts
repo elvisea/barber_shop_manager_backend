@@ -20,7 +20,7 @@ export class CreateUserResponseDTO {
   email: string;
 
   @ApiProperty({
-    example: '11999999999',
+    example: '+5511999999999',
     description: 'User phone number',
   })
   phone: string;

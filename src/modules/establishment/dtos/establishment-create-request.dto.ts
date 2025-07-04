@@ -31,11 +31,11 @@ export class EstablishmentCreateRequestDTO {
 
   @ApiProperty({
     description: 'Phone number of the establishment',
-    example: '11999999999',
+    example: '+5511999999999',
     required: true,
   })
   @IsString()
   @IsNotEmpty()
-  @IsPhoneNumber()
+  @IsPhoneNumber('BR')
   phone: string;
 }

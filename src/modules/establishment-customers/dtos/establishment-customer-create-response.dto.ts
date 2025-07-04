@@ -13,7 +13,7 @@ export class EstablishmentCustomerCreateResponseDTO {
   @ApiPropertyOptional({ example: 'joao@email.com' })
   email?: string;
 
-  @ApiPropertyOptional({ example: '11999999999' })
+  @ApiPropertyOptional({ example: '+5511999999999' })
   phone?: string;
 
   @ApiProperty({ example: '2024-07-03T12:00:00Z' })

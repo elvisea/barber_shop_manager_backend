@@ -39,7 +39,7 @@ export class CreateUserRequestDTO {
   password: string;
 
   @ApiProperty({
-    example: '11999999999',
+    example: '+5511999999999',
     description: 'User phone number',
   })
   @IsPhoneNumber('BR')

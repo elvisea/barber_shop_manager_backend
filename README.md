@@ -130,7 +130,7 @@ export class EmployeeRequestDTO {
   @Transform(({ value }) => value.toLowerCase())
   email: string;
 
-  @ApiProperty({ example: '11999999999' })
+  @ApiProperty({ example: '+5511999999999' })
   @IsPhoneNumber()
   phone: string;
 
@@ -162,7 +162,7 @@ export class EmployeeResponseDTO {
   @ApiProperty({ example: 'email@email.com' })
   email: string;
 
-  @ApiProperty({ example: '11999999999' })
+  @ApiProperty({ example: '+5511999999999' })
   phone: string;
 
   @ApiProperty({ example: '2024-01-21T10:00:00Z' })
