@@ -26,4 +26,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Establishment with phone [PHONE] already exists for user [USER_ID].',
   },
+  [ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]: {
+    message:
+      'Establishment with ID [ESTABLISHMENT_ID] not found or access denied for user [USER_ID].',
+  },
 } as const;

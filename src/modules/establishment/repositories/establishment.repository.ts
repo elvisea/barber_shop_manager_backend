@@ -49,4 +49,46 @@ export class EstablishmentRepository implements IEstablishmentRepository {
       },
     });
   }
+
+  async findByIdAndUser(
+    establishmentId: string,
+    userId: string,
+  ): Promise<Establishment | null> {
+    return this.prisma.establishment.findFirst({
+      where: {
+        id: establishmentId,
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
+    });
+  }
+
+  async findAllByUserPaginated(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: Establishment[]; total: number }> {
+    const { userId, skip, take } = params;
+
+    const where = {
+      members: {
+        some: { userId },
+      },
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.establishment.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.establishment.count({ where }),
+    ]);
+
+    return { data, total };
+  }
 }

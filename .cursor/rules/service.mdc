@@ -6,16 +6,30 @@ alwaysApply: true
 
 Services contêm a lógica de negócio da aplicação. São responsáveis por validar dados, aplicar regras do domínio e interagir com repositórios.
 
+---
+
 ## ✅ Regras
 
 - Não acessa diretamente o banco (usa repositórios).
 - Lança exceções com `CustomHttpException`.
 - Utiliza `ErrorMessagesService` para mensagens padronizadas.
 - Pode fazer validações com base nas regras do negócio.
+- Todo service deve **usar** `import { Logger } from '@nestjs/common';` para registrar logs de acompanhamento.
+- O código deve sempre ter **linhas vazias entre blocos lógicos**, para manter a legibilidade e facilitar a manutenção.
+
+---
 
 ## 📌 Exemplo
 
 ```ts
+import { Injectable, Logger } from '@nestjs/common';
+import { ErrorMessagesService } from '@/core/error-message.service';
+import { CustomHttpException } from '@/core/exceptions/custom-http.exception';
+import { EmployeeRequestDTO, EmployeeResponseDTO } from '../dtos';
+import { IEmployeeRepository } from '../contracts';
+import { ErrorCode } from '@/core/constants';
+import { HttpStatus } from '@nestjs/common';
+
 @Injectable()
 export class EmployeeCreateService {
   constructor(
@@ -30,10 +44,14 @@ export class EmployeeCreateService {
     if (!establishment) {
       const message = this.errorMessagesService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: dto.establishmentId, OWNER_ID: ownerId },
+        {
+          ESTABLISHMENT_ID: dto.establishmentId,
+          OWNER_ID: ownerId,
+        },
       );
 
       this.logger.warn(message);
+
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
@@ -42,7 +60,9 @@ export class EmployeeCreateService {
     }
 
     const employee = await this.employeeRepository.createEmployee(dto);
+
+    this.logger.log(`Funcionário criado com ID: ${employee.id}`);
+
     return employee;
   }
 }
-```
