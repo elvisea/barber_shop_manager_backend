@@ -1,3 +1,5 @@
+import { EstablishmentCustomer } from '@prisma/client';
+
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 
@@ -8,4 +10,8 @@ export interface IEstablishmentCustomerRepository {
     dto: Omit<EstablishmentCustomerCreateRequestDTO, 'establishmentId'>,
     establishmentId: string,
   ): Promise<EstablishmentCustomerCreateResponseDTO>;
+  findByIdAndEstablishment(
+    customerId: string,
+    establishmentId: string,
+  ): Promise<EstablishmentCustomer | null>;
 }

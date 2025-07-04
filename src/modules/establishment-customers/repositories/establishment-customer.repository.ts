@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EstablishmentCustomer } from '@prisma/client';
 
 import { IEstablishmentCustomerRepository } from '../contracts/establishment-customer-repository.interface';
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
@@ -49,6 +50,15 @@ export class EstablishmentCustomerRepository
       email: customer.email || undefined,
       phone: customer.phone || undefined,
     };
+  }
+
+  async findByIdAndEstablishment(
+    customerId: string,
+    establishmentId: string,
+  ): Promise<EstablishmentCustomer | null> {
+    return this.prisma.establishmentCustomer.findFirst({
+      where: { id: customerId, establishmentId },
+    });
   }
 
   // Métodos CRUD serão implementados conforme os recursos forem criados

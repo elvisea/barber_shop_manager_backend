@@ -58,4 +58,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'A customer with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND]: {
+    message:
+      'Customer with ID [CUSTOMER_ID] not found in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;
