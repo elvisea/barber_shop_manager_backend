@@ -1,6 +1,9 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -26,6 +29,36 @@ export class EstablishmentProductCreateController {
   @Post()
   @ApiOperation({ summary: 'Create product for establishment' })
   @ApiResponse({ status: 201, type: EstablishmentProductCreateResponseDTO })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: establishment not found or access denied',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Establishment not found or access denied',
+        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Conflict: product name already exists',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'Product name already exists',
+        error: 'ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['name should not be empty', 'price must be an integer'],
+        error: 'Bad Request',
+      },
+    },
+  })
   async handle(
     @GetRequestId() userId: string,
     @Param() params: EstablishmentProductCreateParamDTO,
