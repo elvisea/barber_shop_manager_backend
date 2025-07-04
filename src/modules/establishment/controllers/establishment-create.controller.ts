@@ -3,10 +3,9 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
-  ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
-  ApiTags,
+  ApiTags
 } from '@nestjs/swagger';
 
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
@@ -48,16 +47,6 @@ export class EstablishmentCreateController {
         statusCode: 409,
         message: 'Phone already exists',
         error: 'ESTABLISHMENT_PHONE_ALREADY_EXISTS',
-      },
-    },
-  })
-  @ApiForbiddenResponse({
-    description: 'Forbidden: user is not allowed to create establishment.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'User is not allowed to create establishment',
-        error: 'FORBIDDEN',
       },
     },
   })
