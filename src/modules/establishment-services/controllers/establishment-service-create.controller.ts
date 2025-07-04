@@ -1,6 +1,9 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -26,10 +29,36 @@ export class EstablishmentServiceCreateController {
   @Post()
   @ApiOperation({ summary: 'Create a new establishment service' })
   @ApiResponse({ status: 201, type: EstablishmentServiceCreateResponseDTO })
-  @ApiResponse({
-    status: 403,
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['name should not be empty', 'price must be an integer'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiForbiddenResponse({
     description:
       'Forbidden: user is not a member of the establishment or lacks ADMIN role.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Establishment not found or access denied',
+        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Conflict: service name already exists',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'Service name already exists',
+        error: 'ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS',
+      },
+    },
   })
   async handle(
     @GetRequestId() userId: string,

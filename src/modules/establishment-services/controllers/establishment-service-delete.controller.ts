@@ -1,9 +1,11 @@
 import { Controller, Delete, HttpCode, Param, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -26,9 +28,36 @@ export class EstablishmentServiceDeleteController {
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete service by ID' })
   @ApiNoContentResponse({ description: 'Service deleted successfully' })
-  @ApiResponse({
-    status: 404,
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['serviceId must be a valid UUID'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiForbiddenResponse({
+    description:
+      'Forbidden: user is not a member of the establishment or lacks ADMIN role.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Establishment not found or access denied',
+        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
     description: 'Service or establishment not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Service not found',
+        error: 'ESTABLISHMENT_SERVICE_NOT_FOUND',
+      },
+    },
   })
   async handle(
     @GetRequestId() userId: string,

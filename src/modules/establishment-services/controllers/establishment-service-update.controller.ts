@@ -1,6 +1,10 @@
 import { Body, Controller, Param, Patch, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -26,9 +30,46 @@ export class EstablishmentServiceUpdateController {
   @Patch()
   @ApiOperation({ summary: 'Update service by ID' })
   @ApiResponse({ status: 200, type: EstablishmentServiceCreateResponseDTO })
-  @ApiResponse({
-    status: 404,
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['name should not be empty'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiForbiddenResponse({
+    description:
+      'Forbidden: user is not a member of the establishment or lacks ADMIN role.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Establishment not found or access denied',
+        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
     description: 'Service or establishment not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Service not found',
+        error: 'ESTABLISHMENT_SERVICE_NOT_FOUND',
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Conflict: service name already exists',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'Service name already exists',
+        error: 'ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS',
+      },
+    },
   })
   async handle(
     @GetRequestId() userId: string,

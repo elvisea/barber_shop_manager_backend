@@ -1,6 +1,9 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,7 +28,36 @@ export class EstablishmentServiceFindByIdController {
   @Get()
   @ApiOperation({ summary: 'Find service by ID' })
   @ApiResponse({ status: 200, type: EstablishmentServiceCreateResponseDTO })
-  @ApiResponse({ status: 404, description: 'Service not found.' })
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['serviceId must be a valid UUID'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: user is not a member of the establishment.',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Establishment not found or access denied',
+        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Service not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Service not found',
+        error: 'ESTABLISHMENT_SERVICE_NOT_FOUND',
+      },
+    },
+  })
   async handle(
     @GetRequestId() userId: string,
     @Param() params: EstablishmentServiceFindByIdParamDTO,
