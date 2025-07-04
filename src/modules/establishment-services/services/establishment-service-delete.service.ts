@@ -1,10 +1,11 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
+import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
+import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
+
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
-import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
 
 @Injectable()
 export class EstablishmentServiceDeleteService {
@@ -20,7 +21,7 @@ export class EstablishmentServiceDeleteService {
     serviceId: string,
     establishmentId: string,
     userId: string,
-  ): Promise<{ deleted: boolean }> {
+  ): Promise<void> {
     this.logger.log(
       `Deleting service with ID ${serviceId} for establishment ${establishmentId} by user ${userId}`,
     );
@@ -48,10 +49,11 @@ export class EstablishmentServiceDeleteService {
       );
     }
 
-    const service = await this.establishmentServiceRepository.findByIdAndEstablishment(
-      serviceId,
-      establishmentId,
-    );
+    const service =
+      await this.establishmentServiceRepository.findByIdAndEstablishment(
+        serviceId,
+        establishmentId,
+      );
 
     if (!service) {
       const errorMessage = this.errorMessageService.getMessage(
@@ -71,7 +73,5 @@ export class EstablishmentServiceDeleteService {
     await this.establishmentServiceRepository.deleteById(serviceId);
 
     this.logger.log(`Service ${serviceId} deleted successfully.`);
-
-    return { deleted: true };
   }
-} 
+}
