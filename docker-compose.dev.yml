@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: ${CONTAINER_NAME_DATABASE}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - data_barber_shop_manager:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: barber_shop_manager_app_dev
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+    ports:
+      - "3333:3333"
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  data_barber_shop_manager:
+    driver: local 
