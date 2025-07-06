@@ -74,15 +74,8 @@ export class EstablishmentServiceFindAllService {
 
     return {
       data: data.map((service) => ({
-        id: service.id,
-        name: service.name,
-        description: service.description,
-        duration: service.duration,
-        price: service.price,
+        ...service,
         commission: Number(service.commission),
-        establishmentId: service.establishmentId,
-        createdAt: service.createdAt,
-        updatedAt: service.updatedAt,
       })),
       meta: {
         page,
