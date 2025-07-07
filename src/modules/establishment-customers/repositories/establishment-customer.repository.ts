@@ -9,8 +9,9 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class EstablishmentCustomerRepository
-  implements IEstablishmentCustomerRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  implements IEstablishmentCustomerRepository
+{
+  constructor(private readonly prisma: PrismaService) {}
 
   async existsByEmail(
     establishmentId: string,
@@ -90,6 +91,20 @@ export class EstablishmentCustomerRepository
         id: customerId,
         establishmentId,
       },
+    });
+  }
+
+  async updateByIdAndEstablishment(
+    customerId: string,
+    establishmentId: string,
+    dto: Partial<{ name: string; email?: string; phone?: string }>,
+  ) {
+    return this.prisma.establishmentCustomer.update({
+      where: {
+        id: customerId,
+        establishmentId,
+      },
+      data: dto,
     });
   }
 

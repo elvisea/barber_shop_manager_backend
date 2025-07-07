@@ -6,11 +6,13 @@ import { EstablishmentCustomerCreateController } from './controllers/establishme
 import { EstablishmentCustomerDeleteController } from './controllers/establishment-customer-delete.controller';
 import { EstablishmentCustomerFindAllController } from './controllers/establishment-customer-find-all.controller';
 import { EstablishmentCustomerFindByIdController } from './controllers/establishment-customer-find-by-id.controller';
+import { EstablishmentCustomerUpdateController } from './controllers/establishment-customer-update.controller';
 import { EstablishmentCustomerRepository } from './repositories/establishment-customer.repository';
 import { EstablishmentCustomerCreateService } from './services/establishment-customer-create.service';
 import { EstablishmentCustomerDeleteService } from './services/establishment-customer-delete.service';
 import { EstablishmentCustomerFindAllService } from './services/establishment-customer-find-all.service';
 import { EstablishmentCustomerFindByIdService } from './services/establishment-customer-find-by-id.service';
+import { EstablishmentCustomerUpdateService } from './services/establishment-customer-update.service';
 
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
@@ -21,16 +23,18 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
     EstablishmentCustomerFindByIdController,
     EstablishmentCustomerFindAllController,
     EstablishmentCustomerDeleteController,
+    EstablishmentCustomerUpdateController,
   ],
   providers: [
     EstablishmentCustomerCreateService,
     EstablishmentCustomerFindByIdService,
     EstablishmentCustomerFindAllService,
     EstablishmentCustomerDeleteService,
+    EstablishmentCustomerUpdateService,
     EstablishmentCustomerRepository,
     EstablishmentRepository,
     ErrorMessageService,
   ],
   exports: [EstablishmentCustomerRepository],
 })
-export class EstablishmentCustomerModule { }
+export class EstablishmentCustomerModule {}
