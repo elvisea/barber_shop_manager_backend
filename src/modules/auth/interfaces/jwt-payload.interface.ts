@@ -1,3 +1,8 @@
 export interface JwtPayload {
-  sub: string;
+  sub: string; // userId
+  email: string;
+  memberships: Array<{
+    establishmentId: string;
+    role: string;
+  }>;
 }
