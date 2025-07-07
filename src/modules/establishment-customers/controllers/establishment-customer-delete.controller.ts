@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerDeleteController {
   constructor(
     private readonly establishmentCustomerDeleteService: EstablishmentCustomerDeleteService,
-  ) { }
+  ) {}
 
   @Delete()
   @HttpCode(204)
@@ -69,4 +69,4 @@ export class EstablishmentCustomerDeleteController {
     );
     // 204 No Content: não retorna body
   }
-} 
+}

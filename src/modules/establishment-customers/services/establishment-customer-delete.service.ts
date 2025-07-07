@@ -1,10 +1,11 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
+import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
+import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
+
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
-import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
 
 @Injectable()
 export class EstablishmentCustomerDeleteService {
@@ -14,7 +15,7 @@ export class EstablishmentCustomerDeleteService {
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async execute(
     customerId: string,
@@ -29,7 +30,7 @@ export class EstablishmentCustomerDeleteService {
       establishmentId,
       userId,
     );
-    
+
     if (!establishment) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
@@ -45,10 +46,11 @@ export class EstablishmentCustomerDeleteService {
       );
     }
 
-    const customer = await this.establishmentCustomerRepository.findByIdAndEstablishment(
-      customerId,
-      establishmentId,
-    );
+    const customer =
+      await this.establishmentCustomerRepository.findByIdAndEstablishment(
+        customerId,
+        establishmentId,
+      );
 
     if (!customer) {
       const message = this.errorMessageService.getMessage(
@@ -72,4 +74,4 @@ export class EstablishmentCustomerDeleteService {
 
     this.logger.log(`Customer ${customerId} deleted successfully.`);
   }
-} 
+}
