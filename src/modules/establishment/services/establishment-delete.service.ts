@@ -38,10 +38,7 @@ export class EstablishmentDeleteService {
       );
     }
 
-    await this.establishmentRepository.deleteByIdAndUser(
-      establishmentId,
-      userId,
-    );
+    await this.establishmentRepository.deleteByIdAndUser(establishmentId);
 
     this.logger.log(`Establishment ${establishmentId} deleted successfully.`);
   }

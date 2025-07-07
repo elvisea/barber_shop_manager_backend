@@ -102,10 +102,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     });
   }
 
-  async deleteByIdAndUser(
-    establishmentId: string,
-    userId: string,
-  ): Promise<void> {
+  async deleteByIdAndUser(establishmentId: string): Promise<void> {
     await this.prisma.establishment.delete({
       where: {
         id: establishmentId,

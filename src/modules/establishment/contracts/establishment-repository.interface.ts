@@ -12,4 +12,22 @@ export interface IEstablishmentRepository {
     phone: string,
     userId: string,
   ): Promise<Establishment | null>;
+
+  findByIdAndUser(
+    establishmentId: string,
+    userId: string,
+  ): Promise<Establishment | null>;
+
+  findAllByUserPaginated(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: Establishment[]; total: number }>;
+
+  update(
+    establishmentId: string,
+    dto: Partial<{ name: string; address: string; phone: string }>,
+  ): Promise<Establishment>;
+
+  deleteByIdAndUser(establishmentId: string): Promise<void>;
 }

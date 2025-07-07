@@ -21,7 +21,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       algorithms: ['RS256'],
     });
   }
-  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
+
+  validate(payload: JwtPayload): AuthenticatedUser {
     return {
       id: payload.sub,
       email: payload.email,
