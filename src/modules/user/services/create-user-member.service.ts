@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@prisma/client';
 
 import { CreateUserMemberRequestDTO } from '../dtos/create-user-member-request.dto';
 import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
+import { UserMapper } from '../mappers/user.mapper';
 import { UserRepository } from '../repositories/user.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -83,24 +83,12 @@ export class CreateUserMemberService {
     );
 
     // Create response DTO
-    const createUserResponseDTO = this.createUserResponse(newUser);
+    const createUserResponseDTO = UserMapper.toResponse(newUser);
 
     this.logger.log(
       `User creation with email ${createUserResponseDTO.email} completed successfully.`,
     );
 
-    return createUserResponseDTO;
-  }
-
-  // Private function to create CreateUserResponseDTO
-  private createUserResponse(user: User): CreateUserResponseDTO {
-    const createUserResponseDTO = new CreateUserResponseDTO();
-    createUserResponseDTO.id = user.id;
-    createUserResponseDTO.name = user.name;
-    createUserResponseDTO.email = user.email;
-    createUserResponseDTO.phone = user.phone;
-    createUserResponseDTO.createdAt = user.createdAt;
-    createUserResponseDTO.updatedAt = user.updatedAt;
     return createUserResponseDTO;
   }
 }
