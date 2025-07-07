@@ -28,6 +28,20 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async findByEmailWithMemberships(email: string) {
+    return this.prismaService.user.findUnique({
+      where: { email },
+      include: {
+        memberships: {
+          select: {
+            establishmentId: true,
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.prismaService.user.findUnique({
       where: { id },

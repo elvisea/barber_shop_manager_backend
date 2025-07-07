@@ -8,4 +8,14 @@ export interface IUserRepository {
   findById(id: string): Promise<User | null>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
   deleteUser(id: string): Promise<User>;
+
+  findByEmailWithMemberships(email: string): Promise<
+    | (User & {
+        memberships: Array<{
+          establishmentId: string;
+          role: string;
+        }>;
+      })
+    | null
+  >;
 }

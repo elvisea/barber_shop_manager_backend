@@ -11,7 +11,7 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateTokens(id: string) {
+  async generateTokens(payload: JwtPayload) {
     const environment = this.configService.get<string>(
       'NODE_ENV',
       'development',
@@ -25,8 +25,6 @@ export class TokenService {
       'REFRESH_TOKEN_EXPIRATION',
       '7d',
     );
-
-    const payload: JwtPayload = { sub: id };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: environment === 'development' ? '15m' : accessTokenExpiration,
