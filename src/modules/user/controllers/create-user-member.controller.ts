@@ -27,7 +27,7 @@ export class CreateUserMemberController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN) // <-- Somente ADMIN pode acessar este endpoint
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new member user (not ADMIN)' })
   @ApiResponse({ status: 201, type: CreateUserResponseDTO })
   @ApiConflictResponse({

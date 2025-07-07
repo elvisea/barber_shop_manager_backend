@@ -7,7 +7,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { AdminInAnyEstablishmentGuard } from '../../auth/guards/admin-in-any-establishment.guard';
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentCreateService } from '../services/establishment-create.service';
@@ -18,13 +21,14 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 @ApiTags('Establishments')
 @ApiBearerAuth()
 @Controller('establishments')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, AdminInAnyEstablishmentGuard)
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,
   ) {}
 
   @Post()
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new establishment' })
   @ApiResponse({ status: 201, type: EstablishmentFindOneResponseDTO })
   @ApiBadRequestResponse({

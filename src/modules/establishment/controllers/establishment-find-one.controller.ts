@@ -7,18 +7,22 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
 import { EstablishmentFindOneParamDTO } from '../dtos/establishment-find-one-param.dto';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentFindOneService } from '../services/establishment-find-one.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
+import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()
 @Controller('establishments')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
+@Roles(Role.ADMIN)
 export class EstablishmentFindOneController {
   constructor(
     private readonly establishmentFindOneService: EstablishmentFindOneService,
