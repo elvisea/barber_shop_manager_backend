@@ -9,9 +9,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class EstablishmentCustomerRepository
-  implements IEstablishmentCustomerRepository
-{
-  constructor(private readonly prisma: PrismaService) {}
+  implements IEstablishmentCustomerRepository {
+  constructor(private readonly prisma: PrismaService) { }
 
   async existsByEmail(
     establishmentId: string,
@@ -80,6 +79,18 @@ export class EstablishmentCustomerRepository
       this.prisma.establishmentCustomer.count({ where: { establishmentId } }),
     ]);
     return { data, total };
+  }
+
+  async deleteByIdAndEstablishment(
+    customerId: string,
+    establishmentId: string,
+  ): Promise<void> {
+    await this.prisma.establishmentCustomer.delete({
+      where: {
+        id: customerId,
+        establishmentId,
+      },
+    });
   }
 
   // Métodos CRUD serão implementados conforme os recursos forem criados
