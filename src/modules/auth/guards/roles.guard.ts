@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
@@ -8,9 +9,10 @@ import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 
 /**
- * Checks if the user's role (from request.member) matches the required roles.
+ * Checks if the user's role (from JWT memberships) matches the required roles for the establishment.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -26,19 +28,42 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { member } = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest();
+    const user = req.user as AuthenticatedUser;
 
-    if (!member || !member.role) {
-      // This indicates a configuration error, EstablishmentMemberGuard should have run first.
-      throw new ForbiddenException('Resource access denied.');
+    // 1. Obter establishmentId da rota
+    const establishmentId =
+      req.params?.establishmentId ||
+      req.body?.establishmentId ||
+      req.query?.establishmentId;
+    if (!establishmentId) {
+      throw new BadRequestException(
+        'EstablishmentId must be provided in the request.',
+      );
     }
 
-    const hasRole = requiredRoles.some((role) => member.role === role);
-
-    if (hasRole) {
-      return true;
+    // 2. Buscar membership do usuário para o estabelecimento
+    const membership = user.memberships.find(
+      (m) => m.establishmentId === establishmentId,
+    );
+    if (!membership) {
+      throw new ForbiddenException(
+        'User is not a member of this establishment.',
+      );
     }
 
-    throw new ForbiddenException('You do not have the required permissions.');
+    // 3. Verificar se está ativo
+    if (!membership.isActive) {
+      throw new ForbiddenException('User is not active in this establishment.');
+    }
+
+    // 4. Verificar se a role é permitida
+    if (!requiredRoles.includes(membership.role as Role)) {
+      throw new ForbiddenException(
+        'User does not have the required role for this resource.',
+      );
+    }
+
+    return true;
   }
 }

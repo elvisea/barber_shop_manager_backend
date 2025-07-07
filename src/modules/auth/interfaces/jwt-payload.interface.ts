@@ -4,5 +4,6 @@ export interface JwtPayload {
   memberships: Array<{
     establishmentId: string;
     role: string;
+    isActive: boolean;
   }>;
 }

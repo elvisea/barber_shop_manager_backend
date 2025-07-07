@@ -36,6 +36,7 @@ export class UserRepository implements IUserRepository {
           select: {
             establishmentId: true,
             role: true,
+            isActive: true,
           },
         },
       },

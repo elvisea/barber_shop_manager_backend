@@ -76,6 +76,7 @@ export class AuthService {
     const memberships = (user.memberships || []).map((m) => ({
       establishmentId: m.establishmentId,
       role: m.role,
+      isActive: m.isActive,
     }));
 
     const payload = {

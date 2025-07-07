@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { EstablishmentMembersModule } from '../establishment-members/establishment-members.module';
 import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { UserModule } from '../user/user.module';
 
@@ -19,6 +20,7 @@ import { ErrorMessageModule } from '@/error-message/error-message.module';
     UserModule,
     RefreshTokenModule,
     ErrorMessageModule,
+    EstablishmentMembersModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory(config: ConfigService) {

@@ -4,5 +4,6 @@ export interface AuthenticatedUser {
   memberships: Array<{
     establishmentId: string;
     role: string;
+    isActive: boolean;
   }>;
 }
