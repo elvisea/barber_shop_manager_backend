@@ -7,11 +7,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 
+import { ROLES_KEY } from '../decorators/roles.decorator';
+import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { ROLES_KEY } from '../decorators/roles.decorator';
-import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 
 @Injectable()
 export class AdminInAnyEstablishmentGuard implements CanActivate {
@@ -20,7 +21,7 @@ export class AdminInAnyEstablishmentGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
@@ -56,7 +57,7 @@ export class AdminInAnyEstablishmentGuard implements CanActivate {
     this.logger.log(
       `User ${user.email} authorized with role(s) [${requiredRoles.join(', ')}] in at least one establishment.`,
     );
-    
+
     return true;
   }
-} 
+}

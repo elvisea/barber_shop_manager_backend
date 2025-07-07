@@ -63,9 +63,9 @@ export const messages: Record<ErrorCode, { message: string }> = {
       'Customer with ID [CUSTOMER_ID] not found in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.USER_NOT_ACTIVE_IN_ANY_ESTABLISHMENT]: {
-    message: 'User is not active in any establishment.'
+    message: 'User is not active in any establishment.',
   },
   [ErrorCode.USER_ROLE_NOT_PERMITTED_ANY_ESTABLISHMENT]: {
-    message: 'User does not have the required role in any establishment.'
+    message: 'User does not have the required role in any establishment.',
   },
 } as const;

@@ -14,13 +14,13 @@ import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
 import { CreateUserMemberService } from '../services/create-user-member.service';
 
 import { Roles } from '@/modules/auth/decorators/roles.decorator';
+import { AdminInAnyEstablishmentGuard } from '@/modules/auth/guards/admin-in-any-establishment.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@/modules/auth/guards/roles.guard';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users/members')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, AdminInAnyEstablishmentGuard)
 export class CreateUserMemberController {
   constructor(
     private readonly createUserMemberService: CreateUserMemberService,
