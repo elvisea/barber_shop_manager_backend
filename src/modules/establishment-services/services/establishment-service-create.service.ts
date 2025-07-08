@@ -17,7 +17,7 @@ export class EstablishmentServiceCreateService {
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
     private readonly establishmentAccessService: EstablishmentAccessService,
-  ) { }
+  ) {}
 
   async execute(
     dto: EstablishmentServiceCreateRequestDTO,

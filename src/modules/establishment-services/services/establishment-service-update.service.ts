@@ -17,7 +17,7 @@ export class EstablishmentServiceUpdateService {
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
     private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async execute(
     serviceId: string,

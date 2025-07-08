@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
-import { ErrorMessageService } from '../../../error-message/error-message.service';
 import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-service-find-all-query.dto';
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
+
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentServiceFindAllService {
@@ -13,8 +13,7 @@ export class EstablishmentServiceFindAllService {
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
     private readonly establishmentAccessService: EstablishmentAccessService,
-    private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async execute(
     query: EstablishmentServiceFindAllQueryDTO,
