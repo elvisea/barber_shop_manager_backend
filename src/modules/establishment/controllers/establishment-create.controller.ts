@@ -10,7 +10,6 @@ import {
 import { Role } from '@prisma/client';
 
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { AdminInAnyEstablishmentGuard } from '../../auth/guards/admin-in-any-establishment.guard';
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentCreateService } from '../services/establishment-create.service';
@@ -21,7 +20,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 @ApiTags('Establishments')
 @ApiBearerAuth()
 @Controller('establishments')
-@UseGuards(JwtAuthGuard, AdminInAnyEstablishmentGuard)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,

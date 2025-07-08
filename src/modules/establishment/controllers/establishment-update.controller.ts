@@ -7,7 +7,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { GetRequestId } from '../../auth/decorators/get-request-id.decorator';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
@@ -15,15 +14,12 @@ import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentUpdateService } from '../services/establishment-update.service';
 
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()
 @Controller('establishments')
-@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentUpdateController {
   constructor(
     private readonly establishmentUpdateService: EstablishmentUpdateService,

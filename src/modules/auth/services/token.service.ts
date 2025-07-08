@@ -27,7 +27,7 @@ export class TokenService {
     );
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: environment === 'development' ? '15m' : accessTokenExpiration,
+      expiresIn: environment === 'development' ? '1h' : accessTokenExpiration,
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {

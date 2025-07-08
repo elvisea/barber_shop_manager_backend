@@ -6,22 +6,18 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { EstablishmentFindAllQueryDTO } from '../dtos/establishment-find-all-query.dto';
 import { EstablishmentFindAllResponseDTO } from '../dtos/establishment-find-all-response.dto';
 import { EstablishmentFindAllService } from '../services/establishment-find-all.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { AdminInAnyEstablishmentGuard } from '@/modules/auth/guards/admin-in-any-establishment.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()
 @Controller('establishments')
-@UseGuards(JwtAuthGuard, AdminInAnyEstablishmentGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentFindAllController {
   constructor(
     private readonly establishmentFindAllService: EstablishmentFindAllService,
