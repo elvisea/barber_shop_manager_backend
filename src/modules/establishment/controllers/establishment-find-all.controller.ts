@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentFindAllController {
   constructor(
     private readonly establishmentFindAllService: EstablishmentFindAllService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Find establishments (paginated)' })

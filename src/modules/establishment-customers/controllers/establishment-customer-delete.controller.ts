@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerDeleteController {
   constructor(
     private readonly establishmentCustomerDeleteService: EstablishmentCustomerDeleteService,
-  ) { }
+  ) {}
 
   @Delete()
   @HttpCode(204)
@@ -34,12 +34,17 @@ export class EstablishmentCustomerDeleteController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiNotFoundResponse({
     description: SwaggerErrorExamples.establishmentCustomerNotFound.description,
-    schema: { example: SwaggerErrorExamples.establishmentCustomerNotFound.example },
+    schema: {
+      example: SwaggerErrorExamples.establishmentCustomerNotFound.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

@@ -25,21 +25,32 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerCreateController {
   constructor(
     private readonly establishmentCustomerCreateService: EstablishmentCustomerCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create customer for establishment' })
   @ApiResponse({ status: 201, type: EstablishmentCustomerCreateResponseDTO })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiConflictResponse({
     description: 'Conflict: customer email or phone already exists',
     schema: {
       oneOf: [
-        { example: SwaggerErrorExamples.establishmentCustomerEmailAlreadyExists.example },
-        { example: SwaggerErrorExamples.establishmentCustomerPhoneAlreadyExists.example },
+        {
+          example:
+            SwaggerErrorExamples.establishmentCustomerEmailAlreadyExists
+              .example,
+        },
+        {
+          example:
+            SwaggerErrorExamples.establishmentCustomerPhoneAlreadyExists
+              .example,
+        },
       ],
     },
   })

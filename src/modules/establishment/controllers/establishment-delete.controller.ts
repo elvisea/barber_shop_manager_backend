@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentDeleteController {
   constructor(
     private readonly establishmentDeleteService: EstablishmentDeleteService,
-  ) { }
+  ) {}
 
   @Delete(':establishmentId')
   @HttpCode(204)
@@ -33,8 +33,11 @@ export class EstablishmentDeleteController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

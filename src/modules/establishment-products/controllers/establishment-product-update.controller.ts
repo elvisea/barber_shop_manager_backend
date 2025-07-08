@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentProductUpdateController {
   constructor(
     private readonly establishmentProductUpdateService: EstablishmentProductUpdateService,
-  ) { }
+  ) {}
 
   @Patch()
   @ApiOperation({ summary: 'Update product by ID' })
@@ -36,16 +36,25 @@ export class EstablishmentProductUpdateController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiNotFoundResponse({
     description: SwaggerErrorExamples.establishmentProductNotFound.description,
-    schema: { example: SwaggerErrorExamples.establishmentProductNotFound.example },
+    schema: {
+      example: SwaggerErrorExamples.establishmentProductNotFound.example,
+    },
   })
   @ApiConflictResponse({
-    description: SwaggerErrorExamples.establishmentProductNameAlreadyExists.description,
-    schema: { example: SwaggerErrorExamples.establishmentProductNameAlreadyExists.example },
+    description:
+      SwaggerErrorExamples.establishmentProductNameAlreadyExists.description,
+    schema: {
+      example:
+        SwaggerErrorExamples.establishmentProductNameAlreadyExists.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

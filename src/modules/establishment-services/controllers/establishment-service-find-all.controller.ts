@@ -25,7 +25,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceFindAllController {
   constructor(
     private readonly establishmentServiceFindAllService: EstablishmentServiceFindAllService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Find all services (paginated)' })
@@ -35,8 +35,11 @@ export class EstablishmentServiceFindAllController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiNotFoundResponse({
     description: SwaggerErrorExamples.establishmentNotFound.description,

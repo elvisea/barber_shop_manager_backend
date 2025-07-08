@@ -29,15 +29,18 @@ import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 export class EstablishmentMemberCreateController {
   constructor(
     private readonly establishmentMemberCreateService: EstablishmentMemberCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new establishment member' })
   @ApiResponse({ status: 201, type: EstablishmentMemberCreateResponseDTO })
   @ApiConflictResponse({
-    description: SwaggerErrorExamples.establishmentMemberAlreadyExists.description,
-    schema: { example: SwaggerErrorExamples.establishmentMemberAlreadyExists.example },
+    description:
+      SwaggerErrorExamples.establishmentMemberAlreadyExists.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentMemberAlreadyExists.example,
+    },
   })
   @ApiNotFoundResponse({
     description: SwaggerErrorExamples.establishmentNotFound.description,

@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentFindOneController {
   constructor(
     private readonly establishmentFindOneService: EstablishmentFindOneService,
-  ) { }
+  ) {}
 
   @Get(':establishmentId')
   @ApiOperation({ summary: 'Find establishment by id' })
@@ -33,8 +33,11 @@ export class EstablishmentFindOneController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

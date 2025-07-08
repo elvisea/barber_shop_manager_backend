@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment' })
@@ -33,8 +33,11 @@ export class EstablishmentCreateController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiConflictResponse({
-    description: SwaggerErrorExamples.establishmentPhoneAlreadyExists.description,
-    schema: { example: SwaggerErrorExamples.establishmentPhoneAlreadyExists.example },
+    description:
+      SwaggerErrorExamples.establishmentPhoneAlreadyExists.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentPhoneAlreadyExists.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

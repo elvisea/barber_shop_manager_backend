@@ -25,18 +25,25 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentProductCreateController {
   constructor(
     private readonly establishmentProductCreateService: EstablishmentProductCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create product for establishment' })
   @ApiResponse({ status: 201, type: EstablishmentProductCreateResponseDTO })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiConflictResponse({
-    description: SwaggerErrorExamples.establishmentProductNameAlreadyExists.description,
-    schema: { example: SwaggerErrorExamples.establishmentProductNameAlreadyExists.example },
+    description:
+      SwaggerErrorExamples.establishmentProductNameAlreadyExists.description,
+    schema: {
+      example:
+        SwaggerErrorExamples.establishmentProductNameAlreadyExists.example,
+    },
   })
   @ApiBadRequestResponse({
     description: SwaggerErrorExamples.validationError.description,

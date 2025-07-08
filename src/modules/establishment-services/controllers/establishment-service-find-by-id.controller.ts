@@ -24,7 +24,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceFindByIdController {
   constructor(
     private readonly establishmentServiceFindByIdService: EstablishmentServiceFindByIdService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Find service by ID' })
@@ -34,12 +34,17 @@ export class EstablishmentServiceFindByIdController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiNotFoundResponse({
     description: SwaggerErrorExamples.establishmentServiceNotFound.description,
-    schema: { example: SwaggerErrorExamples.establishmentServiceNotFound.example },
+    schema: {
+      example: SwaggerErrorExamples.establishmentServiceNotFound.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

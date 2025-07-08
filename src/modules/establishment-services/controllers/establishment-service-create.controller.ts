@@ -25,7 +25,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceCreateController {
   constructor(
     private readonly establishmentServiceCreateService: EstablishmentServiceCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment service' })
@@ -35,12 +35,19 @@ export class EstablishmentServiceCreateController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   @ApiConflictResponse({
-    description: SwaggerErrorExamples.establishmentServiceNameAlreadyExists.description,
-    schema: { example: SwaggerErrorExamples.establishmentServiceNameAlreadyExists.example },
+    description:
+      SwaggerErrorExamples.establishmentServiceNameAlreadyExists.description,
+    schema: {
+      example:
+        SwaggerErrorExamples.establishmentServiceNameAlreadyExists.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,

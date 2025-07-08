@@ -24,7 +24,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentUpdateController {
   constructor(
     private readonly establishmentUpdateService: EstablishmentUpdateService,
-  ) { }
+  ) {}
 
   @Patch(':establishmentId')
   @ApiOperation({ summary: 'Update an establishment' })
@@ -34,8 +34,11 @@ export class EstablishmentUpdateController {
     schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: {
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,
