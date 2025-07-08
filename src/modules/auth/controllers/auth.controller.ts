@@ -5,6 +5,8 @@ import { CreateAuthRequestDTO } from '../dtos/create-auth-request.dto';
 import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
 import { AuthService } from '../services/auth.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
@@ -20,7 +22,13 @@ export class AuthController {
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: 'Invalid credentials',
+    description: SwaggerErrorExamples.invalidEmailOrPassword.description,
+    schema: { example: SwaggerErrorExamples.invalidEmailOrPassword.example },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   async handle(
     @Body() authRequest: CreateAuthRequestDTO,
