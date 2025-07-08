@@ -12,6 +12,7 @@ import {
 import { EstablishmentServiceFindByIdParamDTO } from '../dtos/establishment-service-find-by-id-param.dto';
 import { EstablishmentServiceDeleteService } from '../services/establishment-service-delete.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -22,42 +23,23 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceDeleteController {
   constructor(
     private readonly establishmentServiceDeleteService: EstablishmentServiceDeleteService,
-  ) {}
+  ) { }
 
   @Delete()
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete service by ID' })
   @ApiNoContentResponse({ description: 'Service deleted successfully' })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['serviceId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description:
-      'Forbidden: user is not a member of the establishment or lacks ADMIN role.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiNotFoundResponse({
-    description: 'Service or establishment not found.',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Service not found',
-        error: 'ESTABLISHMENT_SERVICE_NOT_FOUND',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentServiceNotFound.description,
+    schema: { example: SwaggerErrorExamples.establishmentServiceNotFound.example },
   })
   async handle(
     @GetRequestId() userId: string,

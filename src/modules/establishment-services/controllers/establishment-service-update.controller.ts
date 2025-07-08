@@ -15,6 +15,7 @@ import { EstablishmentServiceFindByIdParamDTO } from '../dtos/establishment-serv
 import { EstablishmentServiceUpdateRequestDTO } from '../dtos/establishment-service-update-request.dto';
 import { EstablishmentServiceUpdateService } from '../services/establishment-service-update.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -25,51 +26,26 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceUpdateController {
   constructor(
     private readonly establishmentServiceUpdateService: EstablishmentServiceUpdateService,
-  ) {}
+  ) { }
 
   @Patch()
   @ApiOperation({ summary: 'Update service by ID' })
   @ApiResponse({ status: 200, type: EstablishmentServiceCreateResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['name should not be empty'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description:
-      'Forbidden: user is not a member of the establishment or lacks ADMIN role.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiNotFoundResponse({
-    description: 'Service or establishment not found.',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Service not found',
-        error: 'ESTABLISHMENT_SERVICE_NOT_FOUND',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentServiceNotFound.description,
+    schema: { example: SwaggerErrorExamples.establishmentServiceNotFound.example },
   })
   @ApiConflictResponse({
-    description: 'Conflict: service name already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'Service name already exists',
-        error: 'ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentServiceNameAlreadyExists.description,
+    schema: { example: SwaggerErrorExamples.establishmentServiceNameAlreadyExists.example },
   })
   async handle(
     @GetRequestId() userId: string,

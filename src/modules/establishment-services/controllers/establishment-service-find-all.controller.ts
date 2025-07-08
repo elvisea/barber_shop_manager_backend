@@ -14,6 +14,7 @@ import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-servi
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 import { EstablishmentServiceFindAllService } from '../services/establishment-service-find-all.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -24,40 +25,22 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceFindAllController {
   constructor(
     private readonly establishmentServiceFindAllService: EstablishmentServiceFindAllService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Find all services (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentServiceFindAllResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['establishmentId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: user is not a member of the establishment.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiNotFoundResponse({
-    description: 'Establishment not found.',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Establishment not found',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFound.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFound.example },
   })
   async handle(
     @GetRequestId() userId: string,

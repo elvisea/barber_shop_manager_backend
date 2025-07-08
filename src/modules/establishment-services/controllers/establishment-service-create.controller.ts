@@ -14,6 +14,7 @@ import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-serv
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceCreateService } from '../services/establishment-service-create.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -24,41 +25,22 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentServiceCreateController {
   constructor(
     private readonly establishmentServiceCreateService: EstablishmentServiceCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment service' })
   @ApiResponse({ status: 201, type: EstablishmentServiceCreateResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['name should not be empty', 'price must be an integer'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description:
-      'Forbidden: user is not a member of the establishment or lacks ADMIN role.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiConflictResponse({
-    description: 'Conflict: service name already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'Service name already exists',
-        error: 'ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentServiceNameAlreadyExists.description,
+    schema: { example: SwaggerErrorExamples.establishmentServiceNameAlreadyExists.example },
   })
   async handle(
     @GetRequestId() userId: string,
