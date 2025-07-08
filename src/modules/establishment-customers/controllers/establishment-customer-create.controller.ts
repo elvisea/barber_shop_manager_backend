@@ -14,7 +14,8 @@ import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-cus
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerCreateService } from '../services/establishment-customer-create.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -32,9 +33,12 @@ export class EstablishmentCustomerCreateController {
   @ApiResponse({ status: 201, type: EstablishmentCustomerCreateResponseDTO })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   @ApiConflictResponse({
@@ -43,20 +47,20 @@ export class EstablishmentCustomerCreateController {
       oneOf: [
         {
           example:
-            SwaggerErrorExamples.establishmentCustomerEmailAlreadyExists
+            SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS]
               .example,
         },
         {
           example:
-            SwaggerErrorExamples.establishmentCustomerPhoneAlreadyExists
+            SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS]
               .example,
         },
       ],
     },
   })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   async handle(
     @GetRequestId() userId: string,

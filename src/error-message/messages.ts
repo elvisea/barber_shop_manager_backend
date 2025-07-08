@@ -82,4 +82,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Member with USER_ID [USER_ID] is already registered in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.VALIDATION_ERROR]: {
+    message: 'Validation failed for one or more fields.',
+  },
 } as const;

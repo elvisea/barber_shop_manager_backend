@@ -13,7 +13,8 @@ import { EstablishmentProductFindAllQueryDTO } from '../dtos/establishment-produ
 import { EstablishmentProductFindAllResponseDTO } from '../dtos/establishment-product-find-all-response.dto';
 import { EstablishmentProductFindAllService } from '../services/establishment-product-find-all.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -30,14 +31,17 @@ export class EstablishmentProductFindAllController {
   @ApiOperation({ summary: 'Find all products (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentProductFindAllResponseDTO })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   async handle(

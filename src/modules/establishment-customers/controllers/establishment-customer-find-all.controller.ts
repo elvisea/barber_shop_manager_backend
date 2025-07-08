@@ -13,7 +13,8 @@ import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-cust
 import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-customer-find-all-response.dto';
 import { EstablishmentCustomerFindAllService } from '../services/establishment-customer-find-all.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -30,14 +31,17 @@ export class EstablishmentCustomerFindAllController {
   @ApiOperation({ summary: 'Find all customers (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentCustomerFindAllResponseDTO })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   async handle(

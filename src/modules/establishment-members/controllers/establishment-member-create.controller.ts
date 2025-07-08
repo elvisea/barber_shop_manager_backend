@@ -21,7 +21,8 @@ import { EstablishmentMemberCreateRequestDTO } from '../dtos/establishment-membe
 import { EstablishmentMemberCreateResponseDTO } from '../dtos/establishment-member-create-response.dto';
 import { EstablishmentMemberCreateService } from '../services/establishment-member-create.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
@@ -37,21 +38,30 @@ export class EstablishmentMemberCreateController {
   @ApiResponse({ status: 201, type: EstablishmentMemberCreateResponseDTO })
   @ApiConflictResponse({
     description:
-      SwaggerErrorExamples.establishmentMemberAlreadyExists.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_MEMBER_ALREADY_EXISTS].description,
     schema: {
-      example: SwaggerErrorExamples.establishmentMemberAlreadyExists.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_MEMBER_ALREADY_EXISTS].example,
     },
   })
   @ApiNotFoundResponse({
-    description: SwaggerErrorExamples.establishmentNotFound.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFound.example },
+    description: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].description,
+    schema: {
+      example: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].example,
+    },
   })
   @ApiForbiddenResponse({
     description: 'Forbidden',
     schema: {
       oneOf: [
-        { example: SwaggerErrorExamples.establishmentNotOwnedByUser.example },
-        { example: SwaggerErrorExamples.userNotAdminInEstablishment.example },
+        {
+          example:
+            SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER].example,
+        },
+        {
+          example:
+            SwaggerErrors[ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT].example,
+        },
       ],
     },
   })

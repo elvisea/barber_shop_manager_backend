@@ -11,7 +11,8 @@ import { EstablishmentFindAllQueryDTO } from '../dtos/establishment-find-all-que
 import { EstablishmentFindAllResponseDTO } from '../dtos/establishment-find-all-response.dto';
 import { EstablishmentFindAllService } from '../services/establishment-find-all.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -28,8 +29,8 @@ export class EstablishmentFindAllController {
   @ApiOperation({ summary: 'Find establishments (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentFindAllResponseDTO })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   async handle(
     @GetRequestId() userId: string,

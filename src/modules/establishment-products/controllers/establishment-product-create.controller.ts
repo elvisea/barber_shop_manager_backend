@@ -14,7 +14,8 @@ import { EstablishmentProductCreateRequestDTO } from '../dtos/establishment-prod
 import { EstablishmentProductCreateResponseDTO } from '../dtos/establishment-product-create-response.dto';
 import { EstablishmentProductCreateService } from '../services/establishment-product-create.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -32,22 +33,27 @@ export class EstablishmentProductCreateController {
   @ApiResponse({ status: 201, type: EstablishmentProductCreateResponseDTO })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   @ApiConflictResponse({
     description:
-      SwaggerErrorExamples.establishmentProductNameAlreadyExists.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS]
+        .description,
     schema: {
       example:
-        SwaggerErrorExamples.establishmentProductNameAlreadyExists.example,
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS]
+          .example,
     },
   })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   async handle(
     @GetRequestId() userId: string,

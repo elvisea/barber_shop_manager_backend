@@ -14,7 +14,8 @@ import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentUpdateService } from '../services/establishment-update.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
@@ -30,14 +31,17 @@ export class EstablishmentUpdateController {
   @ApiOperation({ summary: 'Update an establishment' })
   @ApiResponse({ status: 200, type: EstablishmentFindOneResponseDTO })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   async handle(

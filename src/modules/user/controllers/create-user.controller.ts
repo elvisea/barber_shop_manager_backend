@@ -1,11 +1,18 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
 import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
 import { CreateUserService } from '../services/create-user.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Users')
 @Controller('users')
@@ -19,20 +26,18 @@ export class CreateUserController {
     description: 'User created successfully',
     type: CreateUserResponseDTO,
   })
-  @ApiResponse({
-    status: 409,
-    description: SwaggerErrorExamples.userAlreadyExists.description,
-    schema: { example: SwaggerErrorExamples.userAlreadyExists.example },
+  @ApiConflictResponse({
+    description: SwaggerErrors[ErrorCode.USER_ALREADY_EXISTS].description,
+    schema: { example: SwaggerErrors[ErrorCode.USER_ALREADY_EXISTS].example },
   })
-  @ApiResponse({
-    status: 400,
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+  @ApiBadRequestResponse({
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiResponse({
     status: 500,
-    description: SwaggerErrorExamples.userCreationFailed.description,
-    schema: { example: SwaggerErrorExamples.userCreationFailed.example },
+    description: SwaggerErrors[ErrorCode.USER_CREATION_FAILED].description,
+    schema: { example: SwaggerErrors[ErrorCode.USER_CREATION_FAILED].example },
   })
   async handle(
     @Body() dto: CreateUserRequestDTO,

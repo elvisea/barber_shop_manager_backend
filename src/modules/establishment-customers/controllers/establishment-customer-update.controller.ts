@@ -15,7 +15,8 @@ import { EstablishmentCustomerFindByIdParamDTO } from '../dtos/establishment-cus
 import { EstablishmentCustomerUpdateRequestDTO } from '../dtos/establishment-customer-update-request.dto';
 import { EstablishmentCustomerUpdateService } from '../services/establishment-customer-update.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -32,20 +33,25 @@ export class EstablishmentCustomerUpdateController {
   @ApiOperation({ summary: 'Update customer by ID' })
   @ApiResponse({ status: 200, type: EstablishmentCustomerCreateResponseDTO })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   @ApiNotFoundResponse({
-    description: SwaggerErrorExamples.establishmentCustomerNotFound.description,
+    description:
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND].description,
     schema: {
-      example: SwaggerErrorExamples.establishmentCustomerNotFound.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND].example,
     },
   })
   @ApiConflictResponse({
@@ -54,12 +60,12 @@ export class EstablishmentCustomerUpdateController {
       oneOf: [
         {
           example:
-            SwaggerErrorExamples.establishmentCustomerEmailAlreadyExists
+            SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS]
               .example,
         },
         {
           example:
-            SwaggerErrorExamples.establishmentCustomerPhoneAlreadyExists
+            SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS]
               .example,
         },
       ],

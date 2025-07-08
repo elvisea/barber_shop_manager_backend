@@ -14,7 +14,8 @@ import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-servi
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 import { EstablishmentServiceFindAllService } from '../services/establishment-service-find-all.service';
 
-import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -31,19 +32,24 @@ export class EstablishmentServiceFindAllController {
   @ApiOperation({ summary: 'Find all services (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentServiceFindAllResponseDTO })
   @ApiBadRequestResponse({
-    description: SwaggerErrorExamples.validationError.description,
-    schema: { example: SwaggerErrorExamples.validationError.example },
+    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
+    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiForbiddenResponse({
     description:
-      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+        .description,
     schema: {
-      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
+      example:
+        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
+          .example,
     },
   })
   @ApiNotFoundResponse({
-    description: SwaggerErrorExamples.establishmentNotFound.description,
-    schema: { example: SwaggerErrorExamples.establishmentNotFound.example },
+    description: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].description,
+    schema: {
+      example: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].example,
+    },
   })
   async handle(
     @GetRequestId() userId: string,
