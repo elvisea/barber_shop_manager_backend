@@ -16,4 +16,9 @@ export interface IEstablishmentMemberRepository {
     userId: string,
     establishmentId: string,
   ): Promise<boolean>;
+
+  deleteByUserAndEstablishment(
+    userId: string,
+    establishmentId: string,
+  ): Promise<void>;
 }

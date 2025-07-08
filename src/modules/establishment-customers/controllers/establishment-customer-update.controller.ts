@@ -15,6 +15,7 @@ import { EstablishmentCustomerFindByIdParamDTO } from '../dtos/establishment-cus
 import { EstablishmentCustomerUpdateRequestDTO } from '../dtos/establishment-customer-update-request.dto';
 import { EstablishmentCustomerUpdateService } from '../services/establishment-customer-update.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -31,33 +32,20 @@ export class EstablishmentCustomerUpdateController {
   @ApiOperation({ summary: 'Update customer by ID' })
   @ApiResponse({ status: 200, type: EstablishmentCustomerCreateResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['customerId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
+    description:
+      SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
     schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
+      example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example,
     },
   })
   @ApiNotFoundResponse({
-    description: 'Customer or establishment not found.',
+    description: SwaggerErrorExamples.establishmentCustomerNotFound.description,
     schema: {
-      example: {
-        statusCode: 404,
-        message: 'Customer not found',
-        error: 'ESTABLISHMENT_CUSTOMER_NOT_FOUND',
-      },
+      example: SwaggerErrorExamples.establishmentCustomerNotFound.example,
     },
   })
   @ApiConflictResponse({
@@ -65,18 +53,14 @@ export class EstablishmentCustomerUpdateController {
     schema: {
       oneOf: [
         {
-          example: {
-            statusCode: 409,
-            message: 'A customer with email already exists',
-            error: 'ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS',
-          },
+          example:
+            SwaggerErrorExamples.establishmentCustomerEmailAlreadyExists
+              .example,
         },
         {
-          example: {
-            statusCode: 409,
-            message: 'A customer with phone already exists',
-            error: 'ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS',
-          },
+          example:
+            SwaggerErrorExamples.establishmentCustomerPhoneAlreadyExists
+              .example,
         },
       ],
     },

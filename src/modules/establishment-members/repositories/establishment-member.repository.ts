@@ -48,4 +48,18 @@ export class EstablishmentMemberRepository
     });
     return count > 0;
   }
+
+  async deleteByUserAndEstablishment(
+    userId: string,
+    establishmentId: string,
+  ): Promise<void> {
+    await this.prisma.establishmentMember.delete({
+      where: {
+        userId_establishmentId: {
+          userId,
+          establishmentId,
+        },
+      },
+    });
+  }
 }
