@@ -15,7 +15,7 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 /**
- * Checks if the user's role (from JWT memberships) matches the required roles for the establishment.
+ * Guard multi-tenant: se houver establishmentId, exige membro ativo e role; se não houver, permite acesso autenticado.
  */
 @Injectable()
 export class EstablishmentMemberGuard implements CanActivate {
@@ -32,11 +32,6 @@ export class EstablishmentMemberGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (!requiredRoles || requiredRoles.length === 0) {
-      this.logger.log('No roles required for this route. Access granted.');
-      return true;
-    }
-
     const req = context.switchToHttp().getRequest();
     const user = req.user as AuthenticatedUser;
 
@@ -45,17 +40,18 @@ export class EstablishmentMemberGuard implements CanActivate {
       req.params?.establishmentId ||
       req.body?.establishmentId ||
       req.query?.establishmentId;
+
     if (!establishmentId) {
-      this.logger.warn('EstablishmentId not provided in the request.');
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: user.id },
+      // Não exige membership, só autenticação (e eventualmente role global)
+      this.logger.log(
+        'No establishmentId provided. Skipping membership checks.',
       );
-      throw new CustomHttpException(
-        message,
-        400,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
+      return true;
+    }
+
+    if (!requiredRoles || requiredRoles.length === 0) {
+      this.logger.log('No roles required for this route. Access granted.');
+      return true;
     }
 
     // 2. Buscar membership do usuário para o estabelecimento
@@ -66,10 +62,12 @@ export class EstablishmentMemberGuard implements CanActivate {
       this.logger.warn(
         `User ${user.email} is not a member of establishment ${establishmentId}.`,
       );
+
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: user.id },
       );
+
       throw new CustomHttpException(
         message,
         403,
@@ -82,10 +80,12 @@ export class EstablishmentMemberGuard implements CanActivate {
       this.logger.warn(
         `User ${user.email} is not active in establishment ${establishmentId}.`,
       );
+
       const message = this.errorMessageService.getMessage(
         ErrorCode.USER_NOT_ACTIVE_IN_ANY_ESTABLISHMENT,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: user.id },
       );
+
       throw new CustomHttpException(
         message,
         403,
@@ -98,6 +98,7 @@ export class EstablishmentMemberGuard implements CanActivate {
       this.logger.warn(
         `User ${user.email} does not have required role for establishment ${establishmentId}. Required: [${requiredRoles.join(', ')}], User: ${membership.role}`,
       );
+
       const message = this.errorMessageService.getMessage(
         ErrorCode.INSUFFICIENT_ROLE,
         {
