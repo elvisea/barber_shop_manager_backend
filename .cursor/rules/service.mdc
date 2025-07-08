@@ -12,7 +12,7 @@ Services contêm a lógica de negócio da aplicação. São responsáveis por va
 
 - Não acessa diretamente o banco (usa repositórios).
 - Lança exceções com `CustomHttpException`.
-- Utiliza `ErrorMessagesService` para mensagens padronizadas.
+- Utiliza `ErrorMessageService` para mensagens padronizadas.
 - Pode fazer validações com base nas regras do negócio.
 - Todo service deve **usar** `import { Logger } from '@nestjs/common';` para registrar logs de acompanhamento.
 - O código deve sempre ter **linhas vazias entre blocos lógicos**, para manter a legibilidade e facilitar a manutenção.
@@ -23,7 +23,7 @@ Services contêm a lógica de negócio da aplicação. São responsáveis por va
 
 ```ts
 import { Injectable, Logger } from '@nestjs/common';
-import { ErrorMessagesService } from '@/core/error-message.service';
+import { ErrorMessageService } from '@/core/error-message.service';
 import { CustomHttpException } from '@/core/exceptions/custom-http.exception';
 import { EmployeeRequestDTO, EmployeeResponseDTO } from '../dtos';
 import { IEmployeeRepository } from '../contracts';
@@ -34,7 +34,7 @@ import { HttpStatus } from '@nestjs/common';
 export class EmployeeCreateService {
   constructor(
     private readonly employeeRepository: IEmployeeRepository,
-    private readonly errorMessagesService: ErrorMessagesService,
+    private readonly errorMessageService: ErrorMessageService,
     private readonly logger: Logger,
   ) {}
 
@@ -42,7 +42,7 @@ export class EmployeeCreateService {
     const establishment = await this.employeeRepository.findEstablishmentById(dto.establishmentId, ownerId);
 
     if (!establishment) {
-      const message = this.errorMessagesService.getMessage(
+      const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {
           ESTABLISHMENT_ID: dto.establishmentId,

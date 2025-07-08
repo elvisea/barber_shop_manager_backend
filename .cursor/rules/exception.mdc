@@ -4,19 +4,19 @@ alwaysApply: true
 
 # ❗ Tratamento de Exceções
 
-As exceções lançadas na aplicação devem seguir um padrão centralizado com `CustomHttpException` e `ErrorMessagesService`.
+As exceções lançadas na aplicação devem seguir um padrão centralizado com `CustomHttpException` e `ErrorMessageService`.
 
 ## ✅ Regras
 
 - Usar `CustomHttpException` em toda exceção controlada.
-- Obter mensagens padronizadas do `ErrorMessagesService`.
+- Obter mensagens padronizadas do `ErrorMessageService`.
 - Registrar logs com `Logger` se necessário.
 
 ## 📌 Exemplo
 
 ```ts
 if (!establishment) {
-  const message = this.errorMessagesService.getMessage(
+  const message = this.errorMessageService.getMessage(
     ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
     { ESTABLISHMENT_ID: request.establishmentId, OWNER_ID: ownerId },
   );

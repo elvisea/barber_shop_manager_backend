@@ -133,7 +133,7 @@ Contém a lógica de negócio. Deve:
 
 ```ts
 if (!establishment) {
-  const errorMessage = this.errorMessagesService.getMessage(
+  const errorMessage = this.errorMessageService.getMessage(
     ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
     { ESTABLISHMENT_ID: request.establishmentId, OWNER_ID: ownerId },
   );
@@ -206,7 +206,7 @@ Utilizar sempre:
 
 ```ts
 throw new CustomHttpException(
-  this.errorMessagesService.getMessage(ErrorCode.EXAMPLE, { KEY: value }),
+  this.errorMessageService.getMessage(ErrorCode.EXAMPLE, { KEY: value }),
   HttpStatus.CONFLICT,
   ErrorCode.EXAMPLE,
 );
