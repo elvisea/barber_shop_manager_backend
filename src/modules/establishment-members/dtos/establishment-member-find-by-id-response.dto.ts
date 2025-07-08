@@ -8,6 +8,7 @@ export class EstablishmentMemberFindByIdResponseDTO {
       name: 'John Doe',
       email: 'john@email.com',
       phone: '+5511999999999',
+      emailVerified: true,
       createdAt: '2024-07-01T12:00:00.000Z',
       updatedAt: '2024-07-01T12:00:00.000Z',
     },
@@ -17,6 +18,7 @@ export class EstablishmentMemberFindByIdResponseDTO {
     name: string;
     email: string;
     phone: string;
+    emailVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
   };

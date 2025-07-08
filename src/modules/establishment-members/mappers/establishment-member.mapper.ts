@@ -4,7 +4,7 @@ import { EstablishmentMemberFindByIdResponseDTO } from '../dtos/establishment-me
 
 export class EstablishmentMemberMapper {
   static toFindByIdResponse(
-    member: EstablishmentMember & { user: Omit<User, 'password'> },
+    member: EstablishmentMember & { user: User },
   ): EstablishmentMemberFindByIdResponseDTO {
     return {
       user: {
@@ -12,6 +12,7 @@ export class EstablishmentMemberMapper {
         name: member.user.name,
         email: member.user.email,
         phone: member.user.phone,
+        emailVerified: member.user.emailVerified,
         createdAt: member.user.createdAt,
         updatedAt: member.user.updatedAt,
       },
