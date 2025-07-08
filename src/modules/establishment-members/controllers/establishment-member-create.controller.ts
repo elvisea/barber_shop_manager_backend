@@ -8,6 +8,9 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -18,7 +21,7 @@ import { EstablishmentMemberCreateRequestDTO } from '../dtos/establishment-membe
 import { EstablishmentMemberCreateResponseDTO } from '../dtos/establishment-member-create-response.dto';
 import { EstablishmentMemberCreateService } from '../services/establishment-member-create.service';
 
-import { ErrorCode } from '@/enums/error-code';
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
@@ -26,24 +29,28 @@ import { ErrorCode } from '@/enums/error-code';
 export class EstablishmentMemberCreateController {
   constructor(
     private readonly establishmentMemberCreateService: EstablishmentMemberCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new establishment member' })
   @ApiResponse({ status: 201, type: EstablishmentMemberCreateResponseDTO })
-  @ApiResponse({
-    status: 409,
-    description: ErrorCode.ESTABLISHMENT_MEMBER_ALREADY_EXISTS,
+  @ApiConflictResponse({
+    description: SwaggerErrorExamples.establishmentMemberAlreadyExists.description,
+    schema: { example: SwaggerErrorExamples.establishmentMemberAlreadyExists.example },
   })
-  @ApiResponse({ status: 404, description: ErrorCode.ESTABLISHMENT_NOT_FOUND })
-  @ApiResponse({
-    status: 403,
-    description: ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+  @ApiNotFoundResponse({
+    description: SwaggerErrorExamples.establishmentNotFound.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFound.example },
   })
-  @ApiResponse({
-    status: 403,
-    description: ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT,
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    schema: {
+      oneOf: [
+        { example: SwaggerErrorExamples.establishmentNotOwnedByUser.example },
+        { example: SwaggerErrorExamples.userNotAdminInEstablishment.example },
+      ],
+    },
   })
   async handle(
     @Param() params: EstablishmentMemberCreateParamDTO,
