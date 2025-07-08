@@ -78,4 +78,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT]: {
     message: 'User [USER_ID] is not ADMIN in establishment [ESTABLISHMENT_ID].',
   },
+  ESTABLISHMENT_MEMBER_ALREADY_EXISTS: {
+    message:
+      'Member with USER_ID [USER_ID] is already registered in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

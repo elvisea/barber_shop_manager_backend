@@ -24,4 +24,28 @@ export class EstablishmentMemberRepository
       include: { establishment: true },
     });
   }
+
+  async createMember(data: {
+    userId: string;
+    establishmentId: string;
+    role: Role;
+  }): Promise<EstablishmentMember> {
+    return this.prisma.establishmentMember.create({
+      data: {
+        userId: data.userId,
+        establishmentId: data.establishmentId,
+        role: data.role,
+      },
+    });
+  }
+
+  async existsByUserAndEstablishment(
+    userId: string,
+    establishmentId: string,
+  ): Promise<boolean> {
+    const count = await this.prisma.establishmentMember.count({
+      where: { userId, establishmentId },
+    });
+    return count > 0;
+  }
 }
