@@ -19,11 +19,11 @@ export class EstablishmentMemberDeleteService {
 
   async execute(
     establishmentId: string,
-    userId: string,
+    memberId: string,
     requesterId: string,
   ): Promise<void> {
     this.logger.log(
-      `Deleting member ${userId} from establishment ${establishmentId} by requester ${requesterId}`,
+      `Deleting member ${memberId} from establishment ${establishmentId} by requester ${requesterId}`,
     );
 
     // Valida se o requester tem permissão no estabelecimento
@@ -35,14 +35,14 @@ export class EstablishmentMemberDeleteService {
     // Verifica se o membro existe
     const exists =
       await this.establishmentMemberRepository.existsByUserAndEstablishment(
-        userId,
+        memberId,
         establishmentId,
       );
 
     if (!exists) {
       const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+        ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: memberId },
       );
 
       this.logger.warn(message);
@@ -50,17 +50,17 @@ export class EstablishmentMemberDeleteService {
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND,
       );
     }
 
     await this.establishmentMemberRepository.deleteByUserAndEstablishment(
-      userId,
+      memberId,
       establishmentId,
     );
 
     this.logger.log(
-      `Member ${userId} deleted from establishment ${establishmentId}`,
+      `Member ${memberId} deleted from establishment ${establishmentId}`,
     );
   }
 }

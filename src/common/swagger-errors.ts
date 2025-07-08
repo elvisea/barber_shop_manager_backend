@@ -220,6 +220,15 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.ESTABLISHMENT_MEMBER_ALREADY_EXISTS,
     },
   },
+  [ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND]: {
+    description: 'Establishment member not found',
+    example: {
+      statusCode: 404,
+      message: 'Establishment member not found',
+      error: 'Not Found',
+      errorCode: ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND,
+    },
+  },
   [ErrorCode.VALIDATION_ERROR]: {
     description: 'Validation error',
     example: {

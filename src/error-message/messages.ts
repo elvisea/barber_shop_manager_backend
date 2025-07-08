@@ -85,4 +85,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.VALIDATION_ERROR]: {
     message: 'Validation failed for one or more fields.',
   },
+  [ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND]: {
+    message:
+      'Member with USER_ID [USER_ID] not found in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;
