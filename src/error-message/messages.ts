@@ -68,4 +68,14 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.USER_ROLE_NOT_PERMITTED_ANY_ESTABLISHMENT]: {
     message: 'User does not have the required role in any establishment.',
   },
+  [ErrorCode.ESTABLISHMENT_NOT_FOUND]: {
+    message: 'Establishment with ID [ESTABLISHMENT_ID] not found.',
+  },
+  [ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER]: {
+    message:
+      'Establishment with ID [ESTABLISHMENT_ID] does not belong to user [USER_ID].',
+  },
+  [ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT]: {
+    message: 'User [USER_ID] is not ADMIN in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

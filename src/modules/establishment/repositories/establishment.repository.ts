@@ -66,6 +66,18 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     });
   }
 
+  async findByIdWithMembersAdmin(
+    establishmentId: string,
+  ): Promise<
+    | (Establishment & { members: Array<{ userId: string; role: string }> })
+    | null
+  > {
+    return this.prisma.establishment.findUnique({
+      where: { id: establishmentId },
+      include: { members: true },
+    });
+  }
+
   async findAllByUserPaginated(params: {
     userId: string;
     skip: number;

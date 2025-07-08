@@ -26,26 +26,56 @@ export class EstablishmentServiceDeleteService {
       `Deleting service with ID ${serviceId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
-      establishmentId,
-      userId,
-    );
+    const establishment =
+      await this.establishmentRepository.findByIdWithMembersAdmin(
+        establishmentId,
+      );
 
     if (!establishment) {
       const errorMessage = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
         {
-          USER_ID: userId,
           ESTABLISHMENT_ID: establishmentId,
         },
       );
-
       this.logger.warn(errorMessage);
-
       throw new CustomHttpException(
         errorMessage,
         HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
+
+    const member = establishment.members.find((m) => m.userId === userId);
+    if (!member) {
+      const errorMessage = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        {
+          ESTABLISHMENT_ID: establishmentId,
+          USER_ID: userId,
+        },
+      );
+      this.logger.warn(errorMessage);
+      throw new CustomHttpException(
+        errorMessage,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
+
+    if (member.role !== 'ADMIN') {
+      const errorMessage = this.errorMessageService.getMessage(
+        ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT,
+        {
+          ESTABLISHMENT_ID: establishmentId,
+          USER_ID: userId,
+        },
+      );
+      this.logger.warn(errorMessage);
+      throw new CustomHttpException(
+        errorMessage,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT,
       );
     }
 
