@@ -30,9 +30,7 @@ export class AuthService {
       `Starting authentication process for email: ${authRequest.email}`,
     );
 
-    const user = await this.userRepository.findByEmailWithMemberships(
-      authRequest.email,
-    );
+    const user = await this.userRepository.findByEmail(authRequest.email);
 
     /**
      * The user is not found.
@@ -72,17 +70,8 @@ export class AuthService {
       `Authentication successful for email [${authRequest.email}].`,
     );
 
-    // Montar memberships para o payload
-    const memberships = (user.memberships || []).map((m) => ({
-      establishmentId: m.establishmentId,
-      role: m.role,
-      isActive: m.isActive,
-    }));
-
     const payload = {
       sub: user.id,
-      email: user.email,
-      memberships,
     };
 
     const { accessToken, refreshToken } =
