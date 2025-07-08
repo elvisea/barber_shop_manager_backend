@@ -6,6 +6,7 @@ import { EstablishmentRepository } from '../repositories/establishment.repositor
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentFindOneService {
@@ -13,6 +14,7 @@ export class EstablishmentFindOneService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -22,6 +24,11 @@ export class EstablishmentFindOneService {
   ): Promise<EstablishmentFindOneResponseDTO> {
     this.logger.log(
       `Finding establishment with ID ${establishmentId} for userId=${userId}`,
+    );
+
+    await this.establishmentAccessService.assertUserHasAccess(
+      establishmentId,
+      userId,
     );
 
     const establishment = await this.establishmentRepository.findByIdAndUser(

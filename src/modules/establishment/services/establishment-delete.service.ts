@@ -1,10 +1,8 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { EstablishmentRepository } from '../repositories/establishment.repository';
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
-import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentDeleteService {
@@ -12,7 +10,7 @@ export class EstablishmentDeleteService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly errorMessageService: ErrorMessageService,
+    private readonly establishmentAccessService: EstablishmentAccessService,
   ) {}
 
   async execute(establishmentId: string, userId: string): Promise<void> {
@@ -20,23 +18,10 @@ export class EstablishmentDeleteService {
       `Deleting establishment ${establishmentId} by user ${userId}`,
     );
 
-    // Validar se o usuário é owner/admin do estabelecimento
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     await this.establishmentRepository.deleteByIdAndUser(establishmentId);
 

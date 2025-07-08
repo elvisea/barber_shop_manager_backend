@@ -1,11 +1,10 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
-import { CustomHttpException } from '../../../common/exceptions/custom-http-exception';
-import { ErrorCode } from '../../../enums/error-code';
-import { ErrorMessageService } from '../../../error-message/error-message.service';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
+
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 /**
  * Service responsible for updating an establishment.
@@ -20,7 +19,7 @@ export class EstablishmentUpdateService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly errorMessageService: ErrorMessageService,
+    private readonly establishmentAccessService: EstablishmentAccessService,
   ) {}
 
   async execute(
@@ -32,28 +31,10 @@ export class EstablishmentUpdateService {
       `Updating establishment ${establishmentId} by user ${userId}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-
-    if (!establishment) {
-      const errorMessage = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        {
-          USER_ID: userId,
-          ESTABLISHMENT_ID: establishmentId,
-        },
-      );
-
-      this.logger.warn(errorMessage);
-
-      throw new CustomHttpException(
-        errorMessage,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     this.logger.log(
       `Establishment ${establishmentId} found for user ${userId}. Proceeding with update.`,
