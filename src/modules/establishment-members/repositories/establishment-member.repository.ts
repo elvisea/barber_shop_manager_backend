@@ -62,4 +62,19 @@ export class EstablishmentMemberRepository
       },
     });
   }
+
+  async findByUserAndEstablishment(
+    userId: string,
+    establishmentId: string,
+  ): Promise<(EstablishmentMember & { user: any }) | null> {
+    return this.prisma.establishmentMember.findUnique({
+      where: {
+        userId_establishmentId: {
+          userId,
+          establishmentId,
+        },
+      },
+      include: { user: true },
+    });
+  }
 }

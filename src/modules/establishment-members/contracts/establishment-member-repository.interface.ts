@@ -1,4 +1,4 @@
-import { Establishment, EstablishmentMember, Role } from '@prisma/client';
+import { Establishment, EstablishmentMember, Role, User } from '@prisma/client';
 
 export interface IEstablishmentMemberRepository {
   findEstablishmentByIdAndAdmin(
@@ -21,4 +21,9 @@ export interface IEstablishmentMemberRepository {
     userId: string,
     establishmentId: string,
   ): Promise<void>;
+
+  findByUserAndEstablishment(
+    userId: string,
+    establishmentId: string,
+  ): Promise<(EstablishmentMember & { user: Partial<User> }) | null>;
 }
