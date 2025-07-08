@@ -8,21 +8,17 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { EstablishmentServiceFindByIdParamDTO } from '../dtos/establishment-service-find-by-id-param.dto';
 import { EstablishmentServiceDeleteService } from '../services/establishment-service-delete.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Services')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/services/:serviceId')
-@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentServiceDeleteController {
   constructor(
     private readonly establishmentServiceDeleteService: EstablishmentServiceDeleteService,

@@ -8,22 +8,18 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerFindByIdParamDTO } from '../dtos/establishment-customer-find-by-id-param.dto';
 import { EstablishmentCustomerFindByIdService } from '../services/establishment-customer-find-by-id.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/customers/:customerId')
-@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerFindByIdController {
   constructor(
     private readonly establishmentCustomerFindByIdService: EstablishmentCustomerFindByIdService,

@@ -7,7 +7,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { EstablishmentCustomerFindAllParamDTO } from '../dtos/establishment-customer-find-all-param.dto';
 import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-customer-find-all-query.dto';
@@ -15,15 +14,12 @@ import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-c
 import { EstablishmentCustomerFindAllService } from '../services/establishment-customer-find-all.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/customers')
-@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerFindAllController {
   constructor(
     private readonly establishmentCustomerFindAllService: EstablishmentCustomerFindAllService,

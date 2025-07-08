@@ -7,27 +7,23 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { CreateUserMemberRequestDTO } from '../dtos/create-user-member-request.dto';
 import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
 import { CreateUserMemberService } from '../services/create-user-member.service';
 
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users/members')
-@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
+@UseGuards(JwtAuthGuard)
 export class CreateUserMemberController {
   constructor(
     private readonly createUserMemberService: CreateUserMemberService,
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new member user (not ADMIN)' })
   @ApiResponse({ status: 201, type: CreateUserResponseDTO })
   @ApiConflictResponse({

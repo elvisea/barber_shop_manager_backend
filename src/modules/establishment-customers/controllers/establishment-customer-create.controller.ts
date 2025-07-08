@@ -8,7 +8,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
 import { EstablishmentCustomerCreateParamDTO } from '../dtos/establishment-customer-create-param.dto';
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
@@ -16,15 +15,12 @@ import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-cu
 import { EstablishmentCustomerCreateService } from '../services/establishment-customer-create.service';
 
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
-import { EstablishmentMemberGuard } from '@/modules/auth/guards/establishment-member.guard';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/customers')
-@UseGuards(JwtAuthGuard, EstablishmentMemberGuard)
-@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerCreateController {
   constructor(
     private readonly establishmentCustomerCreateService: EstablishmentCustomerCreateService,

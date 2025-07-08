@@ -7,9 +7,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
 
-import { Roles } from '../../auth/decorators/roles.decorator';
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentCreateService } from '../services/establishment-create.service';
@@ -27,7 +25,6 @@ export class EstablishmentCreateController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new establishment' })
   @ApiResponse({ status: 201, type: EstablishmentFindOneResponseDTO })
   @ApiBadRequestResponse({
