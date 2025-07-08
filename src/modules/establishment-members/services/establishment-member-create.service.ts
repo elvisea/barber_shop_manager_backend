@@ -1,5 +1,4 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Role } from '@prisma/client';
 
 import { EstablishmentMemberCreateRequestDTO } from '../dtos/establishment-member-create-request.dto';
 import { EstablishmentMemberCreateResponseDTO } from '../dtos/establishment-member-create-response.dto';
@@ -22,14 +21,15 @@ export class EstablishmentMemberCreateService {
 
   async execute(
     dto: EstablishmentMemberCreateRequestDTO,
+    establishmentId: string,
   ): Promise<EstablishmentMemberCreateResponseDTO> {
     this.logger.log(
-      `Creating member for establishment ${dto.establishmentId} and user ${dto.userId}`,
+      `Creating member for establishment ${establishmentId} and user ${dto.userId}`,
     );
 
     // Valida se o estabelecimento existe e o usuário tem permissão
     await this.establishmentAccessService.assertUserHasAccess(
-      dto.establishmentId,
+      establishmentId,
       dto.userId,
     );
 
@@ -37,17 +37,15 @@ export class EstablishmentMemberCreateService {
     const exists =
       await this.establishmentMemberRepository.existsByUserAndEstablishment(
         dto.userId,
-        dto.establishmentId,
+        establishmentId,
       );
 
     if (exists) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_MEMBER_ALREADY_EXISTS,
-        { USER_ID: dto.userId, ESTABLISHMENT_ID: dto.establishmentId },
+        { USER_ID: dto.userId, ESTABLISHMENT_ID: establishmentId },
       );
-
       this.logger.warn(message);
-
       throw new CustomHttpException(
         message,
         HttpStatus.CONFLICT,
@@ -57,7 +55,7 @@ export class EstablishmentMemberCreateService {
 
     const member = await this.establishmentMemberRepository.createMember({
       userId: dto.userId,
-      establishmentId: dto.establishmentId,
+      establishmentId,
       role: dto.role,
     });
 
