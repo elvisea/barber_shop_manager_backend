@@ -12,6 +12,7 @@ import { CreateUserMemberRequestDTO } from '../dtos/create-user-member-request.d
 import { CreateUserResponseDTO } from '../dtos/create-user-response.dto';
 import { CreateUserMemberService } from '../services/create-user-member.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Users')
@@ -27,24 +28,12 @@ export class CreateUserMemberController {
   @ApiOperation({ summary: 'Create a new member user (not ADMIN)' })
   @ApiResponse({ status: 201, type: CreateUserResponseDTO })
   @ApiConflictResponse({
-    description: 'Conflict: user already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'User already exists',
-        error: 'USER_ALREADY_EXISTS',
-      },
-    },
+    description: SwaggerErrorExamples.userAlreadyExists.description,
+    schema: { example: SwaggerErrorExamples.userAlreadyExists.example },
   })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['email must be a valid email'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   async handle(
     @Body() dto: CreateUserMemberRequestDTO,
