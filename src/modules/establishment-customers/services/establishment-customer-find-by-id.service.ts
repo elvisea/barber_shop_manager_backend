@@ -1,12 +1,12 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentCustomerFindByIdService {
@@ -16,7 +16,7 @@ export class EstablishmentCustomerFindByIdService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -29,23 +29,10 @@ export class EstablishmentCustomerFindByIdService {
       `Finding customer ${customerId} in establishment ${establishmentId} by user ${userId}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     const customer =
       await this.establishmentCustomerRepository.findByIdAndEstablishment(

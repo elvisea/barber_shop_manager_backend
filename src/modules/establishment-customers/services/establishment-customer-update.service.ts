@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerUpdateRequestDTO } from '../dtos/establishment-customer-update-request.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
@@ -8,6 +7,7 @@ import { EstablishmentCustomerRepository } from '../repositories/establishment-c
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentCustomerUpdateService {
@@ -15,7 +15,7 @@ export class EstablishmentCustomerUpdateService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -29,25 +29,10 @@ export class EstablishmentCustomerUpdateService {
       `Updating customer ${customerId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-
-      this.logger.warn(message);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     const customer =
       await this.establishmentCustomerRepository.findByIdAndEstablishment(

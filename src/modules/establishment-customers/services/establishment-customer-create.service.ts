@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
@@ -8,6 +7,7 @@ import { EstablishmentCustomerRepository } from '../repositories/establishment-c
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentCustomerCreateService {
@@ -15,7 +15,7 @@ export class EstablishmentCustomerCreateService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -28,25 +28,10 @@ export class EstablishmentCustomerCreateService {
       `Creating customer '${dto.name}' for establishment ${establishmentId} by user ${userId}`,
     );
 
-    // Validar se o usuário é owner/admin do estabelecimento
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-
-      this.logger.warn(message);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     // Verificar duplicidade de email/telefone
     if (dto.email) {

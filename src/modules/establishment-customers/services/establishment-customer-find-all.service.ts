@@ -1,13 +1,10 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-customer-find-all-query.dto';
 import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-customer-find-all-response.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
-import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentCustomerFindAllService {
@@ -17,8 +14,7 @@ export class EstablishmentCustomerFindAllService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentRepository: EstablishmentRepository,
-    private readonly errorMessageService: ErrorMessageService,
+    private readonly establishmentAccessService: EstablishmentAccessService,
   ) {}
 
   async execute(
@@ -33,28 +29,10 @@ export class EstablishmentCustomerFindAllService {
       `Finding all customers for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-
-    if (!establishment) {
-      const errorMessage = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        {
-          USER_ID: userId,
-          ESTABLISHMENT_ID: establishmentId,
-        },
-      );
-
-      this.logger.warn(errorMessage);
-
-      throw new CustomHttpException(
-        errorMessage,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     const { data, total } =
       await this.establishmentCustomerRepository.findAllByEstablishmentPaginated(
