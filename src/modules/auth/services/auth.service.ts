@@ -20,7 +20,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokenService: TokenService,
-    private readonly errorMessagesService: ErrorMessageService,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -36,7 +36,7 @@ export class AuthService {
      * The user is not found.
      */
     if (!user) {
-      const errorMessage = this.errorMessagesService.getMessage(
+      const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.INVALID_EMAIL_OR_PASSWORD,
         { EMAIL: authRequest.email },
       );
@@ -54,7 +54,7 @@ export class AuthService {
      * The password is invalid.
      */
     if (!isPasswordValid) {
-      const errorMessage = this.errorMessagesService.getMessage(
+      const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.INVALID_EMAIL_OR_PASSWORD,
         { EMAIL: authRequest.email },
       );

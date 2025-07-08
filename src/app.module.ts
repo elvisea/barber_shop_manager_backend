@@ -14,6 +14,7 @@ import { EstablishmentProductsModule } from './modules/establishment-products/es
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { EstablishmentAccessModule } from './shared/establishment-access/establishment-access.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PrismaModule } from './prisma/prisma.module';
     ErrorMessageModule,
     EmailModule,
     AuthModule,
+    EstablishmentAccessModule,
     EstablishmentModule,
     EstablishmentServicesModule,
     EstablishmentMembersModule,

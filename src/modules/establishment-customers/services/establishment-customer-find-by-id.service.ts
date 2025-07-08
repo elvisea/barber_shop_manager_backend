@@ -17,7 +17,7 @@ export class EstablishmentCustomerFindByIdService {
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly errorMessagesService: ErrorMessageService,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -35,7 +35,7 @@ export class EstablishmentCustomerFindByIdService {
     );
 
     if (!establishment) {
-      const message = this.errorMessagesService.getMessage(
+      const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
       );
@@ -54,7 +54,7 @@ export class EstablishmentCustomerFindByIdService {
       );
 
     if (!customer) {
-      const message = this.errorMessagesService.getMessage(
+      const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND,
         { CUSTOMER_ID: customerId, ESTABLISHMENT_ID: establishmentId },
       );
