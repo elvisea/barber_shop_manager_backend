@@ -19,6 +19,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
   ): TUser {
     const req = context.switchToHttp().getRequest();
+
     const logContext = {
       ip: req.ip,
       route: req.originalUrl,
@@ -65,7 +66,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           ...logContext,
           event: 'jwt_authenticated',
           userId: authUser.id,
-          email: authUser.email,
         },
         null,
         2,
