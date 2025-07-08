@@ -12,6 +12,7 @@ import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-requ
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentCreateService } from '../services/establishment-create.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -22,33 +23,18 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new establishment' })
   @ApiResponse({ status: 201, type: EstablishmentFindOneResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: [
-          'name should not be empty',
-          'phone must be a valid phone number',
-        ],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiConflictResponse({
-    description: 'Conflict: phone already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'Phone already exists',
-        error: 'ESTABLISHMENT_PHONE_ALREADY_EXISTS',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentPhoneAlreadyExists.description,
+    schema: { example: SwaggerErrorExamples.establishmentPhoneAlreadyExists.example },
   })
   async handle(
     @GetRequestId() userId: string,

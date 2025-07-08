@@ -12,6 +12,7 @@ import { EstablishmentFindOneParamDTO } from '../dtos/establishment-find-one-par
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentFindOneService } from '../services/establishment-find-one.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -22,30 +23,18 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentFindOneController {
   constructor(
     private readonly establishmentFindOneService: EstablishmentFindOneService,
-  ) {}
+  ) { }
 
   @Get(':establishmentId')
   @ApiOperation({ summary: 'Find establishment by id' })
   @ApiResponse({ status: 200, type: EstablishmentFindOneResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['establishmentId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   async handle(
     @GetRequestId() userId: string,

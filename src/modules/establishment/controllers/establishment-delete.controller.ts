@@ -11,6 +11,7 @@ import {
 import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.dto';
 import { EstablishmentDeleteService } from '../services/establishment-delete.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -21,31 +22,19 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentDeleteController {
   constructor(
     private readonly establishmentDeleteService: EstablishmentDeleteService,
-  ) {}
+  ) { }
 
   @Delete(':establishmentId')
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete establishment by ID' })
   @ApiNoContentResponse({ description: 'Establishment deleted successfully' })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['establishmentId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   async handle(
     @GetRequestId() userId: string,

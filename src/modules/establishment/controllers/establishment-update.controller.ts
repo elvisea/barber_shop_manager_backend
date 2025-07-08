@@ -14,6 +14,7 @@ import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentUpdateService } from '../services/establishment-update.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
@@ -23,30 +24,18 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentUpdateController {
   constructor(
     private readonly establishmentUpdateService: EstablishmentUpdateService,
-  ) {}
+  ) { }
 
   @Patch(':establishmentId')
   @ApiOperation({ summary: 'Update an establishment' })
   @ApiResponse({ status: 200, type: EstablishmentFindOneResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['name should not be empty'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   async handle(
     @GetRequestId() userId: string,
