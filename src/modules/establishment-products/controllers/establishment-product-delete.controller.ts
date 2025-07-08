@@ -12,6 +12,7 @@ import {
 import { EstablishmentProductFindByIdParamDTO } from '../dtos/establishment-product-find-by-id-param.dto';
 import { EstablishmentProductDeleteService } from '../services/establishment-product-delete.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -22,41 +23,23 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentProductDeleteController {
   constructor(
     private readonly establishmentProductDeleteService: EstablishmentProductDeleteService,
-  ) {}
+  ) { }
 
   @Delete()
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete product by ID' })
   @ApiNoContentResponse({ description: 'Product deleted successfully' })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['productId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiNotFoundResponse({
-    description: 'Product or establishment not found.',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Product not found',
-        error: 'ESTABLISHMENT_PRODUCT_NOT_FOUND',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentProductNotFound.description,
+    schema: { example: SwaggerErrorExamples.establishmentProductNotFound.example },
   })
   async handle(
     @GetRequestId() userId: string,

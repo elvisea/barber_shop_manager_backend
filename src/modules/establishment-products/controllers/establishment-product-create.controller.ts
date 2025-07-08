@@ -14,6 +14,7 @@ import { EstablishmentProductCreateRequestDTO } from '../dtos/establishment-prod
 import { EstablishmentProductCreateResponseDTO } from '../dtos/establishment-product-create-response.dto';
 import { EstablishmentProductCreateService } from '../services/establishment-product-create.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -24,40 +25,22 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentProductCreateController {
   constructor(
     private readonly establishmentProductCreateService: EstablishmentProductCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create product for establishment' })
   @ApiResponse({ status: 201, type: EstablishmentProductCreateResponseDTO })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiConflictResponse({
-    description: 'Conflict: product name already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'Product name already exists',
-        error: 'ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentProductNameAlreadyExists.description,
+    schema: { example: SwaggerErrorExamples.establishmentProductNameAlreadyExists.example },
   })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['name should not be empty', 'price must be an integer'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   async handle(
     @GetRequestId() userId: string,

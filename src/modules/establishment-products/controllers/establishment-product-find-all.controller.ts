@@ -13,6 +13,7 @@ import { EstablishmentProductFindAllQueryDTO } from '../dtos/establishment-produ
 import { EstablishmentProductFindAllResponseDTO } from '../dtos/establishment-product-find-all-response.dto';
 import { EstablishmentProductFindAllService } from '../services/establishment-product-find-all.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -23,30 +24,18 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentProductFindAllController {
   constructor(
     private readonly establishmentProductFindAllService: EstablishmentProductFindAllService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Find all products (paginated)' })
   @ApiResponse({ status: 200, type: EstablishmentProductFindAllResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['establishmentId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   async handle(
     @GetRequestId() userId: string,
