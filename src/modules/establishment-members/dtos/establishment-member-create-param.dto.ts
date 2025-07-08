@@ -6,4 +6,9 @@ export class EstablishmentMemberCreateParamDTO {
   @IsNotEmpty()
   @IsUUID()
   establishmentId: string;
+
+  @ApiProperty({ example: 'uuid-user' })
+  @IsNotEmpty()
+  @IsUUID()
+  userId: string;
 }

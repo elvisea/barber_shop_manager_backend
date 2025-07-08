@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { EstablishmentMemberCreateParamDTO } from '../dtos/establishment-member-create-param.dto';
 import { EstablishmentMemberCreateRequestDTO } from '../dtos/establishment-member-create-request.dto';
 import { EstablishmentMemberCreateResponseDTO } from '../dtos/establishment-member-create-response.dto';
@@ -23,10 +25,12 @@ import { EstablishmentMemberCreateService } from '../services/establishment-memb
 
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
+import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members')
+@Controller('establishments/:establishmentId/members/:userId')
+@UseGuards(JwtAuthGuard)
 export class EstablishmentMemberCreateController {
   constructor(
     private readonly establishmentMemberCreateService: EstablishmentMemberCreateService,
@@ -66,12 +70,15 @@ export class EstablishmentMemberCreateController {
     },
   })
   async handle(
+    @GetRequestId() userId: string,
     @Param() params: EstablishmentMemberCreateParamDTO,
     @Body() dto: EstablishmentMemberCreateRequestDTO,
   ): Promise<EstablishmentMemberCreateResponseDTO> {
     return this.establishmentMemberCreateService.execute(
       dto,
       params.establishmentId,
+      params.userId,
+      userId,
     );
   }
 }

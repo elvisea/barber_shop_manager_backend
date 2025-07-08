@@ -1,4 +1,5 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Role } from '@prisma/client';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
@@ -7,6 +8,8 @@ import { EstablishmentRepository } from '@/modules/establishment/repositories/es
 
 @Injectable()
 export class EstablishmentAccessService {
+  private readonly logger = new Logger(EstablishmentAccessService.name);
+
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
 
@@ -16,19 +19,27 @@ export class EstablishmentAccessService {
   /**
    * Throws if the user does not have access to the establishment as ADMIN.
    * @param establishmentId string
-   * @param userId string
+   * @param requesterId string
    * @returns establishment entity if found and user is ADMIN
    */
-  async assertUserHasAccess(establishmentId: string, userId: string) {
+  async assertUserHasAccess(establishmentId: string, requesterId: string) {
+    this.logger.log(
+      `Checking access for user ${requesterId} to establishment ${establishmentId}`,
+    );
+
     // 1. Verifica se o estabelecimento existe
     const establishment =
       await this.establishmentRepository.findByIdWithMembersAdmin(
         establishmentId,
       );
+
     if (!establishment) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND,
         { ESTABLISHMENT_ID: establishmentId },
+      );
+      this.logger.warn(
+        `Establishment not found: ${establishmentId} | User: ${requesterId}`,
       );
       throw new CustomHttpException(
         message,
@@ -37,12 +48,16 @@ export class EstablishmentAccessService {
       );
     }
 
-    // 2. Verifica se o usuário é membro
-    const member = establishment.members.find((m) => m.userId === userId);
+    // 2. Verifica se o requisitante é membro
+    const member = establishment.members.find((m) => m.userId === requesterId);
+
     if (!member) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },
+      );
+      this.logger.warn(
+        `User ${requesterId} is not a member of establishment ${establishmentId}`,
       );
       throw new CustomHttpException(
         message,
@@ -51,11 +66,14 @@ export class EstablishmentAccessService {
       );
     }
 
-    // 3. Verifica se o usuário é ADMIN
-    if (member.role !== 'ADMIN') {
+    // 3. Verifica se o requisitante é ADMIN
+    if (member.role !== Role.ADMIN) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },
+      );
+      this.logger.warn(
+        `User ${requesterId} is not ADMIN in establishment ${establishmentId}`,
       );
       throw new CustomHttpException(
         message,
@@ -64,6 +82,9 @@ export class EstablishmentAccessService {
       );
     }
 
+    this.logger.log(
+      `Access granted for user ${requesterId} to establishment ${establishmentId}`,
+    );
     return establishment;
   }
 }
