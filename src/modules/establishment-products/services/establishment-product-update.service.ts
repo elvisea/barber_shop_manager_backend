@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentProductCreateResponseDTO } from '../dtos/establishment-product-create-response.dto';
 import { EstablishmentProductUpdateRequestDTO } from '../dtos/establishment-product-update-request.dto';
 import { EstablishmentProductRepository } from '../repositories/establishment-product.repository';
@@ -8,6 +7,7 @@ import { EstablishmentProductRepository } from '../repositories/establishment-pr
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentProductUpdateService {
@@ -15,7 +15,7 @@ export class EstablishmentProductUpdateService {
 
   constructor(
     private readonly establishmentProductRepository: EstablishmentProductRepository,
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -29,23 +29,10 @@ export class EstablishmentProductUpdateService {
       `Updating product ${productId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    // Validar se o usuário é owner/admin do estabelecimento
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     // Verificar se o produto existe
     const product =
