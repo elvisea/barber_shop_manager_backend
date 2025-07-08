@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentRepository } from '../../establishment/repositories/establishment.repository';
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceUpdateRequestDTO } from '../dtos/establishment-service-update-request.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
@@ -8,6 +7,7 @@ import { EstablishmentServiceRepository } from '../repositories/establishment-se
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Injectable()
 export class EstablishmentServiceUpdateService {
@@ -15,9 +15,9 @@ export class EstablishmentServiceUpdateService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly errorMessageService: ErrorMessageService,
-  ) {}
+  ) { }
 
   async execute(
     serviceId: string,
@@ -29,28 +29,10 @@ export class EstablishmentServiceUpdateService {
       `Updating service with ID ${serviceId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    const establishment = await this.establishmentRepository.findByIdAndUser(
+    await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
       userId,
     );
-
-    if (!establishment) {
-      const errorMessage = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        {
-          USER_ID: userId,
-          ESTABLISHMENT_ID: establishmentId,
-        },
-      );
-
-      this.logger.warn(errorMessage);
-
-      throw new CustomHttpException(
-        errorMessage,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
 
     const service =
       await this.establishmentServiceRepository.findByIdAndEstablishment(
