@@ -25,5 +25,5 @@ export interface IEstablishmentMemberRepository {
   findByUserAndEstablishment(
     userId: string,
     establishmentId: string,
-  ): Promise<(EstablishmentMember & { user: Partial<User> }) | null>;
+  ): Promise<(EstablishmentMember & { user: User }) | null>;
 }

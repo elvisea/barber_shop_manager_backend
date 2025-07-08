@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Establishment, EstablishmentMember, Role } from '@prisma/client';
+import { Establishment, EstablishmentMember, Role, User } from '@prisma/client';
 
 import { IEstablishmentMemberRepository } from '../contracts/establishment-member-repository.interface';
 
@@ -66,7 +66,7 @@ export class EstablishmentMemberRepository
   async findByUserAndEstablishment(
     userId: string,
     establishmentId: string,
-  ): Promise<(EstablishmentMember & { user: any }) | null> {
+  ): Promise<(EstablishmentMember & { user: User }) | null> {
     return this.prisma.establishmentMember.findUnique({
       where: {
         userId_establishmentId: {
