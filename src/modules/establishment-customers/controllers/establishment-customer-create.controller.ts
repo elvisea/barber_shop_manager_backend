@@ -14,6 +14,7 @@ import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-cus
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerCreateService } from '../services/establishment-customer-create.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -24,51 +25,27 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerCreateController {
   constructor(
     private readonly establishmentCustomerCreateService: EstablishmentCustomerCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create customer for establishment' })
   @ApiResponse({ status: 201, type: EstablishmentCustomerCreateResponseDTO })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiConflictResponse({
     description: 'Conflict: customer email or phone already exists',
     schema: {
       oneOf: [
-        {
-          example: {
-            statusCode: 409,
-            message: 'A customer with email already exists',
-            error: 'ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS',
-          },
-        },
-        {
-          example: {
-            statusCode: 409,
-            message: 'A customer with phone already exists',
-            error: 'ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS',
-          },
-        },
+        { example: SwaggerErrorExamples.establishmentCustomerEmailAlreadyExists.example },
+        { example: SwaggerErrorExamples.establishmentCustomerPhoneAlreadyExists.example },
       ],
     },
   })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['name should not be empty', 'email must be a valid email'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   async handle(
     @GetRequestId() userId: string,

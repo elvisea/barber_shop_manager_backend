@@ -13,6 +13,7 @@ import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-cu
 import { EstablishmentCustomerFindByIdParamDTO } from '../dtos/establishment-customer-find-by-id-param.dto';
 import { EstablishmentCustomerFindByIdService } from '../services/establishment-customer-find-by-id.service';
 
+import { SwaggerErrorExamples } from '@/common/swagger-error-examples';
 import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
@@ -23,40 +24,22 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerFindByIdController {
   constructor(
     private readonly establishmentCustomerFindByIdService: EstablishmentCustomerFindByIdService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Find customer by ID' })
   @ApiResponse({ status: 200, type: EstablishmentCustomerCreateResponseDTO })
   @ApiBadRequestResponse({
-    description: 'Validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: ['customerId must be a valid UUID'],
-        error: 'Bad Request',
-      },
-    },
+    description: SwaggerErrorExamples.validationError.description,
+    schema: { example: SwaggerErrorExamples.validationError.example },
   })
   @ApiForbiddenResponse({
-    description: 'Forbidden: establishment not found or access denied.',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: 'Establishment not found or access denied',
-        error: 'ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.description,
+    schema: { example: SwaggerErrorExamples.establishmentNotFoundOrAccessDenied.example },
   })
   @ApiNotFoundResponse({
-    description: 'Customer not found.',
-    schema: {
-      example: {
-        statusCode: 404,
-        message: 'Customer not found',
-        error: 'ESTABLISHMENT_CUSTOMER_NOT_FOUND',
-      },
-    },
+    description: SwaggerErrorExamples.establishmentCustomerNotFound.description,
+    schema: { example: SwaggerErrorExamples.establishmentCustomerNotFound.example },
   })
   async handle(
     @GetRequestId() userId: string,
