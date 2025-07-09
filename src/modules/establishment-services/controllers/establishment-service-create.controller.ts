@@ -9,9 +9,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentServiceCreateParamDTO } from '../dtos/establishment-service-create-param.dto';
 import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
+import { EstablishmentServiceParamDTO } from '../dtos/establishment-service-param.dto';
 import { EstablishmentServiceCreateService } from '../services/establishment-service-create.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -57,7 +57,7 @@ export class EstablishmentServiceCreateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentServiceCreateParamDTO,
+    @Param() params: EstablishmentServiceParamDTO,
     @Body() dto: EstablishmentServiceCreateRequestDTO,
   ): Promise<EstablishmentServiceCreateResponseDTO> {
     return this.establishmentServiceCreateService.execute(

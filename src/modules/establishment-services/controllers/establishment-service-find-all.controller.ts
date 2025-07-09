@@ -9,9 +9,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentServiceFindAllParamDTO } from '../dtos/establishment-service-find-all-param.dto';
 import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-service-find-all-query.dto';
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
+import { EstablishmentServiceParamDTO } from '../dtos/establishment-service-param.dto';
 import { EstablishmentServiceFindAllService } from '../services/establishment-service-find-all.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -53,7 +53,7 @@ export class EstablishmentServiceFindAllController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentServiceFindAllParamDTO,
+    @Param() params: EstablishmentServiceParamDTO,
     @Query() query: EstablishmentServiceFindAllQueryDTO,
   ): Promise<EstablishmentServiceFindAllResponseDTO> {
     return this.establishmentServiceFindAllService.execute(
