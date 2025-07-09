@@ -10,7 +10,7 @@ import {
 
 import { GetRequestId } from '../../auth/decorators/get-request-id.decorator';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
-import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.dto';
+import { EstablishmentParamDTO } from '../dtos/establishment-param.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentUpdateService } from '../services/establishment-update.service';
 
@@ -46,7 +46,7 @@ export class EstablishmentUpdateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentUpdateParamDTO,
+    @Param() params: EstablishmentParamDTO,
     @Body() dto: EstablishmentUpdateRequestDTO,
   ): Promise<EstablishmentFindOneResponseDTO> {
     return this.establishmentUpdateService.execute(

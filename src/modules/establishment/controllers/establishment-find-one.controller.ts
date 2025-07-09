@@ -8,8 +8,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentFindOneParamDTO } from '../dtos/establishment-find-one-param.dto';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
+import { EstablishmentParamDTO } from '../dtos/establishment-param.dto';
 import { EstablishmentFindOneService } from '../services/establishment-find-one.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -45,7 +45,7 @@ export class EstablishmentFindOneController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentFindOneParamDTO,
+    @Param() params: EstablishmentParamDTO,
   ): Promise<EstablishmentFindOneResponseDTO> {
     return this.establishmentFindOneService.execute(
       params.establishmentId,

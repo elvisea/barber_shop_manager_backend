@@ -8,7 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentUpdateParamDTO } from '../dtos/establishment-update-param.dto';
+import { EstablishmentParamDTO } from '../dtos/establishment-param.dto';
 import { EstablishmentDeleteService } from '../services/establishment-delete.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -45,7 +45,7 @@ export class EstablishmentDeleteController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentUpdateParamDTO,
+    @Param() params: EstablishmentParamDTO,
   ): Promise<void> {
     await this.establishmentDeleteService.execute(
       params.establishmentId,
