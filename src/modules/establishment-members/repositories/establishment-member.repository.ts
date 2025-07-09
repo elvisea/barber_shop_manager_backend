@@ -77,4 +77,29 @@ export class EstablishmentMemberRepository
       include: { user: true },
     });
   }
+
+  async findAllByEstablishmentPaginated({
+    establishmentId,
+    skip,
+    take,
+  }: {
+    establishmentId: string;
+    skip: number;
+    take: number;
+  }): Promise<{
+    data: Array<EstablishmentMember & { user: User }>;
+    total: number;
+  }> {
+    const [data, total] = await Promise.all([
+      this.prisma.establishmentMember.findMany({
+        where: { establishmentId },
+        include: { user: true },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.establishmentMember.count({ where: { establishmentId } }),
+    ]);
+    return { data, total };
+  }
 }
