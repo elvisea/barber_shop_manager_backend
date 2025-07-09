@@ -89,4 +89,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Member with USER_ID [USER_ID] not found in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT]: {
+    message:
+      'User [USER_ID] is not a member of establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

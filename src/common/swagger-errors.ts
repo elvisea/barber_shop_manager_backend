@@ -238,4 +238,13 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.VALIDATION_ERROR,
     },
   },
+  [ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT]: {
+    description: 'User is not a member of the establishment',
+    example: {
+      statusCode: 403,
+      message: 'User is not a member of the establishment',
+      error: 'Forbidden',
+      errorCode: ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT,
+    },
+  },
 };

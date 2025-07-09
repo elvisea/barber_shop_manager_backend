@@ -53,16 +53,16 @@ export class EstablishmentAccessService {
 
     if (!member) {
       const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },
       );
-      this.logger.warn(
-        `User ${requesterId} is not a member of establishment ${establishmentId}`,
-      );
+
+      this.logger.warn(message);
+
       throw new CustomHttpException(
         message,
         HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT,
       );
     }
 
@@ -72,9 +72,9 @@ export class EstablishmentAccessService {
         ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },
       );
-      this.logger.warn(
-        `User ${requesterId} is not ADMIN in establishment ${establishmentId}`,
-      );
+
+      this.logger.warn(message);
+
       throw new CustomHttpException(
         message,
         HttpStatus.FORBIDDEN,
