@@ -8,7 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentCustomerFindAllParamDTO } from '../dtos/establishment-customer-find-all-param.dto';
+import { EstablishmentCustomerParamDTO } from '../dtos/establishment-customer-param.dto';
 import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-customer-find-all-query.dto';
 import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-customer-find-all-response.dto';
 import { EstablishmentCustomerFindAllService } from '../services/establishment-customer-find-all.service';
@@ -46,7 +46,7 @@ export class EstablishmentCustomerFindAllController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentCustomerFindAllParamDTO,
+    @Param() params: EstablishmentCustomerParamDTO,
     @Query() query: EstablishmentCustomerFindAllQueryDTO,
   ): Promise<EstablishmentCustomerFindAllResponseDTO> {
     return this.establishmentCustomerFindAllService.execute(

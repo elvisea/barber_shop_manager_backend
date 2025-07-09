@@ -9,9 +9,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentCustomerCreateParamDTO } from '../dtos/establishment-customer-create-param.dto';
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
+import { EstablishmentCustomerParamDTO } from '../dtos/establishment-customer-param.dto';
 import { EstablishmentCustomerCreateService } from '../services/establishment-customer-create.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerCreateController {
   constructor(
     private readonly establishmentCustomerCreateService: EstablishmentCustomerCreateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create customer for establishment' })
@@ -64,7 +64,7 @@ export class EstablishmentCustomerCreateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentCustomerCreateParamDTO,
+    @Param() params: EstablishmentCustomerParamDTO,
     @Body() dto: EstablishmentCustomerCreateRequestDTO,
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
     return this.establishmentCustomerCreateService.execute(
