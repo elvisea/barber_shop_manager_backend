@@ -102,4 +102,16 @@ export class EstablishmentMemberRepository
     ]);
     return { data, total };
   }
+
+  async updateMember(
+    userId: string,
+    establishmentId: string,
+    data: Partial<{ role: Role; isActive: boolean }>,
+  ): Promise<EstablishmentMember & { user: User }> {
+    return this.prisma.establishmentMember.update({
+      where: { userId_establishmentId: { userId, establishmentId } },
+      data,
+      include: { user: true },
+    });
+  }
 }
