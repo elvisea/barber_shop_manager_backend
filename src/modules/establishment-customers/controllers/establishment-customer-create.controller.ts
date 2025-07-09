@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 export class EstablishmentCustomerCreateController {
   constructor(
     private readonly establishmentCustomerCreateService: EstablishmentCustomerCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create customer for establishment' })

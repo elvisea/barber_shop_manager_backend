@@ -8,9 +8,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentCustomerParamDTO } from '../dtos/establishment-customer-param.dto';
 import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-customer-find-all-query.dto';
 import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-customer-find-all-response.dto';
+import { EstablishmentCustomerParamDTO } from '../dtos/establishment-customer-param.dto';
 import { EstablishmentCustomerFindAllService } from '../services/establishment-customer-find-all.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
