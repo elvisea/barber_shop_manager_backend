@@ -26,4 +26,10 @@ export interface IEstablishmentMemberRepository {
     userId: string,
     establishmentId: string,
   ): Promise<(EstablishmentMember & { user: User }) | null>;
+
+  updateMember(
+    userId: string,
+    establishmentId: string,
+    data: Partial<{ role: Role; isActive: boolean }>,
+  ): Promise<EstablishmentMember & { user: User }>;
 }

@@ -9,6 +9,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { EstablishmentMemberCreateParamDTO } from '../dtos/establishment-member-create-param.dto';
 import { EstablishmentMemberUpdateRequestDTO } from '../dtos/establishment-member-update-request.dto';
 import { EstablishmentMemberUpdateResponseDTO } from '../dtos/establishment-member-update-response.dto';
 import { EstablishmentMemberUpdateService } from '../services/establishment-member-update.service';
@@ -60,13 +61,12 @@ export class EstablishmentMemberUpdateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param('establishmentId') establishmentId: string,
-    @Param('memberId') memberId: string,
+    @Param() params: EstablishmentMemberCreateParamDTO,
     @Body() dto: EstablishmentMemberUpdateRequestDTO,
   ): Promise<EstablishmentMemberUpdateResponseDTO> {
     return this.establishmentMemberUpdateService.execute(
-      establishmentId,
-      memberId,
+      params.establishmentId,
+      params.memberId,
       userId,
       dto,
     );
