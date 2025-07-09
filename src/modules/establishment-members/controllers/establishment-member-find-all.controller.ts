@@ -35,19 +35,24 @@ export class EstablishmentMemberFindAllController {
     schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
   })
   @ApiForbiddenResponse({
-    description:
-      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
-        .description,
-    schema: {
-      example:
-        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
-          .example,
-    },
-  })
-  @ApiNotFoundResponse({
     description: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].description,
     schema: {
       example: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].example,
+    },
+  })
+  @ApiForbiddenResponse({
+    description:
+      SwaggerErrors[ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT].description,
+    schema: {
+      example: SwaggerErrors[ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT].example,
+    },
+  })
+  @ApiNotFoundResponse({
+    description:
+      SwaggerErrors[ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT].description,
+    schema: {
+      example:
+        SwaggerErrors[ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT].example,
     },
   })
   async handle(
