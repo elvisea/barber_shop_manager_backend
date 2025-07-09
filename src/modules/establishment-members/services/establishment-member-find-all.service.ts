@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { EstablishmentMemberFindAllQueryDTO } from '../dtos/establishment-member-find-all-query.dto';
 import { EstablishmentMemberFindAllResponseDTO } from '../dtos/establishment-member-find-all-response.dto';
+import { EstablishmentMemberMapper } from '../mappers/establishment-member.mapper';
 import { EstablishmentMemberRepository } from '../repositories/establishment-member.repository';
 
 import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
@@ -42,16 +43,9 @@ export class EstablishmentMemberFindAllService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: data.map((member) => ({
-        userId: member.userId,
-        name: member.user.name,
-        email: member.user.email,
-        phone: member.user.phone,
-        role: member.role,
-        isActive: member.isActive,
-        createdAt: member.createdAt,
-        updatedAt: member.updatedAt,
-      })),
+      data: data.map((member) =>
+        EstablishmentMemberMapper.toFindByIdResponse(member),
+      ),
       meta: {
         page,
         limit,
