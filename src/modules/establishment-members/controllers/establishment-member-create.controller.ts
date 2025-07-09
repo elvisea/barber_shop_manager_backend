@@ -18,9 +18,9 @@ import {
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { EstablishmentMemberCreateParamDTO } from '../dtos/establishment-member-create-param.dto';
 import { EstablishmentMemberCreateRequestDTO } from '../dtos/establishment-member-create-request.dto';
 import { EstablishmentMemberCreateResponseDTO } from '../dtos/establishment-member-create-response.dto';
+import { EstablishmentMemberParamDTO } from '../dtos/establishment-member-param.dto';
 import { EstablishmentMemberCreateService } from '../services/establishment-member-create.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -71,7 +71,7 @@ export class EstablishmentMemberCreateController {
   })
   async handle(
     @GetRequestId() userId: string,
-    @Param() params: EstablishmentMemberCreateParamDTO,
+    @Param() params: EstablishmentMemberParamDTO,
     @Body() dto: EstablishmentMemberCreateRequestDTO,
   ): Promise<EstablishmentMemberCreateResponseDTO> {
     return this.establishmentMemberCreateService.execute(

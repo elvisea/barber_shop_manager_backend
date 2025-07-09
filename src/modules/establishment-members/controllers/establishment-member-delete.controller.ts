@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { EstablishmentMemberDeleteParamDTO } from '../dtos/establishment-member-delete-param.dto';
+import { EstablishmentMemberParamDTO } from '../dtos/establishment-member-param.dto';
 import { EstablishmentMemberDeleteService } from '../services/establishment-member-delete.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -58,7 +58,7 @@ export class EstablishmentMemberDeleteController {
     },
   })
   async handle(
-    @Param() params: EstablishmentMemberDeleteParamDTO,
+    @Param() params: EstablishmentMemberParamDTO,
     @GetRequestId() userId: string,
   ): Promise<void> {
     await this.establishmentMemberDeleteService.execute(

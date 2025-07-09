@@ -9,8 +9,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentMemberFindByIdParamDTO } from '../dtos/establishment-member-find-by-id-param.dto';
 import { EstablishmentMemberFindByIdResponseDTO } from '../dtos/establishment-member-find-by-id-response.dto';
+import { EstablishmentMemberParamDTO } from '../dtos/establishment-member-param.dto';
 import { EstablishmentMemberFindByIdService } from '../services/establishment-member-find-by-id.service';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
@@ -58,7 +58,7 @@ export class EstablishmentMemberFindByIdController {
   })
   async handle(
     @GetRequestId() requesterId: string,
-    @Param() params: EstablishmentMemberFindByIdParamDTO,
+    @Param() params: EstablishmentMemberParamDTO,
   ): Promise<EstablishmentMemberFindByIdResponseDTO> {
     return this.establishmentMemberFindByIdService.execute(
       requesterId,
