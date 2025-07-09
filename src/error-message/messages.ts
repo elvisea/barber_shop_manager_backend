@@ -93,4 +93,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'User [USER_ID] is not a member of establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS]: {
+    message:
+      'Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

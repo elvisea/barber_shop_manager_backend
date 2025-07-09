@@ -247,4 +247,14 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT,
     },
   },
+  [ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS]: {
+    description: 'Product already assigned to member in this establishment',
+    example: {
+      statusCode: 409,
+      message:
+        'Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
+      error: 'Conflict',
+      errorCode: ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS,
+    },
+  },
 };

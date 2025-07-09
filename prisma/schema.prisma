@@ -84,6 +84,23 @@ model Establishment {
   @@map("establishments")
 }
 
+model EstablishmentCustomer {
+  id              String        @id @default(uuid()) @map("id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  name            String        @map("name")
+  email           String?       @map("email")
+  phone           String?       @map("phone")
+  establishmentId String        @map("establishment_id")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  appointments    Appointment[]
+  transactions    Transaction[]
+
+  @@unique([establishmentId, email])
+  @@unique([establishmentId, phone])
+  @@map("establishment_customers")
+}
+
 // Tabela Pivô: A "cola" entre User e Establishment
 model EstablishmentMember {
   userId          String                @map("user_id")
@@ -174,23 +191,6 @@ model MemberService {
 
   @@unique([userId, establishmentId, serviceId])
   @@map("member_services")
-}
-
-model EstablishmentCustomer {
-  id              String        @id @default(uuid()) @map("id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  name            String        @map("name")
-  email           String?       @map("email")
-  phone           String?       @map("phone")
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  appointments    Appointment[]
-  transactions    Transaction[]
-
-  @@unique([establishmentId, email])
-  @@unique([establishmentId, phone])
-  @@map("establishment_customers")
 }
 
 model OpeningHours {

@@ -12,6 +12,7 @@ import { EstablishmentCustomerModule } from './modules/establishment-customers/e
 import { EstablishmentMembersModule } from './modules/establishment-members/establishment-members.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
+import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EstablishmentAccessModule } from './shared/establishment-access/establishment-access.module';
@@ -30,6 +31,7 @@ import { EstablishmentAccessModule } from './shared/establishment-access/establi
     EstablishmentMembersModule,
     EstablishmentProductsModule,
     EstablishmentCustomerModule,
+    MemberProductsModule,
   ],
   controllers: [AppController],
   providers: [

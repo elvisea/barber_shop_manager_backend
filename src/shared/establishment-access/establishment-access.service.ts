@@ -38,9 +38,11 @@ export class EstablishmentAccessService {
         ErrorCode.ESTABLISHMENT_NOT_FOUND,
         { ESTABLISHMENT_ID: establishmentId },
       );
+
       this.logger.warn(
         `Establishment not found: ${establishmentId} | User: ${requesterId}`,
       );
+
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
