@@ -97,4 +97,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS]: {
+    message:
+      'Service with SERVICE_ID [SERVICE_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
+  },
 } as const;

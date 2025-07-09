@@ -257,4 +257,14 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS,
     },
   },
+  [ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS]: {
+    description: 'Service already assigned to member in this establishment',
+    example: {
+      statusCode: 409,
+      message:
+        'Service with SERVICE_ID [SERVICE_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
+      error: 'Conflict',
+      errorCode: ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS,
+    },
+  },
 };
