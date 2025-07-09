@@ -7,8 +7,8 @@ export class EstablishmentMemberCreateParamDTO {
   @IsUUID()
   establishmentId: string;
 
-  @ApiProperty({ example: 'uuid-user' })
+  @ApiProperty({ example: 'uuid-member' })
   @IsNotEmpty()
   @IsUUID()
-  userId: string;
+  memberId: string;
 }

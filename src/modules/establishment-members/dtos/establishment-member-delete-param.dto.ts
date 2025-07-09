@@ -7,8 +7,8 @@ export class EstablishmentMemberDeleteParamDTO {
   @IsUUID('4')
   establishmentId: string;
 
-  @ApiProperty({ example: 'uuid-user' })
+  @ApiProperty({ example: 'uuid-member' })
   @IsNotEmpty()
   @IsUUID('4')
-  userId: string;
+  memberId: string;
 }

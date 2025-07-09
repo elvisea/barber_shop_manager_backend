@@ -21,7 +21,7 @@ export class EstablishmentMemberFindByIdService {
 
   async execute(
     requesterId: string,
-    userId: string,
+    memberId: string,
     establishmentId: string,
   ): Promise<EstablishmentMemberFindByIdResponseDTO> {
     // Valida se o requester tem permissão no estabelecimento
@@ -32,14 +32,14 @@ export class EstablishmentMemberFindByIdService {
 
     const member =
       await this.establishmentMemberRepository.findByUserAndEstablishment(
-        userId,
+        memberId,
         establishmentId,
       );
 
     if (!member) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: memberId },
       );
 
       this.logger.warn(message);

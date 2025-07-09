@@ -22,30 +22,30 @@ export class EstablishmentMemberCreateService {
   async execute(
     dto: EstablishmentMemberCreateRequestDTO,
     establishmentId: string,
-    memberUserId: string,
-    requesterUserId: string,
+    memberId: string,
+    requesterId: string,
   ): Promise<EstablishmentMemberCreateResponseDTO> {
     this.logger.log(
-      `Creating member for establishment ${establishmentId} and user ${memberUserId}`,
+      `Creating member for establishment ${establishmentId} and user ${memberId}`,
     );
 
     // Valida se o estabelecimento existe e o usuário tem permissão
     await this.establishmentAccessService.assertUserHasAccess(
       establishmentId,
-      requesterUserId,
+      requesterId,
     );
 
     // Verifica se já existe membro
     const exists =
       await this.establishmentMemberRepository.existsByUserAndEstablishment(
-        memberUserId,
+        memberId,
         establishmentId,
       );
 
     if (exists) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_MEMBER_ALREADY_EXISTS,
-        { USER_ID: memberUserId, ESTABLISHMENT_ID: establishmentId },
+        { USER_ID: memberId, ESTABLISHMENT_ID: establishmentId },
       );
       this.logger.warn(message);
       throw new CustomHttpException(
@@ -56,7 +56,7 @@ export class EstablishmentMemberCreateService {
     }
 
     const member = await this.establishmentMemberRepository.createMember({
-      userId: memberUserId,
+      userId: memberId,
       establishmentId,
       role: dto.role,
     });

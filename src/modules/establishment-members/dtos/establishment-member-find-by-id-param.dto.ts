@@ -7,8 +7,8 @@ export class EstablishmentMemberFindByIdParamDTO {
   @IsNotEmpty()
   establishmentId: string;
 
-  @ApiProperty({ example: 'uuid-user' })
+  @ApiProperty({ example: 'uuid-member' })
   @IsUUID()
   @IsNotEmpty()
-  userId: string;
+  memberId: string;
 }

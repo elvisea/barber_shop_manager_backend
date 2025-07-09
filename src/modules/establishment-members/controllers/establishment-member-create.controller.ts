@@ -29,7 +29,7 @@ import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:userId')
+@Controller('establishments/:establishmentId/members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentMemberCreateController {
   constructor(
@@ -77,7 +77,7 @@ export class EstablishmentMemberCreateController {
     return this.establishmentMemberCreateService.execute(
       dto,
       params.establishmentId,
-      params.userId,
+      params.memberId,
       userId,
     );
   }

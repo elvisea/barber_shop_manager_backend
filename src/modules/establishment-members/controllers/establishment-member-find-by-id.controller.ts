@@ -20,7 +20,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:userId')
+@Controller('establishments/:establishmentId/members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentMemberFindByIdController {
   constructor(
@@ -29,7 +29,7 @@ export class EstablishmentMemberFindByIdController {
 
   @Get()
   @ApiOperation({
-    summary: 'Find establishment member by userId and establishmentId',
+    summary: 'Find establishment member by memberId and establishmentId',
   })
   @ApiResponse({ status: 200, type: EstablishmentMemberFindByIdResponseDTO })
   @ApiBadRequestResponse({
@@ -62,7 +62,7 @@ export class EstablishmentMemberFindByIdController {
   ): Promise<EstablishmentMemberFindByIdResponseDTO> {
     return this.establishmentMemberFindByIdService.execute(
       requesterId,
-      params.userId,
+      params.memberId,
       params.establishmentId,
     );
   }

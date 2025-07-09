@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,6 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { EstablishmentMemberDeleteParamDTO } from '../dtos/establishment-member-delete-param.dto';
 import { EstablishmentMemberDeleteService } from '../services/establishment-member-delete.service';
 
@@ -24,12 +26,13 @@ import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/members')
+@UseGuards(JwtAuthGuard)
 export class EstablishmentMemberDeleteController {
   constructor(
     private readonly establishmentMemberDeleteService: EstablishmentMemberDeleteService,
   ) {}
 
-  @Delete(':userId')
+  @Delete(':memberId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an establishment member' })
   @ApiNoContentResponse({ description: 'Member deleted successfully' })
@@ -60,7 +63,7 @@ export class EstablishmentMemberDeleteController {
   ): Promise<void> {
     await this.establishmentMemberDeleteService.execute(
       params.establishmentId,
-      params.userId,
+      params.memberId,
       userId,
     );
   }
