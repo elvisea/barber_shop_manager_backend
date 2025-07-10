@@ -17,14 +17,19 @@ export class EstablishmentAccessService {
   ) {}
 
   /**
-   * Throws if the user does not have access to the establishment as ADMIN.
+   * Throws if the user does not have access to the establishment.
    * @param establishmentId string
    * @param requesterId string
-   * @returns establishment entity if found and user is ADMIN
+   * @param requireAdmin boolean (default: true) - if true, only ADMIN can access; if false, ADMIN or the member can access
+   * @returns establishment entity if found and user has access
    */
-  async assertUserHasAccess(establishmentId: string, requesterId: string) {
+  async assertUserHasAccess(
+    establishmentId: string,
+    requesterId: string,
+    requireAdmin: boolean = true,
+  ) {
     this.logger.log(
-      `Checking access for user ${requesterId} to establishment ${establishmentId}`,
+      `Checking access for user ${requesterId} to establishment ${establishmentId} (requireAdmin=${requireAdmin})`,
     );
 
     // 1. Verifica se o estabelecimento existe
@@ -68,8 +73,8 @@ export class EstablishmentAccessService {
       );
     }
 
-    // 3. Verifica se o requisitante é ADMIN
-    if (member.role !== Role.ADMIN) {
+    // 3. Verifica se o requisitante é ADMIN (ou o próprio membro, se permitido)
+    if (requireAdmin && member.role !== Role.ADMIN) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.USER_NOT_ADMIN_IN_ESTABLISHMENT,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },

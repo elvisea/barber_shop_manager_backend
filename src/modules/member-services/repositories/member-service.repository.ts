@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { MemberService as MemberServiceModel } from '@prisma/client';
+import {
+  EstablishmentService,
+  MemberService as MemberServiceModel,
+} from '@prisma/client';
 
 import { IMemberServiceRepository } from '../contracts/member-service-repository.interface';
 
@@ -51,5 +54,33 @@ export class MemberServiceRepository implements IMemberServiceRepository {
       },
     });
     return count > 0;
+  }
+
+  async findAllByMemberPaginated({
+    establishmentId,
+    userId,
+    skip,
+    take,
+  }: {
+    establishmentId: string;
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{
+    data: (MemberServiceModel & { service: EstablishmentService })[];
+    total: number;
+  }> {
+    const [data, total] = await Promise.all([
+      this.prisma.memberService.findMany({
+        where: { establishmentId, userId },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: { service: true },
+      }),
+
+      this.prisma.memberService.count({ where: { establishmentId, userId } }),
+    ]);
+    return { data, total };
   }
 }
