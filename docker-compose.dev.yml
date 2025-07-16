@@ -12,11 +12,13 @@ services:
       - data_barber_shop_manager:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 5s
+    networks:
+      - barber_evolution_net
 
   app:
     build:
@@ -35,7 +37,13 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - barber_evolution_net
 
 volumes:
   data_barber_shop_manager:
-    driver: local 
+    driver: local
+
+networks:
+  barber_evolution_net:
+    external: true
