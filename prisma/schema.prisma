@@ -48,6 +48,99 @@ enum ItemType {
   SERVICE
 }
 
+/// Status da assinatura de um plano.
+/// - ACTIVE: Assinatura ativa e válida.
+/// - EXPIRED: Assinatura expirada (data final atingida).
+/// - CANCELLED: Assinatura cancelada pelo usuário ou sistema.
+/// - PENDING: Assinatura aguardando pagamento ou ativação.
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+/// Representa um plano de assinatura disponível para estabelecimentos.
+/// Exemplo: "Plano Sistema", "Atendimento A.I.", "Pacote Premium".
+model Plan {
+  /// Identificador único do plano.
+  id String @id @default(uuid()) @map("id")
+
+  /// Nome do plano (ex: "Atendimento A.I.").
+  name String @map("name")
+
+  /// Descrição detalhada do plano.
+  description String? @map("description")
+
+  /// Preço do plano em centavos (ex: 1999 = R$19,99).
+  price Int @map("price")
+
+  /// Duração do plano em dias (ex: 30 para mensal).
+  duration Int @map("duration")
+
+  /// Indica se o plano está ativo para novas assinaturas.
+  isActive Boolean @default(true) @map("is_active")
+
+  /// Assinaturas vinculadas a este plano.
+  subscriptions Subscription[]
+
+  /// Data de criação do plano.
+  createdAt DateTime @default(now()) @map("created_at")
+
+  /// Data da última atualização do plano.
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("plans")
+}
+
+/// Representa a assinatura de um plano por um estabelecimento.
+/// Controla status, validade, pagamento e telefone vinculado ao serviço.
+model Subscription {
+  /// Identificador único da assinatura.
+  id String @id @default(uuid()) @map("id")
+
+  /// Estabelecimento que possui a assinatura.
+  establishmentId String        @map("establishment_id")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  /// Plano assinado.
+  planId String @map("plan_id")
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  /// Usuário que realizou a assinatura (opcional).
+  createdById String? @map("created_by_id")
+  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  /// Data de início da assinatura.
+  startDate DateTime @map("start_date")
+
+  /// Data de término da assinatura.
+  endDate DateTime @map("end_date")
+
+  /// Status atual da assinatura.
+  status SubscriptionStatus @default(PENDING) @map("status")
+
+  /// Indica se a assinatura está paga.
+  paid Boolean @default(false) @map("paid")
+
+  /// Telefone vinculado ao serviço (opcional).
+  phone String? @map("phone")
+
+  /// Data de criação da assinatura.
+  createdAt DateTime @default(now()) @map("created_at")
+
+  /// Data da última atualização da assinatura.
+  updatedAt                          DateTime             @updatedAt @map("updated_at")
+  EstablishmentMember                EstablishmentMember? @relation(fields: [establishmentMemberUserId, establishmentMemberEstablishmentId], references: [userId, establishmentId])
+  establishmentMemberUserId          String?              @map("establishment_member_user_id")
+  establishmentMemberEstablishmentId String?              @map("establishment_member_establishment_id")
+
+  @@index([establishmentId])
+  @@index([planId])
+  @@index([createdById])
+  @@map("subscriptions")
+}
+
 model User {
   id                   String                @id @default(uuid()) @map("id")
   createdAt            DateTime              @default(now()) @map("created_at")
@@ -61,6 +154,7 @@ model User {
   emailVerification    EmailVerification?
   refreshTokens        RefreshToken[]
   createdPaymentOrders PaymentOrder[]
+  createdSubscriptions Subscription[]
 
   @@index([email])
   @@map("users")
@@ -80,6 +174,7 @@ model Establishment {
   openingHours   OpeningHours[]
   closurePeriods ClosurePeriod[]
   appointments   Appointment[]
+  subscriptions  Subscription[]
 
   @@map("establishments")
 }
@@ -118,6 +213,7 @@ model EstablishmentMember {
   appointments    Appointment[]
   transactions    Transaction[]
   paymentOrders   PaymentOrder[]
+  subscriptions   Subscription[]
 
   @@id([userId, establishmentId])
   @@map("establishment_members")
