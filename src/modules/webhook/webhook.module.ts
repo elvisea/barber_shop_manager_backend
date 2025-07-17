@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { AIModule } from '../ai/ai.module';
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 
 import { WebhookController } from './controllers/webhook.controller';
 import { EventChatsUpdateService } from './services/event-chats-update.service';
@@ -8,7 +9,7 @@ import { EventMessagesUpsertService } from './services/event-messages-upsert.ser
 import { WebhookRouterService } from './services/webhook-router.service';
 
 @Module({
-  imports: [AIModule],
+  imports: [AIModule, SubscriptionsModule],
   controllers: [WebhookController],
   providers: [
     WebhookRouterService,

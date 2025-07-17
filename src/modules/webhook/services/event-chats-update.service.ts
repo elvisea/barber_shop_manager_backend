@@ -8,20 +8,20 @@ export class EventChatsUpdateService {
 
   async handle(payload: ChatsUpdateLog): Promise<void> {
     this.logger.log(
-      '[EventChatsUpdateService] Iniciando processamento do evento chats.update',
+      '[EventChatsUpdateService] Starting processing of chats.update event',
     );
     try {
       const chatData = payload?.data;
       this.logger.log(
-        `[EventChatsUpdateService] Dados do chat: ${JSON.stringify(chatData)}`,
+        `[EventChatsUpdateService] Chat data: ${JSON.stringify(chatData)}`,
       );
-      // Aqui você pode adicionar lógica de persistência, notificação, etc.
+      // Here you can add persistence logic, notification, etc.
       this.logger.log(
-        '[EventChatsUpdateService] Processamento concluído com sucesso.',
+        '[EventChatsUpdateService] Processing completed successfully.',
       );
     } catch (err) {
       this.logger.error(
-        '[EventChatsUpdateService] Erro ao processar evento:',
+        '[EventChatsUpdateService] Error processing event:',
         err,
       );
       throw err;

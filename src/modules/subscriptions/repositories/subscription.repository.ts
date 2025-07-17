@@ -34,4 +34,18 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     // TODO: Implementar
     return null;
   }
+
+  async findActivePaidByPhone(
+    phone: string,
+    now: Date,
+  ): Promise<Subscription | null> {
+    return this.prisma.subscription.findFirst({
+      where: {
+        phone,
+        status: 'ACTIVE',
+        paid: true,
+        endDate: { gt: now },
+      },
+    });
+  }
 }

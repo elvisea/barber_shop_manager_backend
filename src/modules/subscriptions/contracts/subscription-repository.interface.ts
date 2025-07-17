@@ -28,4 +28,9 @@ export interface ISubscriptionRepository {
    * Busca uma assinatura pelo id.
    */
   findById(id: string): Promise<Subscription | null>;
+
+  /**
+   * Busca uma assinatura ativa paga pelo telefone.
+   */
+  findActivePaidByPhone(phone: string, now: Date): Promise<Subscription | null>;
 }

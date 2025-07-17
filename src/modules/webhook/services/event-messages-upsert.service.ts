@@ -71,12 +71,12 @@ export class EventMessagesUpsertService {
     try {
       this.prompt = readFileSync('src/modules/ai/prompts/luna.json', 'utf-8');
       this.logger.log(
-        `[Prompt] Carregado para IA (${this.prompt.length} caracteres)`,
+        `[Prompt] Loaded for IA (${this.prompt.length} characters)`,
       );
     } catch (error) {
-      this.logger.error('[Prompt] Erro ao carregar o prompt para IA:', error);
+      this.logger.error('[Prompt] Error loading prompt for IA:', error);
       this.prompt =
-        'Você é um assistente de atendimento amigável e objetivo, fornecendo respostas claras e concisas em português.';
+        'You are a friendly and objective customer service assistant, providing clear and concise answers in Portuguese.';
     }
   }
 
@@ -89,7 +89,7 @@ export class EventMessagesUpsertService {
     const remoteJid = payload.data.key.remoteJid;
     const userMessage = payload.data.message.conversation || '';
     this.logger.log(
-      `[Buffer] Mensagem recebida de ${remoteJid}: "${userMessage}"`,
+      `[Buffer] Message received from ${remoteJid}: "${userMessage}"`,
     );
 
     // Inicializa buffer para o usuário se não existir
@@ -99,7 +99,7 @@ export class EventMessagesUpsertService {
         timer: null,
         lastMessageTime: Date.now(),
       };
-      this.logger.log(`[Buffer] Criado novo buffer para usuário: ${remoteJid}`);
+      this.logger.log(`[Buffer] Created new buffer for user: ${remoteJid}`);
     }
 
     // Adiciona mensagem ao buffer
@@ -107,7 +107,7 @@ export class EventMessagesUpsertService {
     buffer.messages.push(userMessage);
     buffer.lastMessageTime = Date.now();
     this.logger.log(
-      `[Buffer] Mensagem adicionada ao buffer de ${remoteJid}: "${userMessage}"`,
+      `[Buffer] Message added to buffer for ${remoteJid}: "${userMessage}"`,
     );
 
     // Limpa timer anterior, se existir
@@ -137,7 +137,7 @@ export class EventMessagesUpsertService {
     buffer.messages = [];
     buffer.timer = null;
     this.logger.log(
-      `[Buffer] Processando mensagens de ${remoteJid}: "${fullText}"`,
+      `[Buffer] Processing messages for ${remoteJid}: "${fullText}"`,
     );
 
     // --- A partir daqui, segue o fluxo normal de processamento (busca contexto, IA, envio) ---
@@ -146,7 +146,7 @@ export class EventMessagesUpsertService {
     const apiUrl =
       this.configService.get<string>('EVOLUTION_API_URL') || 'http://api:8080';
     const findMessagesUrl = `${apiUrl}/chat/findMessages/${instance}`;
-    this.logger.log(`Buscando contexto em: ${findMessagesUrl}`);
+    this.logger.log(`Fetching context from: ${findMessagesUrl}`);
     const findMessagesBody = {
       where: {
         key: {
@@ -169,7 +169,7 @@ export class EventMessagesUpsertService {
         });
       const responseData = (contextResponse as any)?.data;
       this.logger.log(
-        'Mensagens de contexto recebidas:',
+        'Context messages received:',
         JSON.stringify(responseData, null, 2),
       );
       if (
@@ -190,24 +190,24 @@ export class EventMessagesUpsertService {
           .filter((m: any) => m.content && m.content.length > 0);
       }
     } catch (err) {
-      this.logger.error('Erro ao buscar contexto:', err);
+      this.logger.error('Error fetching context:', err);
       contextMessages = [];
     }
 
     // Gera resposta com IA usando o novo padrão de factory
     const aiProvider = this.aiProviderFactory.getProvider();
-    this.logger.log(`Texto recebido do usuário (bufferizado): ${fullText}`);
+    this.logger.log(`Text received from user (buffered): ${fullText}`);
     const aiResponse = await aiProvider.generateAIResponse(
       fullText,
       this.prompt,
       contextMessages,
     );
     const text = aiResponse.message;
-    this.logger.log(`Texto de resposta gerado pela IA: ${text}`);
+    this.logger.log(`AI response text generated: ${text}`);
 
     const url = `${apiUrl}/message/sendText/${instance}`;
-    this.logger.log(`URL de envio: ${url}`);
-    this.logger.log(`API Key utilizada: ${apikey}`);
+    this.logger.log(`Send URL: ${url}`);
+    this.logger.log(`API Key used: ${apikey}`);
 
     const number = remoteJid.replace(/[^0-9]/g, '');
     const response = await this.httpClient.request(url, {
@@ -222,10 +222,8 @@ export class EventMessagesUpsertService {
       },
     });
 
-    this.logger.log(
-      `Resposta recebida da API: ${JSON.stringify(response, null, 2)}`,
-    );
-    this.logger.log(`Mensagem de resposta enviada para ${number}`);
-    this.logger.log('--- FIM DO PROCESSAMENTO ---');
+    this.logger.log(`API response: ${JSON.stringify(response, null, 2)}`);
+    this.logger.log(`Reply message sent to ${number}`);
+    this.logger.log('--- END OF PROCESSING ---');
   }
 }

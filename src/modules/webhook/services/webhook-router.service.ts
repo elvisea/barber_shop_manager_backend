@@ -6,6 +6,8 @@ import { WebhookLogData } from '../interfaces';
 import { EventChatsUpdateService } from './event-chats-update.service';
 import { EventMessagesUpsertService } from './event-messages-upsert.service';
 
+import { SubscriptionRepository } from '@/modules/subscriptions/repositories/subscription.repository';
+
 @Injectable()
 export class WebhookRouterService {
   private readonly logger = new Logger(WebhookRouterService.name);
@@ -16,6 +18,7 @@ export class WebhookRouterService {
   constructor(
     private readonly eventMessagesUpsertService: EventMessagesUpsertService,
     private readonly eventChatsUpdateService: EventChatsUpdateService,
+    private readonly subscriptionRepository: SubscriptionRepository,
   ) {
     // Mapeamento direto de evento para handler
     const eventHandlerMap: Partial<
@@ -38,21 +41,37 @@ export class WebhookRouterService {
   }
 
   async route(payload: WebhookLogData): Promise<void> {
-    const event = payload.event;
-    this.logger.log(`[ROUTER] Evento recebido: ${event}`);
-    const handler = this.handlers[event];
+    this.logger.log(
+      `Received event type ${payload.event} for phone number ${payload.sender}`,
+    );
+
+    // Validação de assinatura ativa/paga/não expirada
+    const now = new Date();
+    const subscription =
+      await this.subscriptionRepository.findActivePaidByPhone(
+        payload.sender,
+        now,
+      );
+
+    if (!subscription) {
+      this.logger.warn(
+        `No active/paid subscription found for phone number: ${payload.sender}`,
+      );
+      return;
+    }
+
+    const handler = this.handlers[payload.event];
+
     if (handler) {
-      this.logger.log(`[ROUTER] Handler encontrado para o evento: ${event}`);
+      this.logger.log(`Handler found for event: ${payload.event}`);
       try {
         await handler(payload);
-        this.logger.log(`[ROUTER] Evento ${event} processado com sucesso.`);
+        this.logger.log(`Event ${payload.event} processed successfully.`);
       } catch (err) {
-        this.logger.error(`[ROUTER] Erro ao processar evento ${event}:`, err);
+        this.logger.error(`Error processing event ${payload.event}:`, err);
       }
     } else {
-      this.logger.warn(
-        `[ROUTER] Evento desconhecido ou sem handler: ${payload.event}`,
-      );
+      this.logger.warn(`Unknown event or no handler: ${payload.event}`);
     }
   }
 }

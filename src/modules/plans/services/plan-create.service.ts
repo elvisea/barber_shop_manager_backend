@@ -22,7 +22,7 @@ export class PlanCreateService {
 
     const plan = await this.planRepository.create(data);
 
-    this.logger.log(`Plano criado com id: ${plan.id}`);
+    this.logger.log(`Plan created with id: ${plan.id}`);
 
     return {
       id: plan.id,

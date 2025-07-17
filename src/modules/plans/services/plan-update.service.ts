@@ -21,21 +21,28 @@ export class PlanUpdateService {
     dto: PlanUpdateRequestDTO,
   ): Promise<PlanCreateResponseDTO> {
     this.logger.log(`Updating plan with id: ${id}`);
+
     const plan = await this.planRepository.findById(id);
+
     if (!plan) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.PLAN_NOT_FOUND,
         { PLAN_ID: id },
       );
+
       this.logger.warn(message);
+
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
         ErrorCode.PLAN_NOT_FOUND,
       );
     }
+
     const updated = await this.planRepository.update(id, dto);
+
     this.logger.log(`Plan updated: ${id}`);
+
     return {
       id: updated.id,
       name: updated.name,
