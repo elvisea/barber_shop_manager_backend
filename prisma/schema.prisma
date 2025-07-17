@@ -123,8 +123,8 @@ model Subscription {
   /// Indica se a assinatura está paga.
   paid Boolean @default(false) @map("paid")
 
-  /// Telefone vinculado ao serviço (opcional).
-  phone String? @map("phone")
+  /// Telefone vinculado ao serviço (agora obrigatório).
+  phone String @map("phone")
 
   /// Data de criação da assinatura.
   createdAt DateTime @default(now()) @map("created_at")
