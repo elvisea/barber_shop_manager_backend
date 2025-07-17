@@ -24,27 +24,12 @@ export class McpClientService implements OnModuleInit {
     try {
       this.logger.log('Connecting to MCP server...');
 
-      // Get MCP server configuration from environment variables
-      const mcpServerPath = this.configService.get<string>(
-        'MCP_SERVER_PATH',
-        '/home/elvis/plans-mcp-server/src/index.ts',
-      );
-      const mcpServerCommand = this.configService.get<string>(
-        'MCP_SERVER_COMMAND',
-        'node',
-      );
-
-      this.logger.log(`MCP Server Path: ${mcpServerPath}`);
-      this.logger.log(`MCP Server Command: ${mcpServerCommand}`);
-
-      // Using host networking to access the MCP server running on the host
+      // Connect to the plans-mcp-server running in Docker
       const transport = new StdioClientTransport({
-        command: mcpServerCommand,
-        args: [mcpServerPath],
-        // Add environment variables if needed
+        command: 'docker',
+        args: ['exec', 'plans-mcp-server', 'node', '/app/src/index.ts'],
         env: {
           NODE_ENV: 'development',
-          ...this.configService.get('MCP_SERVER_ENV', {}),
         },
       });
 

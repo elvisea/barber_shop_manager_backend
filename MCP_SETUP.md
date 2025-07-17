@@ -2,80 +2,57 @@
 
 ## Overview
 
-This application connects to an MCP (Model Context Protocol) server to access external tools and resources.
+This application connects to an MCP (Model Context Protocol) server running as a Docker service in the `barber_evolution_net` network.
 
-## Environment Variables
+## Architecture
 
-Add the following variables to your `.env` file:
+The MCP client connects to the `plans-mcp-server` service running in Docker using stdio transport through `docker exec`.
 
-```bash
-# MCP Server Configuration
-MCP_SERVER_PATH=/home/elvis/plans-mcp-server/src/index.ts
-MCP_SERVER_COMMAND=node
-MCP_SERVER_ENV={"NODE_ENV":"development"}
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   App Container │    │  plans-mcp-server│    │   Database      │
+│                 │    │   Container      │    │   Container     │
+│  MCP Client     │◄──►│  MCP Server      │    │   PostgreSQL    │
+│                 │    │                  │    │                 │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │ barber_evolution_net |
+                    │   Docker Network    │
+                    └─────────────────┘
 ```
 
 ## Docker Configuration
 
-The application is configured to run with host networking to access the MCP server running on the host machine.
+The application runs in the `barber_evolution_net` Docker network alongside the MCP server.
 
-### Docker Compose Changes
+### Network Setup
 
-The `docker-compose.dev.yml` has been modified to:
+Both services are configured to use the same Docker network:
 
-1. **Mount the host's home directory**: Allows access to the MCP server files
-2. **Use host networking**: Enables communication with the MCP server
-3. **Environment variables**: Configurable MCP server settings
-
-### Running with Docker
-
-```bash
-# Rebuild and start the application
-docker compose -f docker-compose.dev.yml up --build
+```yaml
+networks:
+  - barber_evolution_net
 ```
 
-## Alternative Solutions
+### MCP Server Connection
 
-### Option 1: Run MCP Server in Docker
-
-If you prefer to run the MCP server in Docker as well, you can:
-
-1. Create a separate service in docker-compose.dev.yml
-2. Use internal Docker networking
-3. Update the MCP_SERVER_PATH to point to the containerized server
-
-### Option 2: Use HTTP/SSE Transport
-
-Instead of stdio transport, you can configure the MCP server to use HTTP/SSE transport:
+The MCP client connects to the `plans-mcp-server` service using:
 
 ```typescript
-// In mcp-client.service.ts
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
-
-const transport = new SSEClientTransport(
-  new URL('http://localhost:3001/sse')
-);
+const transport = new StdioClientTransport({
+  command: 'docker',
+  args: ['exec', 'plans-mcp-server', 'node', '/app/src/index.ts'],
+});
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Module not found**: Ensure the MCP server path is correct and accessible
-2. **Permission denied**: Check file permissions on the MCP server directory
-3. **Network connectivity**: Verify host networking is properly configured
-
-### Debug Commands
+## Running the Application
 
 ```bash
-# Check if MCP server is accessible from container
-docker exec -it barber_shop_manager_app_dev ls -la /home/elvis/plans-mcp-server/src/
-
-# Test MCP server directly
-node /home/elvis/plans-mcp-server/src/index.ts
-
-# Check container networking
-docker exec -it barber_shop_manager_app_dev netstat -tulpn
+# Start all services including the MCP server
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 ## API Endpoints
@@ -83,4 +60,46 @@ docker exec -it barber_shop_manager_app_dev netstat -tulpn
 Once configured, the MCP client provides these endpoints:
 
 - `GET /mcp/tools` - List all available MCP tools
-- `GET /mcp/ping` - Test MCP server connectivity 
+- `GET /mcp/ping` - Test MCP server connectivity
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Container not found**: Ensure the `plans-mcp-server` container is running
+2. **Network connectivity**: Verify both containers are in the same network
+3. **Permission denied**: Check Docker exec permissions
+
+### Debug Commands
+
+```bash
+# Check if MCP server container is running
+docker ps | grep plans-mcp-server
+
+# Check network connectivity
+docker network inspect barber_evolution_net
+
+# Test MCP server directly
+docker exec plans-mcp-server node /app/src/index.ts
+
+# Check container logs
+docker logs plans-mcp-server
+```
+
+### Network Verification
+
+```bash
+# List containers in the network
+docker network inspect barber_evolution_net --format='{{range .Containers}}{{.Name}} {{end}}'
+
+# Test connectivity between containers
+docker exec barber_shop_manager_app_dev ping plans-mcp-server
+```
+
+## Service Dependencies
+
+The application depends on:
+- `plans-mcp-server` - MCP server service
+- `db` - PostgreSQL database
+
+Make sure all services are running before testing the MCP client. 
