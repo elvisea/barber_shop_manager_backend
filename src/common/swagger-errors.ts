@@ -267,4 +267,13 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS,
     },
   },
+  [ErrorCode.PLAN_NOT_FOUND]: {
+    description: 'Plan not found',
+    example: {
+      statusCode: 404,
+      message: 'Plan not found',
+      error: 'Not Found',
+      errorCode: ErrorCode.PLAN_NOT_FOUND,
+    },
+  },
 };

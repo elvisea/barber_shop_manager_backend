@@ -101,4 +101,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Service with SERVICE_ID [SERVICE_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
   },
+  [ErrorCode.PLAN_NOT_FOUND]: {
+    message: 'Plan with ID [PLAN_ID] not found.',
+  },
 } as const;

@@ -16,6 +16,7 @@ import { EstablishmentProductsModule } from './modules/establishment-products/es
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
 import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { MemberServicesModule } from './modules/member-services/member-services.module';
+import { PlansModule } from './modules/plans/plans.module';
 import { UserModule } from './modules/user/user.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -40,6 +41,7 @@ import { EstablishmentAccessModule } from './shared/establishment-access/establi
     MemberServicesModule,
     WebhookModule,
     AIModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [
