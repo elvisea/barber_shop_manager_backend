@@ -4,7 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,11 +17,11 @@ import { PlanCreateRequestDTO } from '../dtos/plan-create-request.dto';
 import { PlanCreateResponseDTO } from '../dtos/plan-create-response.dto';
 import { PlanCreateService } from '../services/plan-create.service';
 
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Plans')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('plans')
 export class PlanCreateController {
   constructor(private readonly planCreateService: PlanCreateService) {}

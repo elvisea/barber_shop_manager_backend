@@ -14,6 +14,7 @@ import { EstablishmentCustomerModule } from './modules/establishment-customers/e
 import { EstablishmentMembersModule } from './modules/establishment-members/establishment-members.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
+import { McpClientModule } from './modules/mcp-client/mcp-client.module';
 import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { MemberServicesModule } from './modules/member-services/member-services.module';
 import { PlansModule } from './modules/plans/plans.module';
@@ -44,6 +45,7 @@ import { EstablishmentAccessModule } from './shared/establishment-access/establi
     AIModule,
     PlansModule,
     SubscriptionsModule,
+    McpClientModule,
   ],
   controllers: [AppController],
   providers: [

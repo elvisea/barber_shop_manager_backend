@@ -13,8 +13,8 @@ import { PlanFindAllService } from '../services/plan-find-all.service';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Plans')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// @ApiBearerAuth()
+// @UseGuards(JwtAuthGuard)
 @Controller('plans')
 export class PlanFindAllController {
   constructor(private readonly planFindAllService: PlanFindAllService) {}

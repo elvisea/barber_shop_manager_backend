@@ -31,14 +31,20 @@ services:
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
+      # Mount the host's home directory to access the MCP server
+      - /home/elvis:/home/elvis:ro
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
-    networks:
-      - barber_evolution_net
+    # Use host networking to access the MCP server
+    network_mode: host
+    # Alternative: use custom network with host access
+    # networks:
+    #   - barber_evolution_net
+    #   - host
 
 volumes:
   data_barber_shop_manager:
