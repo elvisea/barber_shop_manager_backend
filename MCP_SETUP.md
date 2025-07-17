@@ -2,18 +2,18 @@
 
 ## Overview
 
-This application connects to an MCP (Model Context Protocol) server running as a Docker service in the `barber_evolution_net` network.
+This application connects to an MCP (Model Context Protocol) server running as a Docker service in the `barber_evolution_net` network using HTTP/SSE transport.
 
 ## Architecture
 
-The MCP client connects to the `plans-mcp-server` service running in Docker using stdio transport through `docker exec`.
+The MCP client connects to the `plans-mcp-server` service running in Docker using Server-Sent Events (SSE) transport over HTTP.
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   App Container │    │  plans-mcp-server│    │   Database      │
 │                 │    │   Container      │    │   Container     │
 │  MCP Client     │◄──►│  MCP Server      │    │   PostgreSQL    │
-│                 │    │                  │    │                 │
+│  (HTTP/SSE)     │    │  (HTTP/SSE)      │    │                 │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
          │                       │                       │
          └───────────────────────┼───────────────────────┘
@@ -39,13 +39,21 @@ networks:
 
 ### MCP Server Connection
 
-The MCP client connects to the `plans-mcp-server` service using:
+The MCP client connects to the `plans-mcp-server` service using HTTP/SSE transport:
 
 ```typescript
-const transport = new StdioClientTransport({
-  command: 'docker',
-  args: ['exec', 'plans-mcp-server', 'node', '/app/src/index.ts'],
-});
+const transport = new SSEClientTransport(
+  new URL('http://plans-mcp-server:3000')
+);
+```
+
+## Environment Variables
+
+Configure the MCP server connection via environment variables:
+
+```bash
+# MCP Server Configuration
+MCP_SERVER_URL=http://plans-mcp-server:3000
 ```
 
 ## Running the Application
@@ -66,9 +74,9 @@ Once configured, the MCP client provides these endpoints:
 
 ### Common Issues
 
-1. **Container not found**: Ensure the `plans-mcp-server` container is running
+1. **Connection refused**: Ensure the MCP server is running and exposing HTTP port
 2. **Network connectivity**: Verify both containers are in the same network
-3. **Permission denied**: Check Docker exec permissions
+3. **SSE transport error**: Check if MCP server supports HTTP/SSE transport
 
 ### Debug Commands
 
@@ -79,11 +87,11 @@ docker ps | grep plans-mcp-server
 # Check network connectivity
 docker network inspect barber_evolution_net
 
-# Test MCP server directly
-docker exec plans-mcp-server node /app/src/index.ts
+# Test HTTP connectivity to MCP server
+docker exec barber_shop_manager_app_dev curl -v http://plans-mcp-server:3000
 
 # Check container logs
-docker logs plans-mcp-server
+docker logs plans-mcp-server-plans-mcp-server-run-6f2dd3365366
 ```
 
 ### Network Verification
@@ -94,12 +102,23 @@ docker network inspect barber_evolution_net --format='{{range .Containers}}{{.Na
 
 # Test connectivity between containers
 docker exec barber_shop_manager_app_dev ping plans-mcp-server
+
+# Check if MCP server is listening on HTTP port
+docker exec barber_shop_manager_app_dev netstat -tulpn | grep 3000
 ```
 
 ## Service Dependencies
 
 The application depends on:
-- `plans-mcp-server` - MCP server service
+- `plans-mcp-server` - MCP server service (must support HTTP/SSE transport)
 - `db` - PostgreSQL database
 
-Make sure all services are running before testing the MCP client. 
+Make sure all services are running before testing the MCP client.
+
+## MCP Server Requirements
+
+The MCP server must:
+1. Support HTTP/SSE transport
+2. Expose port 3000 (or configure via MCP_SERVER_URL)
+3. Be accessible via the service name `plans-mcp-server`
+4. Be running in the same Docker network 

@@ -1,5 +1,5 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -24,14 +24,18 @@ export class McpClientService implements OnModuleInit {
     try {
       this.logger.log('Connecting to MCP server...');
 
-      // Connect to the plans-mcp-server running in Docker
-      const transport = new StdioClientTransport({
-        command: 'docker',
-        args: ['exec', 'plans-mcp-server', 'node', '/app/src/index.ts'],
-        env: {
-          NODE_ENV: 'development',
-        },
-      });
+      // Get MCP server URL from environment or use default
+      const mcpServerUrl = this.configService.get<string>(
+        'MCP_SERVER_URL',
+        'http://10.0.1.9:3000',
+      );
+
+      this.logger.log(
+        `Attempting to connect to MCP server at: ${mcpServerUrl}`,
+      );
+
+      // Use SSE transport to connect to the MCP server
+      const transport = new SSEClientTransport(new URL(mcpServerUrl));
 
       await this.client.connect(transport);
 
@@ -42,6 +46,27 @@ export class McpClientService implements OnModuleInit {
       this.logger.log('MCP server is responsive');
     } catch (error) {
       this.logger.error('Failed to connect to MCP server', error);
+
+      // Log additional debugging information
+      this.logger.error(
+        'MCP Server URL being used:',
+        this.configService.get<string>(
+          'MCP_SERVER_URL',
+          'http://10.0.1.9:3000',
+        ),
+      );
+
+      // Type-safe error logging
+      if (error instanceof Error) {
+        this.logger.error('Error details:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+        });
+      } else {
+        this.logger.error('Unknown error type:', error);
+      }
+
       throw error;
     }
   }
