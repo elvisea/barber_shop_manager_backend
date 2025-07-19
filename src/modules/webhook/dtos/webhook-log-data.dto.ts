@@ -17,7 +17,7 @@ export class WebhookLogDataDTO {
   @ApiProperty({
     enum: WebhookEvent,
     example: WebhookEvent.MESSAGES_UPSERT,
-    description: 'Tipo do evento do webhook'
+    description: 'Tipo do evento do webhook',
   })
   @IsNotEmpty({ message: 'Event is required' })
   @IsEnum(WebhookEvent, { message: 'Event must be a valid webhook event type' })
@@ -30,19 +30,22 @@ export class WebhookLogDataDTO {
 
   @ApiProperty({
     example: { message: 'Hello world' },
-    description: 'Dados do evento'
+    description: 'Dados do evento',
   })
   @IsNotEmpty({ message: 'Data is required' })
   data: any;
 
-  @ApiProperty({ example: 'destination-456', description: 'Destino do webhook' })
+  @ApiProperty({
+    example: 'destination-456',
+    description: 'Destino do webhook',
+  })
   @IsNotEmpty({ message: 'Destination is required' })
   @IsString()
   destination: string;
 
   @ApiProperty({
     example: '2024-01-21T10:00:00Z',
-    description: 'Data e hora do evento'
+    description: 'Data e hora do evento',
   })
   @IsNotEmpty({ message: 'Date time is required' })
   @IsString()
@@ -50,7 +53,7 @@ export class WebhookLogDataDTO {
 
   @ApiProperty({
     example: '+5511999999999',
-    description: 'Número do telefone do remetente'
+    description: 'Número do telefone do remetente',
   })
   @IsNotEmpty({ message: 'Sender is required' })
   @IsString()
@@ -58,7 +61,7 @@ export class WebhookLogDataDTO {
 
   @ApiProperty({
     example: 'https://server.example.com',
-    description: 'URL do servidor'
+    description: 'URL do servidor',
   })
   @IsNotEmpty({ message: 'Server URL is required' })
   @IsString()
@@ -66,9 +69,9 @@ export class WebhookLogDataDTO {
 
   @ApiProperty({
     example: 'api-key-123',
-    description: 'Chave da API'
+    description: 'Chave da API',
   })
   @IsNotEmpty({ message: 'API key is required' })
   @IsString()
   apikey: string;
-} 
+}

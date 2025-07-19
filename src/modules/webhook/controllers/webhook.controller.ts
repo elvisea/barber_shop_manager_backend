@@ -7,7 +7,7 @@ import { WebhookRouterService } from '../services/webhook-router.service';
 @ApiTags('Webhook')
 @Controller('api')
 export class WebhookController {
-  constructor(private readonly webhookRouterService: WebhookRouterService) { }
+  constructor(private readonly webhookRouterService: WebhookRouterService) {}
 
   @Post('webhook')
   @ApiOperation({ summary: 'Receber webhook de eventos' })
@@ -16,12 +16,12 @@ export class WebhookController {
     description: 'Webhook processado com sucesso',
     schema: {
       type: 'string',
-      example: 'Webhook recebido com sucesso (roteamento)'
-    }
+      example: 'Webhook recebido com sucesso (roteamento)',
+    },
   })
   @ApiResponse({
     status: 400,
-    description: 'Dados do webhook inválidos'
+    description: 'Dados do webhook inválidos',
   })
   async handle(@Body() webhookData: WebhookLogDataDTO): Promise<string> {
     await this.webhookRouterService.route(webhookData);
