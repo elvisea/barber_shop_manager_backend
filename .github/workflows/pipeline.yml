@@ -263,9 +263,7 @@ jobs:
         run: |
             ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
               cd ${{ secrets.REMOTE_TARGET }} && \
-              docker compose down && \
-              docker compose pull && \
-              # Garantir que a rede existe antes de subir os containers
+              # Garantir que a rede existe ANTES de qualquer operação do docker compose
               if ! docker network ls | grep -q '${{ env.DOCKER_NETWORK_NAME }}'; then
                 echo 'Creating Docker network: ${{ env.DOCKER_NETWORK_NAME }}' && \
                 docker network create ${{ env.DOCKER_NETWORK_NAME }} && \
@@ -273,6 +271,8 @@ jobs:
               else
                 echo 'Docker network ${{ env.DOCKER_NETWORK_NAME }} already exists';
               fi && \
+              docker compose down && \
+              docker compose pull && \
               docker compose up -d && \
               echo 'Barber Shop Manager deployed successfully'"
 
