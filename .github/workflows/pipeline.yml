@@ -194,17 +194,7 @@ jobs:
             fi
           "
 
-      - name: Check and Create Docker Network
-        run: |
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
-            if ! docker network ls | grep -q '${{ env.DOCKER_NETWORK_NAME }}'; then
-              echo 'Creating Docker network: ${{ env.DOCKER_NETWORK_NAME }}' && \
-              docker network create ${{ env.DOCKER_NETWORK_NAME }} && \
-              echo 'Network created successfully';
-            else
-              echo 'Docker network ${{ env.DOCKER_NETWORK_NAME }} already exists';
-            fi
-          "
+
 
       - name: Transfer Docker Compose, Dockerfile e .env
         run: |
@@ -263,14 +253,6 @@ jobs:
         run: |
             ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
               cd ${{ secrets.REMOTE_TARGET }} && \
-              # Garantir que a rede existe ANTES de qualquer operação do docker compose
-              if ! docker network ls | grep -q '${{ env.DOCKER_NETWORK_NAME }}'; then
-                echo 'Creating Docker network: ${{ env.DOCKER_NETWORK_NAME }}' && \
-                docker network create '${{ env.DOCKER_NETWORK_NAME }}' && \
-                echo 'Network created successfully';
-              else
-                echo 'Docker network ${{ env.DOCKER_NETWORK_NAME }} already exists';
-              fi && \
               docker compose down && \
               docker compose pull && \
               docker compose up -d && \
