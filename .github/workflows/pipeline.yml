@@ -1,6 +1,18 @@
 name: Barber Shop Manager CI/CD Pipeline
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/**'
+      - '.github/workflows/pipeline.yml'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'prisma/**'
   pull_request:
     branches:
       - main
