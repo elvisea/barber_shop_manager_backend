@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - data_barber_shop_manager:/var/lib/postgresql/data
+      - data_barber_shop_manager_backend:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: barber_shop_manager_app_dev
+    container_name: barber_shop_manager_backend_app_dev
     command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
     ports:
       - "3333:3333"
@@ -41,7 +41,7 @@ services:
       - barber_evolution_net
 
 volumes:
-  data_barber_shop_manager:
+  data_barber_shop_manager_backend:
     driver: local
 
 networks:

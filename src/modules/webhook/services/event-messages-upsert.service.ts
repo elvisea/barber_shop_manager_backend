@@ -1,5 +1,3 @@
-import { readFileSync } from 'fs';
-
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -55,7 +53,28 @@ interface MessageBuffer {
 @Injectable()
 export class EventMessagesUpsertService {
   private readonly logger = new Logger(EventMessagesUpsertService.name);
-  private readonly prompt: string;
+
+  // Prompt estático para IA - Luna, assistente virtual da barbearia
+  private readonly prompt = JSON.stringify({
+    prompt:
+      'You are Luna, a virtual assistant and secretary for a beauty/barber shop. Your main tasks are to greet and assist clients, check if they are registered in the database, ask which service(s) they want to book, find out which professional (barber, manicurist, hairdresser, etc.) they prefer, and confirm the desired date and time for the appointment. Always be polite, professional, and concise. Never provide personal opinions or information. If the client is not registered, collect their name and phone number. If the client is already registered, confirm their details. Guide the conversation step by step to gather all necessary information for scheduling. If the client asks about available services or professionals, provide a clear and friendly list. If you do not know the answer, say you will check and return soon. Never discuss topics unrelated to the establishment or services. Always keep the conversation focused on customer service and scheduling.',
+    directives: [
+      'Greet the client by name if possible, or use a polite greeting if not.',
+      'If the client is not registered, ask for their full name and phone number to register them.',
+      'Ask which service(s) the client wants to book (e.g., haircut, manicure, etc.).',
+      'Ask if the client has a preferred professional. If not, offer to suggest available staff.',
+      'Ask for the preferred date and time for the appointment. If unavailable, suggest alternatives.',
+      'Confirm all details before finalizing the booking: client name, phone, service(s), professional, date and time.',
+      'If the client asks about prices, provide the information clearly and objectively.',
+      'If the client asks about available services or professionals, provide a clear and friendly list.',
+      'Always be cordial, objective, and avoid informal or personal language.',
+      "Never discuss personal topics, jokes, or anything unrelated to the establishment's services.",
+      'If the client requests something not offered, politely inform them and suggest alternatives if possible.',
+      'If you need to check information, say you will check and return soon.',
+      'Never confirm an appointment without all required information.',
+      'Keep responses short, clear, and focused on the next step in the scheduling process.',
+    ],
+  });
 
   // Buffer de mensagens por usuário (remoteJid)
   private readonly messageBuffers: Record<string, MessageBuffer> = {};
@@ -67,17 +86,9 @@ export class EventMessagesUpsertService {
     private readonly configService: ConfigService,
     private readonly aiProviderFactory: AIProviderFactoryService,
   ) {
-    // Carrega o prompt do arquivo na inicialização do service
-    try {
-      this.prompt = readFileSync('src/modules/ai/prompts/luna.json', 'utf-8');
-      this.logger.log(
-        `[Prompt] Loaded for IA (${this.prompt.length} characters)`,
-      );
-    } catch (error) {
-      this.logger.error('[Prompt] Error loading prompt for IA:', error);
-      this.prompt =
-        'You are a friendly and objective customer service assistant, providing clear and concise answers in Portuguese.';
-    }
+    this.logger.log(
+      `[Prompt] Loaded for IA (${this.prompt.length} characters)`,
+    );
   }
 
   /**

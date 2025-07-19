@@ -20,11 +20,11 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: barber_shop_manager_db_container
+    container_name: barber_shop_manager_backend_db_container
     environment:
-      POSTGRES_DB: barber_shop_manager_db_dev
-      POSTGRES_USER: barber_shop_manager_db_dev_user
-      POSTGRES_PASSWORD: barber_shop_manager_db_dev_password
+      POSTGRES_DB: barber_shop_manager_backend_db_dev
+      POSTGRES_USER: barber_shop_manager_backend_db_dev_user
+      POSTGRES_PASSWORD: barber_shop_manager_backend_db_dev_password
     ports:
       - "5432:5432"
     volumes:
@@ -76,16 +76,16 @@ LOG_LEVEL="debug"
 
 # Configurações do Banco de Dados PostgreSQL
 POSTGRES_PORT=5432
-POSTGRES_DB=barber_shop_manager_db_dev
-POSTGRES_USER=barber_shop_manager_db_dev_user
-POSTGRES_PASSWORD=barber_shop_manager_db_dev_password
+POSTGRES_DB=barber_shop_manager_backend_db_dev
+POSTGRES_USER=barber_shop_manager_backend_db_dev_user
+POSTGRES_PASSWORD=barber_shop_manager_backend_db_dev_password
 
 # URL de Conexão com o Banco de Dados (Docker Network)
-DATABASE_URL=postgresql://barber_shop_manager_db_dev_user:barber_shop_manager_db_dev_password@172.17.0.1:5432/barber_shop_manager_db_dev?schema=public
+DATABASE_URL=postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@172.17.0.1:5432/barber_shop_manager_backend_db_dev?schema=public
 
 # Configurações de Containers Docker
-CONTAINER_NAME_APP=barber_shop_manager_dev
-CONTAINER_NAME_DATABASE=barber_shop_manager_db_container
+CONTAINER_NAME_APP=barber_shop_manager_backend_dev
+CONTAINER_NAME_DATABASE=barber_shop_manager_backend_db_container
 DOCKER_HOST_IP=172.17.0.1
 
 # Configurações de JWT (se necessário)
@@ -588,10 +588,10 @@ const appointmentsByPeriod = await prisma.appointment.findMany({
 docker ps | grep postgres
 
 # Verificar logs do container
-docker logs barber_shop_manager_db_container
+docker logs barber_shop_manager_backend_db_container
 
 # Testar conexão manual
-psql postgresql://barber_shop_manager_db_dev_user:barber_shop_manager_db_dev_password@172.17.0.1:5432/barber_shop_manager_db_dev
+psql postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@172.17.0.1:5432/barber_shop_manager_backend_db_dev
 ```
 
 ### Cliente Prisma Desatualizado

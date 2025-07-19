@@ -20,8 +20,8 @@ Sistema backend desenvolvido em **NestJS** para gerenciamento completo de barbea
 
 ### 1. Clonar o repositório
 ```bash
-git clone https://github.com/elvisea/barber-shop-manager.git
-cd barber-shop-manager
+git clone https://github.com/elvisea/barber_shop_manager_backend.git
+cd barber_shop_manager_backend
 ```
 
 ### 2. Instalar dependências

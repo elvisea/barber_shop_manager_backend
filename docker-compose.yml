@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: ${CONTAINER_NAME_DATABASE:-barber_shop_manager_backend_db}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - data_barber_shop_manager_backend:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5434}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    networks:
+      - barber_evolution_net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${REGISTRY:-docker.io}/${IMAGE_NAME:-elvisea/barber_shop_manager_backend}:${TAG:-latest}
+    container_name: ${CONTAINER_NAME_APP:-barber_shop_manager_backend_app}
+    restart: unless-stopped
+    environment:
+      # Ambiente de Execução
+      NODE_ENV: production
+      PORT: ${PORT:-3333}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      # Configurações de JWT
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION:-60s}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION:-7d}
+      JWT_SECRET_PUBLIC_KEY: ${JWT_SECRET_PUBLIC_KEY}
+      JWT_SECRET_PRIVATE_KEY: ${JWT_SECRET_PRIVATE_KEY}
+
+      # Configurações do Banco de Dados
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Configurações de Email
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_SECURE: ${MAIL_SECURE:-false}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+
+      # Configurações de API Externa
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL}
+
+      # Configurações de IA
+      AI_PROVIDER: ${AI_PROVIDER}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      VERBOSE_LOGGING: ${VERBOSE_LOGGING}
+
+      # Configurações de MCP (se necessário)
+      MCP_SERVER_URL: ${MCP_SERVER_URL}
+      MCP_SERVER_PATH: ${MCP_SERVER_PATH}
+    ports:
+      - "${PORT:-3333}:3333"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Executando migrations...' &&
+        npx prisma migrate deploy &&
+        echo 'Iniciando aplicação...' &&
+        node dist/src/main.js
+      "
+    networks:
+      - barber_evolution_net
+
+volumes:
+  data_barber_shop_manager_backend:
+    driver: local
+
+networks:
+  barber_evolution_net:
+    external: true
