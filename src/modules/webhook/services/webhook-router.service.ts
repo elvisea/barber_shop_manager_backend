@@ -41,23 +41,6 @@ export class WebhookRouterService {
   }
 
   async route(payload: WebhookLogData): Promise<void> {
-    // Validação se o payload existe
-    if (!payload) {
-      this.logger.error('Received undefined or null payload');
-      return;
-    }
-
-    // Validação se o payload tem as propriedades necessárias
-    if (!payload.event) {
-      this.logger.error('Payload missing event property', { payload });
-      return;
-    }
-
-    if (!payload.sender) {
-      this.logger.error('Payload missing sender property', { payload });
-      return;
-    }
-
     this.logger.log(
       `Received event type ${payload.event} for phone number ${payload.sender}`,
     );
