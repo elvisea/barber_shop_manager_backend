@@ -265,6 +265,14 @@ jobs:
               cd ${{ secrets.REMOTE_TARGET }} && \
               docker compose down && \
               docker compose pull && \
+              # Garantir que a rede existe antes de subir os containers
+              if ! docker network ls | grep -q '${{ env.DOCKER_NETWORK_NAME }}'; then
+                echo 'Creating Docker network: ${{ env.DOCKER_NETWORK_NAME }}' && \
+                docker network create ${{ env.DOCKER_NETWORK_NAME }} && \
+                echo 'Network created successfully';
+              else
+                echo 'Docker network ${{ env.DOCKER_NETWORK_NAME }} already exists';
+              fi && \
               docker compose up -d && \
               echo 'Barber Shop Manager deployed successfully'"
 
