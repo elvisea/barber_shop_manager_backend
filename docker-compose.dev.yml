@@ -31,8 +31,11 @@ services:
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
+      - /home/elvis/barber-shop-manager-mcp-server:/home/elvis/barber-shop-manager-mcp-server
     env_file:
       - .env
+    environment:
+      - MCP_SERVER_PATH=/home/elvis/barber-shop-manager-mcp-server/src/index.ts
     depends_on:
       db:
         condition: service_healthy

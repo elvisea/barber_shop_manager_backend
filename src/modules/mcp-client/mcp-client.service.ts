@@ -1,5 +1,5 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -24,18 +24,21 @@ export class McpClientService implements OnModuleInit {
     try {
       this.logger.log('Connecting to MCP server...');
 
-      // Get MCP server URL from environment or use default
-      const mcpServerUrl = this.configService.get<string>(
-        'MCP_SERVER_URL',
-        'http://10.0.1.9:3000',
+      // Get MCP server path from environment or use default
+      const mcpServerPath = this.configService.get<string>(
+        'MCP_SERVER_PATH',
+        '/home/elvis/barber-shop-manager-mcp-server/src/index.ts',
       );
 
       this.logger.log(
-        `Attempting to connect to MCP server at: ${mcpServerUrl}`,
+        `Attempting to connect to MCP server at: ${mcpServerPath}`,
       );
 
-      // Use SSE transport to connect to the MCP server
-      const transport = new SSEClientTransport(new URL(mcpServerUrl));
+      // Use StdioClientTransport to connect to the MCP server
+      const transport = new StdioClientTransport({
+        command: 'npx',
+        args: ['tsx', mcpServerPath],
+      });
 
       await this.client.connect(transport);
 
@@ -49,10 +52,10 @@ export class McpClientService implements OnModuleInit {
 
       // Log additional debugging information
       this.logger.error(
-        'MCP Server URL being used:',
+        'MCP Server Path being used:',
         this.configService.get<string>(
-          'MCP_SERVER_URL',
-          'http://10.0.1.9:3000',
+          'MCP_SERVER_PATH',
+          '/home/elvis/barber-shop-manager-mcp-server/src/index.ts',
         ),
       );
 
