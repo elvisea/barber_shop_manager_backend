@@ -263,13 +263,15 @@ jobs:
         run: |
             ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
               cd ${{ secrets.REMOTE_TARGET }} && \
+              # Carregar variáveis do arquivo .env
+              export \$(cat .env | xargs) && \
               # Garantir que a rede existe ANTES de qualquer operação do docker compose
-              if ! docker network ls | grep -q '${{ env.DOCKER_NETWORK_NAME }}'; then
-                echo 'Creating Docker network: ${{ env.DOCKER_NETWORK_NAME }}' && \
-                docker network create ${{ env.DOCKER_NETWORK_NAME }} && \
+              if ! docker network ls | grep -q \"\$DOCKER_NETWORK_NAME\"; then
+                echo \"Creating Docker network: \$DOCKER_NETWORK_NAME\" && \
+                docker network create \"\$DOCKER_NETWORK_NAME\" && \
                 echo 'Network created successfully';
               else
-                echo 'Docker network ${{ env.DOCKER_NETWORK_NAME }} already exists';
+                echo \"Docker network \$DOCKER_NETWORK_NAME already exists\";
               fi && \
               docker compose down && \
               docker compose pull && \
