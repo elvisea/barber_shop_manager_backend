@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/**'
+      - '.github/workflows/pipeline.yml'
       - 'Dockerfile'
       - 'docker-compose.yml'
       - 'prisma/**'
