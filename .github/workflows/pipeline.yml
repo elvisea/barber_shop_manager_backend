@@ -68,6 +68,7 @@ env:
   # Configurações de Containers
   CONTAINER_NAME_APP: ${{ secrets.CONTAINER_NAME_APP }}
   CONTAINER_NAME_DATABASE: ${{ secrets.CONTAINER_NAME_DATABASE }}
+  DOCKER_NETWORK_NAME: ${{ secrets.DOCKER_NETWORK_NAME }}
 
 jobs:
   quality:
@@ -193,6 +194,18 @@ jobs:
             fi
           "
 
+      - name: Check and Create Docker Network
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
+            if ! docker network ls | grep -q '${{ env.DOCKER_NETWORK_NAME }}'; then
+              echo 'Creating Docker network: ${{ env.DOCKER_NETWORK_NAME }}' && \
+              docker network create ${{ env.DOCKER_NETWORK_NAME }} && \
+              echo 'Network created successfully';
+            else
+              echo 'Docker network ${{ env.DOCKER_NETWORK_NAME }} already exists';
+            fi
+          "
+
       - name: Transfer Docker Compose, Dockerfile e .env
         run: |
           # Gere o arquivo .env para o servidor
@@ -201,6 +214,7 @@ jobs:
           echo "TAG=latest" >> .env
           echo "CONTAINER_NAME_APP=${{ env.CONTAINER_NAME_APP }}" >> .env
           echo "CONTAINER_NAME_DATABASE=${{ env.CONTAINER_NAME_DATABASE }}" >> .env
+          echo "DOCKER_NETWORK_NAME=${{ env.DOCKER_NETWORK_NAME }}" >> .env
           
           # Configurações da Aplicação
           echo "NODE_ENV=production" >> .env
