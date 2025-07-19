@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
-  constructor() {}
+  constructor(private readonly configService: ConfigService) {}
 
   getHello(): string {
     const now = new Date();
-    const env = process.env.NODE_ENV || 'development';
+    const env = this.configService.get<string>('NODE_ENV', 'development');
+
     return [
       '💈 Barber Shop Manager API 💈',
       '✅ Status: Online',
