@@ -68,7 +68,7 @@ env:
   # Configurações de Containers
   CONTAINER_NAME_APP: ${{ secrets.CONTAINER_NAME_APP }}
   CONTAINER_NAME_DATABASE: ${{ secrets.CONTAINER_NAME_DATABASE }}
-  DOCKER_NETWORK_NAME: ${{ secrets.DOCKER_NETWORK_NAME }}
+  DOCKER_NETWORK_NAME: barber_evolution_net
 
 jobs:
   quality:
@@ -204,7 +204,7 @@ jobs:
           echo "TAG=latest" >> .env
           echo "CONTAINER_NAME_APP=${{ env.CONTAINER_NAME_APP }}" >> .env
           echo "CONTAINER_NAME_DATABASE=${{ env.CONTAINER_NAME_DATABASE }}" >> .env
-          echo "DOCKER_NETWORK_NAME=${{ env.DOCKER_NETWORK_NAME }}" >> .env
+          echo "DOCKER_NETWORK_NAME=barber_evolution_net" >> .env
           
           # Configurações da Aplicação
           echo "NODE_ENV=production" >> .env
@@ -253,10 +253,6 @@ jobs:
         run: |
             ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
               cd ${{ secrets.REMOTE_TARGET }} && \
-              echo '=== DEBUG: Conteúdo do arquivo .env ===' && \
-              cat .env && \
-              echo '=== DEBUG: Variável DOCKER_NETWORK_NAME ===' && \
-              echo \$DOCKER_NETWORK_NAME && \
               docker compose down && \
               docker compose pull && \
               docker compose up -d && \
