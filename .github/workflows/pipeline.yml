@@ -253,6 +253,10 @@ jobs:
         run: |
             ssh -i ~/.ssh/deploy_key -p ${{ secrets.REMOTE_PORT }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "\
               cd ${{ secrets.REMOTE_TARGET }} && \
+              echo '=== DEBUG: Conteúdo do arquivo .env ===' && \
+              cat .env && \
+              echo '=== DEBUG: Variável DOCKER_NETWORK_NAME ===' && \
+              echo \$DOCKER_NETWORK_NAME && \
               docker compose down && \
               docker compose pull && \
               docker compose up -d && \
