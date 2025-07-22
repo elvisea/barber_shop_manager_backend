@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config';
 
 import { AIProvider } from '../interfaces/ai-provider-interface';
 import { DeepseekProvider } from '../providers/deepseek';
+import { DeepseekNewProvider } from '../providers/deepseek-new.provider';
+
+import { AIToolExecutorService } from './ai-tool-executor.service';
 
 @Injectable()
 export class AIProviderFactoryService {
@@ -10,10 +13,14 @@ export class AIProviderFactoryService {
   private readonly configService: ConfigService;
 
   private static providers: Record<string, (options?: any) => AIProvider> = {
-    'deepseek-chat': (options?: any) => new DeepseekProvider(options),
+    // 'deepseek-chat': (options?: any) => new DeepseekProvider(options),
+    'deepseek-chat': (options?: any) => new DeepseekNewProvider(options),
   };
 
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    private readonly toolExecutor: AIToolExecutorService,
+  ) {
     this.configService = configService;
   }
 
@@ -36,10 +43,18 @@ export class AIProviderFactoryService {
       options?.providerKey ||
       this.configService.get<string>('AI_PROVIDER') ||
       'deepseek-chat';
+
     if (providerKey in AIProviderFactoryService.providers) {
       this.logger.log(`Usando provider de IA: ${providerKey}`);
+
+      // Se for o novo provider, passar o toolExecutor
+      if (providerKey === 'deepseek-chat' && this.toolExecutor) {
+        return new DeepseekNewProvider(options, this.toolExecutor);
+      }
+
       return AIProviderFactoryService.providers[providerKey](options);
     }
+
     this.logger.warn(
       `Provider "${providerKey}" não encontrado. Usando provider padrão: deepseek-chat`,
     );

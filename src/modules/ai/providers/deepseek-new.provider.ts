@@ -7,21 +7,28 @@ import {
 } from 'openai/resources/index';
 
 import {
-  AIFunctionCall,
-  AIFunctionResult,
-} from '../interfaces/ai-function.interface';
-import {
   AIProvider,
   AIResponse,
   Sentiment,
 } from '../interfaces/ai-provider-interface';
+import { AIToolExecutorService } from '../services/ai-tool-executor.service';
 
-export class DeepseekProvider implements AIProvider {
+/**
+ * 🤖 DeepSeek Provider - Versão Simplificada
+ * Baseado nas boas práticas da OpenAI para function calling
+ *
+ * Estrutura simplificada:
+ * - Um único método generateAIResponse
+ * - Suporte nativo a tools via ChatCompletionTool[]
+ * - Execução automática de tool calls
+ * - Contexto de mensagens com resultados das tools
+ */
+
+export class DeepseekNewProvider implements AIProvider {
   private openai: OpenAI;
   private model: string;
   private maxTokens: number;
   private temperature: number;
-  private verboseLogging: boolean;
   private topP: number = 0.9;
   private frequencyPenalty: number = 0.2;
   private sentimentCache: Map<
@@ -29,45 +36,54 @@ export class DeepseekProvider implements AIProvider {
     { sentiment: Sentiment; timestamp: number }
   >;
   private cacheTTL: number;
-  private logger = new Logger(DeepseekProvider.name);
+  private logger = new Logger(DeepseekNewProvider.name);
   private configService: ConfigService;
 
-  constructor(options?: {
-    verboseLogging?: boolean;
-    temperature?: number;
-    topP?: number;
-    frequencyPenalty?: number;
-    maxTokens?: number;
-    cacheTTL?: number;
-    configService?: ConfigService;
-  }) {
-    this.logger.log('Iniciando DeepseekProvider...');
+  constructor(
+    options?: {
+      verboseLogging?: boolean;
+      temperature?: number;
+      topP?: number;
+      frequencyPenalty?: number;
+      maxTokens?: number;
+      cacheTTL?: number;
+      configService?: ConfigService;
+    },
+    private readonly toolExecutor?: AIToolExecutorService,
+  ) {
+    this.logger.log('Iniciando DeepseekNewProvider...');
     this.configService = options?.configService || new ConfigService();
     const apiKey = this.configService.get<string>('DEEPSEEK_API_KEY');
     const baseUrl =
       this.configService.get<string>('DEEPSEEK_BASE_URL') ||
       'https://api.deepseek.com';
+
     this.openai = new OpenAI({
       apiKey,
       baseURL: baseUrl,
     });
+
     this.model = 'deepseek-chat';
     this.maxTokens = options?.maxTokens ?? 500;
     this.temperature = options?.temperature ?? 1.3;
     this.topP = options?.topP ?? 0.9;
     this.frequencyPenalty = options?.frequencyPenalty ?? 0.2;
-    this.verboseLogging = options?.verboseLogging ?? false;
     this.sentimentCache = new Map();
     this.cacheTTL = options?.cacheTTL ?? 300000;
-    this.logger.log('DeepseekProvider inicializado.');
+
+    this.logger.log('DeepseekNewProvider inicializado.');
   }
 
+  /**
+   * 🎯 Método principal simplificado
+   * Aceita tools como ChatCompletionTool[] e executa automaticamente
+   */
   async generateAIResponse(
     message: string,
     prompt: string,
     contextMessages: any[] = [],
     sentiment?: Sentiment,
-    tools?: ChatCompletionTool[], // ✅ Atualizado para o tipo correto
+    tools?: ChatCompletionTool[], // ✅ Tipo correto da OpenAI
   ): Promise<AIResponse> {
     if (!prompt || prompt.length === 0) {
       this.logger.error(
@@ -106,12 +122,15 @@ export class DeepseekProvider implements AIProvider {
     );
   }
 
+  /**
+   * 🔄 Resposta tradicional sem function calling
+   */
   private async generateTraditionalResponse(
     systemContent: string,
     contextMessages: any[],
     message: string,
   ): Promise<AIResponse> {
-    const requestBody = {
+    const requestBody: ChatCompletionCreateParamsNonStreaming = {
       model: this.model,
       messages: [
         { role: 'system', content: systemContent },
@@ -139,7 +158,6 @@ export class DeepseekProvider implements AIProvider {
       return {
         message:
           responseContent || 'Desculpe, não consegui processar sua mensagem.',
-
         sentiment: 'neutral',
       };
     } catch (error: any) {
@@ -149,31 +167,20 @@ export class DeepseekProvider implements AIProvider {
       );
       return {
         message: 'Desculpe, não consegui processar sua mensagem.',
-
         sentiment: 'neutral',
       };
     }
   }
 
+  /**
+   * 🛠️ Resposta com function calling (apenas proxy, sem executar tools)
+   */
   private async generateResponseWithTools(
     systemContent: string,
     contextMessages: any[],
     message: string,
     tools: ChatCompletionTool[],
   ): Promise<AIResponse> {
-    // Validação da mensagem
-    if (!message || message.trim().length === 0) {
-      this.logger.error('Mensagem vazia recebida em generateResponseWithTools');
-      return {
-        message: 'Erro: Mensagem não pode estar vazia',
-
-        sentiment: 'neutral',
-      };
-    }
-
-    // Tools já estão no formato correto, não precisamos converter
-    // const tools já está disponível como parâmetro
-
     const messages = [
       { role: 'system', content: systemContent },
       ...contextMessages,
@@ -194,7 +201,11 @@ export class DeepseekProvider implements AIProvider {
     this.logger.log(`[DEBUG] Mensagem do usuário: "${message}"`);
     this.logger.log(`[DEBUG] Número de mensagens: ${messages.length}`);
     this.logger.log(`[DEBUG] Número de tools: ${tools.length}`);
+    this.logger.log(
+      `[DEBUG] Tools disponíveis: ${tools.map((t) => t.function?.name).join(', ')}`,
+    );
     this.logger.debug(`Request com tools: ${JSON.stringify(requestBody)}`);
+
     const startTime = Date.now();
 
     try {
@@ -203,41 +214,29 @@ export class DeepseekProvider implements AIProvider {
       const responseContent = completion.choices[0].message.content || '';
       const toolCalls = completion.choices[0].message.tool_calls;
 
+      this.logger.log('resposta interna do completion', completion);
       this.logger.log(
         `Resposta com tools recebida em ${responseTime}ms (${responseContent.length} chars)`,
       );
+      this.logger.log(`[DEBUG] Conteúdo da resposta: "${responseContent}"`);
+      this.logger.log(
+        `[DEBUG] Tool calls recebidos: ${JSON.stringify(toolCalls)}`,
+      );
 
-      this.logger.log(`[DEBUG] Tool calls: ${JSON.stringify(toolCalls)}`);
-
-      // Processar function calls se houver
-      const functionCalls: AIFunctionCall[] = [];
-
+      // Retornar tool calls e mensagem para o serviço orquestrador
+      let functionCalls: any[] = [];
       if (toolCalls && toolCalls.length > 0) {
-        this.logger.log(`[DEBUG] Tool calls: ${JSON.stringify(toolCalls)}`);
-        for (const toolCall of toolCalls) {
-          if (toolCall.type === 'function') {
-            try {
-              const args = JSON.parse(toolCall.function.arguments);
-              functionCalls.push({
-                name: toolCall.function.name,
-                arguments: args,
-              });
-            } catch (error) {
-              this.logger.error(
-                'Erro ao fazer parse dos argumentos da função:',
-                error,
-              );
-            }
-          }
-        }
+        functionCalls = toolCalls.map((tc) => ({
+          id: tc.id,
+          name: tc.function.name,
+          arguments: JSON.parse(tc.function.arguments),
+        }));
       }
 
       return {
-        message:
-          responseContent || 'Desculpe, não consegui processar sua mensagem.',
-
+        message: responseContent,
         sentiment: 'neutral',
-        functionCalls: functionCalls.length > 0 ? functionCalls : undefined,
+        functionCalls,
       };
     } catch (error: any) {
       this.logger.error(
@@ -246,194 +245,66 @@ export class DeepseekProvider implements AIProvider {
       );
       return {
         message: 'Desculpe, não consegui processar sua mensagem.',
-
         sentiment: 'neutral',
+        functionCalls: [],
       };
     }
   }
 
-  async executeFunctionCall(
-    functionCall: AIFunctionCall,
-  ): Promise<AIFunctionResult> {
-    this.logger.log(`Executando função: ${functionCall.name}`);
+  /**
+   * 🎯 Gera resposta final com os resultados das tools
+   */
+  private async generateFinalResponse(
+    systemContent: string,
+    contextMessages: any[],
+    originalMessage: string,
+  ): Promise<string> {
+    const requestBody: ChatCompletionCreateParamsNonStreaming = {
+      model: this.model,
+      messages: [
+        { role: 'system', content: systemContent },
+        ...contextMessages,
+        {
+          role: 'user',
+          content: `Com base nos resultados das funções executadas, continue a conversa de forma natural. Mensagem original: "${originalMessage}"`,
+        },
+      ],
+      max_tokens: this.maxTokens,
+      temperature: this.temperature,
+      top_p: this.topP,
+      frequency_penalty: this.frequencyPenalty,
+    };
 
     try {
-      // Aqui você pode implementar a lógica para executar diferentes funções
-      // Por exemplo, usar o HttpClientService para fazer chamadas HTTP
-
-      switch (functionCall.name) {
-        case 'get_weather':
-          return await this.executeGetWeather(functionCall.arguments);
-        case 'get_user_info':
-          return await this.executeGetUserInfo(functionCall.arguments);
-        case 'get_establishment_info':
-          return await this.executeGetEstablishmentInfo(functionCall.arguments);
-        case 'get_appointments':
-          return await this.executeGetAppointments(functionCall.arguments);
-        default:
-          return {
-            success: false,
-            error: `Função '${functionCall.name}' não implementada`,
-          };
-      }
+      const completion = await this.openai.chat.completions.create(requestBody);
+      return (
+        completion.choices[0].message.content ||
+        'Desculpe, não consegui processar sua mensagem.'
+      );
     } catch (error: any) {
-      this.logger.error(`Erro ao executar função ${functionCall.name}:`, error);
-      return {
-        success: false,
-        error: error?.message || 'Erro desconhecido',
-      };
+      this.logger.error(
+        'Erro na geração da resposta final:',
+        error?.message || error,
+      );
+      return 'Desculpe, ocorreu um erro ao processar sua solicitação.';
     }
   }
 
-  private async executeGetWeather(
-    args: Record<string, any>,
-  ): Promise<AIFunctionResult> {
-    const { location, units = 'celsius' } = args;
-
-    this.logger.log(`Buscando clima para: ${location} em ${units}`);
-
-    // Simular chamada HTTP (substitua pelo HttpClientService real)
-    try {
-      // const response = await this.httpClientService.get(`/weather?location=${location}&units=${units}`);
-      const mockResponse = {
-        location,
-        temperature: units === 'celsius' ? '25°C' : '77°F',
-        condition: 'Ensolarado',
-        humidity: '60%',
-        wind_speed: '10 km/h',
-      };
-
-      return {
-        success: true,
-        data: mockResponse,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error?.message || 'Erro ao buscar dados do clima',
-      };
-    }
-  }
-
-  private async executeGetUserInfo(
-    args: Record<string, any>,
-  ): Promise<AIFunctionResult> {
-    const { user_id } = args;
-
-    this.logger.log(`Buscando informações do usuário: ${user_id}`);
-
-    try {
-      // const response = await this.httpClientService.get(`/users/${user_id}`);
-      const mockResponse = {
-        id: user_id,
-        name: 'João Silva',
-        email: 'joao@example.com',
-        status: 'active',
-        created_at: '2024-01-01T00:00:00Z',
-      };
-
-      return {
-        success: true,
-        data: mockResponse,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error?.message || 'Erro ao buscar dados do usuário',
-      };
-    }
-  }
-
-  private async executeGetEstablishmentInfo(
-    args: Record<string, any>,
-  ): Promise<AIFunctionResult> {
-    const { establishment_id } = args;
-
-    this.logger.log(
-      `Buscando informações do estabelecimento: ${establishment_id}`,
-    );
-
-    try {
-      // const response = await this.httpClientService.get(`/establishments/${establishment_id}`);
-      const mockResponse = {
-        id: establishment_id,
-        name: 'Barbearia Evolution',
-        address: 'Rua das Flores, 123',
-        phone: '+5511999999999',
-        status: 'active',
-        services_count: 15,
-        employees_count: 8,
-      };
-
-      return {
-        success: true,
-        data: mockResponse,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error?.message || 'Erro ao buscar dados do estabelecimento',
-      };
-    }
-  }
-
-  private async executeGetAppointments(
-    args: Record<string, any>,
-  ): Promise<AIFunctionResult> {
-    const { establishment_id, date, status } = args;
-
-    this.logger.log(
-      `Buscando agendamentos para estabelecimento: ${establishment_id}, data: ${date}, status: ${status}`,
-    );
-
-    try {
-      // const response = await this.httpClientService.get(`/establishments/${establishment_id}/appointments?date=${date}&status=${status}`);
-      const mockResponse = {
-        establishment_id,
-        date,
-        status,
-        appointments: [
-          {
-            id: 1,
-            client_name: 'Maria Santos',
-            service: 'Corte Masculino',
-            time: '14:00',
-            duration: 30,
-            status: 'confirmed',
-          },
-          {
-            id: 2,
-            client_name: 'Pedro Costa',
-            service: 'Barba',
-            time: '15:00',
-            duration: 20,
-            status: 'confirmed',
-          },
-        ],
-        total: 2,
-      };
-
-      return {
-        success: true,
-        data: mockResponse,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error?.message || 'Erro ao buscar agendamentos',
-      };
-    }
-  }
-
+  /**
+   * 📊 Análise de sentimento (mantido para compatibilidade)
+   */
   async analyzeSentiment(message: string): Promise<Sentiment> {
     this.logger.log('Analisando sentimento...');
     const cacheKey = this.generateCacheKey(message);
     const cached = this.sentimentCache.get(cacheKey);
+
     if (cached && Date.now() - cached.timestamp < this.cacheTTL) {
       this.logger.log(`Cache hit: ${cached.sentiment}`);
       return cached.sentiment;
     }
+
     const systemContent = `Analise o sentimento da mensagem do usuário. Responda apenas com: 'positive', 'negative' ou 'neutral'.`;
+
     try {
       const completion = await this.openai.chat.completions.create({
         model: this.model,
@@ -444,12 +315,15 @@ export class DeepseekProvider implements AIProvider {
         max_tokens: 5,
         temperature: 0.1,
       });
+
       const result =
         completion.choices[0].message.content?.toLowerCase().trim() ||
         'neutral';
       let sentiment: Sentiment = 'neutral';
+
       if (result.includes('positive')) sentiment = 'positive';
       else if (result.includes('negative')) sentiment = 'negative';
+
       this.sentimentCache.set(cacheKey, { sentiment, timestamp: Date.now() });
       this.logger.log(`Sentimento detectado: ${sentiment}`);
       return sentiment;
@@ -462,6 +336,9 @@ export class DeepseekProvider implements AIProvider {
     }
   }
 
+  /**
+   * 🔧 Métodos auxiliares (mantidos para compatibilidade)
+   */
   private generateCacheKey(message: string): string {
     const normalizedMessage = message
       .toLowerCase()
@@ -491,5 +368,11 @@ export class DeepseekProvider implements AIProvider {
     this.logger.log(
       `Cache de sentimentos limpo (${cacheSize} entradas removidas)`,
     );
+  }
+
+  // Método de compatibilidade (não usado na nova estrutura)
+  async executeFunctionCall(functionCall: any): Promise<any> {
+    this.logger.warn('executeFunctionCall não é mais usado na nova estrutura');
+    return { success: false, error: 'Método obsoleto' };
   }
 }

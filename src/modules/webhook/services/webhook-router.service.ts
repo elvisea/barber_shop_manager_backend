@@ -53,7 +53,7 @@ export class WebhookRouterService {
         now,
       );
 
-    if (!subscription) {
+    if (subscription) {
       this.logger.warn(
         `No active/paid subscription found for phone number: ${payload.sender}`,
       );
