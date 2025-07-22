@@ -5,7 +5,6 @@ import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { MessagesUpsertLog } from '../interfaces';
 
 import { HttpClientService } from '@/http-client/http-client.service';
-import { BARBER_SHOP_PROMPT } from '@/modules/ai/prompts/barber-shop-prompt';
 import { AIProviderFactoryService } from '@/modules/ai/services/ai-provider-factory.service';
 import { ToolRegistryService } from '@/modules/ai/tools/registry/tool-registry';
 
@@ -56,32 +55,32 @@ interface MessageBuffer {
 }
 
 /**
- * 🤖 EventMessagesUpsertService - Serviço Consolidado de Processamento de Mensagens
+ * EventMessagesUpsertService - Serviço centralizado de processamento de mensagens do webhook
  *
  * RESPONSABILIDADES:
- * 1. Receber mensagens do webhook
- * 2. Gerenciar sistema de buffer/debounce
- * 3. Comunicar com IA para function calling
- * 4. Executar tools quando necessário
- * 5. Enviar respostas para WhatsApp
+ * - Orquestrar o fluxo de mensagens recebidas do webhook (WhatsApp)
+ * - Gerenciar buffer/debounce por usuário
+ * - Integrar com IA (function calling, tools)
+ * - Executar tools e enviar respostas finais para o usuário
  *
  * FLUXO PRINCIPAL:
  * 1. Recebe mensagem do webhook
- * 2. Armazena mensagem atual no buffer
- * 3. Configura timer de inatividade (10s)
- * 4. Após inatividade, processa a mensagem atual
- * 5. Busca histórico de conversas (excluindo mensagem atual)
- * 6. Envia para IA com function calling
- * 7. Executa tools se necessário
- * 8. Envia resposta final para WhatsApp
+ * 2. Armazena no buffer do usuário
+ * 3. Após timeout de inatividade, processa a mensagem
+ * 4. Busca histórico/contexto
+ * 5. Chama a IA (com tools)
+ * 6. Executa tools se necessário
+ * 7. Envia resposta final para o WhatsApp
  *
- * BENEFÍCIOS:
- * - Evita respostas fragmentadas (debounce)
- * - Mantém contexto da conversa
- * - Permite function calling da IA
- * - Sistema de inatividade inteligente
- * - Não duplica mensagens entre buffer e histórico
- * - Código consolidado em um único serviço
+ * INTEGRAÇÃO COM FUNCTION CALLING:
+ * - Detecta tool calls na resposta da IA
+ * - Executa as tools e envia o resultado de volta para a IA
+ * - Garante que a resposta final ao usuário seja sempre a mais atualizada
+ *
+ * EXEMPLO DE USO:
+ * - O serviço é chamado pelo controller/router do webhook ao receber uma nova mensagem
+ *
+ * @see documentação dos providers de IA para detalhes de integração
  */
 @Injectable()
 export class EventMessagesUpsertService {
@@ -244,7 +243,8 @@ export class EventMessagesUpsertService {
       const messages: ChatCompletionMessageParam[] = [
         {
           role: 'system',
-          content: BARBER_SHOP_PROMPT,
+          content:
+            'Você é Luna, uma assistente de barbearia. Sempre que o usuário pedir para listar, buscar ou criar planos, utilize as funções disponíveis (tools) para obter a resposta. Nunca responda diretamente sem consultar as funções. Se não houver função adequada, apenas informe que não é possível responder.',
         },
         ...contextMessages, // Adicionar histórico de mensagens
         {
@@ -274,60 +274,104 @@ export class EventMessagesUpsertService {
           `🔧 [TOOLS] Tool calls detectados: ${response.tool_calls.length}`,
         );
 
-        // 6. Executar cada tool call
-        for (const toolCall of response.tool_calls) {
-          this.logger.log(
-            `🔧 [TOOL] Executando tool: ${toolCall.function.name}`,
-          );
-          this.logger.log(
-            `🔧 [TOOL] Argumentos: ${toolCall.function.arguments}`,
-          );
+        // Adiciona a resposta original (com tool_calls) ao histórico ANTES de processar
+        messages.push(response);
 
-          // Parse dos argumentos
-          const args = JSON.parse(toolCall.function.arguments);
-          this.logger.log(
-            `🔧 [TOOL] Argumentos parseados:`,
-            JSON.stringify(args, null, 2),
-          );
+        // Executar todas as tools em paralelo (se possível)
+        const toolResults = await Promise.all(
+          response.tool_calls.map(async (toolCall) => {
+            try {
+              this.logger.log(
+                `🔧 [TOOL] Executando tool: ${toolCall.function.name}`,
+              );
+              this.logger.log(
+                `🔧 [TOOL] Argumentos: ${toolCall.function.arguments}`,
+              );
 
-          // Executar a tool
-          const result = await this.toolRegistry.executeTool(
-            toolCall.function.name,
-            args,
-          );
+              // Segurança: só executa se a tool está registrada
+              if (!this.toolRegistry.hasTool(toolCall.function.name)) {
+                throw new Error(
+                  `Tool não permitida: ${toolCall.function.name}`,
+                );
+              }
 
-          this.logger.log(
-            `🔧 [TOOL] Resultado da tool ${toolCall.function.name}:`,
-            JSON.stringify(result, null, 2),
-          );
+              // Parse dos argumentos
+              const args = JSON.parse(toolCall.function.arguments);
 
-          // 7. Adicionar resultado da tool ao histórico
-          messages.push(response); // Adiciona a mensagem com tool_calls
+              // Validação básica dos argumentos
+              if (!args) {
+                throw new Error(
+                  `Argumentos inválidos para tool ${toolCall.function.name}`,
+                );
+              }
+
+              this.logger.log(
+                `🔧 [TOOL] Argumentos parseados:`,
+                JSON.stringify(args, null, 2),
+              );
+
+              // Executar a tool
+              const result = await this.toolRegistry.executeTool(
+                toolCall.function.name,
+                args,
+              );
+
+              this.logger.log(
+                `🔧 [TOOL] Resultado da tool ${toolCall.function.name}:`,
+                JSON.stringify(result, null, 2),
+              );
+
+              // Padroniza retorno: sempre JSON string
+              return {
+                tool_call_id: toolCall.id,
+                content:
+                  typeof result.data === 'string'
+                    ? result.data
+                    : JSON.stringify(result.data),
+                success: !!result.success,
+                tool: toolCall.function.name,
+              };
+            } catch (error) {
+              this.logger.error(`❌ [TOOL] Erro executando tool:`, error);
+              return {
+                tool_call_id: toolCall.id,
+                content: `Erro executando ${toolCall.function.name}: ${error.message}`,
+                success: false,
+                tool: toolCall.function.name,
+              };
+            }
+          }),
+        );
+
+        // Adicionar todos os resultados ao histórico
+        toolResults.forEach((result) => {
           messages.push({
             role: 'tool',
-            tool_call_id: toolCall.id,
-            content:
-              typeof result.data === 'string'
-                ? result.data
-                : JSON.stringify(result.data),
+            tool_call_id: result.tool_call_id,
+            content: result.content,
           });
-        }
+        });
 
         // 8. Chamar a IA novamente com o resultado da tool
         this.logger.log(
           '🔄 [IA] Chamando IA novamente com resultado das tools...',
         );
-        const finalResponse = await aiProvider.generateResponse(
-          messages,
-          tools,
+        this.logger.log(
+          '🔄 [IA] Mensagens para segunda chamada:',
+          JSON.stringify(messages, null, 2),
         );
+
+        const finalResponse = await aiProvider.generateResponse(messages);
 
         this.logger.log(
           '📥 [IA] Resposta final da IA:',
           JSON.stringify(finalResponse, null, 2),
         );
 
-        // 9. Enviar resposta final
+        // RECOMENDAÇÃO IMPORTANTE:
+        // Sempre utilize como resposta final as mensagens geradas pelas tools (function calling).
+        // Nunca utilize o histórico de mensagens como resposta final, pois podem conter informações desatualizadas.
+        // Priorize SEMPRE o resultado das tools para garantir informações atualizadas e corretas ao usuário.
         await this.sendMessage(
           instance,
           apikey,
@@ -502,10 +546,8 @@ export class EventMessagesUpsertService {
       this.logger.log(
         `✅ [WHATSAPP] Mensagem enviada com sucesso para ${number}`,
       );
-      this.logger.log(
-        `✅ [WHATSAPP] Resposta da API:`,
-        JSON.stringify(response, null, 2),
-      );
+
+      this.logger.log(`✅ [WHATSAPP] Resposta da API:`, response);
     } catch (error) {
       this.logger.error('❌ [WHATSAPP] Erro ao enviar mensagem:', error);
       throw error;

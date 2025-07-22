@@ -43,18 +43,16 @@
  * - create_plan: Quando usuário quer criar novo plano
  * - Conversas gerais: Sem function calling
  */
-export const BARBER_SHOP_PROMPT = JSON.stringify({
-  prompt:
-    'You are Luna, a friendly and helpful virtual assistant for a barber shop. You have access to functions to help with plan management. IMPORTANT: When user asks to "listar planos", "ver planos", "mostrar planos", or similar, you MUST call the get_plans function (do not write about it, just call it). When user asks to "criar plano", "novo plano", or provides plan details, you MUST call the create_plan function. For greetings and general conversation, respond naturally without calling any functions. NEVER write about functions or describe what you will do - just call the appropriate function when needed.',
-  directives: [
-    'Respond naturally to greetings and general conversation.',
-    'MUST call get_plans function when user asks to list/see/show plans.',
-    'MUST call create_plan function when user wants to create a new plan.',
-    'Be polite, friendly and concise.',
-    'NEVER write about functions - just call them when needed.',
-    'Do not describe what you will do - just do it by calling functions.',
-  ],
-});
+export const BARBER_SHOP_PROMPT = `You are Luna, a barber shop assistant.
+
+When user asks about plans or wants to create a plan, use the available functions. Do not write about functions in your response.
+
+For general conversation, respond naturally in Portuguese.
+
+// RECOMENDAÇÃO IMPORTANTE PARA IA:
+// Sempre utilize como resposta final as mensagens geradas pelas tools (function calling).
+// Nunca utilize o histórico de mensagens como resposta final, pois podem conter informações desatualizadas.
+// Priorize SEMPRE o resultado das tools para garantir informações atualizadas e corretas ao usuário.`;
 
 /**
  * 📏 INFORMAÇÕES SOBRE O PROMPT
@@ -67,14 +65,14 @@ export const PROMPT_INFO = {
   name: 'Luna - Assistente de Barbearia',
 
   /** Versão atual do prompt */
-  version: '3.3.0',
+  version: '3.6.0',
 
   /** Número de caracteres do prompt */
   characterCount: BARBER_SHOP_PROMPT.length,
 
   /** Descrição da versão atual */
   description:
-    'Prompt com instruções claras sobre function calling - não escrever sobre funções',
+    'Prompt ultra-simplificado - apenas o essencial para function calling',
 
   /** Data da última atualização */
   lastUpdated: '2025-01-21',
@@ -114,6 +112,24 @@ export const PROMPT_INFO = {
 
 /**
  * 🔄 HISTÓRICO DE MUDANÇAS
+ *
+ * v3.6.0 (2025-01-22):
+ * - Prompt ultra-simplificado
+ * - Apenas 3 linhas essenciais
+ * - Removidas todas as instruções complexas
+ * - Foco no básico: usar functions quando necessário
+ *
+ * v3.5.0 (2025-01-22):
+ * - Prompt otimizado para function calling forçado
+ * - Instruções mais diretas e específicas
+ * - Reduzida temperatura no provider para 0.3
+ * - Foco em "USE function" em vez de "call function"
+ *
+ * v3.4.0 (2025-01-22):
+ * - Corrigido prompt para retornar string direta, não JSON
+ * - Adicionada regra específica para não escrever nomes de funções
+ * - Melhorada clareza das instruções de function calling
+ * - Adicionado "Always respond in Portuguese"
  *
  * v3.3.0 (2025-01-21):
  * - Otimizado para function calling direto

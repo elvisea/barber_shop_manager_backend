@@ -9,17 +9,17 @@ import {
 import { AIProvider } from '../interfaces/ai-provider-interface';
 
 /**
- * DeepseekProvider - Provider para integração com a API DeepSeek (compatível OpenAI)
+ * GeminiProvider - Provider para integração com a API Gemini (compatível OpenAI)
  *
  * RESPONSABILIDADES:
- * - Comunicar com a API DeepSeek usando o padrão OpenAI
+ * - Comunicar com a API Gemini usando o padrão OpenAI
  * - Suportar function calling (tools)
  * - Gerenciar configuração via DI (ConfigService)
  * - Gerar logs detalhados para debugging
  *
  * FLUXO DE USO:
  * 1. Recebe mensagens e tools
- * 2. Envia para a API DeepSeek
+ * 2. Envia para a API Gemini
  * 3. Retorna a resposta da IA (incluindo tool calls se houver)
  *
  * INJEÇÃO DE DEPENDÊNCIAS:
@@ -28,31 +28,31 @@ import { AIProvider } from '../interfaces/ai-provider-interface';
  *
  * EXEMPLO DE USO:
  * ```typescript
- * const response = await deepseekProvider.generateResponse(messages, tools);
+ * const response = await geminiProvider.generateResponse(messages, tools);
  * ```
  *
- * @see https://api.deepseek.com/ (documentação oficial)
+ * @see https://ai.google.dev/gemini-api/docs (documentação oficial)
  */
 @Injectable()
-export class DeepseekProvider implements AIProvider {
-  private readonly logger = new Logger(DeepseekProvider.name);
-  private readonly model: string = 'deepseek-chat';
+export class GeminiProvider implements AIProvider {
+  private readonly logger = new Logger(GeminiProvider.name);
+  private readonly model: string = 'gemini-2.5-flash';
   private readonly client: OpenAI;
 
   constructor(private readonly configService: ConfigService) {
-    this.logger.log('🔧 [DEEPSEEK] Inicializando DeepSeek Provider...');
-    const apiKey = this.configService.get<string>('DEEPSEEK_API_KEY');
+    this.logger.log('🔧 [GEMINI] Inicializando Gemini Provider...');
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     const baseURL = this.configService.get<string>(
-      'DEEPSEEK_BASE_URL',
-      'https://api.deepseek.com',
+      'GEMINI_BASE_URL',
+      'https://generativelanguage.googleapis.com/v1beta/openai/',
     );
     if (!apiKey) {
-      this.logger.error('❌ [DEEPSEEK] DEEPSEEK_API_KEY não configurada');
-      throw new Error('DEEPSEEK_API_KEY é obrigatória');
+      this.logger.error('❌ [GEMINI] GEMINI_API_KEY não configurada');
+      throw new Error('GEMINI_API_KEY é obrigatória');
     }
     this.client = new OpenAI({ apiKey, baseURL });
     this.logger.log(
-      `✅ [DEEPSEEK] Provider inicializado com baseURL: ${baseURL}`,
+      `✅ [GEMINI] Provider inicializado com baseURL: ${baseURL}`,
     );
   }
 
@@ -78,12 +78,12 @@ export class DeepseekProvider implements AIProvider {
     messages: ChatCompletionMessageParam[],
     tools?: ChatCompletionTool[],
   ): Promise<OpenAI.Chat.Completions.ChatCompletionMessage> {
-    this.logger.log('🤖 [DEEPSEEK] Iniciando geração de resposta...');
-    this.logger.log(`🤖 [DEEPSEEK] Mensagens: ${messages.length}`);
-    this.logger.log(`🤖 [DEEPSEEK] Tools: ${tools?.length || 0}`);
+    this.logger.log('🤖 [GEMINI] Iniciando geração de resposta...');
+    this.logger.log(`🤖 [GEMINI] Mensagens: ${messages.length}`);
+    this.logger.log(`🤖 [GEMINI] Tools: ${tools?.length || 0}`);
     if (tools && tools.length > 0) {
       this.logger.log(
-        `🤖 [DEEPSEEK] Tools disponíveis: ${tools.map((t) => t.function.name).join(', ')}`,
+        `🤖 [GEMINI] Tools disponíveis: ${tools.map((t) => t.function.name).join(', ')}`,
       );
     }
     try {
@@ -95,18 +95,17 @@ export class DeepseekProvider implements AIProvider {
         temperature: 0.7,
         tool_choice: 'auto',
       });
-
       const response = completion.choices[0].message;
       this.logger.log(
-        '🤖 [DEEPSEEK] Resposta completa da API:',
+        '🤖 [GEMINI] Resposta completa da API:',
         JSON.stringify(completion, null, 2),
       );
-      this.logger.log('✅ [DEEPSEEK] Resposta gerada com sucesso');
+      this.logger.log('✅ [GEMINI] Resposta gerada com sucesso');
       return response;
     } catch (error: any) {
-      this.logger.error('❌ [DEEPSEEK] Erro ao gerar resposta:', error);
+      this.logger.error('❌ [GEMINI] Erro ao gerar resposta:', error);
       this.logger.error(
-        '❌ [DEEPSEEK] Detalhes do erro:',
+        '❌ [GEMINI] Detalhes do erro:',
         error?.message || error,
       );
       return {
@@ -125,10 +124,10 @@ export class DeepseekProvider implements AIProvider {
    */
   getStats(): { model: string; baseURL: string; isConfigured: boolean } {
     const baseURL = this.configService.get<string>(
-      'DEEPSEEK_BASE_URL',
-      'https://api.deepseek.com',
+      'GEMINI_BASE_URL',
+      'https://generativelanguage.googleapis.com/v1beta/openai/',
     );
-    const apiKey = this.configService.get<string>('DEEPSEEK_API_KEY');
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     return {
       model: this.model,
       baseURL,

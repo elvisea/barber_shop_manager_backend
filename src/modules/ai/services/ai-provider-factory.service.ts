@@ -3,27 +3,41 @@ import { ConfigService } from '@nestjs/config';
 
 import { AIProvider } from '../interfaces/ai-provider-interface';
 import { DeepseekProvider } from '../providers/deepseek';
+import { GeminiProvider } from '../providers/gemini';
 
 /**
- * 🏭 AIProviderFactoryService - Factory para Providers de IA
+ * AIProviderFactoryService - Factory centralizada para providers de IA
  *
  * RESPONSABILIDADES:
- * 1. Gerenciar instâncias de providers de IA
- * 2. Configurar providers com dependências necessárias
- * 3. Fornecer acesso centralizado aos providers
+ * - Gerenciar instâncias dos providers de IA disponíveis (Deepseek, Gemini, etc)
+ * - Selecionar o provider com base na variável de ambiente AI_PROVIDER
+ * - Fornecer instâncias já injetadas via DI do NestJS
+ * - Facilitar a extensão para novos providers
  *
- * FLUXO:
- * 1. Recebe solicitação de provider
- * 2. Verifica configuração
- * 3. Retorna instância configurada
+ * FLUXO DE USO:
+ * 1. Injete a factory onde precisar
+ * 2. Use getProvider() para obter o provider configurado
+ *
+ * EXEMPLO DE USO:
+ * ```typescript
+ * const provider = aiProviderFactoryService.getProvider();
+ * const response = await provider.generateResponse(messages, tools);
+ * ```
+ *
+ * COMO ADICIONAR UM NOVO PROVIDER:
+ * - Importe e registre o novo provider no módulo
+ * - Injete no construtor da factory
+ * - Adicione a lógica de seleção no método getProvider
  */
 @Injectable()
 export class AIProviderFactoryService {
   private readonly logger = new Logger(AIProviderFactoryService.name);
-  private readonly configService: ConfigService;
 
-  constructor(configService: ConfigService) {
-    this.configService = configService;
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly deepseekProvider: DeepseekProvider,
+    private readonly geminiProvider: GeminiProvider,
+  ) {
     this.logger.log('🏭 [FACTORY] AIProviderFactoryService inicializado');
   }
 
@@ -39,27 +53,36 @@ export class AIProviderFactoryService {
    * const response = await provider.generateResponse(messages, tools);
    * ```
    */
-  public getProvider(options?: any): AIProvider {
-    // Busca chave do provider nas variáveis de ambiente ou options
-    const providerKey =
-      options?.providerKey ||
-      this.configService.get<string>('AI_PROVIDER') ||
-      'deepseek-chat';
+  public getProvider(): AIProvider {
+    // Busca chave do provider nas variáveis de ambiente
+    const providerKey = this.configService.get<string>(
+      'AI_PROVIDER',
+      'deepseek-chat',
+    );
 
     this.logger.log(`🏭 [FACTORY] Solicitando provider: ${providerKey}`);
 
     // Por enquanto, sempre retorna DeepseekProvider
     // Futuramente pode ser expandido para outros providers
     if (providerKey === 'deepseek-chat') {
-      this.logger.log('🏭 [FACTORY] Criando instância do DeepseekProvider');
-      return new DeepseekProvider(this.configService);
+      this.logger.log('🏭 [FACTORY] Provider retornado: deepseek-chat');
+      return this.deepseekProvider;
+    }
+
+    if (providerKey === 'gemini') {
+      this.logger.log('🏭 [FACTORY] Provider retornado: gemini');
+      return this.geminiProvider;
     }
 
     this.logger.warn(
       `🏭 [FACTORY] Provider "${providerKey}" não encontrado. Usando provider padrão: deepseek-chat`,
     );
 
-    return new DeepseekProvider(this.configService);
+    this.logger.log(
+      '🏭 [FACTORY] Provider retornado: deepseek-chat (fallback)',
+    );
+
+    return this.deepseekProvider;
   }
 
   /**
@@ -78,7 +101,7 @@ export class AIProviderFactoryService {
 
     return {
       configuredProvider,
-      availableProviders: ['deepseek-chat'],
+      availableProviders: ['deepseek-chat', 'gemini'],
       isConfigured: !!apiKey,
     };
   }
@@ -91,9 +114,6 @@ export class AIProviderFactoryService {
  * @param options Opções de configuração (opcional)
  * @returns Instância do AIProvider
  */
-export function getIAProvider(
-  factory: AIProviderFactoryService,
-  options?: any,
-): AIProvider {
-  return factory.getProvider(options);
+export function getIAProvider(factory: AIProviderFactoryService): AIProvider {
+  return factory.getProvider();
 }

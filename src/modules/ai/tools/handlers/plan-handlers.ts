@@ -96,43 +96,38 @@ export class PlanToolHandlers {
       context?: ToolContext,
     ): Promise<ToolResult<PlanCreateResponseDTO>> => {
       this.logger.log(`🛠️ [CREATE_PLAN] Iniciando criação de plano`);
-      this.logger.log(
-        `🛠️ [CREATE_PLAN] Argumentos recebidos:`,
-        JSON.stringify(args, null, 2),
-      );
+
+      // Transformar price de reais para centavos antes da validação
+      const argsToValidate = { ...args };
+      if (
+        typeof argsToValidate.price === 'number' &&
+        !Number.isInteger(argsToValidate.price)
+      ) {
+        const original = argsToValidate.price;
+        argsToValidate.price = Math.round(argsToValidate.price * 100);
+        this.logger.log(
+          `💱 [CREATE_PLAN] Price convertido de reais (${original}) para centavos (${argsToValidate.price}) para validação.`,
+        );
+      }
+
+      // (Validação removida)
+      const validatedArgs = argsToValidate;
 
       try {
-        // Validar argumentos obrigatórios
-        if (
-          !args.name ||
-          !args.description ||
-          args.price === undefined ||
-          args.duration === undefined ||
-          args.isActive === undefined
-        ) {
-          const errorMsg =
-            'Argumentos obrigatórios ausentes: name, description, price, duration, isActive';
-          this.logger.error(`❌ [CREATE_PLAN] ${errorMsg}`);
-          return {
-            success: false,
-            error: errorMsg,
-          };
-        }
-
         // ✅ Converter preço decimal para centavos (inteiro)
-        const priceInCents = Math.round(args.price * 100);
+        const priceInCents = validatedArgs.price;
 
         this.logger.log(
-          `💰 [CREATE_PLAN] Preço convertido: R$ ${args.price} → ${priceInCents} centavos`,
+          `💰 [CREATE_PLAN] Preço convertido: R$ ${(priceInCents / 100).toFixed(2)} → ${priceInCents} centavos`,
         );
 
         this.logger.log(
-          `🛠️ [CREATE_PLAN] Criando plano: ${args.name} - R$ ${args.price} (${priceInCents} centavos)`,
+          `🛠️ [CREATE_PLAN] Criando plano: ${validatedArgs.name} - R$ ${(priceInCents / 100).toFixed(2)} (${priceInCents} centavos)`,
         );
 
         // Preparar dados para a API
         const planData = {
-          ...args,
+          ...validatedArgs,
           price: priceInCents, // ✅ Usar preço em centavos
         };
 
@@ -153,14 +148,6 @@ export class PlanToolHandlers {
               data: planData,
             },
           );
-
-        this.logger.log(
-          `✅ [CREATE_PLAN] Plano criado com sucesso: ID ${response.id}`,
-        );
-        this.logger.log(
-          `✅ [CREATE_PLAN] Resposta da API:`,
-          JSON.stringify(response, null, 2),
-        );
 
         return {
           success: true,
@@ -213,14 +200,13 @@ export class PlanToolHandlers {
       context?: ToolContext,
     ): Promise<ToolResult<PlanFindAllResponseDTO>> => {
       this.logger.log(`📋 [GET_PLANS] Iniciando busca de planos`);
-      this.logger.log(
-        `📋 [GET_PLANS] Argumentos recebidos:`,
-        JSON.stringify(args, null, 2),
-      );
+
+      // (Validação removida)
+      const validatedArgs = args;
 
       try {
-        const page = args.page || 1;
-        const limit = args.limit || 10;
+        const page = validatedArgs.page || 1;
+        const limit = validatedArgs.limit || 10;
 
         this.logger.log(
           `📋 [GET_PLANS] Buscando planos - Página: ${page}, Limite: ${limit}`,
@@ -266,15 +252,6 @@ export class PlanToolHandlers {
           ...response,
           data: plansWithRealPrices,
         };
-
-        this.logger.log(
-          `💰 [GET_PLANS] Preços convertidos para reais: ${plansWithRealPrices.map((p) => `${p.name}: R$ ${p.price}`).join(', ')}`,
-        );
-
-        this.logger.log(
-          `✅ [GET_PLANS] Resposta final:`,
-          JSON.stringify(transformedResponse, null, 2),
-        );
 
         return {
           success: true,

@@ -46,7 +46,7 @@ export const PLAN_TOOLS: ToolDefinition[] = [
   {
     name: 'create_plan',
     description:
-      'Cria um novo plano com os dados fornecidos (name, description, price, duration, isActive). Use esta função quando o cliente quiser criar um novo plano de barbearia.',
+      'Cria um novo plano de barbearia. Use esta função sempre que o usuário pedir para criar um novo plano. Nunca responda diretamente sem consultar esta função.',
     parameters: {
       name: {
         type: 'string',
@@ -74,7 +74,7 @@ export const PLAN_TOOLS: ToolDefinition[] = [
   {
     name: 'get_plans',
     description:
-      'Lista todos os planos disponíveis. Use esta função quando o cliente perguntar sobre planos, preços ou opções disponíveis.',
+      'Lista todos os planos disponíveis. Use esta função sempre que o usuário pedir para ver, listar ou consultar planos. Nunca responda diretamente sem consultar esta função.',
     parameters: {
       page: {
         type: 'number',
