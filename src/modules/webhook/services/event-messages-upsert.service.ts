@@ -5,6 +5,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { MessagesUpsertLog } from '../interfaces';
 
 import { HttpClientService } from '@/http-client/http-client.service';
+import { BARBER_SHOP_PROMPT } from '@/modules/ai/prompts/barber-shop-prompt';
 import { AIProviderFactoryService } from '@/modules/ai/services/ai-provider-factory.service';
 import { ToolRegistryService } from '@/modules/ai/tools/registry/tool-registry';
 
@@ -243,8 +244,7 @@ export class EventMessagesUpsertService {
       const messages: ChatCompletionMessageParam[] = [
         {
           role: 'system',
-          content:
-            'You are Luna, a helpful assistant for a barber shop. You can list plans and create new plans when asked.',
+          content: BARBER_SHOP_PROMPT,
         },
         ...contextMessages, // Adicionar histórico de mensagens
         {
