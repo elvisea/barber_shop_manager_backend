@@ -1,9 +1,9 @@
 /**
  * 🔧 Interfaces para Function Calling - Sistema de IA
- * 
+ *
  * Este arquivo define todas as interfaces necessárias para implementar
  * function calling no sistema de IA, seguindo as boas práticas da OpenAI.
- * 
+ *
  * ARQUITETURA:
  * - AIFunctionParameter: Define parâmetros individuais
  * - AIFunctionDefinition: Define uma função completa
@@ -14,7 +14,7 @@
 
 /**
  * 📋 Parâmetro de Função - Define um parâmetro individual
- * 
+ *
  * Segue o padrão JSON Schema para validação de parâmetros
  * Compatível com OpenAI Function Calling
  */
@@ -34,7 +34,7 @@ export interface AIFunctionParameter {
 
 /**
  * 📝 Definição de Função - Define uma função completa para a IA
- * 
+ *
  * Contém todas as informações necessárias para a IA entender
  * como chamar a função e quais parâmetros esperar
  */
@@ -66,7 +66,7 @@ export interface AIFunctionDefinition {
 
 /**
  * 📞 Chamada de Função - Representa uma execução de função
- * 
+ *
  * Gerada pela IA quando decide chamar uma função
  * Contém o nome da função e os argumentos fornecidos
  */
@@ -80,7 +80,7 @@ export interface AIFunctionCall {
 
 /**
  * 📤 Resultado de Função - Resultado da execução
- * 
+ *
  * Retornado após executar uma função
  * Indica sucesso/falha e contém dados ou erro
  */
@@ -97,7 +97,7 @@ export interface AIFunctionResult {
 
 /**
  * 🛠️ Handler de Função - Combina definição e implementação
- * 
+ *
  * Interface completa que combina a definição da função
  * com sua implementação (handler)
  */
@@ -111,7 +111,7 @@ export interface AIFunctionHandler {
 
 /**
  * 📚 Exemplos de Uso
- * 
+ *
  * // 1. Definir uma função simples
  * const createPlanFunction: AIFunctionDefinition = {
  *   name: 'create_plan',
@@ -132,7 +132,7 @@ export interface AIFunctionHandler {
  *     additionalProperties: false,
  *   },
  * };
- * 
+ *
  * // 2. Implementar o handler
  * const createPlanHandler: AIFunctionHandler = {
  *   definition: createPlanFunction,
@@ -145,13 +145,13 @@ export interface AIFunctionHandler {
  *     }
  *   },
  * };
- * 
+ *
  * // 3. Chamada da IA
  * const functionCall: AIFunctionCall = {
  *   name: 'create_plan',
  *   arguments: { name: 'Plano Premium', price: 99.99 },
  * };
- * 
+ *
  * // 4. Execução
  * const result: AIFunctionResult = await createPlanHandler.handler(functionCall.arguments);
  */

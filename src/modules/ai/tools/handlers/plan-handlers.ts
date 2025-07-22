@@ -16,25 +16,25 @@ import { PlanFindAllResponseDTO } from '@/modules/plans/dtos/plan-find-all-respo
 
 /**
  * 📋 PlanToolHandlers - Manipuladores das Tools de Planos
- * 
+ *
  * RESPONSABILIDADES:
  * 1. Implementar a lógica de negócio para cada tool de planos
  * 2. Converter dados entre formatos (reais ↔ centavos)
  * 3. Fazer chamadas HTTP para a API de planos
  * 4. Tratar erros e retornar resultados padronizados
  * 5. Fornecer logs detalhados das operações
- * 
+ *
  * FLUXO DE FUNCIONAMENTO:
  * 1. Recebe argumentos da IA
  * 2. Valida e converte dados
  * 3. Chama API correspondente
  * 4. Processa resposta
  * 5. Retorna resultado padronizado
- * 
+ *
  * TOOLS IMPLEMENTADAS:
  * - create_plan: Criação de novos planos
  * - get_plans: Listagem de planos existentes
- * 
+ *
  * CONVERSÕES MONETÁRIAS:
  * - create_plan: Reais → Centavos (para API)
  * - get_plans: Centavos → Reais (para IA)
@@ -53,23 +53,27 @@ export class PlanToolHandlers {
 
     this.logger.log(`📋 [PLANOS] PlanToolHandlers inicializado`);
     this.logger.log(`📋 [PLANOS] API URL: ${this.apiUrl}`);
-    this.logger.log(`📋 [PLANOS] Tools disponíveis: ${Object.keys(this).filter(key => key !== 'logger' && key !== 'apiUrl').join(', ')}`);
+    this.logger.log(
+      `📋 [PLANOS] Tools disponíveis: ${Object.keys(this)
+        .filter((key) => key !== 'logger' && key !== 'apiUrl')
+        .join(', ')}`,
+    );
   }
 
   /**
    * 🛠️ CREATE PLAN - Cria um novo plano de barbearia
-   * 
+   *
    * FLUXO:
    * 1. Recebe dados do plano da IA
    * 2. Converte preço de reais para centavos
    * 3. Chama API para criar plano
    * 4. Retorna resultado padronizado
-   * 
+   *
    * CONVERSÃO MONETÁRIA:
    * - Entrada: Preço em reais (ex: 99.99)
    * - Processamento: Converte para centavos (9999)
    * - API: Recebe valor em centavos
-   * 
+   *
    * @example
    * ```typescript
    * const args = {
@@ -79,7 +83,7 @@ export class PlanToolHandlers {
    *   duration: 30,
    *   isActive: true
    * };
-   * 
+   *
    * const result = await planHandlers.createPlan.handler(args);
    * console.log(result.success); // true/false
    * console.log(result.data); // plano criado
@@ -92,12 +96,22 @@ export class PlanToolHandlers {
       context?: ToolContext,
     ): Promise<ToolResult<PlanCreateResponseDTO>> => {
       this.logger.log(`🛠️ [CREATE_PLAN] Iniciando criação de plano`);
-      this.logger.log(`🛠️ [CREATE_PLAN] Argumentos recebidos:`, JSON.stringify(args, null, 2));
+      this.logger.log(
+        `🛠️ [CREATE_PLAN] Argumentos recebidos:`,
+        JSON.stringify(args, null, 2),
+      );
 
       try {
         // Validar argumentos obrigatórios
-        if (!args.name || !args.description || args.price === undefined || args.duration === undefined || args.isActive === undefined) {
-          const errorMsg = 'Argumentos obrigatórios ausentes: name, description, price, duration, isActive';
+        if (
+          !args.name ||
+          !args.description ||
+          args.price === undefined ||
+          args.duration === undefined ||
+          args.isActive === undefined
+        ) {
+          const errorMsg =
+            'Argumentos obrigatórios ausentes: name, description, price, duration, isActive';
           this.logger.error(`❌ [CREATE_PLAN] ${errorMsg}`);
           return {
             success: false,
@@ -108,7 +122,9 @@ export class PlanToolHandlers {
         // ✅ Converter preço decimal para centavos (inteiro)
         const priceInCents = Math.round(args.price * 100);
 
-        this.logger.log(`💰 [CREATE_PLAN] Preço convertido: R$ ${args.price} → ${priceInCents} centavos`);
+        this.logger.log(
+          `💰 [CREATE_PLAN] Preço convertido: R$ ${args.price} → ${priceInCents} centavos`,
+        );
 
         this.logger.log(
           `🛠️ [CREATE_PLAN] Criando plano: ${args.name} - R$ ${args.price} (${priceInCents} centavos)`,
@@ -120,7 +136,10 @@ export class PlanToolHandlers {
           price: priceInCents, // ✅ Usar preço em centavos
         };
 
-        this.logger.log(`📤 [CREATE_PLAN] Enviando dados para API:`, JSON.stringify(planData, null, 2));
+        this.logger.log(
+          `📤 [CREATE_PLAN] Enviando dados para API:`,
+          JSON.stringify(planData, null, 2),
+        );
 
         // Chamar API para criar plano
         const response =
@@ -135,8 +154,13 @@ export class PlanToolHandlers {
             },
           );
 
-        this.logger.log(`✅ [CREATE_PLAN] Plano criado com sucesso: ID ${response.id}`);
-        this.logger.log(`✅ [CREATE_PLAN] Resposta da API:`, JSON.stringify(response, null, 2));
+        this.logger.log(
+          `✅ [CREATE_PLAN] Plano criado com sucesso: ID ${response.id}`,
+        );
+        this.logger.log(
+          `✅ [CREATE_PLAN] Resposta da API:`,
+          JSON.stringify(response, null, 2),
+        );
 
         return {
           success: true,
@@ -144,7 +168,9 @@ export class PlanToolHandlers {
         };
       } catch (error: any) {
         this.logger.error(`❌ [CREATE_PLAN] Erro ao criar plano:`, error);
-        this.logger.error(`❌ [CREATE_PLAN] Mensagem de erro: ${error.message}`);
+        this.logger.error(
+          `❌ [CREATE_PLAN] Mensagem de erro: ${error.message}`,
+        );
 
         return {
           success: false,
@@ -156,25 +182,25 @@ export class PlanToolHandlers {
 
   /**
    * 📋 GET PLANS - Lista todos os planos disponíveis
-   * 
+   *
    * FLUXO:
    * 1. Recebe parâmetros de paginação da IA
    * 2. Chama API para buscar planos
    * 3. Converte preços de centavos para reais
    * 4. Retorna lista formatada
-   * 
+   *
    * CONVERSÃO MONETÁRIA:
    * - API: Retorna preços em centavos
    * - Processamento: Converte para reais
    * - Saída: Preços em reais para a IA
-   * 
+   *
    * @example
    * ```typescript
    * const args = {
    *   page: 1,
    *   limit: 10
    * };
-   * 
+   *
    * const result = await planHandlers.getPlans.handler(args);
    * console.log(result.success); // true/false
    * console.log(result.data.data); // array de planos com preços em reais
@@ -187,7 +213,10 @@ export class PlanToolHandlers {
       context?: ToolContext,
     ): Promise<ToolResult<PlanFindAllResponseDTO>> => {
       this.logger.log(`📋 [GET_PLANS] Iniciando busca de planos`);
-      this.logger.log(`📋 [GET_PLANS] Argumentos recebidos:`, JSON.stringify(args, null, 2));
+      this.logger.log(
+        `📋 [GET_PLANS] Argumentos recebidos:`,
+        JSON.stringify(args, null, 2),
+      );
 
       try {
         const page = args.page || 1;
@@ -220,10 +249,12 @@ export class PlanToolHandlers {
         );
 
         // ✅ Converter preços de centavos para reais
-        const plansWithRealPrices = response.data.map(plan => {
+        const plansWithRealPrices = response.data.map((plan) => {
           const realPrice = plan.price / 100; // Converter centavos para reais
 
-          this.logger.log(`💰 [GET_PLANS] Conversão: ${plan.price} centavos → R$ ${realPrice}`);
+          this.logger.log(
+            `💰 [GET_PLANS] Conversão: ${plan.price} centavos → R$ ${realPrice}`,
+          );
 
           return {
             ...plan,
@@ -237,10 +268,13 @@ export class PlanToolHandlers {
         };
 
         this.logger.log(
-          `💰 [GET_PLANS] Preços convertidos para reais: ${plansWithRealPrices.map(p => `${p.name}: R$ ${p.price}`).join(', ')}`,
+          `💰 [GET_PLANS] Preços convertidos para reais: ${plansWithRealPrices.map((p) => `${p.name}: R$ ${p.price}`).join(', ')}`,
         );
 
-        this.logger.log(`✅ [GET_PLANS] Resposta final:`, JSON.stringify(transformedResponse, null, 2));
+        this.logger.log(
+          `✅ [GET_PLANS] Resposta final:`,
+          JSON.stringify(transformedResponse, null, 2),
+        );
 
         return {
           success: true,
@@ -260,12 +294,12 @@ export class PlanToolHandlers {
 
   /**
    * 📊 ESTATÍSTICAS DOS HANDLERS
-   * 
+   *
    * Fornece informações sobre os handlers de planos
    * disponíveis e suas características.
-   * 
+   *
    * @returns Estatísticas dos handlers
-   * 
+   *
    * @example
    * ```typescript
    * const stats = planHandlers.getStats();
@@ -273,7 +307,11 @@ export class PlanToolHandlers {
    * console.log(`Handlers: ${stats.handlerNames.join(', ')}`);
    * ```
    */
-  getStats(): { totalHandlers: number; handlerNames: string[]; apiUrl: string } {
+  getStats(): {
+    totalHandlers: number;
+    handlerNames: string[];
+    apiUrl: string;
+  } {
     const handlers = ['createPlan', 'getPlans'];
     const stats = {
       totalHandlers: handlers.length,
@@ -281,20 +319,23 @@ export class PlanToolHandlers {
       apiUrl: this.apiUrl,
     };
 
-    this.logger.log(`📊 [STATS] Estatísticas dos handlers de planos:`, JSON.stringify(stats, null, 2));
+    this.logger.log(
+      `📊 [STATS] Estatísticas dos handlers de planos:`,
+      JSON.stringify(stats, null, 2),
+    );
 
     return stats;
   }
 
   /**
    * 🔍 VALIDAR HANDLER
-   * 
+   *
    * Valida se um handler específico está funcionando
    * corretamente.
-   * 
+   *
    * @param handlerName Nome do handler a ser validado
    * @returns true se válido, false caso contrário
-   * 
+   *
    * @example
    * ```typescript
    * const isValid = planHandlers.validateHandler('createPlan');
@@ -310,7 +351,9 @@ export class PlanToolHandlers {
     if (isValid) {
       this.logger.log(`✅ [VALIDAÇÃO] Handler "${handlerName}" é válido`);
     } else {
-      this.logger.warn(`⚠️ [VALIDAÇÃO] Handler "${handlerName}" não encontrado`);
+      this.logger.warn(
+        `⚠️ [VALIDAÇÃO] Handler "${handlerName}" não encontrado`,
+      );
     }
 
     return isValid;
@@ -318,12 +361,12 @@ export class PlanToolHandlers {
 
   /**
    * 📋 LISTAR HANDLERS DISPONÍVEIS
-   * 
+   *
    * Retorna uma lista de todos os handlers
    * disponíveis com suas definições.
-   * 
+   *
    * @returns Lista detalhada dos handlers
-   * 
+   *
    * @example
    * ```typescript
    * const handlers = planHandlers.listHandlers();
@@ -348,7 +391,10 @@ export class PlanToolHandlers {
       },
     ];
 
-    this.logger.log(`📋 [LISTA] Handlers de planos:`, JSON.stringify(handlers, null, 2));
+    this.logger.log(
+      `📋 [LISTA] Handlers de planos:`,
+      JSON.stringify(handlers, null, 2),
+    );
 
     return handlers;
   }
@@ -356,17 +402,17 @@ export class PlanToolHandlers {
 
 /**
  * 📚 Exemplos de Uso Completo
- * 
+ *
  * ```typescript
  * @Injectable()
  * export class ToolRegistryService {
  *   constructor(private readonly planHandlers: PlanToolHandlers) {}
- * 
+ *
  *   private registerTools(): void {
  *     // Registrar handlers de planos
  *     this.toolRegistry['create_plan'] = this.planHandlers.createPlan;
  *     this.toolRegistry['get_plans'] = this.planHandlers.getPlans;
- * 
+ *
  *     // Logar estatísticas
  *     const stats = this.planHandlers.getStats();
  *     console.log(`Registrados ${stats.totalHandlers} handlers de planos`);

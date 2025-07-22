@@ -4,17 +4,17 @@ import { ToolDefinition } from '../types/tool-definition.types';
 
 /**
  * 📋 Definições das Tools de Planos - Function Calling para Planos
- * 
+ *
  * RESPONSABILIDADES:
  * 1. Definir tools para gerenciamento de planos
  * 2. Especificar parâmetros e validações
  * 3. Fornecer descrições claras para a IA
  * 4. Seguir padrões da OpenAI para function calling
- * 
+ *
  * ESTRUTURA:
  * - create_plan: Criação de novos planos
  * - get_plans: Listagem de planos existentes
- * 
+ *
  * USO NO SISTEMA:
  * - Importado pelo ToolRegistryService
  * - Usado para registro automático de tools
@@ -24,18 +24,18 @@ const logger = new Logger('PlanToolsDefinitions');
 
 /**
  * 📋 DEFINIÇÕES DAS TOOLS DE PLANOS
- * 
+ *
  * Array com todas as definições de tools relacionadas
  * ao gerenciamento de planos de barbearia.
- * 
+ *
  * TOOLS INCLUÍDAS:
  * - create_plan: Cria novos planos
  * - get_plans: Lista planos existentes
- * 
+ *
  * @example
  * ```typescript
  * import { PLAN_TOOLS } from './plan-tools';
- * 
+ *
  * // Registrar tools de planos
  * PLAN_TOOLS.forEach(tool => {
  *   toolRegistry.register(tool);
@@ -91,12 +91,12 @@ export const PLAN_TOOLS: ToolDefinition[] = [
 
 /**
  * 📊 ESTATÍSTICAS DAS TOOLS DE PLANOS
- * 
+ *
  * Fornece informações sobre as tools de planos
  * disponíveis no sistema.
- * 
+ *
  * @returns Estatísticas das tools de planos
- * 
+ *
  * @example
  * ```typescript
  * const stats = getPlanToolsStats();
@@ -106,8 +106,8 @@ export const PLAN_TOOLS: ToolDefinition[] = [
  */
 export function getPlanToolsStats() {
   const totalTools = PLAN_TOOLS.length;
-  const toolNames = PLAN_TOOLS.map(tool => tool.name);
-  const toolsWithParams = PLAN_TOOLS.map(tool => ({
+  const toolNames = PLAN_TOOLS.map((tool) => tool.name);
+  const toolsWithParams = PLAN_TOOLS.map((tool) => ({
     name: tool.name,
     parameters: Object.keys(tool.parameters),
     required: tool.required || [],
@@ -120,19 +120,22 @@ export function getPlanToolsStats() {
     categories: ['plan'],
   };
 
-  logger.log(`📊 [PLANOS] Estatísticas das tools de planos:`, JSON.stringify(stats, null, 2));
+  logger.log(
+    `📊 [PLANOS] Estatísticas das tools de planos:`,
+    JSON.stringify(stats, null, 2),
+  );
 
   return stats;
 }
 
 /**
  * 🔍 VALIDAR TOOLS DE PLANOS
- * 
+ *
  * Valida se as definições das tools de planos estão corretas,
  * verificando estrutura, parâmetros e tipos.
- * 
+ *
  * @returns Array com erros encontrados (vazio se tudo OK)
- * 
+ *
  * @example
  * ```typescript
  * const errors = validatePlanTools();
@@ -144,7 +147,9 @@ export function getPlanToolsStats() {
 export function validatePlanTools(): string[] {
   const errors: string[] = [];
 
-  logger.log(`🔍 [VALIDAÇÃO] Iniciando validação de ${PLAN_TOOLS.length} tools de planos`);
+  logger.log(
+    `🔍 [VALIDAÇÃO] Iniciando validação de ${PLAN_TOOLS.length} tools de planos`,
+  );
 
   PLAN_TOOLS.forEach((tool, index) => {
     // Validar nome
@@ -169,19 +174,31 @@ export function validatePlanTools(): string[] {
 
     // Validar tipos de parâmetros
     Object.entries(tool.parameters).forEach(([paramName, paramDef]) => {
-      if (!paramDef.type || !['string', 'number', 'boolean', 'object', 'array'].includes(paramDef.type)) {
+      if (
+        !paramDef.type ||
+        !['string', 'number', 'boolean', 'object', 'array'].includes(
+          paramDef.type,
+        )
+      ) {
         errors.push(`Tool ${tool.name}, parâmetro ${paramName}: tipo inválido`);
       }
       if (!paramDef.description || typeof paramDef.description !== 'string') {
-        errors.push(`Tool ${tool.name}, parâmetro ${paramName}: descrição inválida ou ausente`);
+        errors.push(
+          `Tool ${tool.name}, parâmetro ${paramName}: descrição inválida ou ausente`,
+        );
       }
     });
   });
 
   if (errors.length === 0) {
-    logger.log(`✅ [VALIDAÇÃO] Todas as ${PLAN_TOOLS.length} tools de planos são válidas`);
+    logger.log(
+      `✅ [VALIDAÇÃO] Todas as ${PLAN_TOOLS.length} tools de planos são válidas`,
+    );
   } else {
-    logger.error(`❌ [VALIDAÇÃO] Encontrados ${errors.length} erros nas tools de planos:`, errors);
+    logger.error(
+      `❌ [VALIDAÇÃO] Encontrados ${errors.length} erros nas tools de planos:`,
+      errors,
+    );
   }
 
   return errors;
@@ -189,12 +206,12 @@ export function validatePlanTools(): string[] {
 
 /**
  * 📋 LISTAR TOOLS DE PLANOS
- * 
+ *
  * Retorna uma lista detalhada de todas as tools
  * de planos com seus parâmetros.
- * 
+ *
  * @returns Lista detalhada das tools de planos
- * 
+ *
  * @example
  * ```typescript
  * const planTools = listPlanTools();
@@ -202,7 +219,7 @@ export function validatePlanTools(): string[] {
  * ```
  */
 export function listPlanTools() {
-  const tools = PLAN_TOOLS.map(tool => ({
+  const tools = PLAN_TOOLS.map((tool) => ({
     name: tool.name,
     description: tool.description,
     parameters: Object.entries(tool.parameters).map(([name, def]) => ({
@@ -221,12 +238,12 @@ export function listPlanTools() {
 
 /**
  * 🔍 BUSCAR TOOL POR NOME
- * 
+ *
  * Busca uma tool específica de planos pelo nome.
- * 
+ *
  * @param name Nome da tool a ser buscada
  * @returns Tool encontrada ou undefined
- * 
+ *
  * @example
  * ```typescript
  * const createPlanTool = findPlanTool('create_plan');
@@ -236,7 +253,7 @@ export function listPlanTools() {
  * ```
  */
 export function findPlanTool(name: string): ToolDefinition | undefined {
-  const tool = PLAN_TOOLS.find(t => t.name === name);
+  const tool = PLAN_TOOLS.find((t) => t.name === name);
 
   if (tool) {
     logger.log(`🔍 [BUSCA] Tool de plano encontrada: "${name}"`);
@@ -250,12 +267,15 @@ export function findPlanTool(name: string): ToolDefinition | undefined {
 // Logs de inicialização
 logger.log(`📋 [PLANOS] Definições de tools de planos carregadas`);
 logger.log(`📋 [PLANOS] Total de tools: ${PLAN_TOOLS.length}`);
-logger.log(`📋 [PLANOS] Tools: ${PLAN_TOOLS.map(t => t.name).join(', ')}`);
+logger.log(`📋 [PLANOS] Tools: ${PLAN_TOOLS.map((t) => t.name).join(', ')}`);
 
 // Validar definições na inicialização
 const validationErrors = validatePlanTools();
 if (validationErrors.length > 0) {
-  logger.error(`❌ [PLANOS] Erros de validação encontrados na inicialização:`, validationErrors);
+  logger.error(
+    `❌ [PLANOS] Erros de validação encontrados na inicialização:`,
+    validationErrors,
+  );
 } else {
   logger.log(`✅ [PLANOS] Todas as definições de tools de planos são válidas`);
 }

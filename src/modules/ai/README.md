@@ -38,7 +38,7 @@ src/modules/ai/
 
 ```typescript
 // 1. Usuário envia mensagem via WhatsApp
-// 2. MessageBufferService recebe a mensagem
+// 2. EventMessagesUpsertService recebe a mensagem
 // 3. Sistema aguarda inatividade (10s)
 // 4. Busca histórico de conversas
 // 5. Envia para IA com function calling
@@ -134,13 +134,13 @@ or similar, you MUST call the get_plans function..."
 
 ## 🔧 Integração com o Sistema
 
-### MessageBufferService
+### EventMessagesUpsertService
 
 ```typescript
 @Injectable()
-export class MessageBufferService {
+export class EventMessagesUpsertService {
   // Sistema de buffer/debounce
-  async handleMessage(payload: MessagesUpsertLog): Promise<void>
+  async handle(payload: MessagesUpsertLog): Promise<void>
   
   // Processamento principal
   private async processBufferWithNewFlow(remoteJid: string, payload: MessagesUpsertLog): Promise<void>
@@ -241,7 +241,7 @@ npm run test src/modules/ai
 
 # Testes específicos
 npm run test -- --testNamePattern="ToolRegistryService"
-npm run test -- --testNamePattern="MessageBufferService"
+npm run test -- --testNamePattern="EventMessagesUpsertService"
 ```
 
 ## 📚 Referências

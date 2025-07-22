@@ -164,13 +164,13 @@ export class ToolRegistryService {
 }
 ```
 
-### **5. 🤖 Comunicação com IA (MessageBufferService)**
+### **5. 🤖 Comunicação com IA (EventMessagesUpsertService)**
 
 ```typescript
 @Injectable()
-export class MessageBufferService {
+export class EventMessagesUpsertService {
   // Sistema de buffer/debounce
-  async handleMessage(payload: MessagesUpsertLog): Promise<void> {
+      async handle(payload: MessagesUpsertLog): Promise<void> {
     const { remoteJid, message } = this.extractDataPayload(payload);
     
     // Adiciona ao buffer e configura timer
@@ -207,7 +207,7 @@ export class MessageBufferService {
 
 ```typescript
 // 1. Usuário envia mensagem via WhatsApp
-// 2. MessageBufferService recebe a mensagem
+// 2. EventMessagesUpsertService recebe a mensagem
 // 3. Sistema aguarda inatividade (10s)
 // 4. Busca histórico de conversas (excluindo mensagem atual)
 // 5. Envia para DeepSeek com function calling

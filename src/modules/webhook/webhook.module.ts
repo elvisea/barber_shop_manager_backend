@@ -6,7 +6,6 @@ import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { WebhookController } from './controllers/webhook.controller';
 import { EventChatsUpdateService } from './services/event-chats-update.service';
 import { EventMessagesUpsertService } from './services/event-messages-upsert.service';
-import { MessageBufferService } from './services/message-buffer.service';
 import { WebhookRouterService } from './services/webhook-router.service';
 
 @Module({
@@ -16,12 +15,7 @@ import { WebhookRouterService } from './services/webhook-router.service';
     WebhookRouterService,
     EventChatsUpdateService,
     EventMessagesUpsertService,
-    MessageBufferService,
   ],
-  exports: [
-    WebhookRouterService,
-    EventChatsUpdateService,
-    MessageBufferService,
-  ],
+  exports: [WebhookRouterService, EventChatsUpdateService],
 })
 export class WebhookModule {}

@@ -1,9 +1,9 @@
 /**
  * 🎯 Prompt Centralizado para IA - Luna, Assistente Virtual da Barbearia
- * 
+ *
  * Este arquivo centraliza o prompt usado pela IA em todos os serviços,
  * garantindo consistência e facilitando manutenção.
- * 
+ *
  * HISTÓRICO DE VERSÕES:
  * - v1.0.0: Prompt inicial básico
  * - v2.0.0: Adicionado function calling
@@ -11,13 +11,13 @@
  * - v3.1.0: Refinado para ser mais direto
  * - v3.2.0: Ajustado para melhor function calling
  * - v3.3.0: Versão atual - otimizada para function calling direto
- * 
+ *
  * CARACTERÍSTICAS:
  * - Instruções claras sobre quando usar functions
  * - Proibição de descrever functions
  * - Foco em chamadas diretas de functions
  * - Tom amigável e profissional
- * 
+ *
  * USO NO SISTEMA:
  * - Enviado como mensagem 'system' para a IA
  * - Define o comportamento base da Luna
@@ -27,17 +27,17 @@
 
 /**
  * 🎭 PROMPT PRINCIPAL - Instruções para a IA Luna
- * 
+ *
  * ESTRUTURA:
  * - prompt: Instrução principal em inglês
  * - directives: Lista de diretrizes específicas
- * 
+ *
  * FUNCIONAMENTO:
  * 1. Define a personalidade da Luna
  * 2. Especifica quando usar functions
  * 3. Proíbe descrições de functions
  * 4. Mantém tom natural para conversas gerais
- * 
+ *
  * FUNCTION CALLING:
  * - get_plans: Quando usuário pede para listar/ver/mostrar planos
  * - create_plan: Quando usuário quer criar novo plano
@@ -58,7 +58,7 @@ export const BARBER_SHOP_PROMPT = JSON.stringify({
 
 /**
  * 📏 INFORMAÇÕES SOBRE O PROMPT
- * 
+ *
  * Contém metadados sobre o prompt atual para controle
  * de versão e monitoramento de uso
  */
@@ -97,45 +97,45 @@ export const PROMPT_INFO = {
 
 /**
  * 📚 EXEMPLOS DE USO DO PROMPT
- * 
+ *
  * // 1. Uso básico no sistema
  * const messages = [
  *   { role: 'system', content: BARBER_SHOP_PROMPT },
  *   { role: 'user', content: 'Quero ver os planos disponíveis' }
  * ];
- * 
+ *
  * // 2. Verificar informações do prompt
  * console.log(`Prompt ${PROMPT_INFO.name} v${PROMPT_INFO.version}`);
  * console.log(`Caracteres: ${PROMPT_INFO.characterCount}`);
- * 
+ *
  * // 3. Log de uso
  * logger.log(`Usando prompt v${PROMPT_INFO.version} - ${PROMPT_INFO.description}`);
  */
 
 /**
  * 🔄 HISTÓRICO DE MUDANÇAS
- * 
+ *
  * v3.3.0 (2025-01-21):
  * - Otimizado para function calling direto
  * - Removidas ambiguidades no prompt
  * - Melhorada clareza das instruções
- * 
+ *
  * v3.2.0 (2025-01-20):
  * - Ajustado para melhor function calling
  * - Refinadas as diretrizes
- * 
+ *
  * v3.1.0 (2025-01-19):
  * - Prompt mais direto e claro
  * - Foco em evitar descrições
- * 
+ *
  * v3.0.0 (2025-01-18):
  * - Adicionada proibição de descrever functions
  * - Melhorado para function calling
- * 
+ *
  * v2.0.0 (2025-01-17):
  * - Adicionado suporte a function calling
  * - Integração com tools do sistema
- * 
+ *
  * v1.0.0 (2025-01-16):
  * - Prompt inicial básico
  * - Conversas simples sem functions
