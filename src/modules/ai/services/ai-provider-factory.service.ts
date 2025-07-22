@@ -3,39 +3,41 @@ import { ConfigService } from '@nestjs/config';
 
 import { AIProvider } from '../interfaces/ai-provider-interface';
 import { DeepseekProvider } from '../providers/deepseek';
-import { DeepseekNewProvider } from '../providers/deepseek-new.provider';
 
-import { AIToolExecutorService } from './ai-tool-executor.service';
-
+/**
+ * 🏭 AIProviderFactoryService - Factory para Providers de IA
+ *
+ * RESPONSABILIDADES:
+ * 1. Gerenciar instâncias de providers de IA
+ * 2. Configurar providers com dependências necessárias
+ * 3. Fornecer acesso centralizado aos providers
+ *
+ * FLUXO:
+ * 1. Recebe solicitação de provider
+ * 2. Verifica configuração
+ * 3. Retorna instância configurada
+ */
 @Injectable()
 export class AIProviderFactoryService {
   private readonly logger = new Logger(AIProviderFactoryService.name);
   private readonly configService: ConfigService;
 
-  private static providers: Record<string, (options?: any) => AIProvider> = {
-    // 'deepseek-chat': (options?: any) => new DeepseekProvider(options),
-    'deepseek-chat': (options?: any) => new DeepseekNewProvider(options),
-  };
-
-  constructor(
-    configService: ConfigService,
-    private readonly toolExecutor: AIToolExecutorService,
-  ) {
+  constructor(configService: ConfigService) {
     this.configService = configService;
+    this.logger.log('🏭 [FACTORY] AIProviderFactoryService inicializado');
   }
 
   /**
-   * Registra um novo provider na factory
-   */
-  public static registerProvider(
-    key: string,
-    providerFn: (options?: any) => AIProvider,
-  ): void {
-    AIProviderFactoryService.providers[key] = providerFn;
-  }
-
-  /**
-   * Retorna a instância do provider configurado ou fallback para o padrão
+   * 🎯 OBTER PROVIDER - Retorna instância do provider configurado
+   *
+   * @param options Opções de configuração (opcional)
+   * @returns Instância do AIProvider configurado
+   *
+   * @example
+   * ```typescript
+   * const provider = factory.getProvider();
+   * const response = await provider.generateResponse(messages, tools);
+   * ```
    */
   public getProvider(options?: any): AIProvider {
     // Busca chave do provider nas variáveis de ambiente ou options
@@ -44,25 +46,51 @@ export class AIProviderFactoryService {
       this.configService.get<string>('AI_PROVIDER') ||
       'deepseek-chat';
 
-    if (providerKey in AIProviderFactoryService.providers) {
-      this.logger.log(`Usando provider de IA: ${providerKey}`);
+    this.logger.log(`🏭 [FACTORY] Solicitando provider: ${providerKey}`);
 
-      // Se for o novo provider, passar o toolExecutor
-      if (providerKey === 'deepseek-chat' && this.toolExecutor) {
-        return new DeepseekNewProvider(options, this.toolExecutor);
-      }
-
-      return AIProviderFactoryService.providers[providerKey](options);
+    // Por enquanto, sempre retorna DeepseekProvider
+    // Futuramente pode ser expandido para outros providers
+    if (providerKey === 'deepseek-chat') {
+      this.logger.log('🏭 [FACTORY] Criando instância do DeepseekProvider');
+      return new DeepseekProvider(this.configService);
     }
 
     this.logger.warn(
-      `Provider "${providerKey}" não encontrado. Usando provider padrão: deepseek-chat`,
+      `🏭 [FACTORY] Provider "${providerKey}" não encontrado. Usando provider padrão: deepseek-chat`,
     );
-    return new DeepseekProvider(options);
+
+    return new DeepseekProvider(this.configService);
+  }
+
+  /**
+   * 📊 ESTATÍSTICAS - Informações sobre a factory
+   *
+   * @returns Informações de configuração
+   */
+  getStats(): {
+    configuredProvider: string;
+    availableProviders: string[];
+    isConfigured: boolean;
+  } {
+    const configuredProvider =
+      this.configService.get<string>('AI_PROVIDER') || 'deepseek-chat';
+    const apiKey = this.configService.get<string>('DEEPSEEK_API_KEY');
+
+    return {
+      configuredProvider,
+      availableProviders: ['deepseek-chat'],
+      isConfigured: !!apiKey,
+    };
   }
 }
 
-// Função de conveniência para uso externo
+/**
+ * 🔧 Função de conveniência para uso externo
+ *
+ * @param factory Instância da factory
+ * @param options Opções de configuração (opcional)
+ * @returns Instância do AIProvider
+ */
 export function getIAProvider(
   factory: AIProviderFactoryService,
   options?: any,

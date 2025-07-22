@@ -1,14 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
-import {
-  ChatCompletionMessageParam,
-  ChatCompletionTool,
-} from 'openai/resources/chat/completions';
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 import { MessagesUpsertLog } from '../interfaces';
 
 import { HttpClientService } from '@/http-client/http-client.service';
+import { AIProviderFactoryService } from '@/modules/ai/services/ai-provider-factory.service';
 import { ToolRegistryService } from '@/modules/ai/tools/registry/tool-registry';
 
 /**
@@ -99,6 +96,7 @@ export class EventMessagesUpsertService {
     private readonly httpClientService: HttpClientService,
     private readonly configService: ConfigService,
     private readonly toolRegistry: ToolRegistryService,
+    private readonly aiProviderFactory: AIProviderFactoryService,
   ) {
     this.logger.log(
       `[EventMessagesUpsertService] ✅ Inicializado com timeout de ${this.USER_INACTIVITY_TIMEOUT_MS}ms`,
@@ -262,7 +260,8 @@ export class EventMessagesUpsertService {
       );
 
       // 4. Chamar a IA com function calling
-      const response = await this.sendToAI(messages, tools);
+      const aiProvider = this.aiProviderFactory.getProvider();
+      const response = await aiProvider.generateResponse(messages, tools);
 
       this.logger.log(
         '📥 [IA] Resposta completa da IA:',
@@ -318,7 +317,10 @@ export class EventMessagesUpsertService {
         this.logger.log(
           '🔄 [IA] Chamando IA novamente com resultado das tools...',
         );
-        const finalResponse = await this.sendToAI(messages, tools);
+        const finalResponse = await aiProvider.generateResponse(
+          messages,
+          tools,
+        );
 
         this.logger.log(
           '📥 [IA] Resposta final da IA:',
@@ -368,47 +370,6 @@ export class EventMessagesUpsertService {
         );
       }
     }
-  }
-
-  /**
-   * 🤖 COMUNICAÇÃO COM IA - Envia mensagens para DeepSeek
-   *
-   * @param messages Array de mensagens para enviar
-   * @param tools Array de tools disponíveis
-   * @returns Resposta da IA
-   */
-  private async sendToAI(
-    messages: ChatCompletionMessageParam[],
-    tools: ChatCompletionTool[],
-  ) {
-    this.logger.log('🤖 [DEEPSEEK] Iniciando comunicação com DeepSeek...');
-
-    // Inicializar cliente OpenAI com DeepSeek
-    const client = new OpenAI({
-      apiKey: 'sk-8eb3e14ed4754ed79dd34c0d92749936',
-      baseURL: 'https://api.deepseek.com',
-    });
-
-    this.logger.log('🤖 [DEEPSEEK] Cliente configurado, enviando request...');
-
-    // Criar chat completion seguindo documentação
-    const completion = await client.chat.completions.create({
-      model: 'deepseek-chat',
-      messages: messages,
-      tools: tools,
-      max_tokens: 1000,
-      temperature: 0.7,
-      tool_choice: 'auto',
-    });
-
-    this.logger.log(
-      '🤖 [DEEPSEEK] Resposta completa da API:',
-      JSON.stringify(completion, null, 2),
-    );
-    this.logger.log('🤖 [DEEPSEEK] Resposta recebida da DeepSeek');
-
-    // Retornar mensagem da primeira escolha
-    return completion.choices[0].message;
   }
 
   /**
