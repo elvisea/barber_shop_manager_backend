@@ -66,6 +66,8 @@ services:
       # Configurações de MCP (se necessário)
       MCP_SERVER_URL: ${MCP_SERVER_URL}
       MCP_SERVER_PATH: ${MCP_SERVER_PATH}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL}
     ports:
       - "${PORT:-3333}:3333"
     depends_on:
