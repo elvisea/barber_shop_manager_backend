@@ -54,6 +54,7 @@ env:
   # Configurações de API Externa
   EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
   EVOLUTION_API_URL: ${{ secrets.EVOLUTION_API_URL }}
+  WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
 
   # Configurações de IA
   AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
@@ -236,6 +237,7 @@ jobs:
           # Configurações de API Externa
           echo "EVOLUTION_API_KEY=${{ env.EVOLUTION_API_KEY }}" >> .env
           echo "EVOLUTION_API_URL=${{ env.EVOLUTION_API_URL }}" >> .env
+          echo "WEBHOOK_URL=${{ env.WEBHOOK_URL }}" >> .env
           
           # Configurações de IA
           echo "AI_PROVIDER=${{ env.AI_PROVIDER }}" >> .env

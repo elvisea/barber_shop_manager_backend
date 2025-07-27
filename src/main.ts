@@ -30,6 +30,16 @@ async function bootstrap(): Promise<void> {
   /* Create the main application using AppModule */
   const app = await NestFactory.create(AppModule);
 
+  /* Configure body parser limits to handle large payloads (e.g., webhooks) */
+  app.use((_req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  });
+
+  // Increase body parser limits
+  app.use(require('body-parser').json({ limit: '10mb' }));
+  app.use(require('body-parser').urlencoded({ limit: '10mb', extended: true }));
+
   /* Apply global custom exception filter */
   app.useGlobalFilters(new AllExceptionsFilter());
 

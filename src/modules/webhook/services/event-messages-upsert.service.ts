@@ -436,8 +436,10 @@ export class EventMessagesUpsertService {
     apikey: string;
     excludeMessages?: string[];
   }): Promise<ChatCompletionMessageParam[]> {
-    const apiUrl =
-      this.configService.get<string>('EVOLUTION_API_URL') || 'http://api:8080';
+    const apiUrl = this.configService.get<string>(
+      'EVOLUTION_API_URL',
+      'http://api:8080',
+    );
     const findMessagesUrl = `${apiUrl}/chat/findMessages/${instance}`;
 
     this.logger.log(`📚 [HISTÓRICO] Buscando em: ${findMessagesUrl}`);

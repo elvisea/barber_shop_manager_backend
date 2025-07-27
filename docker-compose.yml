@@ -56,6 +56,7 @@ services:
       # Configurações de API Externa
       EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
       EVOLUTION_API_URL: ${EVOLUTION_API_URL:-http://api:8080}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://barber_shop_manager_backend_app:3333/api/webhook}
 
       # Configurações de IA
       AI_PROVIDER: ${AI_PROVIDER}
