@@ -1,6 +1,6 @@
 # 💈 Barber Shop Manager - Sistema de Gerenciamento de Barbearias
 
-Sistema backend desenvolvido em **NestJS** para gerenciamento completo de barbearias, incluindo agendamentos, clientes, funcionários, serviços e controle financeiro.
+Sistema backend desenvolvido em **NestJS** para gerenciamento completo de barbearias, incluindo agendamentos, clientes, funcionários, serviços, controle financeiro e integração com WhatsApp via Evolution API.
 
 ---
 
@@ -13,6 +13,9 @@ Sistema backend desenvolvido em **NestJS** para gerenciamento completo de barbea
 - **JWT** - Autenticação
 - **Swagger** - Documentação da API
 - **Class Validator** - Validação de dados
+- **Evolution API** - Integração com WhatsApp
+- **Docker** - Containerização
+- **Nginx** - Proxy reverso
 
 ---
 
@@ -35,6 +38,25 @@ cp .env.example .env
 # Edite o arquivo .env com suas configurações
 ```
 
+**Variáveis obrigatórias:**
+```env
+# Banco de dados
+DATABASE_URL="postgresql://user:password@localhost:5432/barber_shop_manager"
+
+# JWT
+JWT_SECRET="your-jwt-secret"
+JWT_REFRESH_SECRET="your-jwt-refresh-secret"
+
+# Evolution API (WhatsApp)
+EVOLUTION_API_URL="http://api:8080"
+EVOLUTION_API_KEY="your-evolution-api-key"
+WEBHOOK_URL="http://your-domain.com/api/webhook"
+
+# AI Integration
+GEMINI_API_KEY="your-gemini-api-key"
+GEMINI_BASE_URL="https://generativelanguage.googleapis.com"
+```
+
 ### 4. Configurar banco de dados
 ```bash
 # Executar migrações
@@ -45,11 +67,22 @@ npx prisma db seed
 ```
 
 ### 5. Executar aplicação
-```bash
-# Modo desenvolvimento
-npm run start:dev
 
-# Modo produção
+#### Desenvolvimento
+```bash
+# Usando Docker Compose
+docker-compose -f docker-compose.dev.yml up
+
+# Ou localmente
+npm run start:dev
+```
+
+#### Produção
+```bash
+# Usando Docker Compose
+docker-compose up -d
+
+# Ou localmente
 npm run start:prod
 ```
 
@@ -90,22 +123,21 @@ Responsável por receber requisições HTTP, acionar o service e devolver a resp
 ### ✅ Exemplo:
 
 ```ts
-@ApiTags('Funcionários')
+@ApiTags('Estabelecimentos')
 @ApiBearerAuth()
-@Controller('employees')
-@UseGuards(JwtAuthGuard, RolesGuard)
-export class EmployeeCreateController {
-  constructor(private readonly employeeCreateService: EmployeeCreateService) {}
+@Controller('establishments/:establishmentId/evolution-api')
+@UseGuards(JwtAuthGuard)
+export class EstablishmentEvolutionApiCreateInstanceController {
+  constructor(private readonly evolutionApiService: EstablishmentEvolutionApiCreateInstanceService) {}
 
-  @Post()
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Criar novo funcionário' })
-  @ApiResponse({ status: 201, type: EmployeeResponseDTO })
+  @Post('instance')
+  @ApiOperation({ summary: 'Criar nova instância na Evolution API' })
+  @ApiResponse({ status: 201, type: EstablishmentEvolutionApiCreateInstanceResponseDTO })
   async handle(
-    @GetRequestId() id: number,
-    @Body() dto: EmployeeRequestDTO,
-  ): Promise<EmployeeResponseDTO> {
-    return this.employeeCreateService.execute(dto, id);
+    @GetRequestId() userId: string, // UUID como string
+    @Param() params: EstablishmentParamDTO,
+  ): Promise<EstablishmentEvolutionApiCreateInstanceResponseDTO> {
+    return this.evolutionApiService.execute(params.establishmentId, userId);
   }
 }
 ```
@@ -119,28 +151,11 @@ Usados para validação dos dados recebidos pelos controllers, documentados com 
 ### ✅ Exemplo:
 
 ```ts
-export class EmployeeRequestDTO {
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsNotEmpty()
-  establishmentId: number;
-
-  @ApiProperty({ example: 'email@empresa.com' })
-  @IsEmail()
-  @Transform(({ value }) => value.toLowerCase())
-  email: string;
-
-  @ApiProperty({ example: '+5511999999999' })
-  @IsPhoneNumber()
-  phone: string;
-
-  @ApiProperty({ example: 'João da Silva' })
+export class EstablishmentParamDTO {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   @IsString()
-  name: string;
-
-  @ApiProperty({ enum: Role })
-  @IsEnum(Role)
-  role: Role;
+  @IsNotEmpty()
+  establishmentId: string; // UUID como string
 }
 ```
 
@@ -149,18 +164,12 @@ export class EmployeeRequestDTO {
 ## 📄 DTOs de Saída (Response)
 
 ```ts
-export class EmployeeResponseDTO {
-  @ApiProperty({ example: 1 })
-  id: number;
+export class EstablishmentResponseDTO {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  id: string; // UUID como string
 
-  @ApiProperty({ example: 1 })
-  establishmentId: number;
-
-  @ApiProperty({ example: 'João da Silva' })
+  @ApiProperty({ example: 'Barbearia do João' })
   name: string;
-
-  @ApiProperty({ example: 'email@email.com' })
-  email: string;
 
   @ApiProperty({ example: '+5511999999999' })
   phone: string;
@@ -181,22 +190,48 @@ Contém a lógica de negócio. Deve:
 
 * Validar regras antes de acionar o repositório.
 * Usar `ErrorMessageService` e `CustomHttpException` para exceções.
+* Registrar logs com `Logger` para acompanhamento.
 
 ### ⚠️ Exemplo:
 
 ```ts
-if (!establishment) {
-  const errorMessage = this.errorMessageService.getMessage(
-    ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-    { ESTABLISHMENT_ID: request.establishmentId, OWNER_ID: ownerId },
-  );
+@Injectable()
+export class EstablishmentEvolutionApiCreateInstanceService {
+  private readonly logger = new Logger(EstablishmentEvolutionApiCreateInstanceService.name);
 
-  this.logger.warn(errorMessage);
-  throw new CustomHttpException(
-    errorMessage,
-    HttpStatus.NOT_FOUND,
-    ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-  );
+  constructor(
+    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly evolutionApiInstanceService: EvolutionApiInstanceService,
+    private readonly evolutionApiWebhookService: EvolutionApiWebhookService,
+  ) {}
+
+  async execute(establishmentId: string, ownerId: string): Promise<ResponseDTO> {
+    this.logger.log(`🔧 Iniciando criação de instância para estabelecimento: ${establishmentId}`);
+
+    // Validar acesso
+    const establishment = await this.establishmentAccessService.assertUserHasAccess(
+      establishmentId,
+      ownerId,
+      true, // requireAdmin = true
+    );
+
+    // Criar instância
+    const instanceResponse = await this.evolutionApiInstanceService.createInstance({
+      instanceName: `establishment_${establishment.id}`,
+      number: establishment.phone,
+      qrcode: true,
+      integration: 'WHATSAPP-BAILEYS',
+    });
+
+    // Configurar webhook
+    try {
+      await this.evolutionApiWebhookService.configureWebhook(instanceResponse.instance.instanceName);
+    } catch (webhookError) {
+      this.logger.warn(`⚠️ Webhook não configurado: ${webhookError.message}`);
+    }
+
+    return instanceResponse;
+  }
 }
 ```
 
@@ -206,15 +241,15 @@ if (!establishment) {
 
 A camada de repositório é dividida em:
 
-* `employee-repository.interface.ts` (contratos)
-* `employee.repository.ts` (implementação)
+* `establishment-repository.interface.ts` (contratos)
+* `establishment.repository.ts` (implementação)
 
 ### ✅ Interface:
 
 ```ts
-export interface IEmployeeRepository {
-  createEmployee(data: EmployeeCreateDTO): Promise<Employee>;
-  findByEmail(email: string): Promise<Employee | null>;
+export interface IEstablishmentRepository {
+  findById(id: string): Promise<Establishment | null>; // UUID como string
+  findByOwnerId(ownerId: string): Promise<Establishment[]>; // UUID como string
 }
 ```
 
@@ -222,15 +257,12 @@ export interface IEmployeeRepository {
 
 ```ts
 @Injectable()
-export class EmployeeRepository implements IEmployeeRepository {
+export class EstablishmentRepository implements IEstablishmentRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createEmployee(data: EmployeeCreateDTO): Promise<Employee> {
-    return this.prismaService.employee.create({
-      data: {
-        ...data,
-        establishment: { connect: { id: data.establishmentId } },
-      },
+  async findById(id: string): Promise<Establishment | null> {
+    return this.prismaService.establishment.findUnique({
+      where: { id },
     });
   }
 }
@@ -250,6 +282,7 @@ export class EmployeeRepository implements IEmployeeRepository {
 - **DTOs**: Para validação de entrada e contratos de saída da API
 - **Tipos Prisma**: Gerados automaticamente (`User`, `Establishment`, etc.)
 - **Interfaces de Contrato**: Apenas para definir métodos dos repositórios (`IUserRepository`)
+- **UUIDs**: Todos os IDs são strings (UUIDs) em vez de números
 
 ---
 
@@ -271,15 +304,17 @@ throw new CustomHttpException(
 
 O projeto utiliza **Prisma** como ORM com as seguintes entidades principais:
 
-- **User** - Usuários do sistema
-- **Establishment** - Estabelecimentos/Barbearias
-- **EstablishmentMember** - Funcionários dos estabelecimentos
-- **EstablishmentCustomer** - Clientes dos estabelecimentos
-- **Service** - Serviços oferecidos
-- **Product** - Produtos vendidos
-- **Appointment** - Agendamentos
-- **Transaction** - Transações financeiras
-- **PaymentOrder** - Ordens de pagamento para funcionários
+- **User** - Usuários do sistema (UUID)
+- **Establishment** - Estabelecimentos/Barbearias (UUID)
+- **EstablishmentMember** - Funcionários dos estabelecimentos (UUID)
+- **EstablishmentCustomer** - Clientes dos estabelecimentos (UUID)
+- **Service** - Serviços oferecidos (UUID)
+- **Product** - Produtos vendidos (UUID)
+- **Appointment** - Agendamentos (UUID)
+- **Transaction** - Transações financeiras (UUID)
+- **PaymentOrder** - Ordens de pagamento para funcionários (UUID)
+- **Plan** - Planos de assinatura (UUID)
+- **Subscription** - Assinaturas dos estabelecimentos (UUID)
 
 ---
 
@@ -308,23 +343,81 @@ Após iniciar a aplicação, acesse:
 
 ## 🌟 Funcionalidades Principais
 
+### 🔐 Autenticação e Autorização
 - ✅ **Autenticação JWT** com refresh tokens
-- ✅ **Gerenciamento de Estabelecimentos** multi-tenant
+- ✅ **Sistema de Roles** (ADMIN, BARBER, CUSTOMER)
+- ✅ **Verificação de Email** para novos usuários
+
+### 🏢 Gerenciamento de Estabelecimentos
+- ✅ **Multi-tenant** com isolamento de dados
 - ✅ **Cadastro de Funcionários** com diferentes roles
 - ✅ **Gestão de Clientes** por estabelecimento
-- ✅ **Sistema de Agendamentos** completo
-- ✅ **Controle Financeiro** com transações
-- ✅ **Sistema de Comissões** para funcionários
 - ✅ **Horários de Funcionamento** configuráveis
 - ✅ **Períodos de Fechamento** para feriados/férias
-- ✅ **Verificação de Email** para novos usuários
+
+### 📅 Sistema de Agendamentos
+- ✅ **Agendamentos completos** com validação de horários
+- ✅ **Status de agendamento** (PENDING, CONFIRMED, CANCELLED, COMPLETED)
+- ✅ **Múltiplos serviços** por agendamento
+
+### 💰 Controle Financeiro
+- ✅ **Transações** com diferentes métodos de pagamento
+- ✅ **Sistema de Comissões** para funcionários
+- ✅ **Ordens de Pagamento** para funcionários
+- ✅ **Relatórios financeiros**
+
+### 🤖 Integração com IA
+- ✅ **Múltiplos provedores** (Gemini, DeepSeek)
+- ✅ **Funções customizadas** para automação
+- ✅ **Prompts especializados** para barbearias
+
+### 📱 Integração WhatsApp (Evolution API)
+- ✅ **Criação de instâncias** automática
+- ✅ **Configuração de webhooks** para eventos
+- ✅ **QR Code** para conexão
+- ✅ **Recebimento de mensagens** via webhook
+- ✅ **Automação de respostas** com IA
+
+### 📋 Planos e Assinaturas
+- ✅ **Sistema de planos** configuráveis
+- ✅ **Assinaturas** por estabelecimento
+- ✅ **Controle de acesso** baseado em planos
+
+### 🔧 Infraestrutura
+- ✅ **Docker** para containerização
+- ✅ **Nginx** como proxy reverso
+- ✅ **CI/CD** com GitHub Actions
 - ✅ **Tratamento de Erros** centralizado
+- ✅ **Logs estruturados** com Winston
+
+---
+
+## 🚀 Deploy
+
+### Produção
+```bash
+# Build e deploy automático via GitHub Actions
+git push origin main
+```
+
+### Desenvolvimento
+```bash
+# Usando Docker Compose
+docker-compose -f docker-compose.dev.yml up -d
+```
 
 ---
 
 ## 🤝 Contribuindo
 
-Fique à vontade para duplicar essa estrutura para novos módulos. Em caso de dúvidas ou padrões não contemplados aqui, padronize de acordo com o que já foi feito no módulo de exemplo `employees`.
+Fique à vontade para duplicar essa estrutura para novos módulos. Em caso de dúvidas ou padrões não contemplados aqui, padronize de acordo com o que já foi feito no módulo de exemplo `establishments`.
+
+### Padrões Importantes:
+- ✅ **UUIDs**: Todos os IDs são strings (UUIDs)
+- ✅ **Logs**: Sempre usar `Logger` para acompanhamento
+- ✅ **Validação**: DTOs com `class-validator`
+- ✅ **Documentação**: Swagger em todos os endpoints
+- ✅ **Tratamento de Erros**: `CustomHttpException` centralizado
 
 ---
 
