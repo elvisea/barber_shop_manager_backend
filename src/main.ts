@@ -30,13 +30,32 @@ async function bootstrap(): Promise<void> {
   /* Create the main application using AppModule */
   const app = await NestFactory.create(AppModule);
 
-  /* Configure body parser limits to handle large payloads (e.g., webhooks) */
-  app.use((_req, res, next) => {
-    res.setHeader('Content-Type', 'application/json');
-    next();
+  /* Get configuration service to access environment variables */
+  const configService = app.get<ConfigService>(ConfigService);
+
+  /* Configure CORS based on environment */
+  const isDevelopment =
+    configService.get('NODE_ENV', 'development') === 'development';
+
+  const origin = isDevelopment
+    ? '*'
+    : 'https://barbershop-manager.bytefulcode.tech';
+
+  app.enableCors({
+    origin,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+    ],
   });
 
-  // Increase body parser limits
+  /* Increase body parser limits */
+  /* verify if this is necessary */
   app.use(require('body-parser').json({ limit: '10mb' }));
   app.use(require('body-parser').urlencoded({ limit: '10mb', extended: true }));
 
@@ -70,11 +89,8 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api/docs', app, document);
 
-  /* Get configuration service to access environment variables */
-  const configService = app.get<ConfigService>(ConfigService);
-
   /* Get server port from environment variables or use 3333 as default */
-  const port = configService.get<number>('PORT') ?? 3333;
+  const port = configService.get<number>('PORT', 3333);
 
   /* Start HTTP server on defined port */
   await app.listen(port);

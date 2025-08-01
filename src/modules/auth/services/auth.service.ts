@@ -70,9 +70,7 @@ export class AuthService {
       `Authentication successful for email [${authRequest.email}].`,
     );
 
-    const payload = {
-      sub: user.id,
-    };
+    const payload = { sub: user.id };
 
     const { accessToken, refreshToken } =
       await this.tokenService.generateTokens(payload);
