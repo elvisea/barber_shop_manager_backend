@@ -42,6 +42,23 @@ Este documento descreve a estratégia de refatoração paralela para transformar
 - Todos os relacionamentos que usam `userId + establishmentId` como chave composta
 - Relacionamentos que referenciam `User` através de `EstablishmentMember`
 
+### **4. Relacionamentos herdados pelo novo modelo Member:**
+O novo modelo `Member` herdará todos os relacionamentos que `EstablishmentMember` possui:
+
+- **memberProducts** - Produtos que o membro pode vender (MemberProduct[])
+- **memberServices** - Serviços que o membro pode fazer (MemberService[])
+- **workingHours** - Horários de trabalho do membro (MemberWorkingHours[])
+- **absencePeriods** - Períodos de ausência do membro (MemberAbsencePeriod[])
+- **appointments** - Agendamentos do membro (Appointment[])
+- **transactions** - Transações realizadas pelo membro (Transaction[])
+- **paymentOrders** - Ordens de pagamento para o membro (PaymentOrder[])
+- **subscriptions** - Assinaturas vinculadas ao membro (Subscription[])
+
+**Implicações:**
+- Todos esses relacionamentos precisarão ser migrados para usar `memberId` em vez de `userId + establishmentId`
+- As tabelas relacionadas precisarão ser adaptadas para a nova estrutura
+- A migração de dados deve preservar todos os relacionamentos existentes
+
 ## 🎯 Estratégia de Refatoração Paralela
 
 ### **Estrutura Paralela Proposta:**
@@ -67,9 +84,21 @@ model Member {
   emailVerified   Boolean @default(false)
   isActive        Boolean @default(true)
   establishmentId String
-  establishment   Establishment @relation(fields: [establishmentId], references: [id])
-  refreshTokens   MemberRefreshToken[]
-  // ... relacionamentos futuros
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  
+  // Relacionamentos herdados de EstablishmentMember
+  memberProducts  MemberProduct[]      // Produtos que ele pode vender
+  memberServices  MemberService[]      // Serviços que ele pode fazer
+  workingHours    MemberWorkingHours[] // Horários de trabalho
+  absencePeriods  MemberAbsencePeriod[] // Períodos de ausência
+  appointments    Appointment[]        // Agendamentos
+  transactions    Transaction[]        // Transações realizadas
+  paymentOrders   PaymentOrder[]       // Ordens de pagamento
+  subscriptions   Subscription[]       // Assinaturas vinculadas
+  
+  // Relacionamentos específicos do Member
+  refreshTokens   MemberRefreshToken[] // Refresh tokens para autenticação
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -297,6 +326,9 @@ phone: string;
 - Verificação de email para novos membros
 - Migração segura de dados existentes
 - Compatibilidade com sistema de permissões
+- **Migração de relacionamentos complexos** - Todos os relacionamentos de EstablishmentMember precisam ser preservados
+- **Integridade referencial** - Garantir que nenhum dado seja perdido durante a transição
+- **Performance** - Considerar o impacto da mudança de chave composta para chave simples
 
 ---
 
