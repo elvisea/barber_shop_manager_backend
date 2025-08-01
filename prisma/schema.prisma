@@ -135,8 +135,7 @@ model Subscription {
   EstablishmentMember                EstablishmentMember? @relation(fields: [establishmentMemberUserId, establishmentMemberEstablishmentId], references: [userId, establishmentId])
   establishmentMemberUserId          String?              @map("establishment_member_user_id")
   establishmentMemberEstablishmentId String?              @map("establishment_member_establishment_id")
-  newMember                          Member?               @relation(fields: [newMemberId], references: [id], onDelete: SetNull)
-  newMemberId                        String?               @map("new_member_id")
+
 
   @@index([establishmentId])
   @@index([planId])
@@ -171,7 +170,7 @@ model Establishment {
   createdAt      DateTime                @default(now()) @map("created_at")
   updatedAt      DateTime                @updatedAt @map("updated_at")
   members        EstablishmentMember[]
-  newMembers     Member[]              // Novos membros (paralelo)
+  newMembers     Member[] // Novos membros (paralelo)
   products       EstablishmentProduct[]
   services       EstablishmentService[]
   customers      EstablishmentCustomer[]
@@ -270,8 +269,8 @@ model MemberProduct {
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member?              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String?              @map("new_member_id")
+  newMember       Member               @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
+  newMemberId     String               @map("new_member_id")
   product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId, productId])
@@ -289,8 +288,8 @@ model MemberService {
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member?              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String?              @map("new_member_id")
+  newMember       Member               @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
+  newMemberId     String               @map("new_member_id")
   service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId, serviceId])
@@ -338,8 +337,8 @@ model MemberWorkingHours {
   userId          String              @map("user_id")
   establishmentId String              @map("establishment_id")
   member          EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member?             @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String?             @map("new_member_id")
+  newMember       Member              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
+  newMemberId     String              @map("new_member_id")
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")
 
@@ -355,8 +354,8 @@ model MemberAbsencePeriod {
   userId          String              @map("user_id")
   establishmentId String              @map("establishment_id")
   member          EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member?             @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String?             @map("new_member_id")
+  newMember       Member              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
+  newMemberId     String              @map("new_member_id")
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")
 
@@ -405,8 +404,8 @@ model Appointment {
   memberId        String                @map("member_id")
   establishmentId String                @map("establishment_id")
   member          EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember       Member?               @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId     String?               @map("new_member_id")
+  newMember       Member                @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
+  newMemberId     String                @map("new_member_id")
   establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   services        AppointmentService[]
   transaction     Transaction?
@@ -447,8 +446,8 @@ model Transaction {
   memberId         String                @map("member_id")
   establishmentId  String                @map("establishment_id")
   member           EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember        Member?               @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId      String?               @map("new_member_id")
+  newMember        Member                @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
+  newMemberId      String                @map("new_member_id")
   items            TransactionItem[]
 
   @@map("transactions")
@@ -487,8 +486,8 @@ model PaymentOrder {
   memberId        String              @map("member_id")
   establishmentId String              @map("establishment_id")
   member          EstablishmentMember @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember       Member?             @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId     String?             @map("new_member_id")
+  newMember       Member               @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
+  newMemberId     String               @map("new_member_id")
   createdById     String              @map("created_by_id")
   createdBy       User                @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
@@ -523,18 +522,18 @@ model Member {
   isActive Boolean @default(true) @map("is_active")
 
   /// Estabelecimento ao qual o membro pertence.
-  establishmentId String @map("establishment_id")
-  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  establishmentId String        @map("establishment_id")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
   /// Relacionamentos herdados de EstablishmentMember
   memberProducts MemberProduct[] // Produtos que ele pode vender
   memberServices MemberService[] // Serviços que ele pode fazer
-  workingHours MemberWorkingHours[] // Horários de trabalho
+  workingHours   MemberWorkingHours[] // Horários de trabalho
   absencePeriods MemberAbsencePeriod[] // Períodos de ausência
-  appointments Appointment[] // Agendamentos
-  transactions Transaction[] // Transações realizadas
-  paymentOrders PaymentOrder[] // Ordens de pagamento
-  subscriptions Subscription[] // Assinaturas vinculadas
+  appointments   Appointment[] // Agendamentos
+  transactions   Transaction[] // Transações realizadas
+  paymentOrders  PaymentOrder[] // Ordens de pagamento
+
 
   /// Relacionamentos específicos do Member
   refreshTokens MemberRefreshToken[] // Refresh tokens para autenticação
@@ -579,7 +578,7 @@ model MemberRefreshToken {
 
   /// Membro ao qual o token pertence.
   memberId String @map("member_id")
-  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@map("member_refresh_tokens")
 }
