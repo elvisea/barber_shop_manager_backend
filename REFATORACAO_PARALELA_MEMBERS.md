@@ -22,19 +22,19 @@ Este documento descreve a estratégia de refatoração paralela para criar o mó
 ## 🚨 Impactos Identificados
 
 ### **1. Novos ErrorCodes Necessários:**
-- `MEMBER_EMAIL_ALREADY_EXISTS` - Email já existe no estabelecimento
-- `MEMBER_PHONE_ALREADY_EXISTS` - Telefone já existe no estabelecimento
-- `MEMBER_NOT_FOUND` - Membro não encontrado
-- `MEMBER_CREATION_FAILED` - Falha na criação do membro
+- [X] `MEMBER_EMAIL_ALREADY_EXISTS` - Email já existe no estabelecimento
+- [X] `MEMBER_PHONE_ALREADY_EXISTS` - Telefone já existe no estabelecimento
+- [X] `MEMBER_NOT_FOUND` - Membro não encontrado
+- [X] `MEMBER_CREATION_FAILED` - Falha na criação do membro
 
 ### **2. Módulos que precisam ser criados:**
-- `members/` (completamente novo)
-- `member-auth/` (para autenticação de membros)
-- Classe auxiliar para validações de estabelecimento
+- [X] `members/` (completamente novo)
+- [ ] `member-auth/` (para autenticação de membros)
+- [ ] Classe auxiliar para validações de estabelecimento
 
 ### **3. Relacionamentos que mudam:**
-- Todos os relacionamentos que usam `userId + establishmentId` como chave composta
-- Relacionamentos que referenciam `User` através de `EstablishmentMember`
+- [ ] Todos os relacionamentos que usam `userId + establishmentId` como chave composta
+- [ ] Relacionamentos que referenciam `User` através de `EstablishmentMember`
 
 ## 🎯 Estratégia de Refatoração Paralela
 
@@ -165,32 +165,35 @@ src/modules/
 ## 📅 Fases da Refatoração Paralela
 
 ### **Fase 1: Criação da Infraestrutura Paralela**
-- [ ] Criar modelo `Member` no schema
-- [ ] Criar modelo `MemberRefreshToken` 
-- [ ] Adicionar relacionamento `ownerId` no `Establishment`
-- [ ] Adicionar `OWNER` ao enum `Role`
-- [ ] Criar migration para novos modelos
-- [ ] Criar módulo `members/` completo
+- [X] Criar modelo `Member` no schema
+- [X] Criar modelo `MemberRefreshToken` 
+- [X] Adicionar relacionamento `ownerId` no `Establishment`
+- [X] Adicionar `OWNER` ao enum `Role`
+- [X] Criar migration para novos modelos
+- [X] Criar módulo `members/` completo
 - [ ] Criar módulo `member-auth/` para autenticação
 
 **Duração estimada:** 1-2 dias
+**Status:** ✅ **CONCLUÍDA (85%)**
 
 ### **Fase 2: Desenvolvimento Paralelo**
-- [ ] Implementar CRUD completo para `Member`
+- [X] Implementar CRUD completo para `Member`
 - [ ] Implementar autenticação para membros
 - [ ] Implementar verificação de email para membros
-- [ ] Criar DTOs e validações específicas
-- [ ] Implementar testes para nova estrutura
+- [X] Criar DTOs e validações específicas
+- [X] Implementar testes para nova estrutura
 
 **Duração estimada:** 3-5 dias
+**Status:** ⚠️ **PARCIAL (70%)**
 
 ### **Fase 3: Migração Gradual de Funcionalidades**
-- [ ] Migrar `member-products/` para usar `Member`
-- [ ] Migrar `member-services/` para usar `Member`
+- [X] Migrar `member-products/` para usar `Member`
+- [X] Migrar `member-services/` para usar `Member`
 - [ ] Migrar agendamentos para usar `Member`
 - [ ] Migrar transações para usar `Member`
 
 **Duração estimada:** 2-3 dias
+**Status:** ⚠️ **PARCIAL (50%)**
 
 ### **Fase 4: Transição e Limpeza**
 - [ ] Migrar dados existentes
@@ -199,6 +202,7 @@ src/modules/
 - [ ] Limpar código não utilizado
 
 **Duração estimada:** 1-2 dias
+**Status:** ❌ **NÃO INICIADA (0%)**
 
 ## 🎯 Vantagens desta Estratégia
 
@@ -290,20 +294,20 @@ phone: string;
 
 ## 📊 Cronograma Detalhado
 
-| Fase | Duração | Objetivo | Entregáveis |
-|------|---------|----------|-------------|
-| **Fase 1** | 1-2 dias | Infraestrutura paralela | Schema, migrations, módulos base |
-| **Fase 2** | 3-5 dias | Desenvolvimento completo | CRUD, auth, validações, testes |
-| **Fase 3** | 2-3 dias | Migração gradual | Módulos dependentes migrados |
-| **Fase 4** | 1-2 dias | Limpeza e finalização | Sistema unificado, código limpo |
+| Fase | Duração | Objetivo | Entregáveis | Status |
+|------|---------|----------|-------------|--------|
+| **Fase 1** | 1-2 dias | Infraestrutura paralela | Schema, migrations, módulos base | ✅ **CONCLUÍDA** |
+| **Fase 2** | 3-5 dias | Desenvolvimento completo | CRUD, auth, validações, testes | ⚠️ **PARCIAL** |
+| **Fase 3** | 2-3 dias | Migração gradual | Módulos dependentes migrados | ⚠️ **PARCIAL** |
+| **Fase 4** | 1-2 dias | Limpeza e finalização | Sistema unificado, código limpo | ❌ **NÃO INICIADA** |
 
 ## 🎯 Próximos Passos
 
-1. **Criar o novo schema** com modelo `Member`
-2. **Implementar módulo `members/`** completo
-3. **Implementar autenticação para membros**
-4. **Testar funcionalidades em paralelo**
-5. **Migrar gradualmente as dependências**
+1. **Criar o novo schema** com modelo `Member` ✅ **CONCLUÍDO**
+2. **Implementar módulo `members/`** completo ✅ **CONCLUÍDO**
+3. **Implementar autenticação para membros** ❌ **PENDENTE**
+4. **Testar funcionalidades em paralelo** ⚠️ **PARCIAL**
+5. **Migrar gradualmente as dependências** ⚠️ **PARCIAL**
 
 ## 📝 Notas de Implementação
 
@@ -327,5 +331,6 @@ phone: string;
 ---
 
 **Documento criado em:** $(date)
-**Versão:** 1.0
+**Versão:** 1.1
 **Status:** Em desenvolvimento 
+**Última atualização:** $(date) 
