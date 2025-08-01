@@ -16,12 +16,14 @@ import { EstablishmentProductsModule } from './modules/establishment-products/es
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
 import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { MemberServicesModule } from './modules/member-services/member-services.module';
+import { MembersModule } from './modules/members/members.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UserModule } from './modules/user/user.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EstablishmentAccessModule } from './shared/establishment-access/establishment-access.module';
+import { EstablishmentOwnerAccessModule } from './shared/establishment-owner-access/establishment-owner-access.module';
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { EstablishmentAccessModule } from './shared/establishment-access/establi
     EmailModule,
     AuthModule,
     EstablishmentAccessModule,
+    EstablishmentOwnerAccessModule,
     EstablishmentModule,
     EstablishmentServicesModule,
     EstablishmentMembersModule,
@@ -40,6 +43,7 @@ import { EstablishmentAccessModule } from './shared/establishment-access/establi
     EstablishmentCustomerModule,
     MemberProductsModule,
     MemberServicesModule,
+    MembersModule,
     WebhookModule,
     AIModule,
     PlansModule,

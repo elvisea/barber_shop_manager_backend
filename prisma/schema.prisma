@@ -152,6 +152,7 @@ model User {
   password             String                @map("password")
   emailVerified        Boolean               @default(false) @map("email_verified")
   memberships          EstablishmentMember[]
+  ownedEstablishments  Establishment[] // Estabelecimentos que o usuário é dono
   emailVerification    EmailVerification?
   refreshTokens        RefreshToken[]
   createdPaymentOrders PaymentOrder[]
@@ -166,6 +167,8 @@ model Establishment {
   name           String                  @map("name")
   address        String                  @map("address")
   phone          String                  @map("phone")
+  ownerId        String                  @map("owner_id")
+  owner          User                    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt      DateTime                @default(now()) @map("created_at")
   updatedAt      DateTime                @updatedAt @map("updated_at")
   members        EstablishmentMember[]
@@ -178,6 +181,7 @@ model Establishment {
   appointments   Appointment[]
   subscriptions  Subscription[]
 
+  @@unique([ownerId, phone])
   @@map("establishments")
 }
 
@@ -268,8 +272,8 @@ model MemberProduct {
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member               @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String               @map("new_member_id")
+  newMember       Member?              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
+  newMemberId     String?              @map("new_member_id")
   product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId, productId])
@@ -287,8 +291,8 @@ model MemberService {
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member               @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String               @map("new_member_id")
+  newMember       Member?              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
+  newMemberId     String?              @map("new_member_id")
   service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, establishmentId, serviceId])

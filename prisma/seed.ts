@@ -55,6 +55,9 @@ async function main() {
       name: 'Barbearia Clássica',
       address: 'Rua das Tesouras, 123, São Paulo, SP',
       phone: '(11) 5555-1234',
+      owner: {
+        connect: { id: adminUser.id },
+      },
     },
   });
   console.log('✅ Estabelecimento criado:', establishment);

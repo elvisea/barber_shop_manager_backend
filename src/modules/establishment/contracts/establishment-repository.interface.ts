@@ -8,6 +8,8 @@ export interface IEstablishmentRepository {
     userId: string,
   ): Promise<Establishment>;
 
+  findById(establishmentId: string): Promise<Establishment | null>;
+
   findByPhoneAndUser(
     phone: string,
     userId: string,

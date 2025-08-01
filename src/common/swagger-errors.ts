@@ -276,4 +276,66 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.PLAN_NOT_FOUND,
     },
   },
+
+  // Novos códigos para Members
+  [ErrorCode.MEMBER_EMAIL_ALREADY_EXISTS]: {
+    description: 'Member email already exists in establishment',
+    example: {
+      statusCode: 409,
+      message:
+        'A member with email [EMAIL] already exists in establishment [ESTABLISHMENT_ID].',
+      error: 'Conflict',
+      errorCode: ErrorCode.MEMBER_EMAIL_ALREADY_EXISTS,
+    },
+  },
+  [ErrorCode.MEMBER_PHONE_ALREADY_EXISTS]: {
+    description: 'Member phone already exists in establishment',
+    example: {
+      statusCode: 409,
+      message:
+        'A member with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].',
+      error: 'Conflict',
+      errorCode: ErrorCode.MEMBER_PHONE_ALREADY_EXISTS,
+    },
+  },
+  [ErrorCode.MEMBER_NOT_FOUND]: {
+    description: 'Member not found',
+    example: {
+      statusCode: 404,
+      message:
+        'Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].',
+      error: 'Not Found',
+      errorCode: ErrorCode.MEMBER_NOT_FOUND,
+    },
+  },
+  [ErrorCode.MEMBER_CREATION_FAILED]: {
+    description: 'Member creation failed',
+    example: {
+      statusCode: 400,
+      message:
+        'Failed to create member with email [EMAIL] in establishment [ESTABLISHMENT_ID].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.MEMBER_CREATION_FAILED,
+    },
+  },
+  [ErrorCode.MEMBER_UPDATE_FAILED]: {
+    description: 'Member update failed',
+    example: {
+      statusCode: 400,
+      message:
+        'Failed to update member with ID [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.MEMBER_UPDATE_FAILED,
+    },
+  },
+  [ErrorCode.MEMBER_DELETE_FAILED]: {
+    description: 'Member delete failed',
+    example: {
+      statusCode: 400,
+      message:
+        'Failed to delete member with ID [MEMBER_ID] from establishment [ESTABLISHMENT_ID].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.MEMBER_DELETE_FAILED,
+    },
+  },
 };

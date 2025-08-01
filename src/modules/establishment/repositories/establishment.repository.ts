@@ -10,6 +10,12 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class EstablishmentRepository implements IEstablishmentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findById(establishmentId: string): Promise<Establishment | null> {
+    return this.prisma.establishment.findUnique({
+      where: { id: establishmentId },
+    });
+  }
+
   async create(
     data: EstablishmentCreateRequestDTO,
     userId: string,
@@ -20,6 +26,9 @@ export class EstablishmentRepository implements IEstablishmentRepository {
         name: data.name,
         address: data.address,
         phone: data.phone,
+        owner: {
+          connect: { id: userId },
+        },
         members: {
           create: [
             {

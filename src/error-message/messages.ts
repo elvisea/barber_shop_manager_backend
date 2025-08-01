@@ -104,4 +104,30 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.PLAN_NOT_FOUND]: {
     message: 'Plan with ID [PLAN_ID] not found.',
   },
+
+  // Novos códigos para Members
+  [ErrorCode.MEMBER_EMAIL_ALREADY_EXISTS]: {
+    message:
+      'A member with email [EMAIL] already exists in establishment [ESTABLISHMENT_ID].',
+  },
+  [ErrorCode.MEMBER_PHONE_ALREADY_EXISTS]: {
+    message:
+      'A member with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].',
+  },
+  [ErrorCode.MEMBER_NOT_FOUND]: {
+    message:
+      'Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].',
+  },
+  [ErrorCode.MEMBER_CREATION_FAILED]: {
+    message:
+      'Failed to create member with email [EMAIL] in establishment [ESTABLISHMENT_ID].',
+  },
+  [ErrorCode.MEMBER_UPDATE_FAILED]: {
+    message:
+      'Failed to update member with ID [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+  },
+  [ErrorCode.MEMBER_DELETE_FAILED]: {
+    message:
+      'Failed to delete member with ID [MEMBER_ID] from establishment [ESTABLISHMENT_ID].',
+  },
 } as const;
