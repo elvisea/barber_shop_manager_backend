@@ -136,7 +136,6 @@ model Subscription {
   establishmentMemberUserId          String?              @map("establishment_member_user_id")
   establishmentMemberEstablishmentId String?              @map("establishment_member_establishment_id")
 
-
   @@index([establishmentId])
   @@index([planId])
   @@index([createdById])
@@ -486,8 +485,8 @@ model PaymentOrder {
   memberId        String              @map("member_id")
   establishmentId String              @map("establishment_id")
   member          EstablishmentMember @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember       Member               @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId     String               @map("new_member_id")
+  newMember       Member              @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
+  newMemberId     String              @map("new_member_id")
   createdById     String              @map("created_by_id")
   createdBy       User                @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
@@ -533,7 +532,6 @@ model Member {
   appointments   Appointment[] // Agendamentos
   transactions   Transaction[] // Transações realizadas
   paymentOrders  PaymentOrder[] // Ordens de pagamento
-
 
   /// Relacionamentos específicos do Member
   refreshTokens MemberRefreshToken[] // Refresh tokens para autenticação
