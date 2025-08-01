@@ -15,10 +15,10 @@ import { MemberServiceCreateRequestDTO } from '../dtos/member-service-create-req
 import { MemberServiceCreateResponseDTO } from '../dtos/member-service-create-response.dto';
 import { MemberServiceCreateService } from '../services/member-service-create.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Member Services')
 @ApiBearerAuth()

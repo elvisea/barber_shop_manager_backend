@@ -18,7 +18,7 @@ import { SwaggerErrors } from '../../../common/swagger-errors';
 import { ErrorCode } from '../../../enums/error-code';
 import { PlanDeleteService } from '../services/plan-delete.service';
 
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Plans')
 @ApiBearerAuth()

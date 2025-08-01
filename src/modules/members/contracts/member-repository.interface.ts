@@ -12,9 +12,16 @@ export interface IMemberRepository {
 
   findById(id: string): Promise<Member | null>;
 
+  findByEmail(email: string): Promise<Member | null>;
+
   findByEstablishmentAndId(
     establishmentId: string,
     memberId: string,
+  ): Promise<Member | null>;
+
+  findByEmailAndEstablishment(
+    email: string,
+    establishmentId: string,
   ): Promise<Member | null>;
 
   findAllByEstablishmentPaginated({
@@ -43,6 +50,15 @@ export interface IMemberRepository {
 
   deleteMember(id: string): Promise<void>;
 
+  existsByEmail(email: string): Promise<boolean>;
+
+  existsByPhone(phone: string): Promise<boolean>;
+
+  existsByEmailExcludingId(email: string, excludeId: string): Promise<boolean>;
+
+  existsByPhoneExcludingId(phone: string, excludeId: string): Promise<boolean>;
+
+  // Métodos legados mantidos para compatibilidade
   existsByEmailAndEstablishment(
     email: string,
     establishmentId: string,

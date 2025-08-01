@@ -9,20 +9,20 @@ import {
 } from '@nestjs/swagger';
 
 import { BaseEstablishmentParamDTO } from '../../../common/dtos/base-establishment-param';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { MemberFindAllQueryDTO, MemberPaginatedResponseDTO } from '../dtos';
 import { MemberFindAllService } from '../services/member-find-all.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 
 @ApiTags('Partners')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/partners')
 @UseGuards(JwtAuthGuard)
 export class MemberFindAllController {
-  constructor(private readonly memberFindAllService: MemberFindAllService) {}
+  constructor(private readonly memberFindAllService: MemberFindAllService) { }
 
   @Get()
   @ApiOperation({ summary: 'Find all partners with pagination' })

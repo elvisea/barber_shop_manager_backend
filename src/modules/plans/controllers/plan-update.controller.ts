@@ -19,9 +19,9 @@ import { PlanCreateResponseDTO } from '../dtos/plan-create-response.dto';
 import { PlanUpdateRequestDTO } from '../dtos/plan-update-request.dto';
 import { PlanUpdateService } from '../services/plan-update.service';
 
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Plans')
 @ApiBearerAuth()

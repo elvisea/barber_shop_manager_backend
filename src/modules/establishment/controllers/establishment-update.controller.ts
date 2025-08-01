@@ -8,15 +8,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { GetRequestId } from '../../auth/decorators/get-request-id.decorator';
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentParamDTO } from '../dtos/establishment-param.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentUpdateService } from '../services/establishment-update.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()

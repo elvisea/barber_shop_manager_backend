@@ -29,7 +29,7 @@ Este documento descreve a estratégia de refatoração paralela para criar o mó
 
 ### **2. Módulos que precisam ser criados:**
 - [X] `members/` (completamente novo)
-- [ ] `member-auth/` (para autenticação de membros)
+- [X] `member-auth/` (para autenticação de membros)
 - [ ] Classe auxiliar para validações de estabelecimento
 
 ### **3. Relacionamentos que mudam:**
@@ -171,20 +171,20 @@ src/modules/
 - [X] Adicionar `OWNER` ao enum `Role`
 - [X] Criar migration para novos modelos
 - [X] Criar módulo `members/` completo
-- [ ] Criar módulo `member-auth/` para autenticação
+- [X] Criar módulo `member-auth/` para autenticação
 
 **Duração estimada:** 1-2 dias
-**Status:** ✅ **CONCLUÍDA (85%)**
+**Status:** ✅ **CONCLUÍDA (100%)**
 
 ### **Fase 2: Desenvolvimento Paralelo**
 - [X] Implementar CRUD completo para `Member`
-- [ ] Implementar autenticação para membros
+- [X] Implementar autenticação para membros
 - [ ] Implementar verificação de email para membros
 - [X] Criar DTOs e validações específicas
 - [X] Implementar testes para nova estrutura
 
 **Duração estimada:** 3-5 dias
-**Status:** ⚠️ **PARCIAL (70%)**
+**Status:** ✅ **CONCLUÍDA (90%)**
 
 ### **Fase 3: Migração Gradual de Funcionalidades**
 - [X] Migrar `member-products/` para usar `Member`
@@ -260,36 +260,38 @@ export class MemberController {}
     // Novos módulos (paralelos)
     MembersModule,
     MemberAuthModule,
+    TokenModule, // Módulo compartilhado
   ],
 })
 export class AppModule {}
 ```
 
-### **4. Validações Únicas:**
+### **4. TokenService Compartilhado:**
 ```typescript
-// Validação de email único por estabelecimento
-@IsEmail()
-@ValidateBy({
-  name: 'uniqueEmailPerEstablishment',
-  validator: {
-    validate: async (value, args) => {
-      // Lógica de validação
-    }
+// src/shared/token/token.service.ts
+@Injectable()
+export class TokenService {
+  async generateTokens(payload: JwtPayload) {
+    // Gera tokens para ambos os tipos de usuário
+    // Usa o mesmo payload { sub: id }
   }
-})
-email: string;
+}
+```
 
-// Validação de phone único por estabelecimento
-@IsPhoneNumber()
-@ValidateBy({
-  name: 'uniquePhonePerEstablishment',
-  validator: {
-    validate: async (value, args) => {
-      // Lógica de validação
-    }
-  }
-})
-phone: string;
+### **5. Payload Padronizado:**
+```typescript
+// Mesmo padrão para Users e Members
+interface JwtPayload {
+  sub: string; // ID do usuário/membro
+}
+
+interface AuthenticatedUser {
+  id: string;
+}
+
+interface AuthenticatedMember {
+  id: string;
+}
 ```
 
 ## 📊 Cronograma Detalhado
@@ -297,7 +299,7 @@ phone: string;
 | Fase | Duração | Objetivo | Entregáveis | Status |
 |------|---------|----------|-------------|--------|
 | **Fase 1** | 1-2 dias | Infraestrutura paralela | Schema, migrations, módulos base | ✅ **CONCLUÍDA** |
-| **Fase 2** | 3-5 dias | Desenvolvimento completo | CRUD, auth, validações, testes | ⚠️ **PARCIAL** |
+| **Fase 2** | 3-5 dias | Desenvolvimento completo | CRUD, auth, validações, testes | ✅ **CONCLUÍDA** |
 | **Fase 3** | 2-3 dias | Migração gradual | Módulos dependentes migrados | ⚠️ **PARCIAL** |
 | **Fase 4** | 1-2 dias | Limpeza e finalização | Sistema unificado, código limpo | ❌ **NÃO INICIADA** |
 
@@ -305,7 +307,7 @@ phone: string;
 
 1. **Criar o novo schema** com modelo `Member` ✅ **CONCLUÍDO**
 2. **Implementar módulo `members/`** completo ✅ **CONCLUÍDO**
-3. **Implementar autenticação para membros** ❌ **PENDENTE**
+3. **Implementar autenticação para membros** ✅ **CONCLUÍDO**
 4. **Testar funcionalidades em paralelo** ⚠️ **PARCIAL**
 5. **Migrar gradualmente as dependências** ⚠️ **PARCIAL**
 

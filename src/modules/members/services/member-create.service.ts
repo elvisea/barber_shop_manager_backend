@@ -36,17 +36,13 @@ export class MemberCreateService {
       requesterId,
     );
 
-    // 2. Verifica se já existe membro com este email no estabelecimento
-    const emailExists =
-      await this.memberRepository.existsByEmailAndEstablishment(
-        dto.email,
-        establishmentId,
-      );
+    // 2. Verifica se já existe membro com este email globalmente
+    const emailExists = await this.memberRepository.existsByEmail(dto.email);
 
     if (emailExists) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_EMAIL_ALREADY_EXISTS,
-        { EMAIL: dto.email, ESTABLISHMENT_ID: establishmentId },
+        { EMAIL: dto.email },
       );
 
       this.logger.warn(message);
@@ -58,17 +54,13 @@ export class MemberCreateService {
       );
     }
 
-    // 3. Verifica se já existe membro com este telefone no estabelecimento
-    const phoneExists =
-      await this.memberRepository.existsByPhoneAndEstablishment(
-        dto.phone,
-        establishmentId,
-      );
+    // 3. Verifica se já existe membro com este telefone globalmente
+    const phoneExists = await this.memberRepository.existsByPhone(dto.phone);
 
     if (phoneExists) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_PHONE_ALREADY_EXISTS,
-        { PHONE: dto.phone, ESTABLISHMENT_ID: establishmentId },
+        { PHONE: dto.phone },
       );
 
       this.logger.warn(message);

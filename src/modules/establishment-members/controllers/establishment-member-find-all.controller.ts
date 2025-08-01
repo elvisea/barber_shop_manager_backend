@@ -13,10 +13,10 @@ import { EstablishmentMemberFindAllQueryDTO } from '../dtos/establishment-member
 import { EstablishmentMemberFindAllResponseDTO } from '../dtos/establishment-member-find-all-response.dto';
 import { EstablishmentMemberFindAllService } from '../services/establishment-member-find-all.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()

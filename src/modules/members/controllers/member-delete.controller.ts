@@ -15,13 +15,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { MemberParamDTO } from '../dtos';
 import { MemberDeleteService } from '../services/member-delete.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 
 @ApiTags('Partners')
 @ApiBearerAuth()

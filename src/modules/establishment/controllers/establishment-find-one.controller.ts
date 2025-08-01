@@ -12,10 +12,10 @@ import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-
 import { EstablishmentParamDTO } from '../dtos/establishment-param.dto';
 import { EstablishmentFindOneService } from '../services/establishment-find-one.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()

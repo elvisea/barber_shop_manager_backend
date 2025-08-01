@@ -10,8 +10,8 @@ import { EstablishmentEvolutionApiCreateInstanceResponseDTO } from '../dtos/esta
 import { EstablishmentParamDTO } from '../dtos/establishment-param.dto';
 import { EstablishmentEvolutionApiCreateInstanceService } from '../services/establishment-evolution-api-create-instance.service';
 
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()

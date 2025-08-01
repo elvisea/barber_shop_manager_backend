@@ -16,7 +16,7 @@ import { EstablishmentUpdateService } from './services/establishment-update.serv
 import { EvolutionApiInstanceService } from './services/evolution-api-instance.service';
 import { EvolutionApiWebhookService } from './services/evolution-api-webhook.service';
 
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
 
 @Module({

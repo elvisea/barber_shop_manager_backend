@@ -9,7 +9,7 @@ import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Authentication')
-@Controller('auth')
+@Controller('user-auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

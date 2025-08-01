@@ -56,19 +56,17 @@ export class MemberUpdateService {
       );
     }
 
-    // 3. Verifica se o novo email já existe (se fornecido)
+    // 3. Verifica se o novo email já existe globalmente (se fornecido)
     if (dto.email && dto.email !== existingMember.email) {
-      const emailExists =
-        await this.memberRepository.existsByEmailAndEstablishmentExcludingId(
-          dto.email,
-          establishmentId,
-          memberId,
-        );
+      const emailExists = await this.memberRepository.existsByEmailExcludingId(
+        dto.email,
+        memberId,
+      );
 
       if (emailExists) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.MEMBER_EMAIL_ALREADY_EXISTS,
-          { EMAIL: dto.email, ESTABLISHMENT_ID: establishmentId },
+          { EMAIL: dto.email },
         );
 
         this.logger.warn(message);
@@ -81,19 +79,17 @@ export class MemberUpdateService {
       }
     }
 
-    // 4. Verifica se o novo telefone já existe (se fornecido)
+    // 4. Verifica se o novo telefone já existe globalmente (se fornecido)
     if (dto.phone && dto.phone !== existingMember.phone) {
-      const phoneExists =
-        await this.memberRepository.existsByPhoneAndEstablishmentExcludingId(
-          dto.phone,
-          establishmentId,
-          memberId,
-        );
+      const phoneExists = await this.memberRepository.existsByPhoneExcludingId(
+        dto.phone,
+        memberId,
+      );
 
       if (phoneExists) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.MEMBER_PHONE_ALREADY_EXISTS,
-          { PHONE: dto.phone, ESTABLISHMENT_ID: establishmentId },
+          { PHONE: dto.phone },
         );
 
         this.logger.warn(message);

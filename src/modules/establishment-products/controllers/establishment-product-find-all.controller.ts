@@ -13,10 +13,10 @@ import { EstablishmentProductFindAllQueryDTO } from '../dtos/establishment-produ
 import { EstablishmentProductFindAllResponseDTO } from '../dtos/establishment-product-find-all-response.dto';
 import { EstablishmentProductFindAllService } from '../services/establishment-product-find-all.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Products')
 @ApiBearerAuth()

@@ -14,7 +14,7 @@ import { EstablishmentServiceFindAllService } from './services/establishment-ser
 import { EstablishmentServiceFindByIdService } from './services/establishment-service-find-by-id.service';
 import { EstablishmentServiceUpdateService } from './services/establishment-service-update.service';
 
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @Module({
   imports: [EstablishmentModule],

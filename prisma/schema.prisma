@@ -546,8 +546,8 @@ model Member {
   /// Data da última atualização do membro.
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([establishmentId, email])
-  @@unique([establishmentId, phone])
+  @@unique([email])
+  @@unique([phone])
   @@map("members")
 }
 

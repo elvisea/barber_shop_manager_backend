@@ -19,8 +19,8 @@ import { SubscriptionCreateRequestDTO } from '../dtos/subscription-create-reques
 import { SubscriptionCreateResponseDTO } from '../dtos/subscription-create-response.dto';
 import { SubscriptionCreateService } from '../services/subscription-create.service';
 
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Subscriptions')
 @ApiBearerAuth()

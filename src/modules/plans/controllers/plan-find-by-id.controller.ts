@@ -12,7 +12,7 @@ import { ErrorCode } from '../../../enums/error-code';
 import { PlanCreateResponseDTO } from '../dtos/plan-create-response.dto';
 import { PlanFindByIdService } from '../services/plan-find-by-id.service';
 
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Plans')
 @ApiBearerAuth()

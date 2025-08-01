@@ -9,7 +9,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import {
   MemberParamDTO,
   MemberResponseDTO,
@@ -17,16 +16,17 @@ import {
 } from '../dtos';
 import { MemberUpdateService } from '../services/member-update.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 
 @ApiTags('Partners')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/partners/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberUpdateController {
-  constructor(private readonly memberUpdateService: MemberUpdateService) {}
+  constructor(private readonly memberUpdateService: MemberUpdateService) { }
 
   @Patch()
   @ApiOperation({ summary: 'Update partner' })

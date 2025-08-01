@@ -14,12 +14,12 @@ import { MemberServiceFindAllParamDTO } from '../dtos/member-service-find-all-pa
 import { MemberServiceFindAllResponseDTO } from '../dtos/member-service-find-all-response.dto';
 import { MemberServiceFindAllService } from '../services/member-service-find-all.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { BasePaginatedResponseDTO } from '@/common/dtos/base-paginated-response.dto';
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Member Services')
 @ApiBearerAuth()

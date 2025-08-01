@@ -14,10 +14,10 @@ import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-se
 import { EstablishmentServiceParamDTO } from '../dtos/establishment-service-param.dto';
 import { EstablishmentServiceFindAllService } from '../services/establishment-service-find-all.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Services')
 @ApiBearerAuth()

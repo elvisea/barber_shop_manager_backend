@@ -11,10 +11,10 @@ import { EstablishmentFindAllQueryDTO } from '../dtos/establishment-find-all-que
 import { EstablishmentFindAllResponseDTO } from '../dtos/establishment-find-all-response.dto';
 import { EstablishmentFindAllService } from '../services/establishment-find-all.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()

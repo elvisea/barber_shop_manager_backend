@@ -35,6 +35,12 @@ export class MemberRepository implements IMemberRepository {
     });
   }
 
+  async findByEmail(email: string): Promise<Member | null> {
+    return this.prisma.member.findUnique({
+      where: { email },
+    });
+  }
+
   async findByEstablishmentAndId(
     establishmentId: string,
     memberId: string,
@@ -42,6 +48,18 @@ export class MemberRepository implements IMemberRepository {
     return this.prisma.member.findFirst({
       where: {
         id: memberId,
+        establishmentId,
+      },
+    });
+  }
+
+  async findByEmailAndEstablishment(
+    email: string,
+    establishmentId: string,
+  ): Promise<Member | null> {
+    return this.prisma.member.findFirst({
+      where: {
+        email,
         establishmentId,
       },
     });
@@ -93,6 +111,47 @@ export class MemberRepository implements IMemberRepository {
     });
   }
 
+  async existsByEmail(email: string): Promise<boolean> {
+    const count = await this.prisma.member.count({
+      where: { email },
+    });
+    return count > 0;
+  }
+
+  async existsByPhone(phone: string): Promise<boolean> {
+    const count = await this.prisma.member.count({
+      where: { phone },
+    });
+    return count > 0;
+  }
+
+  async existsByEmailExcludingId(
+    email: string,
+    excludeId: string,
+  ): Promise<boolean> {
+    const count = await this.prisma.member.count({
+      where: {
+        email,
+        id: { not: excludeId },
+      },
+    });
+    return count > 0;
+  }
+
+  async existsByPhoneExcludingId(
+    phone: string,
+    excludeId: string,
+  ): Promise<boolean> {
+    const count = await this.prisma.member.count({
+      where: {
+        phone,
+        id: { not: excludeId },
+      },
+    });
+    return count > 0;
+  }
+
+  // Métodos legados mantidos para compatibilidade
   async existsByEmailAndEstablishment(
     email: string,
     establishmentId: string,

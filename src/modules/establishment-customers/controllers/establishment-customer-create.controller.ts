@@ -14,10 +14,10 @@ import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-cu
 import { EstablishmentCustomerParamDTO } from '../dtos/establishment-customer-param.dto';
 import { EstablishmentCustomerCreateService } from '../services/establishment-customer-create.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
-import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()

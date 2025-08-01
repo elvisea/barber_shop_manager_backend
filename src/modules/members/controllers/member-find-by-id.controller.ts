@@ -8,14 +8,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { MemberResponseDTO } from '../dtos';
 import { MemberParamDTO } from '../dtos/member-param.dto';
 import { MemberFindByIdService } from '../services/member-find-by-id.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 
 @ApiTags('Partners')
 @ApiBearerAuth()

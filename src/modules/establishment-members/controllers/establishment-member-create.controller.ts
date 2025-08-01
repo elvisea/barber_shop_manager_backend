@@ -17,15 +17,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { EstablishmentMemberCreateRequestDTO } from '../dtos/establishment-member-create-request.dto';
 import { EstablishmentMemberCreateResponseDTO } from '../dtos/establishment-member-create-response.dto';
 import { EstablishmentMemberParamDTO } from '../dtos/establishment-member-param.dto';
 import { EstablishmentMemberCreateService } from '../services/establishment-member-create.service';
 
+import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
-import { GetRequestId } from '@/modules/auth/decorators/get-request-id.decorator';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()

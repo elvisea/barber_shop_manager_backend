@@ -4,13 +4,12 @@ import { compare } from 'bcryptjs';
 import { CreateAuthRequestDTO } from '../dtos/create-auth-request.dto';
 import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
 
-import { TokenService } from './token.service';
-
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { RefreshTokenRepository } from '@/modules/refresh-token/repositories/refresh-token.repository';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
+import { TokenService } from '@/shared/token/token.service';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +20,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokenService: TokenService,
     private readonly errorMessageService: ErrorMessageService,
-  ) {}
+  ) { }
 
   async execute(
     authRequest: CreateAuthRequestDTO,
