@@ -5,7 +5,7 @@ import { EstablishmentEvolutionApiCreateInstanceResponseDTO } from '../dtos/esta
 import { EvolutionApiInstanceService } from './evolution-api-instance.service';
 import { EvolutionApiWebhookService } from './evolution-api-webhook.service';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentEvolutionApiCreateInstanceService {
@@ -14,7 +14,7 @@ export class EstablishmentEvolutionApiCreateInstanceService {
   );
 
   constructor(
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly evolutionApiInstanceService: EvolutionApiInstanceService,
     private readonly evolutionApiWebhookService: EvolutionApiWebhookService,
   ) {}
@@ -27,12 +27,11 @@ export class EstablishmentEvolutionApiCreateInstanceService {
       `🔧 [ESTABLISHMENT-EVOLUTION-API] Iniciando criação de instância para estabelecimento: ${establishmentId}`,
     );
 
-    // ETAPA 1: Validar acesso usando EstablishmentAccessService (requer ADMIN)
+    // ETAPA 1: Validar acesso usando EstablishmentOwnerAccessService
     const establishment =
-      await this.establishmentAccessService.assertUserHasAccess(
+      await this.establishmentOwnerAccessService.assertOwnerHasAccess(
         establishmentId,
         ownerId,
-        true, // requireAdmin = true
       );
 
     this.logger.log(

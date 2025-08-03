@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { EstablishmentModule } from '../establishment/establishment.module';
-
 import { EstablishmentServiceCreateController } from './controllers/establishment-service-create.controller';
 import { EstablishmentServiceDeleteController } from './controllers/establishment-service-delete.controller';
 import { EstablishmentServiceFindAllController } from './controllers/establishment-service-find-all.controller';
@@ -15,6 +13,7 @@ import { EstablishmentServiceFindByIdService } from './services/establishment-se
 import { EstablishmentServiceUpdateService } from './services/establishment-service-update.service';
 
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 
 @Module({
   imports: [EstablishmentModule],

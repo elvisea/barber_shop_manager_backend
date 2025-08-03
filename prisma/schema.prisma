@@ -131,10 +131,7 @@ model Subscription {
   createdAt DateTime @default(now()) @map("created_at")
 
   /// Data da última atualização da assinatura.
-  updatedAt                          DateTime             @updatedAt @map("updated_at")
-  EstablishmentMember                EstablishmentMember? @relation(fields: [establishmentMemberUserId, establishmentMemberEstablishmentId], references: [userId, establishmentId])
-  establishmentMemberUserId          String?              @map("establishment_member_user_id")
-  establishmentMemberEstablishmentId String?              @map("establishment_member_establishment_id")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([establishmentId])
   @@index([planId])
@@ -143,15 +140,15 @@ model Subscription {
 }
 
 model User {
-  id                   String                @id @default(uuid()) @map("id")
-  createdAt            DateTime              @default(now()) @map("created_at")
-  updatedAt            DateTime              @updatedAt @map("updated_at")
-  email                String                @unique @map("email")
-  name                 String                @map("name")
-  phone                String                @map("phone")
-  password             String                @map("password")
-  emailVerified        Boolean               @default(false) @map("email_verified")
-  memberships          EstablishmentMember[]
+  id            String   @id @default(uuid()) @map("id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  email         String   @unique @map("email")
+  name          String   @map("name")
+  phone         String   @map("phone")
+  password      String   @map("password")
+  emailVerified Boolean  @default(false) @map("email_verified")
+
   ownedEstablishments  Establishment[] // Estabelecimentos que o usuário é dono
   emailVerification    EmailVerification?
   refreshTokens        RefreshToken[]
@@ -163,16 +160,16 @@ model User {
 }
 
 model Establishment {
-  id             String                  @id @default(uuid()) @map("id")
-  name           String                  @map("name")
-  address        String                  @map("address")
-  phone          String                  @map("phone")
-  ownerId        String                  @map("owner_id")
-  owner          User                    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt      DateTime                @default(now()) @map("created_at")
-  updatedAt      DateTime                @updatedAt @map("updated_at")
-  members        EstablishmentMember[]
-  newMembers     Member[] // Novos membros (paralelo)
+  id        String   @id @default(uuid()) @map("id")
+  name      String   @map("name")
+  address   String   @map("address")
+  phone     String   @map("phone")
+  ownerId   String   @map("owner_id")
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members        Member[] // Membros do estabelecimento
   products       EstablishmentProduct[]
   services       EstablishmentService[]
   customers      EstablishmentCustomer[]
@@ -200,27 +197,6 @@ model EstablishmentCustomer {
   @@unique([establishmentId, email])
   @@unique([establishmentId, phone])
   @@map("establishment_customers")
-}
-
-// Tabela Pivô: A "cola" entre User e Establishment
-model EstablishmentMember {
-  userId          String                @map("user_id")
-  establishmentId String                @map("establishment_id")
-  role            Role
-  isActive        Boolean               @default(true) @map("is_active")
-  updatedAt       DateTime              @updatedAt @map("updated_at")
-  createdAt       DateTime              @default(now()) @map("created_at")
-  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  workingHours    MemberWorkingHours[]
-  absencePeriods  MemberAbsencePeriod[]
-  appointments    Appointment[]
-  transactions    Transaction[]
-  paymentOrders   PaymentOrder[]
-  subscriptions   Subscription[]
-
-  @@id([userId, establishmentId])
-  @@map("establishment_members")
 }
 
 model EstablishmentProduct {
@@ -327,34 +303,28 @@ model ClosurePeriod {
 }
 
 model MemberWorkingHours {
-  id              String              @id @default(uuid()) @map("id")
-  dayOfWeek       Int                 @map("day_of_week")
-  startTime       String              @map("start_time")
-  endTime         String              @map("end_time")
-  userId          String              @map("user_id")
-  establishmentId String              @map("establishment_id")
-  member          EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String              @map("new_member_id")
-  createdAt       DateTime            @default(now()) @map("created_at")
-  updatedAt       DateTime            @updatedAt @map("updated_at")
+  id        String   @id @default(uuid()) @map("id")
+  dayOfWeek Int      @map("day_of_week")
+  startTime String   @map("start_time")
+  endTime   String   @map("end_time")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  String   @map("member_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([userId, establishmentId, dayOfWeek])
+  @@unique([memberId, dayOfWeek])
   @@map("member_working_hours")
 }
 
 model MemberAbsencePeriod {
-  id              String              @id @default(uuid()) @map("id")
-  reason          String?             @map("reason")
-  startDate       DateTime            @map("start_date")
-  endDate         DateTime            @map("end_date")
-  userId          String              @map("user_id")
-  establishmentId String              @map("establishment_id")
-  member          EstablishmentMember @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String              @map("new_member_id")
-  createdAt       DateTime            @default(now()) @map("created_at")
-  updatedAt       DateTime            @updatedAt @map("updated_at")
+  id        String   @id @default(uuid()) @map("id")
+  reason    String?  @map("reason")
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  String   @map("member_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("member_absence_periods")
 }
@@ -400,9 +370,7 @@ model Appointment {
   customer        EstablishmentCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
   memberId        String                @map("member_id")
   establishmentId String                @map("establishment_id")
-  member          EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember       Member                @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId     String                @map("new_member_id")
+  member          Member                @relation(fields: [memberId], references: [id], onDelete: Restrict)
   establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   services        AppointmentService[]
   transaction     Transaction?
@@ -442,9 +410,7 @@ model Transaction {
   customer         EstablishmentCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
   memberId         String                @map("member_id")
   establishmentId  String                @map("establishment_id")
-  member           EstablishmentMember   @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember        Member                @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId      String                @map("new_member_id")
+  member           Member                @relation(fields: [memberId], references: [id], onDelete: Restrict)
   items            TransactionItem[]
 
   @@map("transactions")
@@ -470,29 +436,27 @@ model TransactionItem {
 }
 
 model PaymentOrder {
-  id              String              @id @default(uuid()) @map("id")
-  totalAmount     Int                 @map("total_amount")
-  status          PaymentStatus       @map("status")
-  paymentMethod   PaymentMethod       @map("payment_method")
-  paymentDate     DateTime?           @map("payment_date")
-  periodStart     DateTime            @map("period_start")
-  periodEnd       DateTime            @map("period_end")
-  notes           String?             @map("notes")
-  createdAt       DateTime            @default(now()) @map("created_at")
-  updatedAt       DateTime            @updatedAt @map("updated_at")
-  memberId        String              @map("member_id")
-  establishmentId String              @map("establishment_id")
-  member          EstablishmentMember @relation(fields: [memberId, establishmentId], references: [userId, establishmentId], onDelete: Restrict)
-  newMember       Member              @relation(fields: [newMemberId], references: [id], onDelete: Restrict)
-  newMemberId     String              @map("new_member_id")
-  createdById     String              @map("created_by_id")
-  createdBy       User                @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  id              String        @id @default(uuid()) @map("id")
+  totalAmount     Int           @map("total_amount")
+  status          PaymentStatus @map("status")
+  paymentMethod   PaymentMethod @map("payment_method")
+  paymentDate     DateTime?     @map("payment_date")
+  periodStart     DateTime      @map("period_start")
+  periodEnd       DateTime      @map("period_end")
+  notes           String?       @map("notes")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  memberId        String        @map("member_id")
+  establishmentId String        @map("establishment_id")
+  member          Member        @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  createdById     String        @map("created_by_id")
+  createdBy       User          @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
   @@map("payment_orders")
 }
 
 /// Representa um membro/funcionário de um estabelecimento.
-/// Substituirá gradualmente EstablishmentMember como tabela principal de membros.
+/// Tabela principal de membros do sistema.
 model Member {
   /// Identificador único do membro.
   id String @id @default(uuid()) @map("id")
@@ -522,7 +486,7 @@ model Member {
   establishmentId String        @map("establishment_id")
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
-  /// Relacionamentos herdados de EstablishmentMember
+  /// Relacionamentos do membro
   memberProducts MemberProduct[] // Produtos que ele pode vender
   memberServices MemberService[] // Serviços que ele pode fazer
   workingHours   MemberWorkingHours[] // Horários de trabalho

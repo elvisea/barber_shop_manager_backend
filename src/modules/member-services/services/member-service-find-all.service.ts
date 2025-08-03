@@ -6,7 +6,7 @@ import { MemberServiceMapper } from '../mappers/member-service.mapper';
 import { MemberServiceRepository } from '../repositories/member-service.repository';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
-import { EstablishmentOwnerAccessService } from '@/shared/establishment-owner-access/establishment-owner-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class MemberServiceFindAllService {

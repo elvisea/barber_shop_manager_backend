@@ -1,22 +1,16 @@
 import { Module } from '@nestjs/common';
 
-import { EstablishmentProductsModule } from '../establishment-products/establishment-products.module';
-import { MembersModule } from '../members/members.module';
-
 import { MemberProductCreateController } from './controllers/member-product-create.controller';
 import { MemberProductRepository } from './repositories/member-product.repository';
 import { MemberProductCreateService } from './services/member-product-create.service';
 
-import { EstablishmentOwnerAccessModule } from '@/shared/establishment-owner-access/establishment-owner-access.module';
+import { EstablishmentModule } from '@/modules/establishment/establishment.module';
+import { EstablishmentProductsModule } from '@/modules/establishment-products/establishment-products.module';
+import { MembersModule } from '@/modules/members/members.module';
 
 @Module({
-  imports: [
-    EstablishmentProductsModule,
-    MembersModule,
-    EstablishmentOwnerAccessModule,
-  ],
+  imports: [EstablishmentModule, EstablishmentProductsModule, MembersModule],
   controllers: [MemberProductCreateController],
   providers: [MemberProductCreateService, MemberProductRepository],
-  exports: [MemberProductRepository],
 })
 export class MemberProductsModule {}

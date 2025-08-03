@@ -4,7 +4,7 @@ import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 /**
  * Service responsible for updating an establishment.
@@ -19,7 +19,7 @@ export class EstablishmentUpdateService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
   ) {}
 
   async execute(
@@ -31,7 +31,7 @@ export class EstablishmentUpdateService {
       `Updating establishment ${establishmentId} by user ${userId}`,
     );
 
-    await this.establishmentAccessService.assertUserHasAccess(
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
       userId,
     );

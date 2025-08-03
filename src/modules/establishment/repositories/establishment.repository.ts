@@ -20,7 +20,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     data: EstablishmentCreateRequestDTO,
     userId: string,
   ): Promise<Establishment> {
-    // Cria o estabelecimento e já associa o usuário como ADMIN
+    // Cria o estabelecimento
     const establishment = await this.prisma.establishment.create({
       data: {
         name: data.name,
@@ -29,14 +29,6 @@ export class EstablishmentRepository implements IEstablishmentRepository {
         owner: {
           connect: { id: userId },
         },
-        members: {
-          create: [
-            {
-              userId,
-              role: 'ADMIN',
-            },
-          ],
-        },
       },
     });
     return establishment;
@@ -44,33 +36,25 @@ export class EstablishmentRepository implements IEstablishmentRepository {
 
   async findByPhoneAndUser(
     phone: string,
-    userId: string,
+    ownerId: string,
   ): Promise<Establishment | null> {
     // Busca estabelecimento pelo telefone e associação do usuário
     return this.prisma.establishment.findFirst({
       where: {
         phone,
-        members: {
-          some: {
-            userId,
-          },
-        },
+        ownerId,
       },
     });
   }
 
   async findByIdAndUser(
     establishmentId: string,
-    userId: string,
+    ownerId: string,
   ): Promise<Establishment | null> {
     return this.prisma.establishment.findFirst({
       where: {
         id: establishmentId,
-        members: {
-          some: {
-            userId,
-          },
-        },
+        ownerId,
       },
     });
   }
@@ -78,8 +62,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
   async findByIdWithMembersAdmin(
     establishmentId: string,
   ): Promise<
-    | (Establishment & { members: Array<{ userId: string; role: string }> })
-    | null
+    (Establishment & { members: Array<{ id: string; role: string }> }) | null
   > {
     return this.prisma.establishment.findUnique({
       where: { id: establishmentId },
@@ -95,9 +78,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     const { userId, skip, take } = params;
 
     const where = {
-      members: {
-        some: { userId },
-      },
+      ownerId: userId,
     };
 
     const [data, total] = await Promise.all([

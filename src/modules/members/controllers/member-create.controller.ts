@@ -26,16 +26,16 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
-@ApiTags('Partners')
+@ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/partners')
+@Controller('establishments/:establishmentId/members')
 @UseGuards(JwtAuthGuard)
 export class MemberCreateController {
   constructor(private readonly memberCreateService: MemberCreateService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new partner' })
+  @ApiOperation({ summary: 'Create a new member' })
   @ApiResponse({ status: 201, type: MemberResponseDTO })
   @ApiConflictResponse({
     description:

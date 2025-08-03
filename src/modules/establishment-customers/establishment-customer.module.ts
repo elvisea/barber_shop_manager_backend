@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { EstablishmentModule } from '../establishment/establishment.module';
 import { EstablishmentRepository } from '../establishment/repositories/establishment.repository';
 
 import { EstablishmentCustomerCreateController } from './controllers/establishment-customer-create.controller';
@@ -17,7 +18,7 @@ import { EstablishmentCustomerUpdateService } from './services/establishment-cus
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 @Module({
-  imports: [],
+  imports: [EstablishmentModule],
   controllers: [
     EstablishmentCustomerCreateController,
     EstablishmentCustomerFindByIdController,

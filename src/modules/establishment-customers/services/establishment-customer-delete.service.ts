@@ -5,7 +5,7 @@ import { EstablishmentCustomerRepository } from '../repositories/establishment-c
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentCustomerDeleteService {
@@ -13,7 +13,7 @@ export class EstablishmentCustomerDeleteService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -26,7 +26,7 @@ export class EstablishmentCustomerDeleteService {
       `Deleting customer ${customerId} for establishment ${establishmentId} by user ${userId}`,
     );
 
-    await this.establishmentAccessService.assertUserHasAccess(
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
       userId,
     );

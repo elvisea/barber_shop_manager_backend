@@ -4,7 +4,7 @@ import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-cust
 import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-customer-find-all-response.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentCustomerFindAllService {
@@ -14,7 +14,7 @@ export class EstablishmentCustomerFindAllService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
   ) {}
 
   async execute(
@@ -29,7 +29,7 @@ export class EstablishmentCustomerFindAllService {
       `Finding all customers for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    await this.establishmentAccessService.assertUserHasAccess(
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
       userId,
     );

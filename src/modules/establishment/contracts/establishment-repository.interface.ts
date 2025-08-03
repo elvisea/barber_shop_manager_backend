@@ -36,7 +36,6 @@ export interface IEstablishmentRepository {
   findByIdWithMembersAdmin(
     establishmentId: string,
   ): Promise<
-    | (Establishment & { members: Array<{ userId: string; role: string }> })
-    | null
+    (Establishment & { members: Array<{ id: string; role: string }> }) | null
   >;
 }

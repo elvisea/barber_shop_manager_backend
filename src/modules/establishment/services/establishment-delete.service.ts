@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { EstablishmentRepository } from '../repositories/establishment.repository';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentDeleteService {
@@ -10,7 +10,7 @@ export class EstablishmentDeleteService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
   ) {}
 
   async execute(establishmentId: string, userId: string): Promise<void> {
@@ -18,7 +18,7 @@ export class EstablishmentDeleteService {
       `Deleting establishment ${establishmentId} by user ${userId}`,
     );
 
-    await this.establishmentAccessService.assertUserHasAccess(
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
       userId,
     );

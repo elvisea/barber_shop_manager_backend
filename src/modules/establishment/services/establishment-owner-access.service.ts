@@ -65,6 +65,7 @@ export class EstablishmentOwnerAccessService {
     this.logger.log(
       `Owner access granted for user ${ownerId} to establishment ${establishmentId}`,
     );
+
     return establishment;
   }
 }

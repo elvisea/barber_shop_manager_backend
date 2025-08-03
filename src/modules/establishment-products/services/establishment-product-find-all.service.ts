@@ -4,7 +4,7 @@ import { EstablishmentProductFindAllQueryDTO } from '../dtos/establishment-produ
 import { EstablishmentProductFindAllResponseDTO } from '../dtos/establishment-product-find-all-response.dto';
 import { EstablishmentProductRepository } from '../repositories/establishment-product.repository';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentProductFindAllService {
@@ -12,7 +12,7 @@ export class EstablishmentProductFindAllService {
 
   constructor(
     private readonly establishmentProductRepository: EstablishmentProductRepository,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
   ) {}
 
   async execute(
@@ -27,7 +27,7 @@ export class EstablishmentProductFindAllService {
       `Finding all products for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    await this.establishmentAccessService.assertUserHasAccess(
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
       userId,
     );

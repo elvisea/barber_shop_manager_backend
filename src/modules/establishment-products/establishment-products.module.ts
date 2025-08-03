@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { EstablishmentModule } from '../establishment/establishment.module';
 import { EstablishmentRepository } from '../establishment/repositories/establishment.repository';
 
 import { EstablishmentProductCreateController } from './controllers/establishment-product-create.controller';
@@ -15,6 +16,7 @@ import { EstablishmentProductFindByIdService } from './services/establishment-pr
 import { EstablishmentProductUpdateService } from './services/establishment-product-update.service';
 
 @Module({
+  imports: [EstablishmentModule],
   providers: [
     EstablishmentRepository,
     EstablishmentProductRepository,

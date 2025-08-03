@@ -21,15 +21,15 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
-@ApiTags('Partners')
+@ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/partners/:memberId')
+@Controller('establishments/:establishmentId/members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberUpdateController {
   constructor(private readonly memberUpdateService: MemberUpdateService) {}
 
   @Patch()
-  @ApiOperation({ summary: 'Update partner' })
+  @ApiOperation({ summary: 'Update member' })
   @ApiResponse({ status: 200, type: MemberResponseDTO })
   @ApiConflictResponse({
     description:

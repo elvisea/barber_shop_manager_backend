@@ -17,15 +17,15 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
-@ApiTags('Partners')
+@ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/partners')
+@Controller('establishments/:establishmentId/members')
 @UseGuards(JwtAuthGuard)
 export class MemberFindAllController {
   constructor(private readonly memberFindAllService: MemberFindAllService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Find all partners with pagination' })
+  @ApiOperation({ summary: 'Find all members with pagination' })
   @ApiResponse({ status: 200, type: MemberPaginatedResponseDTO })
   @ApiNotFoundResponse({
     description: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].description,

@@ -4,7 +4,7 @@ import { MemberFindAllQueryDTO, MemberPaginatedResponseDTO } from '../dtos';
 import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
-import { EstablishmentOwnerAccessService } from '@/shared/establishment-owner-access/establishment-owner-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class MemberFindAllService {

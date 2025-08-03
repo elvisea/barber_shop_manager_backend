@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { EstablishmentMembersModule } from '../establishment-members/establishment-members.module';
 import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { UserModule } from '../user/user.module';
 
@@ -15,7 +14,7 @@ import { TokenModule } from '@/shared/token/token.module';
   imports: [
     UserModule,
     RefreshTokenModule,
-    EstablishmentMembersModule,
+
     ErrorMessageModule,
     TokenModule,
     CommonAuthModule,

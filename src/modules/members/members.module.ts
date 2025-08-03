@@ -12,24 +12,23 @@ import { MemberFindAllService } from './services/member-find-all.service';
 import { MemberFindByIdService } from './services/member-find-by-id.service';
 import { MemberUpdateService } from './services/member-update.service';
 
-import { ErrorMessageModule } from '@/error-message/error-message.module';
-import { EstablishmentOwnerAccessModule } from '@/shared/establishment-owner-access/establishment-owner-access.module';
+import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 
 @Module({
-  imports: [ErrorMessageModule, EstablishmentOwnerAccessModule],
+  imports: [EstablishmentModule],
   controllers: [
     MemberCreateController,
-    MemberDeleteController,
     MemberFindAllController,
     MemberFindByIdController,
     MemberUpdateController,
+    MemberDeleteController,
   ],
   providers: [
     MemberCreateService,
-    MemberDeleteService,
     MemberFindAllService,
     MemberFindByIdService,
     MemberUpdateService,
+    MemberDeleteService,
     MemberRepository,
   ],
   exports: [MemberRepository],

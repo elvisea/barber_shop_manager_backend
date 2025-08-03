@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { EmailModule } from './email/email.module';
 import { ErrorMessageModule } from './error-message/error-message.module';
@@ -11,7 +10,6 @@ import { AIModule } from './modules/ai/ai.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EstablishmentModule } from './modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
-import { EstablishmentMembersModule } from './modules/establishment-members/establishment-members.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
 import { MemberAuthModule } from './modules/member-auth/member-auth.module';
@@ -19,43 +17,43 @@ import { MemberProductsModule } from './modules/member-products/member-products.
 import { MemberServicesModule } from './modules/member-services/member-services.module';
 import { MembersModule } from './modules/members/members.module';
 import { PlansModule } from './modules/plans/plans.module';
+import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UserModule } from './modules/user/user.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { EstablishmentAccessModule } from './shared/establishment-access/establishment-access.module';
-import { EstablishmentOwnerAccessModule } from './shared/establishment-owner-access/establishment-owner-access.module';
+import { TokenModule } from './shared/token/token.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     HttpClientModule,
     PrismaModule,
-    UserModule,
     ErrorMessageModule,
     EmailModule,
+    TokenModule,
     AuthModule,
-    MemberAuthModule,
-    EstablishmentAccessModule,
-    EstablishmentOwnerAccessModule,
+    UserModule,
     EstablishmentModule,
-    EstablishmentServicesModule,
-    EstablishmentMembersModule,
-    EstablishmentProductsModule,
     EstablishmentCustomerModule,
+    EstablishmentProductsModule,
+    EstablishmentServicesModule,
+    MembersModule,
+    MemberAuthModule,
     MemberProductsModule,
     MemberServicesModule,
-    MembersModule,
-    WebhookModule,
-    AIModule,
     PlansModule,
     SubscriptionsModule,
+    RefreshTokenModule,
+    WebhookModule,
+    AIModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     {
-      provide: 'APP_FILTER',
+      provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
   ],

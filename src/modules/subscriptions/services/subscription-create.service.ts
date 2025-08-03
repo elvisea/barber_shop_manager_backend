@@ -5,14 +5,14 @@ import { SubscriptionCreateResponseDTO } from '../dtos/subscription-create-respo
 import { SubscriptionCreateDTO } from '../dtos/subscription-create.dto';
 import { SubscriptionRepository } from '../repositories/subscription.repository';
 
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class SubscriptionCreateService {
   private readonly logger = new Logger(SubscriptionCreateService.name);
 
   constructor(
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly subscriptionRepository: SubscriptionRepository,
   ) {}
 
@@ -21,7 +21,7 @@ export class SubscriptionCreateService {
     establishmentId: string,
     userId: string,
   ): Promise<SubscriptionCreateResponseDTO> {
-    await this.establishmentAccessService.assertUserHasAccess(
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
       userId,
     );

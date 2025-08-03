@@ -8,9 +8,9 @@ import { MemberProductRepository } from '../repositories/member-product.reposito
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 import { EstablishmentProductRepository } from '@/modules/establishment-products/repositories/establishment-product.repository';
 import { MemberRepository } from '@/modules/members/repositories/member.repository';
-import { EstablishmentOwnerAccessService } from '@/shared/establishment-owner-access/establishment-owner-access.service';
 
 @Injectable()
 export class MemberProductCreateService {

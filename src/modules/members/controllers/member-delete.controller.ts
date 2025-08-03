@@ -23,17 +23,17 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
-@ApiTags('Partners')
+@ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/partners/:memberId')
+@Controller('establishments/:establishmentId/members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberDeleteController {
   constructor(private readonly memberDeleteService: MemberDeleteService) {}
 
   @Delete()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete partner' })
-  @ApiResponse({ status: 204, description: 'Partner deleted successfully' })
+  @ApiOperation({ summary: 'Delete member' })
+  @ApiResponse({ status: 204, description: 'Member deleted successfully' })
   @ApiNotFoundResponse({
     description: SwaggerErrors[ErrorCode.MEMBER_NOT_FOUND].description,
     schema: {

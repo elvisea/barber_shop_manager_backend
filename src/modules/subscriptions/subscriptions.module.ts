@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 
+import { EstablishmentModule } from '../establishment/establishment.module';
+
 import { SubscriptionCreateController } from './controllers/subscription-create.controller';
 import { SubscriptionDeleteController } from './controllers/subscription-delete.controller';
 import { SubscriptionFindAllController } from './controllers/subscription-find-all.controller';
@@ -13,7 +15,7 @@ import { SubscriptionFindByIdService } from './services/subscription-find-by-id.
 import { SubscriptionUpdateService } from './services/subscription-update.service';
 
 @Module({
-  imports: [],
+  imports: [EstablishmentModule],
   controllers: [
     SubscriptionCreateController,
     SubscriptionFindAllController,
