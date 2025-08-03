@@ -22,7 +22,7 @@ import { ErrorCode } from '@/enums/error-code';
 @Controller('establishments/:establishmentId/partners')
 @UseGuards(JwtAuthGuard)
 export class MemberFindAllController {
-  constructor(private readonly memberFindAllService: MemberFindAllService) { }
+  constructor(private readonly memberFindAllService: MemberFindAllService) {}
 
   @Get()
   @ApiOperation({ summary: 'Find all partners with pagination' })

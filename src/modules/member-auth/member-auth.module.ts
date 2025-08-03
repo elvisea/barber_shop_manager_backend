@@ -20,4 +20,4 @@ import { TokenModule } from '@/shared/token/token.module';
   providers: [MemberAuthService, MemberRefreshTokenRepository],
   exports: [MemberRefreshTokenRepository],
 })
-export class MemberAuthModule { }
+export class MemberAuthModule {}

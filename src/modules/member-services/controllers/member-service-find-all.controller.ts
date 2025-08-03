@@ -77,11 +77,6 @@ export class MemberServiceFindAllController {
     @Param() params: MemberServiceFindAllParamDTO,
     @Query() query: BasePaginationQueryDTO,
   ): Promise<MemberServiceFindAllResponseDTO> {
-    return this.memberServiceFindAllService.execute(
-      params.establishmentId,
-      params.memberId,
-      requesterId,
-      query,
-    );
+    return this.memberServiceFindAllService.execute(params, query, requesterId);
   }
 }

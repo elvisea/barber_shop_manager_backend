@@ -9,11 +9,11 @@ import { ErrorMessageModule } from './error-message/error-message.module';
 import { HttpClientModule } from './http-client/http-client.module';
 import { AIModule } from './modules/ai/ai.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EstablishmentModule } from './modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
 import { EstablishmentMembersModule } from './modules/establishment-members/establishment-members.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
-import { EstablishmentModule } from './modules/establishment/establishment.module';
 import { MemberAuthModule } from './modules/member-auth/member-auth.module';
 import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { MemberServicesModule } from './modules/member-services/member-services.module';
@@ -60,4 +60,4 @@ import { EstablishmentOwnerAccessModule } from './shared/establishment-owner-acc
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

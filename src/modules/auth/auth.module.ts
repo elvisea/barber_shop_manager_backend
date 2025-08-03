@@ -24,4 +24,4 @@ import { TokenModule } from '@/shared/token/token.module';
   providers: [AuthService],
   exports: [],
 })
-export class AuthModule { }
+export class AuthModule {}

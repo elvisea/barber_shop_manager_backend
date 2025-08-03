@@ -26,7 +26,7 @@ import { ErrorCode } from '@/enums/error-code';
 @Controller('establishments/:establishmentId/partners/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberUpdateController {
-  constructor(private readonly memberUpdateService: MemberUpdateService) { }
+  constructor(private readonly memberUpdateService: MemberUpdateService) {}
 
   @Patch()
   @ApiOperation({ summary: 'Update partner' })

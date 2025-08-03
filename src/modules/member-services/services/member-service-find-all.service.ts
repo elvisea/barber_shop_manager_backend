@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { MemberServiceFindAllParamDTO } from '../dtos/member-service-find-all-param.dto';
 import { MemberServiceFindAllResponseDTO } from '../dtos/member-service-find-all-response.dto';
 import { MemberServiceMapper } from '../mappers/member-service.mapper';
 import { MemberServiceRepository } from '../repositories/member-service.repository';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { EstablishmentOwnerAccessService } from '@/shared/establishment-owner-access/establishment-owner-access.service';
 
 @Injectable()
 export class MemberServiceFindAllService {
@@ -13,32 +14,30 @@ export class MemberServiceFindAllService {
 
   constructor(
     private readonly memberServiceRepository: MemberServiceRepository,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
   ) {}
 
   async execute(
-    establishmentId: string,
-    memberId: string,
-    requesterId: string,
+    params: MemberServiceFindAllParamDTO,
     query: BasePaginationQueryDTO,
+    requesterId: string,
   ): Promise<MemberServiceFindAllResponseDTO> {
     const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     this.logger.log(
-      `Listing member services for member ${memberId} in establishment ${establishmentId}`,
+      `Listing member services for member ${params.memberId} in establishment ${params.establishmentId}`,
     );
 
-    await this.establishmentAccessService.assertUserHasAccess(
-      establishmentId,
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
+      params.establishmentId,
       requesterId,
-      false, // permite ADMIN ou o próprio membro
     );
 
     const { data, total } =
       await this.memberServiceRepository.findAllByMemberPaginated({
-        establishmentId,
-        userId: memberId,
+        establishmentId: params.establishmentId,
+        userId: params.memberId,
         skip,
         take: limit,
       });

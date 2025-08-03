@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { EstablishmentMembersModule } from '../establishment-members/establishment-members.module';
 import { EstablishmentServicesModule } from '../establishment-services/establishment-services.module';
+import { MembersModule } from '../members/members.module';
 
 import { MemberServiceCreateController } from './controllers/member-service-create.controller';
 import { MemberServiceFindAllController } from './controllers/member-service-find-all.controller';
@@ -9,21 +9,19 @@ import { MemberServiceRepository } from './repositories/member-service.repositor
 import { MemberServiceCreateService } from './services/member-service-create.service';
 import { MemberServiceFindAllService } from './services/member-service-find-all.service';
 
-import { ErrorMessageModule } from '@/error-message/error-message.module';
-import { EstablishmentAccessModule } from '@/shared/establishment-access/establishment-access.module';
+import { EstablishmentOwnerAccessModule } from '@/shared/establishment-owner-access/establishment-owner-access.module';
 
 @Module({
   controllers: [MemberServiceCreateController, MemberServiceFindAllController],
   providers: [
-    MemberServiceCreateService,
     MemberServiceRepository,
+    MemberServiceCreateService,
     MemberServiceFindAllService,
   ],
   imports: [
-    EstablishmentMembersModule,
+    MembersModule,
     EstablishmentServicesModule,
-    ErrorMessageModule,
-    EstablishmentAccessModule,
+    EstablishmentOwnerAccessModule,
   ],
   exports: [],
 })

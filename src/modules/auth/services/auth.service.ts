@@ -20,7 +20,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokenService: TokenService,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   async execute(
     authRequest: CreateAuthRequestDTO,

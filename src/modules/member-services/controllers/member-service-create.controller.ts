@@ -22,7 +22,9 @@ import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Member Services')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:memberId/services')
+@Controller(
+  'establishments/:establishmentId/members/:memberId/services/:serviceId',
+)
 @UseGuards(JwtAuthGuard)
 export class MemberServiceCreateController {
   constructor(
@@ -83,11 +85,6 @@ export class MemberServiceCreateController {
     @Param() params: MemberServiceCreateParamDTO,
     @Body() dto: MemberServiceCreateRequestDTO,
   ): Promise<MemberServiceCreateResponseDTO> {
-    return this.memberServiceCreateService.execute(
-      dto,
-      params.establishmentId,
-      params.memberId,
-      requesterId,
-    );
+    return this.memberServiceCreateService.execute(dto, params, requesterId);
   }
 }
