@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentMemberRepository } from '../../establishment-members/repositories/establishment-member.repository';
+import { MemberProductCreateParamDTO } from '../dtos/member-product-create-param.dto';
 import { MemberProductCreateRequestDTO } from '../dtos/member-product-create-request.dto';
 import { MemberProductCreateResponseDTO } from '../dtos/member-product-create-response.dto';
 import { MemberProductRepository } from '../repositories/member-product.repository';
@@ -9,7 +9,8 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentProductRepository } from '@/modules/establishment-products/repositories/establishment-product.repository';
-import { EstablishmentAccessService } from '@/shared/establishment-access/establishment-access.service';
+import { MemberRepository } from '@/modules/members/repositories/member.repository';
+import { EstablishmentOwnerAccessService } from '@/shared/establishment-owner-access/establishment-owner-access.service';
 
 @Injectable()
 export class MemberProductCreateService {
@@ -17,39 +18,40 @@ export class MemberProductCreateService {
 
   constructor(
     private readonly memberProductRepository: MemberProductRepository,
-    private readonly establishmentMemberRepository: EstablishmentMemberRepository,
+    private readonly memberRepository: MemberRepository,
     private readonly establishmentProductRepository: EstablishmentProductRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly establishmentAccessService: EstablishmentAccessService,
+    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
   ) {}
 
   async execute(
     dto: MemberProductCreateRequestDTO,
-    establishmentId: string,
-    memberId: string,
+    params: MemberProductCreateParamDTO,
     requesterId: string,
   ): Promise<MemberProductCreateResponseDTO> {
     this.logger.log(
-      `Creating member product for member ${memberId} in establishment ${establishmentId} and product ${dto.productId}`,
+      `Creating member product for member ${params.memberId} in establishment ${params.establishmentId} and product ${params.productId}`,
     );
 
-    // 1. Verifica se o requester tem acesso ao estabelecimento
-    await this.establishmentAccessService.assertUserHasAccess(
-      establishmentId,
+    // 1. Verifica se o requester é dono do estabelecimento
+    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
+      params.establishmentId,
       requesterId,
     );
 
     // 2. Verifica se o membro existe no estabelecimento
-    const memberExists =
-      await this.establishmentMemberRepository.existsByUserAndEstablishment(
-        memberId,
-        establishmentId,
-      );
+    const member = await this.memberRepository.findByEstablishmentAndId(
+      params.establishmentId,
+      params.memberId,
+    );
 
-    if (!memberExists) {
+    if (!member) {
       const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND,
-        { USER_ID: memberId, ESTABLISHMENT_ID: establishmentId },
+        ErrorCode.MEMBER_NOT_FOUND,
+        {
+          MEMBER_ID: params.memberId,
+          ESTABLISHMENT_ID: params.establishmentId,
+        },
       );
 
       this.logger.warn(message);
@@ -57,21 +59,24 @@ export class MemberProductCreateService {
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND,
+        ErrorCode.MEMBER_NOT_FOUND,
       );
     }
 
     // 3. Verifica se o produto existe no estabelecimento
     const product =
       await this.establishmentProductRepository.findByIdAndEstablishment(
-        dto.productId,
-        establishmentId,
+        params.productId,
+        params.establishmentId,
       );
 
     if (!product) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND,
-        { PRODUCT_ID: dto.productId, ESTABLISHMENT_ID: establishmentId },
+        {
+          PRODUCT_ID: params.productId,
+          ESTABLISHMENT_ID: params.establishmentId,
+        },
       );
 
       this.logger.warn(message);
@@ -85,21 +90,24 @@ export class MemberProductCreateService {
 
     // 4. Verifica se já existe associação desse produto para o membro
     const alreadyExists =
-      await this.memberProductRepository.existsByUserEstablishmentProduct(
-        memberId,
-        establishmentId,
-        dto.productId,
+      await this.memberProductRepository.existsByMemberEstablishmentProduct(
+        params.memberId,
+        params.establishmentId,
+        params.productId,
       );
+
     if (alreadyExists) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS,
         {
-          USER_ID: memberId,
-          ESTABLISHMENT_ID: establishmentId,
-          PRODUCT_ID: dto.productId,
+          MEMBER_ID: params.memberId,
+          ESTABLISHMENT_ID: params.establishmentId,
+          PRODUCT_ID: params.productId,
         },
       );
+
       this.logger.warn(message);
+
       throw new CustomHttpException(
         message,
         HttpStatus.CONFLICT,
@@ -110,9 +118,9 @@ export class MemberProductCreateService {
     // 5. Cria o MemberProduct
     const memberProduct =
       await this.memberProductRepository.createMemberProduct({
-        userId: memberId,
-        establishmentId,
-        productId: dto.productId,
+        memberId: params.memberId,
+        establishmentId: params.establishmentId,
+        productId: params.productId,
         price: dto.price,
         commission: dto.commission,
       });
@@ -121,7 +129,7 @@ export class MemberProductCreateService {
 
     return {
       id: memberProduct.id,
-      userId: memberProduct.userId,
+      memberId: memberProduct.memberId,
       establishmentId: memberProduct.establishmentId,
       productId: memberProduct.productId,
       price: memberProduct.price,

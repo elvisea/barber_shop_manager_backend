@@ -37,7 +37,7 @@ export class MemberServiceFindAllService {
     const { data, total } =
       await this.memberServiceRepository.findAllByMemberPaginated({
         establishmentId: params.establishmentId,
-        userId: params.memberId,
+        memberId: params.memberId,
         skip,
         take: limit,
       });

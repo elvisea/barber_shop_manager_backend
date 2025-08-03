@@ -13,7 +13,7 @@ export class MemberServiceRepository implements IMemberServiceRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createMemberService(data: {
-    userId: string;
+    memberId: string;
     establishmentId: string;
     serviceId: string;
     price: number;
@@ -21,34 +21,39 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     duration: number;
   }): Promise<MemberServiceModel> {
     return this.prisma.memberService.create({
-      data,
-    });
-  }
-
-  async findByUserEstablishmentService(
-    userId: string,
-    establishmentId: string,
-    serviceId: string,
-  ): Promise<MemberServiceModel | null> {
-    return this.prisma.memberService.findUnique({
-      where: {
-        userId_establishmentId_serviceId: {
-          userId,
-          establishmentId,
-          serviceId,
-        },
+      data: {
+        price: data.price,
+        commission: data.commission,
+        duration: data.duration,
+        establishmentId: data.establishmentId,
+        serviceId: data.serviceId,
+        memberId: data.memberId,
       },
     });
   }
 
-  async existsByUserEstablishmentService(
-    userId: string,
+  async findByMemberEstablishmentService(
+    memberId: string,
+    establishmentId: string,
+    serviceId: string,
+  ): Promise<MemberServiceModel | null> {
+    return this.prisma.memberService.findFirst({
+      where: {
+        memberId,
+        establishmentId,
+        serviceId,
+      },
+    });
+  }
+
+  async existsByMemberEstablishmentService(
+    memberId: string,
     establishmentId: string,
     serviceId: string,
   ): Promise<boolean> {
     const count = await this.prisma.memberService.count({
       where: {
-        userId,
+        memberId,
         establishmentId,
         serviceId,
       },
@@ -58,12 +63,12 @@ export class MemberServiceRepository implements IMemberServiceRepository {
 
   async findAllByMemberPaginated({
     establishmentId,
-    userId,
+    memberId,
     skip,
     take,
   }: {
     establishmentId: string;
-    userId: string;
+    memberId: string;
     skip: number;
     take: number;
   }): Promise<{
@@ -72,14 +77,14 @@ export class MemberServiceRepository implements IMemberServiceRepository {
   }> {
     const [data, total] = await Promise.all([
       this.prisma.memberService.findMany({
-        where: { establishmentId, userId },
+        where: { establishmentId, memberId },
         skip,
         take,
         orderBy: { createdAt: 'desc' },
         include: { service: true },
       }),
 
-      this.prisma.memberService.count({ where: { establishmentId, userId } }),
+      this.prisma.memberService.count({ where: { establishmentId, memberId } }),
     ]);
     return { data, total };
   }

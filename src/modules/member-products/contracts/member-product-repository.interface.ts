@@ -2,21 +2,21 @@ import { MemberProduct } from '@prisma/client';
 
 export interface IMemberProductRepository {
   createMemberProduct(data: {
-    userId: string;
+    memberId: string;
     establishmentId: string;
     productId: string;
     price: number;
     commission: number;
   }): Promise<MemberProduct>;
 
-  findByUserEstablishmentProduct(
-    userId: string,
+  findByMemberEstablishmentProduct(
+    memberId: string,
     establishmentId: string,
     productId: string,
   ): Promise<MemberProduct | null>;
 
-  existsByUserEstablishmentProduct(
-    userId: string,
+  existsByMemberEstablishmentProduct(
+    memberId: string,
     establishmentId: string,
     productId: string,
   ): Promise<boolean>;

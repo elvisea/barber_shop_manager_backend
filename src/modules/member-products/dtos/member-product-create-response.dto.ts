@@ -4,8 +4,8 @@ export class MemberProductCreateResponseDTO {
   @ApiProperty({ example: 'member-product-uuid' })
   id: string;
 
-  @ApiProperty({ example: 'user-uuid' })
-  userId: string;
+  @ApiProperty({ example: 'member-uuid' })
+  memberId: string;
 
   @ApiProperty({ example: 'establishment-uuid' })
   establishmentId: string;
@@ -13,10 +13,13 @@ export class MemberProductCreateResponseDTO {
   @ApiProperty({ example: 'product-uuid' })
   productId: string;
 
-  @ApiProperty({ example: 5000 })
+  @ApiProperty({ example: 5000, description: 'Price in cents' })
   price: number;
 
-  @ApiProperty({ example: 0.15 })
+  @ApiProperty({
+    example: 0.15,
+    description: 'Commission as decimal (e.g., 0.15 = 15%)',
+  })
   commission: number;
 
   @ApiProperty({ example: '2024-07-03T10:00:00Z' })

@@ -90,7 +90,7 @@ export class MemberServiceCreateService {
 
     // 4. Verifica se já existe associação desse serviço para o membro
     const alreadyExists =
-      await this.memberServiceRepository.existsByUserEstablishmentService(
+      await this.memberServiceRepository.existsByMemberEstablishmentService(
         params.memberId,
         params.establishmentId,
         params.serviceId,
@@ -99,7 +99,7 @@ export class MemberServiceCreateService {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS,
         {
-          USER_ID: params.memberId,
+          MEMBER_ID: params.memberId,
           ESTABLISHMENT_ID: params.establishmentId,
           SERVICE_ID: params.serviceId,
         },
@@ -117,7 +117,7 @@ export class MemberServiceCreateService {
     // 5. Cria o MemberService
     const memberService =
       await this.memberServiceRepository.createMemberService({
-        userId: params.memberId,
+        memberId: params.memberId,
         establishmentId: params.establishmentId,
         serviceId: params.serviceId,
         price: dto.price,
@@ -129,10 +129,11 @@ export class MemberServiceCreateService {
 
     return {
       id: memberService.id,
-      userId: memberService.userId,
+      memberId: memberService.memberId,
       establishmentId: memberService.establishmentId,
       serviceId: memberService.serviceId,
       price: memberService.price,
+      duration: memberService.duration,
       commission: Number(memberService.commission),
       createdAt: memberService.createdAt,
       updatedAt: memberService.updatedAt,

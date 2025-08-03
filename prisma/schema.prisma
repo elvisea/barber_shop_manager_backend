@@ -212,8 +212,6 @@ model EstablishmentMember {
   createdAt       DateTime              @default(now()) @map("created_at")
   user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  memberServices  MemberService[]
-  memberProducts  MemberProduct[]
   workingHours    MemberWorkingHours[]
   absencePeriods  MemberAbsencePeriod[]
   appointments    Appointment[]
@@ -266,17 +264,15 @@ model MemberProduct {
   id              String               @id @default(uuid()) @map("id")
   price           Int                  @map("price")
   commission      Decimal              @map("commission") @db.Decimal(5, 4)
-  userId          String               @map("user_id")
   establishmentId String               @map("establishment_id")
   productId       String               @map("product_id")
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
-  member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member?              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String?              @map("new_member_id")
+  member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId        String               @map("member_id")
   product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, establishmentId, productId])
+  @@unique([memberId, establishmentId, productId])
   @@map("member_products")
 }
 
@@ -285,17 +281,15 @@ model MemberService {
   price           Int                  @map("price")
   commission      Decimal              @map("commission") @db.Decimal(5, 4)
   duration        Int                  @map("duration")
-  userId          String               @map("user_id")
   establishmentId String               @map("establishment_id")
   serviceId       String               @map("service_id")
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
-  member          EstablishmentMember  @relation(fields: [userId, establishmentId], references: [userId, establishmentId], onDelete: Cascade)
-  newMember       Member?              @relation(fields: [newMemberId], references: [id], onDelete: Cascade)
-  newMemberId     String?              @map("new_member_id")
+  member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId        String               @map("member_id")
   service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, establishmentId, serviceId])
+  @@unique([memberId, establishmentId, serviceId])
   @@map("member_services")
 }
 

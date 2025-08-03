@@ -1,13 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUUID, Min } from 'class-validator';
+import { IsNumber, Min } from 'class-validator';
 
 export class MemberProductCreateRequestDTO {
-  @ApiProperty({ example: 'product-uuid', description: 'ID of the product' })
-  @IsString()
-  @IsNotEmpty()
-  @IsUUID()
-  productId: string;
-
   @ApiProperty({ example: 5000, description: 'Price in cents' })
   @IsNumber()
   @Min(0)

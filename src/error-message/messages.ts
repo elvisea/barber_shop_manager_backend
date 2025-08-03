@@ -95,11 +95,11 @@ export const messages: Record<ErrorCode, { message: string }> = {
   },
   [ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS]: {
     message:
-      'Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
+      'Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS]: {
     message:
-      'Service with SERVICE_ID [SERVICE_ID] is already assigned to member [USER_ID] in establishment [ESTABLISHMENT_ID].',
+      'Service with SERVICE_ID [SERVICE_ID] is already assigned to member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.PLAN_NOT_FOUND]: {
     message: 'Plan with ID [PLAN_ID] not found.',

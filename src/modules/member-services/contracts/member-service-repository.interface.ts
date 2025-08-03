@@ -1,8 +1,8 @@
-import { MemberService } from '@prisma/client';
+import { EstablishmentService, MemberService } from '@prisma/client';
 
 export interface IMemberServiceRepository {
   createMemberService(data: {
-    userId: string;
+    memberId: string;
     establishmentId: string;
     serviceId: string;
     price: number;
@@ -10,15 +10,30 @@ export interface IMemberServiceRepository {
     duration: number;
   }): Promise<MemberService>;
 
-  findByUserEstablishmentService(
-    userId: string,
+  findByMemberEstablishmentService(
+    memberId: string,
     establishmentId: string,
     serviceId: string,
   ): Promise<MemberService | null>;
 
-  existsByUserEstablishmentService(
-    userId: string,
+  existsByMemberEstablishmentService(
+    memberId: string,
     establishmentId: string,
     serviceId: string,
   ): Promise<boolean>;
+
+  findAllByMemberPaginated({
+    establishmentId,
+    memberId,
+    skip,
+    take,
+  }: {
+    establishmentId: string;
+    memberId: string;
+    skip: number;
+    take: number;
+  }): Promise<{
+    data: (MemberService & { service: EstablishmentService })[];
+    total: number;
+  }>;
 }
