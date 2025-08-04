@@ -130,4 +130,15 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Failed to delete member with ID [MEMBER_ID] from establishment [ESTABLISHMENT_ID].',
   },
+
+  // Códigos para verificação de email
+  [ErrorCode.INVALID_VERIFICATION_TOKEN]: {
+    message: 'Invalid verification token [TOKEN].',
+  },
+  [ErrorCode.VERIFICATION_TOKEN_EXPIRED]: {
+    message: 'Verification token [TOKEN] has expired.',
+  },
+  [ErrorCode.EMAIL_ALREADY_VERIFIED]: {
+    message: 'Email for user [USER_ID] is already verified.',
+  },
 } as const;

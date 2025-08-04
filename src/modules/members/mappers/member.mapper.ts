@@ -19,7 +19,6 @@ export class MemberMapper {
       email: member.email,
       phone: member.phone,
       role: member.role,
-      emailVerified: member.emailVerified,
       isActive: member.isActive,
       createdAt: member.createdAt,
       updatedAt: member.updatedAt,

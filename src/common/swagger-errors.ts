@@ -338,4 +338,33 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.MEMBER_DELETE_FAILED,
     },
   },
+
+  // Códigos para verificação de email
+  [ErrorCode.INVALID_VERIFICATION_TOKEN]: {
+    description: 'Invalid verification token',
+    example: {
+      statusCode: 400,
+      message: 'Invalid verification token [TOKEN].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.INVALID_VERIFICATION_TOKEN,
+    },
+  },
+  [ErrorCode.VERIFICATION_TOKEN_EXPIRED]: {
+    description: 'Verification token expired',
+    example: {
+      statusCode: 400,
+      message: 'Verification token [TOKEN] has expired.',
+      error: 'Bad Request',
+      errorCode: ErrorCode.VERIFICATION_TOKEN_EXPIRED,
+    },
+  },
+  [ErrorCode.EMAIL_ALREADY_VERIFIED]: {
+    description: 'Email already verified',
+    example: {
+      statusCode: 409,
+      message: 'Email for user [USER_ID] is already verified.',
+      error: 'Conflict',
+      errorCode: ErrorCode.EMAIL_ALREADY_VERIFIED,
+    },
+  },
 };

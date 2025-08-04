@@ -25,9 +25,6 @@ export class MemberResponseDTO {
   @ApiProperty({ enum: Role, example: Role.BARBER })
   role: Role;
 
-  @ApiProperty({ example: false })
-  emailVerified: boolean;
-
   @ApiProperty({ example: true })
   isActive: boolean;
 

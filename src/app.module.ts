@@ -20,6 +20,7 @@ import { PlansModule } from './modules/plans/plans.module';
 import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UserModule } from './modules/user/user.module';
+import { UserEmailVerificationModule } from './modules/user-email-verification/user-email-verification.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TokenModule } from './shared/token/token.module';
@@ -49,6 +50,7 @@ import { TokenModule } from './shared/token/token.module';
     RefreshTokenModule,
     WebhookModule,
     AIModule,
+    UserEmailVerificationModule,
   ],
   controllers: [],
   providers: [

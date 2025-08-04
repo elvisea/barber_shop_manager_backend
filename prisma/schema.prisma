@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,6 +5,449 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+/// Representa um plano de assinatura disponível para estabelecimentos.
+/// Exemplo: "Plano Sistema", "Atendimento A.I.", "Pacote Premium".
+model Plan {
+  /// Identificador único do plano.
+  id            String         @id @default(uuid()) @map("id")
+  /// Nome do plano (ex: "Atendimento A.I.").
+  name          String         @map("name")
+  /// Descrição detalhada do plano.
+  description   String?        @map("description")
+  /// Preço do plano em centavos (ex: 1999 = R$19,99).
+  price         Int            @map("price")
+  /// Duração do plano em dias (ex: 30 para mensal).
+  duration      Int            @map("duration")
+  /// Indica se o plano está ativo para novas assinaturas.
+  isActive      Boolean        @default(true) @map("is_active")
+  /// Data de criação do plano.
+  createdAt     DateTime       @default(now()) @map("created_at")
+  /// Data da última atualização do plano.
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+/// Representa a assinatura de um plano por um estabelecimento.
+/// Controla status, validade, pagamento e telefone vinculado ao serviço.
+model Subscription {
+  /// Identificador único da assinatura.
+  id              String             @id @default(uuid()) @map("id")
+  /// Estabelecimento que possui a assinatura.
+  establishmentId String             @map("establishment_id")
+  /// Plano assinado.
+  planId          String             @map("plan_id")
+  /// Usuário que realizou a assinatura (opcional).
+  createdById     String?            @map("created_by_id")
+  /// Data de início da assinatura.
+  startDate       DateTime           @map("start_date")
+  /// Data de término da assinatura.
+  endDate         DateTime           @map("end_date")
+  /// Status atual da assinatura.
+  status          SubscriptionStatus @default(PENDING) @map("status")
+  /// Indica se a assinatura está paga.
+  paid            Boolean            @default(false) @map("paid")
+  /// Telefone vinculado ao serviço (agora obrigatório).
+  phone           String             @map("phone")
+  /// Data de criação da assinatura.
+  createdAt       DateTime           @default(now()) @map("created_at")
+  /// Data da última atualização da assinatura.
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  createdBy       User?              @relation(fields: [createdById], references: [id])
+  establishment   Establishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  plan            Plan               @relation(fields: [planId], references: [id])
+
+  @@index([establishmentId])
+  @@index([planId])
+  @@index([createdById])
+  @@map("subscriptions")
+}
+
+model User {
+  id                   String                 @id @default(uuid()) @map("id")
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  email                String                 @unique @map("email")
+  name                 String                 @map("name")
+  phone                String                 @map("phone")
+  password             String                 @map("password")
+  ownedEstablishments  Establishment[]
+  createdPaymentOrders PaymentOrder[]
+  refreshTokens        RefreshToken[]
+  createdSubscriptions Subscription[]
+  emailVerification    UserEmailVerification?
+
+  @@index([email])
+  @@map("users")
+}
+
+model Establishment {
+  id             String                  @id @default(uuid()) @map("id")
+  name           String                  @map("name")
+  address        String                  @map("address")
+  phone          String                  @map("phone")
+  ownerId        String                  @map("owner_id")
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
+  appointments   Appointment[]
+  closurePeriods ClosurePeriod[]
+  customers      EstablishmentCustomer[]
+  products       EstablishmentProduct[]
+  services       EstablishmentService[]
+  owner          User                    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members        Member[]
+  openingHours   OpeningHours[]
+  subscriptions  Subscription[]
+
+  @@unique([ownerId, phone])
+  @@map("establishments")
+}
+
+model EstablishmentCustomer {
+  id              String        @id @default(uuid()) @map("id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  name            String        @map("name")
+  email           String?       @map("email")
+  phone           String?       @map("phone")
+  establishmentId String        @map("establishment_id")
+  appointments    Appointment[]
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+
+  @@unique([establishmentId, email])
+  @@unique([establishmentId, phone])
+  @@map("establishment_customers")
+}
+
+model EstablishmentProduct {
+  id               String            @id @default(uuid()) @map("id")
+  name             String            @map("name")
+  description      String?           @map("description")
+  price            Int               @map("price")
+  commission       Decimal           @map("commission") @db.Decimal(5, 4)
+  stock            Int               @map("stock")
+  establishmentId  String            @map("establishment_id")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  establishment    Establishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  memberProducts   MemberProduct[]
+  transactionItems TransactionItem[]
+
+  @@unique([establishmentId, name])
+  @@map("establishment_products")
+}
+
+model EstablishmentService {
+  id                  String               @id @default(uuid()) @map("id")
+  name                String               @map("name")
+  description         String?              @map("description")
+  duration            Int                  @map("duration")
+  price               Int                  @map("price")
+  commission          Decimal              @map("commission") @db.Decimal(5, 4)
+  establishmentId     String               @map("establishment_id")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  appointmentServices AppointmentService[]
+  establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  memberServices      MemberService[]
+  transactionItems    TransactionItem[]
+
+  @@unique([establishmentId, name])
+  @@map("establishment_services")
+}
+
+model MemberProduct {
+  id              String               @id @default(uuid()) @map("id")
+  price           Int                  @map("price")
+  commission      Decimal              @map("commission") @db.Decimal(5, 4)
+  establishmentId String               @map("establishment_id")
+  productId       String               @map("product_id")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  memberId        String               @map("member_id")
+  member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, establishmentId, productId])
+  @@map("member_products")
+}
+
+model MemberService {
+  id              String               @id @default(uuid()) @map("id")
+  price           Int                  @map("price")
+  commission      Decimal              @map("commission") @db.Decimal(5, 4)
+  duration        Int                  @map("duration")
+  establishmentId String               @map("establishment_id")
+  serviceId       String               @map("service_id")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  memberId        String               @map("member_id")
+  member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, establishmentId, serviceId])
+  @@map("member_services")
+}
+
+model OpeningHours {
+  id              String        @id @default(uuid()) @map("id")
+  dayOfWeek       Int           @map("day_of_week")
+  openingTime     String        @map("opening_time")
+  closingTime     String        @map("closing_time")
+  establishmentId String        @map("establishment_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@unique([establishmentId, dayOfWeek])
+  @@map("opening_hours")
+}
+
+model ClosurePeriod {
+  id              String        @id @default(uuid()) @map("id")
+  startDate       DateTime      @map("start_date")
+  endDate         DateTime      @map("end_date")
+  reason          String?       @map("reason")
+  establishmentId String        @map("establishment_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@map("closure_periods")
+}
+
+model MemberWorkingHours {
+  id        String   @id @default(uuid()) @map("id")
+  dayOfWeek Int      @map("day_of_week")
+  startTime String   @map("start_time")
+  endTime   String   @map("end_time")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  memberId  String   @map("member_id")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, dayOfWeek])
+  @@map("member_working_hours")
+}
+
+model MemberAbsencePeriod {
+  id        String   @id @default(uuid()) @map("id")
+  reason    String?  @map("reason")
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  memberId  String   @map("member_id")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("member_absence_periods")
+}
+
+model UserEmailVerification {
+  id        String   @id @default(uuid()) @map("id")
+  token     String   @unique @map("token")
+  expiresAt DateTime @map("expires_at")
+  verified  Boolean  @default(false) @map("verified")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_email_verifications")
+}
+
+model MemberEmailVerification {
+  id        String   @id @default(uuid()) @map("id")
+  token     String   @unique @map("token")
+  expiresAt DateTime @map("expires_at")
+  verified  Boolean  @default(false) @map("verified")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  memberId  String   @unique @map("member_id")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("member_email_verifications")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @map("id")
+  token     String   @unique @map("token")
+  expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false) @map("revoked")
+  userAgent String?  @map("user_agent")
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Appointment {
+  id              String                @id @default(uuid()) @map("id")
+  startTime       DateTime              @map("start_time")
+  endTime         DateTime              @map("end_time")
+  totalAmount     Int                   @map("total_amount")
+  totalDuration   Int                   @map("total_duration")
+  status          AppointmentStatus     @default(PENDING) @map("status")
+  notes           String?               @map("notes")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+  customerId      String                @map("customer_id")
+  memberId        String                @map("member_id")
+  establishmentId String                @map("establishment_id")
+  services        AppointmentService[]
+  customer        EstablishmentCustomer @relation(fields: [customerId], references: [id])
+  establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  member          Member                @relation(fields: [memberId], references: [id])
+  transaction     Transaction?
+
+  @@map("appointments")
+}
+
+model AppointmentService {
+  id            String               @id @default(uuid()) @map("id")
+  price         Int                  @map("price")
+  duration      Int                  @map("duration")
+  commission    Decimal              @map("commission") @db.Decimal(5, 4)
+  appointmentId String               @map("appointment_id")
+  serviceId     String               @map("service_id")
+  appointment   Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  service       EstablishmentService @relation(fields: [serviceId], references: [id])
+
+  @@unique([appointmentId, serviceId])
+  @@map("appointment_services")
+}
+
+model Transaction {
+  id               String                @id @default(uuid()) @map("id")
+  totalAmount      Int                   @map("total_amount")
+  discount         Int                   @default(0) @map("discount")
+  finalAmount      Int                   @map("final_amount")
+  commissionAmount Int                   @map("commission_amount")
+  paymentMethod    PaymentMethod         @map("payment_method")
+  paymentStatus    PaymentStatus         @map("payment_status")
+  notes            String?               @map("notes")
+  transactionDate  DateTime              @default(now()) @map("transaction_date")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  appointmentId    String?               @unique @map("appointment_id")
+  customerId       String                @map("customer_id")
+  memberId         String                @map("member_id")
+  establishmentId  String                @map("establishment_id")
+  items            TransactionItem[]
+  appointment      Appointment?          @relation(fields: [appointmentId], references: [id])
+  customer         EstablishmentCustomer @relation(fields: [customerId], references: [id])
+  member           Member                @relation(fields: [memberId], references: [id])
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id            String                @id @default(uuid()) @map("id")
+  itemType      ItemType              @map("item_type")
+  quantity      Int                   @default(1) @map("quantity")
+  unitPrice     Int                   @map("unit_price")
+  totalPrice    Int                   @map("total_price")
+  commission    Decimal               @map("commission") @db.Decimal(5, 4)
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @updatedAt @map("updated_at")
+  transactionId String                @map("transaction_id")
+  productId     String?               @map("product_id")
+  serviceId     String?               @map("service_id")
+  product       EstablishmentProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
+  service       EstablishmentService? @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  transaction   Transaction           @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@map("transaction_items")
+}
+
+model PaymentOrder {
+  id              String        @id @default(uuid()) @map("id")
+  totalAmount     Int           @map("total_amount")
+  status          PaymentStatus @map("status")
+  paymentMethod   PaymentMethod @map("payment_method")
+  paymentDate     DateTime?     @map("payment_date")
+  periodStart     DateTime      @map("period_start")
+  periodEnd       DateTime      @map("period_end")
+  notes           String?       @map("notes")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  memberId        String        @map("member_id")
+  establishmentId String        @map("establishment_id")
+  createdById     String        @map("created_by_id")
+  createdBy       User          @relation(fields: [createdById], references: [id])
+  member          Member        @relation(fields: [memberId], references: [id])
+
+  @@map("payment_orders")
+}
+
+/// Representa um membro/funcionário de um estabelecimento.
+/// Tabela principal de membros do sistema.
+model Member {
+  /// Identificador único do membro.
+  id                String                   @id @default(uuid()) @map("id")
+  /// Nome completo do membro.
+  name              String                   @map("name")
+  /// Email único do membro (único por estabelecimento).
+  email             String                   @unique @map("email")
+  /// Telefone único do membro (único por estabelecimento).
+  phone             String                   @unique @map("phone")
+  /// Senha criptografada do membro.
+  password          String                   @map("password")
+  /// Papel/função do membro no estabelecimento.
+  role              Role                     @map("role")
+  /// Indica se o membro está ativo.
+  isActive          Boolean                  @default(true) @map("is_active")
+  /// Estabelecimento ao qual o membro pertence.
+  establishmentId   String                   @map("establishment_id")
+  /// Data de criação do membro.
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  /// Data da última atualização do membro.
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  appointments      Appointment[]
+  absencePeriods    MemberAbsencePeriod[]
+  emailVerification MemberEmailVerification?
+  memberProducts    MemberProduct[]
+  refreshTokens     MemberRefreshToken[]
+  memberServices    MemberService[]
+  workingHours      MemberWorkingHours[]
+  establishment     Establishment            @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  paymentOrders     PaymentOrder[]
+  transactions      Transaction[]
+
+  @@map("members")
+}
+
+/// Refresh tokens para autenticação de membros.
+/// Permite que membros mantenham sessões ativas.
+model MemberRefreshToken {
+  /// Identificador único do token.
+  id        String   @id @default(uuid()) @map("id")
+  /// Token de refresh único.
+  token     String   @unique @map("token")
+  /// Data de expiração do token.
+  expiresAt DateTime @map("expires_at")
+  /// Indica se o token foi revogado.
+  revoked   Boolean  @default(false) @map("revoked")
+  /// User agent do dispositivo que solicitou o token.
+  userAgent String?  @map("user_agent")
+  /// Endereço IP do dispositivo que solicitou o token.
+  ipAddress String?  @map("ip_address")
+  /// Data de criação do token.
+  createdAt DateTime @default(now()) @map("created_at")
+  /// Data da última atualização do token.
+  updatedAt DateTime @updatedAt @map("updated_at")
+  /// Membro ao qual o token pertence.
+  memberId  String   @map("member_id")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("member_refresh_tokens")
 }
 
 enum Role {
@@ -59,486 +496,4 @@ enum SubscriptionStatus {
   EXPIRED
   CANCELLED
   PENDING
-}
-
-/// Representa um plano de assinatura disponível para estabelecimentos.
-/// Exemplo: "Plano Sistema", "Atendimento A.I.", "Pacote Premium".
-model Plan {
-  /// Identificador único do plano.
-  id String @id @default(uuid()) @map("id")
-
-  /// Nome do plano (ex: "Atendimento A.I.").
-  name String @map("name")
-
-  /// Descrição detalhada do plano.
-  description String? @map("description")
-
-  /// Preço do plano em centavos (ex: 1999 = R$19,99).
-  price Int @map("price")
-
-  /// Duração do plano em dias (ex: 30 para mensal).
-  duration Int @map("duration")
-
-  /// Indica se o plano está ativo para novas assinaturas.
-  isActive Boolean @default(true) @map("is_active")
-
-  /// Assinaturas vinculadas a este plano.
-  subscriptions Subscription[]
-
-  /// Data de criação do plano.
-  createdAt DateTime @default(now()) @map("created_at")
-
-  /// Data da última atualização do plano.
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("plans")
-}
-
-/// Representa a assinatura de um plano por um estabelecimento.
-/// Controla status, validade, pagamento e telefone vinculado ao serviço.
-model Subscription {
-  /// Identificador único da assinatura.
-  id String @id @default(uuid()) @map("id")
-
-  /// Estabelecimento que possui a assinatura.
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-
-  /// Plano assinado.
-  planId String @map("plan_id")
-  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Restrict)
-
-  /// Usuário que realizou a assinatura (opcional).
-  createdById String? @map("created_by_id")
-  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
-
-  /// Data de início da assinatura.
-  startDate DateTime @map("start_date")
-
-  /// Data de término da assinatura.
-  endDate DateTime @map("end_date")
-
-  /// Status atual da assinatura.
-  status SubscriptionStatus @default(PENDING) @map("status")
-
-  /// Indica se a assinatura está paga.
-  paid Boolean @default(false) @map("paid")
-
-  /// Telefone vinculado ao serviço (agora obrigatório).
-  phone String @map("phone")
-
-  /// Data de criação da assinatura.
-  createdAt DateTime @default(now()) @map("created_at")
-
-  /// Data da última atualização da assinatura.
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@index([establishmentId])
-  @@index([planId])
-  @@index([createdById])
-  @@map("subscriptions")
-}
-
-model User {
-  id            String   @id @default(uuid()) @map("id")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-  email         String   @unique @map("email")
-  name          String   @map("name")
-  phone         String   @map("phone")
-  password      String   @map("password")
-  emailVerified Boolean  @default(false) @map("email_verified")
-
-  ownedEstablishments  Establishment[] // Estabelecimentos que o usuário é dono
-  emailVerification    EmailVerification?
-  refreshTokens        RefreshToken[]
-  createdPaymentOrders PaymentOrder[]
-  createdSubscriptions Subscription[]
-
-  @@index([email])
-  @@map("users")
-}
-
-model Establishment {
-  id        String   @id @default(uuid()) @map("id")
-  name      String   @map("name")
-  address   String   @map("address")
-  phone     String   @map("phone")
-  ownerId   String   @map("owner_id")
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  members        Member[] // Membros do estabelecimento
-  products       EstablishmentProduct[]
-  services       EstablishmentService[]
-  customers      EstablishmentCustomer[]
-  openingHours   OpeningHours[]
-  closurePeriods ClosurePeriod[]
-  appointments   Appointment[]
-  subscriptions  Subscription[]
-
-  @@unique([ownerId, phone])
-  @@map("establishments")
-}
-
-model EstablishmentCustomer {
-  id              String        @id @default(uuid()) @map("id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  name            String        @map("name")
-  email           String?       @map("email")
-  phone           String?       @map("phone")
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  appointments    Appointment[]
-  transactions    Transaction[]
-
-  @@unique([establishmentId, email])
-  @@unique([establishmentId, phone])
-  @@map("establishment_customers")
-}
-
-model EstablishmentProduct {
-  id               String            @id @default(uuid()) @map("id")
-  name             String            @map("name")
-  description      String?           @map("description")
-  price            Int               @map("price")
-  commission       Decimal           @map("commission") @db.Decimal(5, 4)
-  stock            Int               @map("stock")
-  establishmentId  String            @map("establishment_id")
-  establishment    Establishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
-  memberProducts   MemberProduct[]
-  transactionItems TransactionItem[]
-
-  @@unique([establishmentId, name])
-  @@map("establishment_products")
-}
-
-model EstablishmentService {
-  id                  String               @id @default(uuid()) @map("id")
-  name                String               @map("name")
-  description         String?              @map("description")
-  duration            Int                  @map("duration")
-  price               Int                  @map("price")
-  commission          Decimal              @map("commission") @db.Decimal(5, 4)
-  establishmentId     String               @map("establishment_id")
-  establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
-  memberServices      MemberService[]
-  appointmentServices AppointmentService[]
-  transactionItems    TransactionItem[]
-
-  @@unique([establishmentId, name])
-  @@map("establishment_services")
-}
-
-model MemberProduct {
-  id              String               @id @default(uuid()) @map("id")
-  price           Int                  @map("price")
-  commission      Decimal              @map("commission") @db.Decimal(5, 4)
-  establishmentId String               @map("establishment_id")
-  productId       String               @map("product_id")
-  createdAt       DateTime             @default(now()) @map("created_at")
-  updatedAt       DateTime             @updatedAt @map("updated_at")
-  member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId        String               @map("member_id")
-  product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([memberId, establishmentId, productId])
-  @@map("member_products")
-}
-
-model MemberService {
-  id              String               @id @default(uuid()) @map("id")
-  price           Int                  @map("price")
-  commission      Decimal              @map("commission") @db.Decimal(5, 4)
-  duration        Int                  @map("duration")
-  establishmentId String               @map("establishment_id")
-  serviceId       String               @map("service_id")
-  createdAt       DateTime             @default(now()) @map("created_at")
-  updatedAt       DateTime             @updatedAt @map("updated_at")
-  member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId        String               @map("member_id")
-  service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@unique([memberId, establishmentId, serviceId])
-  @@map("member_services")
-}
-
-model OpeningHours {
-  id              String        @id @default(uuid()) @map("id")
-  // Representa o dia da semana (0 = domingo, 1 = segunda, ..., 6 = sábado)
-  dayOfWeek       Int           @map("day_of_week")
-  // Horário de abertura no formato "HH:mm"
-  openingTime     String        @map("opening_time")
-  // Horário de fechamento no formato "HH:mm"
-  closingTime     String        @map("closing_time")
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-
-  @@unique([establishmentId, dayOfWeek])
-  @@map("opening_hours")
-}
-
-model ClosurePeriod {
-  id              String        @id @default(uuid()) @map("id")
-  // Data de início do fechamento
-  startDate       DateTime      @map("start_date")
-  // Data de término do fechamento
-  endDate         DateTime      @map("end_date")
-  // Justificativa opcional
-  reason          String?       @map("reason")
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-
-  @@map("closure_periods")
-}
-
-model MemberWorkingHours {
-  id        String   @id @default(uuid()) @map("id")
-  dayOfWeek Int      @map("day_of_week")
-  startTime String   @map("start_time")
-  endTime   String   @map("end_time")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId  String   @map("member_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@unique([memberId, dayOfWeek])
-  @@map("member_working_hours")
-}
-
-model MemberAbsencePeriod {
-  id        String   @id @default(uuid()) @map("id")
-  reason    String?  @map("reason")
-  startDate DateTime @map("start_date")
-  endDate   DateTime @map("end_date")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId  String   @map("member_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("member_absence_periods")
-}
-
-model EmailVerification {
-  id        String   @id @default(uuid()) @map("id")
-  token     String   @unique @map("token")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  userId    String   @unique @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("email_verifications")
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid()) @map("id")
-  token     String   @unique @map("token")
-  expiresAt DateTime @map("expires_at")
-  revoked   Boolean  @default(false) @map("revoked")
-  userAgent String?  @map("user_agent")
-  ipAddress String?  @map("ip_address")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("refresh_tokens")
-}
-
-model Appointment {
-  id              String                @id @default(uuid()) @map("id")
-  startTime       DateTime              @map("start_time")
-  endTime         DateTime              @map("end_time")
-  totalAmount     Int                   @map("total_amount")
-  totalDuration   Int                   @map("total_duration")
-  status          AppointmentStatus     @default(PENDING) @map("status")
-  notes           String?               @map("notes")
-  createdAt       DateTime              @default(now()) @map("created_at")
-  updatedAt       DateTime              @updatedAt @map("updated_at")
-  customerId      String                @map("customer_id")
-  customer        EstablishmentCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  memberId        String                @map("member_id")
-  establishmentId String                @map("establishment_id")
-  member          Member                @relation(fields: [memberId], references: [id], onDelete: Restrict)
-  establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  services        AppointmentService[]
-  transaction     Transaction?
-
-  @@map("appointments")
-}
-
-model AppointmentService {
-  id            String               @id @default(uuid()) @map("id")
-  price         Int                  @map("price")
-  duration      Int                  @map("duration")
-  commission    Decimal              @map("commission") @db.Decimal(5, 4)
-  appointmentId String               @map("appointment_id")
-  appointment   Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
-  serviceId     String               @map("service_id")
-  service       EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-
-  @@unique([appointmentId, serviceId])
-  @@map("appointment_services")
-}
-
-model Transaction {
-  id               String                @id @default(uuid()) @map("id")
-  totalAmount      Int                   @map("total_amount")
-  discount         Int                   @default(0) @map("discount")
-  finalAmount      Int                   @map("final_amount")
-  commissionAmount Int                   @map("commission_amount")
-  paymentMethod    PaymentMethod         @map("payment_method")
-  paymentStatus    PaymentStatus         @map("payment_status")
-  notes            String?               @map("notes")
-  transactionDate  DateTime              @default(now()) @map("transaction_date")
-  createdAt        DateTime              @default(now()) @map("created_at")
-  updatedAt        DateTime              @updatedAt @map("updated_at")
-  appointmentId    String?               @unique @map("appointment_id")
-  appointment      Appointment?          @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
-  customerId       String                @map("customer_id")
-  customer         EstablishmentCustomer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  memberId         String                @map("member_id")
-  establishmentId  String                @map("establishment_id")
-  member           Member                @relation(fields: [memberId], references: [id], onDelete: Restrict)
-  items            TransactionItem[]
-
-  @@map("transactions")
-}
-
-model TransactionItem {
-  id            String                @id @default(uuid()) @map("id")
-  itemType      ItemType              @map("item_type")
-  quantity      Int                   @default(1) @map("quantity")
-  unitPrice     Int                   @map("unit_price")
-  totalPrice    Int                   @map("total_price")
-  commission    Decimal               @map("commission") @db.Decimal(5, 4)
-  createdAt     DateTime              @default(now()) @map("created_at")
-  updatedAt     DateTime              @updatedAt @map("updated_at")
-  transactionId String                @map("transaction_id")
-  transaction   Transaction           @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  productId     String?               @map("product_id")
-  product       EstablishmentProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
-  serviceId     String?               @map("service_id")
-  service       EstablishmentService? @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-
-  @@map("transaction_items")
-}
-
-model PaymentOrder {
-  id              String        @id @default(uuid()) @map("id")
-  totalAmount     Int           @map("total_amount")
-  status          PaymentStatus @map("status")
-  paymentMethod   PaymentMethod @map("payment_method")
-  paymentDate     DateTime?     @map("payment_date")
-  periodStart     DateTime      @map("period_start")
-  periodEnd       DateTime      @map("period_end")
-  notes           String?       @map("notes")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  memberId        String        @map("member_id")
-  establishmentId String        @map("establishment_id")
-  member          Member        @relation(fields: [memberId], references: [id], onDelete: Restrict)
-  createdById     String        @map("created_by_id")
-  createdBy       User          @relation(fields: [createdById], references: [id], onDelete: Restrict)
-
-  @@map("payment_orders")
-}
-
-/// Representa um membro/funcionário de um estabelecimento.
-/// Tabela principal de membros do sistema.
-model Member {
-  /// Identificador único do membro.
-  id String @id @default(uuid()) @map("id")
-
-  /// Nome completo do membro.
-  name String @map("name")
-
-  /// Email único do membro (único por estabelecimento).
-  email String @map("email")
-
-  /// Telefone único do membro (único por estabelecimento).
-  phone String @map("phone")
-
-  /// Senha criptografada do membro.
-  password String @map("password")
-
-  /// Papel/função do membro no estabelecimento.
-  role Role @map("role")
-
-  /// Indica se o email foi verificado.
-  emailVerified Boolean @default(false) @map("email_verified")
-
-  /// Indica se o membro está ativo.
-  isActive Boolean @default(true) @map("is_active")
-
-  /// Estabelecimento ao qual o membro pertence.
-  establishmentId String        @map("establishment_id")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-
-  /// Relacionamentos do membro
-  memberProducts MemberProduct[] // Produtos que ele pode vender
-  memberServices MemberService[] // Serviços que ele pode fazer
-  workingHours   MemberWorkingHours[] // Horários de trabalho
-  absencePeriods MemberAbsencePeriod[] // Períodos de ausência
-  appointments   Appointment[] // Agendamentos
-  transactions   Transaction[] // Transações realizadas
-  paymentOrders  PaymentOrder[] // Ordens de pagamento
-
-  /// Relacionamentos específicos do Member
-  refreshTokens MemberRefreshToken[] // Refresh tokens para autenticação
-
-  /// Data de criação do membro.
-  createdAt DateTime @default(now()) @map("created_at")
-
-  /// Data da última atualização do membro.
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@unique([email])
-  @@unique([phone])
-  @@map("members")
-}
-
-/// Refresh tokens para autenticação de membros.
-/// Permite que membros mantenham sessões ativas.
-model MemberRefreshToken {
-  /// Identificador único do token.
-  id String @id @default(uuid()) @map("id")
-
-  /// Token de refresh único.
-  token String @unique @map("token")
-
-  /// Data de expiração do token.
-  expiresAt DateTime @map("expires_at")
-
-  /// Indica se o token foi revogado.
-  revoked Boolean @default(false) @map("revoked")
-
-  /// User agent do dispositivo que solicitou o token.
-  userAgent String? @map("user_agent")
-
-  /// Endereço IP do dispositivo que solicitou o token.
-  ipAddress String? @map("ip_address")
-
-  /// Data de criação do token.
-  createdAt DateTime @default(now()) @map("created_at")
-
-  /// Data da última atualização do token.
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  /// Membro ao qual o token pertence.
-  memberId String @map("member_id")
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@map("member_refresh_tokens")
 }

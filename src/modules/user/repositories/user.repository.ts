@@ -17,7 +17,6 @@ export class UserRepository implements IUserRepository {
         email: data.email,
         phone: data.phone,
         password: data.password,
-        emailVerified: false, // Por padrão, email não verificado
       },
     });
   }
