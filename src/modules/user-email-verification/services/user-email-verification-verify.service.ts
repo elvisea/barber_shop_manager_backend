@@ -1,0 +1,104 @@
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+
+import { UserEmailVerificationRepository } from '../repositories/user-email-verification.repository';
+
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
+import { verifyCode } from '@/utils/verify-code';
+
+@Injectable()
+export class UserEmailVerificationVerifyService {
+  private readonly logger = new Logger(UserEmailVerificationVerifyService.name);
+
+  constructor(
+    private readonly userEmailVerificationRepository: UserEmailVerificationRepository,
+    private readonly errorMessageService: ErrorMessageService,
+  ) {}
+
+  async execute(userId: string, code: string) {
+    this.logger.log(`Verifying email with code: ${code} for user: ${userId}`);
+
+    // Find verification by userId
+    const verification =
+      await this.userEmailVerificationRepository.findByUserId(userId);
+
+    if (!verification) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.INVALID_VERIFICATION_TOKEN,
+        { TOKEN: code },
+      );
+
+      this.logger.warn(message);
+
+      throw new CustomHttpException(
+        message,
+        HttpStatus.BAD_REQUEST,
+        ErrorCode.INVALID_VERIFICATION_TOKEN,
+      );
+    }
+
+    // Check if token is expired
+    if (verification.expiresAt < new Date()) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.VERIFICATION_TOKEN_EXPIRED,
+        { TOKEN: code },
+      );
+
+      this.logger.warn(message);
+
+      throw new CustomHttpException(
+        message,
+        HttpStatus.BAD_REQUEST,
+        ErrorCode.VERIFICATION_TOKEN_EXPIRED,
+      );
+    }
+
+    // Check if already verified
+    if (verification.verified) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.EMAIL_ALREADY_VERIFIED,
+        { USER_ID: verification.userId },
+      );
+
+      this.logger.warn(message);
+
+      throw new CustomHttpException(
+        message,
+        HttpStatus.CONFLICT,
+        ErrorCode.EMAIL_ALREADY_VERIFIED,
+      );
+    }
+
+    // Verify the code against the hashed token
+    const isValid = await verifyCode(code, verification.token);
+
+    if (!isValid) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.INVALID_VERIFICATION_TOKEN,
+        { TOKEN: code },
+      );
+
+      this.logger.warn(message);
+
+      throw new CustomHttpException(
+        message,
+        HttpStatus.BAD_REQUEST,
+        ErrorCode.INVALID_VERIFICATION_TOKEN,
+      );
+    }
+
+    // Mark as verified
+    const updatedVerification =
+      await this.userEmailVerificationRepository.updateVerification(
+        verification.id,
+        { verified: true },
+      );
+
+    this.logger.log(
+      `Email verified successfully for user: ${verification.userId}`,
+    );
+
+    return updatedVerification;
+  }
+}
