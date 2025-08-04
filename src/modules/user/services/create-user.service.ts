@@ -77,6 +77,7 @@ export class CreateUserService {
       const emailVerification =
         await this.userEmailVerificationCreateService.execute(
           newUser.id,
+          newUser.email,
           CreateUserService.EMAIL_VERIFICATION_EXPIRATION_MINUTES,
         );
 

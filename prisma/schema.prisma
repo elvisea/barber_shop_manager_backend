@@ -249,7 +249,8 @@ model MemberAbsencePeriod {
 
 model UserEmailVerification {
   id        String   @id @default(uuid()) @map("id")
-  token     String   @unique @map("token")
+  email     String   @unique @map("email")
+  token     String   @map("token")
   expiresAt DateTime @map("expires_at")
   verified  Boolean  @default(false) @map("verified")
   createdAt DateTime @default(now()) @map("created_at")
@@ -257,6 +258,7 @@ model UserEmailVerification {
   userId    String   @unique @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([email])
   @@map("user_email_verifications")
 }
 

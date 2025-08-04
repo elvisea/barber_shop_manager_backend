@@ -13,27 +13,40 @@ export class UserEmailVerificationRepository
 
   async createUserEmailVerification(data: {
     token: string;
+    email: string;
     expiresAt: Date;
     userId: string;
   }): Promise<UserEmailVerification> {
     return this.prisma.userEmailVerification.create({
       data: {
         token: data.token,
+        email: data.email,
         expiresAt: data.expiresAt,
         userId: data.userId,
       },
     });
   }
 
-  async findByToken(token: string): Promise<UserEmailVerification | null> {
+  async findByEmail(email: string): Promise<UserEmailVerification | null> {
     return this.prisma.userEmailVerification.findUnique({
-      where: { token },
+      where: { email },
     });
   }
 
   async findByUserId(userId: string): Promise<UserEmailVerification | null> {
     return this.prisma.userEmailVerification.findUnique({
       where: { userId },
+    });
+  }
+
+  async findAllNonExpired(): Promise<UserEmailVerification[]> {
+    return this.prisma.userEmailVerification.findMany({
+      where: {
+        expiresAt: {
+          gt: new Date(),
+        },
+        verified: false,
+      },
     });
   }
 

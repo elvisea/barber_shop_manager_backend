@@ -16,12 +16,12 @@ export class UserEmailVerificationVerifyService {
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
-  async execute(userId: string, code: string) {
-    this.logger.log(`Verifying email with code: ${code} for user: ${userId}`);
+  async execute(email: string, code: string) {
+    this.logger.log(`Verifying email: ${email} with code: ${code}`);
 
-    // Find verification by userId
+    // Find verification by email
     const verification =
-      await this.userEmailVerificationRepository.findByUserId(userId);
+      await this.userEmailVerificationRepository.findByEmail(email);
 
     if (!verification) {
       const message = this.errorMessageService.getMessage(
