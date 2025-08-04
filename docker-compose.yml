@@ -21,9 +21,6 @@ services:
       - barber_evolution_net
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
     image: ${REGISTRY:-docker.io}/${IMAGE_NAME:-elvisea/barber_shop_manager_backend}:${TAG:-latest}
     container_name: ${CONTAINER_NAME_APP:-barber_shop_manager_backend_app}
     restart: unless-stopped
