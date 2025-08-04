@@ -367,4 +367,13 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.EMAIL_ALREADY_VERIFIED,
     },
   },
+  [ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND]: {
+    description: 'User email verification not found',
+    example: {
+      statusCode: 404,
+      message: 'Email verification not found for email [EMAIL].',
+      error: 'Not Found',
+      errorCode: ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND,
+    },
+  },
 };

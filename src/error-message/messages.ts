@@ -141,4 +141,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.EMAIL_ALREADY_VERIFIED]: {
     message: 'Email for user [USER_ID] is already verified.',
   },
+  [ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND]: {
+    message: 'Email verification not found for email [EMAIL].',
+  },
 } as const;

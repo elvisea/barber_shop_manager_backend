@@ -60,6 +60,19 @@ export class UserEmailVerificationRepository
     });
   }
 
+  async updateTokenAndExpiration(
+    id: string,
+    data: { token: string; expiresAt: Date },
+  ): Promise<UserEmailVerification> {
+    return this.prisma.userEmailVerification.update({
+      where: { id },
+      data: {
+        token: data.token,
+        expiresAt: data.expiresAt,
+      },
+    });
+  }
+
   async deleteVerification(id: string): Promise<void> {
     await this.prisma.userEmailVerification.delete({
       where: { id },

@@ -19,6 +19,11 @@ export interface IUserEmailVerificationRepository {
     data: { verified: boolean },
   ): Promise<UserEmailVerification>;
 
+  updateTokenAndExpiration(
+    id: string,
+    data: { token: string; expiresAt: Date },
+  ): Promise<UserEmailVerification>;
+
   deleteVerification(id: string): Promise<void>;
 
   deleteExpiredVerifications(): Promise<number>;
