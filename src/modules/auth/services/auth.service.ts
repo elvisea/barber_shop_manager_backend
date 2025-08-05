@@ -110,7 +110,10 @@ export class AuthService {
       `Authentication successful for email [${authRequest.email}].`,
     );
 
-    const payload = { sub: userWithVerification.id };
+    const payload = {
+      sub: userWithVerification.id,
+      role: userWithVerification.role,
+    };
 
     const { accessToken, refreshToken } =
       await this.tokenService.generateTokens(payload);

@@ -126,7 +126,10 @@ export class MemberAuthService {
       `Member authentication successful for email [${authRequest.email}] in establishment [${memberWithVerification.establishmentId}].`,
     );
 
-    const payload = { sub: memberWithVerification.id };
+    const payload = {
+      sub: memberWithVerification.id,
+      role: memberWithVerification.role,
+    };
 
     const { accessToken, refreshToken } =
       await this.tokenService.generateTokens(payload);
