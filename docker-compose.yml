@@ -76,7 +76,7 @@ services:
         echo 'Executando migrations...' &&
         npx prisma migrate deploy &&
         echo 'Iniciando aplicação...' &&
-        node dist/src/main.js
+        node dist/main.js
       "
     networks:
       - barber_evolution_net
