@@ -5,9 +5,11 @@ import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { MemberEmailVerificationCreateService } from '@/modules/member-email-verification/services/member-email-verification-create.service';
 import { generateTempPassword } from '@/utils/generate-temp-password';
 import { hashValue } from '@/utils/hash-value';
 
@@ -19,6 +21,8 @@ export class MemberCreateService {
     private readonly memberRepository: MemberRepository,
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly memberEmailVerificationCreateService: MemberEmailVerificationCreateService,
+    private readonly emailService: EmailService,
   ) {}
 
   async execute(
@@ -89,8 +93,35 @@ export class MemberCreateService {
 
       this.logger.log(`Member created with ID: ${member.id}`);
 
-      // TODO: Enviar email com senha temporária para o membro
-      this.logger.log(`Temporary password for ${dto.email}: ${tempPassword}`);
+      // 6. Cria verificação de email e envia código
+      try {
+        const verification = await this.memberEmailVerificationCreateService.execute(
+          member.id,
+          dto.email,
+        );
+
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify-member-email?code=${verification.plainToken}`;
+
+        await this.emailService.sendEmail(
+          dto.email,
+          'Bem-vindo! Verifique seu email - Barbearia',
+          `Olá ${dto.name}!\n\n` +
+          `Bem-vindo à nossa barbearia! Para começar a usar sua conta, você precisa verificar seu email.\n\n` +
+          `Seu código de verificação é: ${verification.plainToken}\n\n` +
+          `Ou clique no link: ${verificationUrl}\n\n` +
+          `Sua senha temporária é: ${tempPassword}\n\n` +
+          `Este código expira em 24 horas.\n\n` +
+          `Atenciosamente,\nEquipe da Barbearia`,
+        );
+
+        this.logger.log(`Verification email sent successfully to: ${dto.email}`);
+      } catch (emailError) {
+        this.logger.error(
+          `Failed to send verification email to ${dto.email}: ${emailError.message}`,
+        );
+        // Don't throw error here, just log it
+        // The member was still created successfully
+      }
 
       return MemberMapper.toResponseDTO(member, false);
     } catch (error) {
