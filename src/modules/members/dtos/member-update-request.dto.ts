@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { MemberRole } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -28,12 +28,12 @@ export class MemberUpdateRequestDTO {
   phone?: string;
 
   @ApiPropertyOptional({
-    enum: Role,
-    example: Role.BARBER,
+    enum: MemberRole,
+    example: MemberRole.BARBER,
   })
   @IsOptional()
-  @IsEnum(Role)
-  role?: Role;
+  @IsEnum(MemberRole)
+  role?: MemberRole;
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()

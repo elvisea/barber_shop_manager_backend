@@ -74,6 +74,7 @@ model User {
   name                 String                 @map("name")
   phone                String                 @map("phone")
   password             String                 @map("password")
+  role                 UserRole               @default(OWNER) @map("role")
   ownedEstablishments  Establishment[]
   createdPaymentOrders PaymentOrder[]
   refreshTokens        RefreshToken[]
@@ -405,7 +406,7 @@ model Member {
   /// Senha criptografada do membro.
   password          String                   @map("password")
   /// Papel/função do membro no estabelecimento.
-  role              Role                     @map("role")
+  role              MemberRole               @map("role")
   /// Indica se o membro está ativo.
   isActive          Boolean                  @default(true) @map("is_active")
   /// Estabelecimento ao qual o membro pertence.
@@ -454,12 +455,15 @@ model MemberRefreshToken {
   @@map("member_refresh_tokens")
 }
 
-enum Role {
+enum UserRole {
   OWNER
+  ROOT
+}
+
+enum MemberRole {
   RECEPTIONIST
   HAIRDRESSER
   BARBER
-  ADMIN
 }
 
 enum AppointmentStatus {

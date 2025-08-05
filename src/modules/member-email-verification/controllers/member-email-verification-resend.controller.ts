@@ -13,7 +13,7 @@ import { ErrorCode } from '@/enums/error-code';
 export class MemberEmailVerificationResendController {
   constructor(
     private readonly memberEmailVerificationResendService: MemberEmailVerificationResendService,
-  ) { }
+  ) {}
 
   @Post('resend')
   @ApiOperation({

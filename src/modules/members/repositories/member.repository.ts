@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Member, MemberEmailVerification, Role } from '@prisma/client';
+import { Member, MemberEmailVerification, MemberRole } from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
 
@@ -14,7 +14,7 @@ export class MemberRepository implements IMemberRepository {
     email: string;
     phone: string;
     password: string;
-    role: Role;
+    role: MemberRole;
     establishmentId: string;
   }): Promise<Member> {
     return this.prisma.member.create({
@@ -108,7 +108,7 @@ export class MemberRepository implements IMemberRepository {
       name: string;
       email: string;
       phone: string;
-      role: Role;
+      role: MemberRole;
       isActive: boolean;
     }>,
   ): Promise<Member> {

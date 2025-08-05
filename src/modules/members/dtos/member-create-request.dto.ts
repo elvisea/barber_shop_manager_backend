@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { MemberRole } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
@@ -25,10 +25,10 @@ export class MemberCreateRequestDTO {
   phone: string;
 
   @ApiProperty({
-    enum: Role,
-    example: Role.BARBER,
+    enum: MemberRole,
+    example: MemberRole.BARBER,
     description: 'Role of the member',
   })
-  @IsEnum(Role)
-  role: Role;
+  @IsEnum(MemberRole)
+  role: MemberRole;
 }

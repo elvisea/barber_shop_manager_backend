@@ -1,4 +1,4 @@
-import { Member, MemberEmailVerification, Role } from '@prisma/client';
+import { Member, MemberEmailVerification, MemberRole } from '@prisma/client';
 
 export interface IMemberRepository {
   createMember(data: {
@@ -6,7 +6,7 @@ export interface IMemberRepository {
     email: string;
     phone: string;
     password: string;
-    role: Role;
+    role: MemberRole;
     establishmentId: string;
   }): Promise<Member>;
 
@@ -49,7 +49,7 @@ export interface IMemberRepository {
       name: string;
       email: string;
       phone: string;
-      role: Role;
+      role: MemberRole;
       isActive: boolean;
     }>,
   ): Promise<Member>;
