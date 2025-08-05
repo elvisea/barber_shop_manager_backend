@@ -13,6 +13,7 @@ import { EstablishmentCustomerModule } from './modules/establishment-customers/e
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
 import { MemberAuthModule } from './modules/member-auth/member-auth.module';
+import { MemberEmailVerificationModule } from './modules/member-email-verification/member-email-verification.module';
 import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { MemberServicesModule } from './modules/member-services/member-services.module';
 import { MembersModule } from './modules/members/members.module';
@@ -51,6 +52,7 @@ import { TokenModule } from './shared/token/token.module';
     WebhookModule,
     AIModule,
     UserEmailVerificationModule,
+    MemberEmailVerificationModule,
   ],
   controllers: [],
   providers: [
