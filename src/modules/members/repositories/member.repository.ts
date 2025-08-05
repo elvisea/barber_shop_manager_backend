@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Member, Role } from '@prisma/client';
+import { Member, MemberEmailVerification, Role } from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
 
@@ -38,6 +38,19 @@ export class MemberRepository implements IMemberRepository {
   async findByEmail(email: string): Promise<Member | null> {
     return this.prisma.member.findUnique({
       where: { email },
+    });
+  }
+
+  async findByEmailWithVerification(
+    email: string,
+  ): Promise<
+    (Member & { emailVerification: MemberEmailVerification | null }) | null
+  > {
+    return this.prisma.member.findUnique({
+      where: { email },
+      include: {
+        emailVerification: true,
+      },
     });
   }
 

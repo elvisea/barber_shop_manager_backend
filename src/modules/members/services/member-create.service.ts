@@ -95,10 +95,11 @@ export class MemberCreateService {
 
       // 6. Cria verificação de email e envia código
       try {
-        const verification = await this.memberEmailVerificationCreateService.execute(
-          member.id,
-          dto.email,
-        );
+        const verification =
+          await this.memberEmailVerificationCreateService.execute(
+            member.id,
+            dto.email,
+          );
 
         const verificationUrl = `${process.env.FRONTEND_URL}/verify-member-email?code=${verification.plainToken}`;
 
@@ -106,15 +107,17 @@ export class MemberCreateService {
           dto.email,
           'Bem-vindo! Verifique seu email - Barbearia',
           `Olá ${dto.name}!\n\n` +
-          `Bem-vindo à nossa barbearia! Para começar a usar sua conta, você precisa verificar seu email.\n\n` +
-          `Seu código de verificação é: ${verification.plainToken}\n\n` +
-          `Ou clique no link: ${verificationUrl}\n\n` +
-          `Sua senha temporária é: ${tempPassword}\n\n` +
-          `Este código expira em 24 horas.\n\n` +
-          `Atenciosamente,\nEquipe da Barbearia`,
+            `Bem-vindo à nossa barbearia! Para começar a usar sua conta, você precisa verificar seu email.\n\n` +
+            `Seu código de verificação é: ${verification.plainToken}\n\n` +
+            `Ou clique no link: ${verificationUrl}\n\n` +
+            `Sua senha temporária é: ${tempPassword}\n\n` +
+            `Este código expira em 24 horas.\n\n` +
+            `Atenciosamente,\nEquipe da Barbearia`,
         );
 
-        this.logger.log(`Verification email sent successfully to: ${dto.email}`);
+        this.logger.log(
+          `Verification email sent successfully to: ${dto.email}`,
+        );
       } catch (emailError) {
         this.logger.error(
           `Failed to send verification email to ${dto.email}: ${emailError.message}`,

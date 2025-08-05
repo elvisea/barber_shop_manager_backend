@@ -19,7 +19,9 @@ export class MemberEmailVerificationVerifyService {
   ) {}
 
   async execute(email: string, code: string) {
-    this.logger.log(`Verifying member email: ${email} with code: ${code}`);
+    this.logger.log(
+      `[MEMBER] Verifying member email: ${email} with code: ${code}`,
+    );
 
     // Find verification by email
     const verification =

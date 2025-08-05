@@ -8,6 +8,7 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { MemberRefreshTokenRepository } from '@/modules/member-auth/repositories/member-refresh-token.repository';
+import { MemberEmailVerificationResendService } from '@/modules/member-email-verification/services/member-email-verification-resend.service';
 import { MemberRepository } from '@/modules/members/repositories/member.repository';
 import { TokenService } from '@/shared/token/token.service';
 
@@ -20,6 +21,7 @@ export class MemberAuthService {
     private readonly memberRefreshTokenRepository: MemberRefreshTokenRepository,
     private readonly tokenService: TokenService,
     private readonly errorMessageService: ErrorMessageService,
+    private readonly memberEmailVerificationResendService: MemberEmailVerificationResendService,
   ) {}
 
   async execute(
@@ -29,12 +31,15 @@ export class MemberAuthService {
       `Starting member authentication process for email: ${authRequest.email}`,
     );
 
-    const member = await this.memberRepository.findByEmail(authRequest.email);
+    const memberWithVerification =
+      await this.memberRepository.findByEmailWithVerification(
+        authRequest.email,
+      );
 
     /**
      * The member is not found.
      */
-    if (!member) {
+    if (!memberWithVerification) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.INVALID_EMAIL_OR_PASSWORD,
         { EMAIL: authRequest.email },
@@ -50,10 +55,10 @@ export class MemberAuthService {
     /**
      * Check if member is active.
      */
-    if (!member.isActive) {
+    if (!memberWithVerification.isActive) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_NOT_FOUND,
-        { MEMBER_ID: member.id },
+        { MEMBER_ID: memberWithVerification.id },
       );
       this.logger.warn(errorMessage);
       throw new CustomHttpException(
@@ -65,7 +70,7 @@ export class MemberAuthService {
 
     const isPasswordValid = await compare(
       authRequest.password,
-      member.password,
+      memberWithVerification.password,
     );
 
     /**
@@ -84,11 +89,44 @@ export class MemberAuthService {
       );
     }
 
+    /**
+     * Check if email is verified.
+     */
+    if (!memberWithVerification.emailVerification?.verified) {
+      this.logger.warn(
+        `Email not verified for member: ${memberWithVerification.id}`,
+      );
+
+      // Re-send verification email
+      try {
+        await this.memberEmailVerificationResendService.execute(
+          authRequest.email,
+        );
+        this.logger.log(`Verification email re-sent for: ${authRequest.email}`);
+      } catch (resendError) {
+        this.logger.error(
+          `Failed to re-send verification email: ${resendError.message}`,
+        );
+        // Don't throw error here, just log it
+      }
+
+      const errorMessage = this.errorMessageService.getMessage(
+        ErrorCode.EMAIL_NOT_VERIFIED,
+        { EMAIL: authRequest.email },
+      );
+
+      throw new CustomHttpException(
+        errorMessage,
+        HttpStatus.UNAUTHORIZED,
+        ErrorCode.EMAIL_NOT_VERIFIED,
+      );
+    }
+
     this.logger.log(
-      `Member authentication successful for email [${authRequest.email}] in establishment [${member.establishmentId}].`,
+      `Member authentication successful for email [${authRequest.email}] in establishment [${memberWithVerification.establishmentId}].`,
     );
 
-    const payload = { sub: member.id };
+    const payload = { sub: memberWithVerification.id };
 
     const { accessToken, refreshToken } =
       await this.tokenService.generateTokens(payload);
@@ -99,7 +137,7 @@ export class MemberAuthService {
     await this.memberRefreshTokenRepository.create({
       refreshToken,
       expiresAt,
-      memberId: member.id,
+      memberId: memberWithVerification.id,
       ipAddress: authRequest.ipAddress,
       userAgent: authRequest.userAgent,
     });

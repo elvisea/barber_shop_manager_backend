@@ -6,6 +6,7 @@ import { MemberAuthService } from './services/member-auth.service';
 
 import { CommonAuthModule } from '@/common/auth/auth.module';
 import { ErrorMessageModule } from '@/error-message/error-message.module';
+import { MemberEmailVerificationModule } from '@/modules/member-email-verification/member-email-verification.module';
 import { MembersModule } from '@/modules/members/members.module';
 import { TokenModule } from '@/shared/token/token.module';
 
@@ -13,6 +14,7 @@ import { TokenModule } from '@/shared/token/token.module';
   imports: [
     TokenModule, // Para usar o TokenService compartilhado
     MembersModule, // Para usar o MemberRepository
+    MemberEmailVerificationModule, // Para usar o MemberEmailVerificationResendService
     ErrorMessageModule,
     CommonAuthModule,
   ],

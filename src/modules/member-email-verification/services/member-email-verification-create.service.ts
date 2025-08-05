@@ -25,7 +25,7 @@ export class MemberEmailVerificationCreateService {
 
   constructor(
     private readonly memberEmailVerificationRepository: MemberEmailVerificationRepository,
-  ) { }
+  ) {}
 
   async execute(
     memberId: string,

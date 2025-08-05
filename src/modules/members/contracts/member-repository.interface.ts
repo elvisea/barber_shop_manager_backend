@@ -1,4 +1,4 @@
-import { Member, Role } from '@prisma/client';
+import { Member, MemberEmailVerification, Role } from '@prisma/client';
 
 export interface IMemberRepository {
   createMember(data: {
@@ -13,6 +13,12 @@ export interface IMemberRepository {
   findById(id: string): Promise<Member | null>;
 
   findByEmail(email: string): Promise<Member | null>;
+
+  findByEmailWithVerification(
+    email: string,
+  ): Promise<
+    (Member & { emailVerification: MemberEmailVerification | null }) | null
+  >;
 
   findByEstablishmentAndId(
     establishmentId: string,

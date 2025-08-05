@@ -17,7 +17,7 @@ export class UserEmailVerificationVerifyService {
   ) {}
 
   async execute(email: string, code: string) {
-    this.logger.log(`Verifying email: ${email} with code: ${code}`);
+    this.logger.log(`[USER] Verifying email: ${email} with code: ${code}`);
 
     // Find verification by email
     const verification =

@@ -31,7 +31,7 @@ export class MemberEmailVerificationResendService {
     private readonly memberEmailVerificationRepository: MemberEmailVerificationRepository,
     private readonly errorMessageService: ErrorMessageService,
     private readonly emailService: EmailService,
-  ) { }
+  ) {}
 
   async execute(
     email: string,
