@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, UserEmailVerification } from '@prisma/client';
 
 import { IUserRepository } from '../contracts/user-repository.interface';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
@@ -24,6 +24,19 @@ export class UserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
     return this.prismaService.user.findUnique({
       where: { email },
+    });
+  }
+
+  async findByEmailWithVerification(
+    email: string,
+  ): Promise<
+    (User & { emailVerification: UserEmailVerification | null }) | null
+  > {
+    return this.prismaService.user.findUnique({
+      where: { email },
+      include: {
+        emailVerification: true,
+      },
     });
   }
 

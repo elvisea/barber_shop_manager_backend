@@ -9,6 +9,7 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { RefreshTokenRepository } from '@/modules/refresh-token/repositories/refresh-token.repository';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
+import { UserEmailVerificationResendService } from '@/modules/user-email-verification/services/user-email-verification-resend.service';
 import { TokenService } from '@/shared/token/token.service';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly tokenService: TokenService,
     private readonly errorMessageService: ErrorMessageService,
+    private readonly userEmailVerificationResendService: UserEmailVerificationResendService,
   ) {}
 
   async execute(
@@ -29,12 +31,13 @@ export class AuthService {
       `Starting authentication process for email: ${authRequest.email}`,
     );
 
-    const user = await this.userRepository.findByEmail(authRequest.email);
+    const userWithVerification =
+      await this.userRepository.findByEmailWithVerification(authRequest.email);
 
     /**
      * The user is not found.
      */
-    if (!user) {
+    if (!userWithVerification) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.INVALID_EMAIL_OR_PASSWORD,
         { EMAIL: authRequest.email },
@@ -47,7 +50,10 @@ export class AuthService {
       );
     }
 
-    const isPasswordValid = await compare(authRequest.password, user.password);
+    const isPasswordValid = await compare(
+      authRequest.password,
+      userWithVerification.password,
+    );
 
     /**
      * The password is invalid.
@@ -57,7 +63,9 @@ export class AuthService {
         ErrorCode.INVALID_EMAIL_OR_PASSWORD,
         { EMAIL: authRequest.email },
       );
+
       this.logger.warn(errorMessage);
+
       throw new CustomHttpException(
         errorMessage,
         HttpStatus.UNAUTHORIZED,
@@ -65,11 +73,44 @@ export class AuthService {
       );
     }
 
+    /**
+     * Check if email is verified.
+     */
+    if (!userWithVerification.emailVerification?.verified) {
+      this.logger.warn(
+        `Email not verified for user: ${userWithVerification.id}`,
+      );
+
+      // Re-send verification email
+      try {
+        await this.userEmailVerificationResendService.execute(
+          authRequest.email,
+        );
+        this.logger.log(`Verification email re-sent for: ${authRequest.email}`);
+      } catch (resendError) {
+        this.logger.error(
+          `Failed to re-send verification email: ${resendError.message}`,
+        );
+        // Don't throw error here, just log it
+      }
+
+      const errorMessage = this.errorMessageService.getMessage(
+        ErrorCode.EMAIL_NOT_VERIFIED,
+        { EMAIL: authRequest.email },
+      );
+
+      throw new CustomHttpException(
+        errorMessage,
+        HttpStatus.UNAUTHORIZED,
+        ErrorCode.EMAIL_NOT_VERIFIED,
+      );
+    }
+
     this.logger.log(
       `Authentication successful for email [${authRequest.email}].`,
     );
 
-    const payload = { sub: user.id };
+    const payload = { sub: userWithVerification.id };
 
     const { accessToken, refreshToken } =
       await this.tokenService.generateTokens(payload);
@@ -80,7 +121,7 @@ export class AuthService {
     await this.refreshTokenRepository.create({
       refreshToken,
       expiresAt,
-      userId: user.id,
+      userId: userWithVerification.id,
       ipAddress: authRequest.ipAddress,
       userAgent: authRequest.userAgent,
     });

@@ -367,6 +367,16 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.EMAIL_ALREADY_VERIFIED,
     },
   },
+  [ErrorCode.EMAIL_NOT_VERIFIED]: {
+    description: 'Email not verified',
+    example: {
+      statusCode: 401,
+      message:
+        'Email [EMAIL] is not verified. Please check your email for verification code.',
+      error: 'Unauthorized',
+      errorCode: ErrorCode.EMAIL_NOT_VERIFIED,
+    },
+  },
   [ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND]: {
     description: 'User email verification not found',
     example: {
