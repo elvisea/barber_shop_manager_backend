@@ -1,10 +1,5 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MemberEmailVerificationResendRequestDTO } from '../dtos/member-email-verification-resend-request.dto';
 import { MemberEmailVerificationResendResponseDTO } from '../dtos/member-email-verification-resend-response.dto';
@@ -14,12 +9,11 @@ import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Verificação de Email - Membro')
-@ApiBearerAuth()
 @Controller('member-email-verification')
 export class MemberEmailVerificationResendController {
   constructor(
     private readonly memberEmailVerificationResendService: MemberEmailVerificationResendService,
-  ) {}
+  ) { }
 
   @Post('resend')
   @ApiOperation({
