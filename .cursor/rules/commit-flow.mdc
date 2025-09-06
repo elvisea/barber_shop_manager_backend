@@ -110,6 +110,22 @@ Então execute:
 git push origin <nome-da-branch>
 ```
 
+### 6. Criar Pull Request (Opcional)
+
+Se estiver trabalhando em uma feature ou fix:
+
+```bash
+gh pr create --base develop --title "tipo(escopo): descrição" --body "Closes #123"
+```
+
+### 7. Fechar Issue (Após merge)
+
+Após o PR ser mergeado:
+
+```bash
+gh issue close 123
+```
+
 > ✅ **Exemplo prático completo:**
 >
 > ```bash
@@ -118,6 +134,9 @@ git push origin <nome-da-branch>
 > git add -p
 > git commit -m "fix(auth): prevent login with expired token"
 > git push origin $(git branch --show-current)
+> gh pr create --base develop --title "fix(auth): prevent login with expired token" --body "Closes #456"
+> # Após merge do PR:
+> gh issue close 456
 > ```
 
 ---
@@ -146,6 +165,12 @@ git commit -m "feat(auth): add password reset flow"
 
 # Enviar para branch atual
 git push origin $(git branch --show-current)
+
+# Criar PR (se necessário)
+gh pr create --base develop --title "feat(auth): add password reset flow" --body "Closes #123"
+
+# Fechar issue (após merge)
+gh issue close 123
 
 
 

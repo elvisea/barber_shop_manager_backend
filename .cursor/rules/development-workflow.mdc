@@ -49,7 +49,7 @@ Este documento define o fluxo completo de trabalho para desenvolvimento no proje
 
 #### 2.1 **Preparar Ambiente**
 - [ ] Criar branch a partir de `develop`
-- [ ] Nome da branch: `feature/issue-{numero}-{descricao-curta}`
+- [ ] Nome da branch: `feature/issue-{numero}`
 - [ ] Verificar se código compila: `npm run build`
 - [ ] Executar testes: `npm run test` (quando disponível)
 
@@ -83,16 +83,17 @@ Este documento define o fluxo completo de trabalho para desenvolvimento no proje
 - [ ] Revisar alterações: `git status` e `git diff`
 - [ ] Adicionar arquivos seletivamente: `git add -p`
 - [ ] Commit com mensagem padronizada: `git commit -m "tipo(escopo): descrição"`
-- [ ] Push para branch: `git push origin feature/issue-{numero}-{descricao-curta}`
+- [ ] Push para branch: `git push origin feature/issue-{numero}`
 
 ### **FASE 4: INTEGRAÇÃO** 🔄
 
 #### 4.1 **Criar Pull Request**
 - [ ] Título descritivo
 - [ ] Descrição detalhada com mudanças
-- [ ] Link para issue relacionada
+- [ ] Link para issue relacionada: `Closes #123`
 - [ ] Screenshots (se aplicável)
 - [ ] Checklist de revisão preenchido
+- [ ] Comando: `gh pr create --base develop --title "..." --body "Closes #123"`
 
 #### 4.2 **Revisão e Merge**
 - [ ] Aguardar aprovação de revisão
@@ -101,9 +102,10 @@ Este documento define o fluxo completo de trabalho para desenvolvimento no proje
 - [ ] Deletar branch após merge
 
 #### 4.3 **Finalização**
-- [ ] Fechar issue no GitHub
+- [ ] Fechar issue no GitHub: `gh issue close 123`
 - [ ] Verificar se feature funciona em `develop`
 - [ ] Atualizar documentação se necessário
+- [ ] Deletar branch local: `git branch -d feature/issue-123`
 
 ---
 
@@ -198,7 +200,7 @@ npm run prisma:studio
 ### **Git Workflow**
 ```bash
 # Criar branch
-git checkout -b feature/issue-123-add-user-validation
+git checkout -b feature/issue-123
 
 # Verificar status
 git status
@@ -211,7 +213,13 @@ git add -p
 git commit -m "feat(user): add email validation"
 
 # Push
-git push origin feature/issue-123-add-user-validation
+git push origin feature/issue-123
+
+# Criar PR (para develop)
+gh pr create --base develop --title "feat(user): add email validation" --body "Closes #123"
+
+# Fechar issue após merge
+gh issue close 123
 ```
 
 ---
