@@ -14,10 +14,14 @@ Este documento define o fluxo de Git, branches e Pull Requests para o projeto Ne
 
 ### **Branches Principais:**
 - **`main`**: Código de produção (protegida)
-- **`develop`**: Código de desenvolvimento (protegida)
+- **`develop`**: Código de desenvolvimento (protegida) - **BRANCH PRINCIPAL PARA PRs**
 - **`feature/*`**: Features em desenvolvimento
 - **`fix/*`**: Correções de bugs
 - **`hotfix/*`**: Correções urgentes para produção
+
+### **Fluxo de Branches:**
+- **Features/Fixes** → `develop` → `main`
+- **Hotfixes** → `main` (urgente) → `develop` (backport)
 
 ### **Proteções:**
 - ❌ **NUNCA** commit direto em `main` ou `develop`
@@ -74,7 +78,7 @@ git push origin feature/issue-123-add-user-validation
 
 ### **Padrão Obrigatório:**
 ```
-{tipo}/issue-{numero}-{descricao-curta}
+{tipo}/issue-{numero}
 ```
 
 ### **Tipos Aceitos:**
@@ -86,11 +90,11 @@ git push origin feature/issue-123-add-user-validation
 
 ### **Exemplos:**
 ```bash
-feature/issue-123-add-user-validation
-fix/issue-456-auth-token-error
-hotfix/issue-789-critical-security-fix
-refactor/issue-101-simplify-service-layer
-docs/issue-202-update-api-documentation
+feature/issue-123
+fix/issue-456
+hotfix/issue-789
+refactor/issue-101
+docs/issue-202
 ```
 
 ---
@@ -210,7 +214,7 @@ git checkout develop
 git pull origin develop
 
 # 2. Criar branch
-git checkout -b feature/issue-123-add-user-validation
+git checkout -b feature/issue-123
 
 # 3. Desenvolver
 # ... fazer alterações ...
@@ -220,14 +224,20 @@ git add -p
 git commit -m "feat(user): add email validation"
 
 # 5. Push
-git push origin feature/issue-123-add-user-validation
+git push origin feature/issue-123
 
-# 6. Criar PR no GitHub
+# 6. Criar PR no GitHub (para develop)
+gh pr create --base develop --title "feat(user): add email validation" --body "Closes #123"
+
 # 7. Aguardar revisão
 # 8. Resolver feedback
 # 9. Merge para develop
-# 10. Deletar branch
-# 11. Fechar issue
+# 10. Fechar issue
+gh issue close 123
+
+# 11. Deletar branch
+git branch -d feature/issue-123
+git push origin --delete feature/issue-123
 ```
 
 ### **Correção de Bug:**
@@ -237,7 +247,7 @@ git checkout develop
 git pull origin develop
 
 # 2. Criar branch
-git checkout -b fix/issue-456-auth-token-error
+git checkout -b fix/issue-456
 
 # 3. Corrigir
 # ... fazer correções ...
@@ -247,18 +257,44 @@ git add -p
 git commit -m "fix(auth): handle expired token error"
 
 # 5. Push
-git push origin fix/issue-456-auth-token-error
+git push origin fix/issue-456
 
-# 6. Criar PR no GitHub
+# 6. Criar PR no GitHub (para develop)
+gh pr create --base develop --title "fix(auth): handle expired token error" --body "Closes #456"
+
 # 7. Aguardar revisão
 # 8. Merge para develop
-# 9. Deletar branch
-# 10. Fechar issue
+# 9. Fechar issue
+gh issue close 456
+
+# 10. Deletar branch
+git branch -d fix/issue-456
+git push origin --delete fix/issue-456
 ```
 
 ---
 
 ## 📊 **COMANDOS ÚTEIS**
+
+### **GitHub CLI (gh):**
+```bash
+# Issues
+gh issue list                    # Listar issues
+gh issue view 123               # Ver issue específica
+gh issue close 123              # Fechar issue
+gh issue create --title "..."   # Criar issue
+
+# Pull Requests
+gh pr list                      # Listar PRs
+gh pr view 3                    # Ver PR específico
+gh pr create --base develop --title "..." --body "..."  # Criar PR para develop
+gh pr merge 3                   # Mergear PR
+gh pr close 3                   # Fechar PR
+
+# Repositório
+gh repo view                    # Ver info do repo
+gh repo clone owner/repo        # Clonar repo
+```
 
 ### **Git Essenciais:**
 ```bash
