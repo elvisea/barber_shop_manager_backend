@@ -1,0 +1,304 @@
+---
+description: Fluxo de Git e Pull Requests para o projeto
+globs: ["**/*.ts", "**/*.js", "**/*.json"]
+alwaysApply: false
+---
+
+# 🌿 Git Workflow - Barber Shop Manager
+
+Este documento define o fluxo de Git, branches e Pull Requests para o projeto NestJS.
+
+---
+
+## 🌳 **ESTRUTURA DE BRANCHES**
+
+### **Branches Principais:**
+- **`main`**: Código de produção (protegida)
+- **`develop`**: Código de desenvolvimento (protegida)
+- **`feature/*`**: Features em desenvolvimento
+- **`fix/*`**: Correções de bugs
+- **`hotfix/*`**: Correções urgentes para produção
+
+### **Proteções:**
+- ❌ **NUNCA** commit direto em `main` ou `develop`
+- ✅ **SEMPRE** usar Pull Requests
+- ✅ **SEMPRE** revisão obrigatória
+- ✅ **SEMPRE** testes passando
+
+---
+
+## 🚀 **FLUXO DE DESENVOLVIMENTO**
+
+### **1. Preparar Ambiente**
+```bash
+# Atualizar develop
+git checkout develop
+git pull origin develop
+
+# Criar branch para feature
+git checkout -b feature/issue-123-add-user-validation
+
+# Ou para fix
+git checkout -b fix/issue-456-auth-token-error
+```
+
+### **2. Desenvolver Feature**
+```bash
+# Fazer alterações no código
+# ... desenvolvimento ...
+
+# Verificar status
+git status
+git diff
+
+# Adicionar arquivos seletivamente
+git add -p
+
+# Commit com mensagem padronizada
+git commit -m "feat(user): add email validation"
+
+# Push para branch
+git push origin feature/issue-123-add-user-validation
+```
+
+### **3. Criar Pull Request**
+- [ ] Título descritivo
+- [ ] Descrição detalhada
+- [ ] Link para issue
+- [ ] Screenshots (se aplicável)
+- [ ] Checklist preenchido
+
+---
+
+## 📝 **NOMENCLATURA DE BRANCHES**
+
+### **Padrão Obrigatório:**
+```
+{tipo}/issue-{numero}-{descricao-curta}
+```
+
+### **Tipos Aceitos:**
+- `feature`: Nova funcionalidade
+- `fix`: Correção de bug
+- `hotfix`: Correção urgente
+- `refactor`: Refatoração
+- `docs`: Documentação
+
+### **Exemplos:**
+```bash
+feature/issue-123-add-user-validation
+fix/issue-456-auth-token-error
+hotfix/issue-789-critical-security-fix
+refactor/issue-101-simplify-service-layer
+docs/issue-202-update-api-documentation
+```
+
+---
+
+## 🔄 **FLUXO DE PULL REQUEST**
+
+### **Template de PR:**
+```markdown
+## 📋 Descrição
+
+[Descrição das mudanças realizadas]
+
+## 🔗 Issue Relacionada
+
+Closes #123
+
+## 🔧 Tipo de Mudança
+
+- [ ] Bug fix
+- [ ] Nova feature
+- [ ] Breaking change
+- [ ] Refatoração
+- [ ] Documentação
+
+## ✅ Checklist
+
+- [ ] Código compila sem erros
+- [ ] Testes passam
+- [ ] Migrações executam
+- [ ] Documentação atualizada
+- [ ] Commit messages seguem padrão
+- [ ] Código revisado
+
+## 📸 Screenshots
+
+[Se aplicável, adicionar screenshots]
+
+## 🧪 Como Testar
+
+[Passos para testar as mudanças]
+```
+
+---
+
+## 📋 **REGRAS DE COMMIT**
+
+### **Formato Obrigatório:**
+```
+<tipo>(<escopo>): <descrição>
+```
+
+### **Tipos Aceitos:**
+- `feat`: Nova funcionalidade
+- `fix`: Correção de bug
+- `docs`: Documentação
+- `style`: Formatação
+- `refactor`: Refatoração
+- `perf`: Performance
+- `test`: Testes
+- `chore`: Manutenção
+
+### **Exemplos:**
+```bash
+feat(auth): add password reset functionality
+fix(user): handle email validation error
+docs(api): update authentication endpoints
+refactor(service): simplify user creation logic
+chore(deps): update dependencies
+```
+
+---
+
+## 🔍 **REVISÃO DE CÓDIGO**
+
+### **Checklist para Revisores:**
+- [ ] Código segue padrões do projeto
+- [ ] Lógica está correta
+- [ ] Tratamento de erros adequado
+- [ ] Documentação atualizada
+- [ ] Testes adequados
+- [ ] Performance considerada
+- [ ] Segurança verificada
+
+### **Checklist para Autor:**
+- [ ] PR tem descrição clara
+- [ ] Issue vinculada corretamente
+- [ ] Código testado localmente
+- [ ] Conflitos resolvidos
+- [ ] Feedback do revisor incorporado
+
+---
+
+## 🚨 **REGRAS CRÍTICAS**
+
+### **NUNCA Fazer:**
+- ❌ Commit direto em `main` ou `develop`
+- ❌ Merge sem Pull Request
+- ❌ Commits com mensagens vagas
+- ❌ Branches com nomes não padronizados
+- ❌ PRs sem descrição adequada
+
+### **SEMPRE Fazer:**
+- ✅ Criar branch para cada feature/fix
+- ✅ Usar Pull Requests para merge
+- ✅ Seguir padrão de commits
+- ✅ Revisar código antes de merge
+- ✅ Fechar issue após merge
+
+---
+
+## 🔄 **FLUXO COMPLETO**
+
+### **Desenvolvimento de Feature:**
+```bash
+# 1. Atualizar develop
+git checkout develop
+git pull origin develop
+
+# 2. Criar branch
+git checkout -b feature/issue-123-add-user-validation
+
+# 3. Desenvolver
+# ... fazer alterações ...
+
+# 4. Commit
+git add -p
+git commit -m "feat(user): add email validation"
+
+# 5. Push
+git push origin feature/issue-123-add-user-validation
+
+# 6. Criar PR no GitHub
+# 7. Aguardar revisão
+# 8. Resolver feedback
+# 9. Merge para develop
+# 10. Deletar branch
+# 11. Fechar issue
+```
+
+### **Correção de Bug:**
+```bash
+# 1. Atualizar develop
+git checkout develop
+git pull origin develop
+
+# 2. Criar branch
+git checkout -b fix/issue-456-auth-token-error
+
+# 3. Corrigir
+# ... fazer correções ...
+
+# 4. Commit
+git add -p
+git commit -m "fix(auth): handle expired token error"
+
+# 5. Push
+git push origin fix/issue-456-auth-token-error
+
+# 6. Criar PR no GitHub
+# 7. Aguardar revisão
+# 8. Merge para develop
+# 9. Deletar branch
+# 10. Fechar issue
+```
+
+---
+
+## 📊 **COMANDOS ÚTEIS**
+
+### **Git Essenciais:**
+```bash
+# Status e diff
+git status
+git diff
+git diff --staged
+
+# Adicionar arquivos
+git add <arquivo>
+git add -p  # Interativo
+git add .   # Todos (usar com cuidado)
+
+# Commit
+git commit -m "mensagem"
+git commit --amend  # Corrigir último commit
+
+# Push/Pull
+git push origin <branch>
+git pull origin <branch>
+
+# Branch
+git branch  # Listar branches
+git checkout <branch>  # Mudar branch
+git checkout -b <branch>  # Criar e mudar
+git branch -d <branch>  # Deletar branch
+```
+
+### **Limpeza:**
+```bash
+# Limpar arquivos não rastreados
+git clean -fd
+
+# Reset para último commit
+git reset --hard HEAD
+
+# Reset para develop
+git reset --hard origin/develop
+```
+
+---
+
+**💡 Este fluxo garante organização, rastreabilidade e qualidade no desenvolvimento!**

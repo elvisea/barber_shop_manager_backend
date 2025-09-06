@@ -1,0 +1,133 @@
+---
+description: Índice das regras de desenvolvimento do projeto
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# 📚 Regras de Desenvolvimento - Barber Shop Manager
+
+Este documento serve como índice das regras de desenvolvimento configuradas para o projeto NestJS.
+
+---
+
+## 🎯 **REGRAS PRINCIPAIS**
+
+### **1. Fluxo de Desenvolvimento** (`development-workflow.mdc`)
+- ✅ **SEMPRE** analisar problema antes de alterar código
+- ✅ **SEMPRE** criar issue antes de desenvolver
+- ✅ **SEMPRE** seguir fluxo de branches
+- ✅ **NUNCA** commit direto em develop/main
+- ✅ **SEMPRE** criar Pull Request
+- ✅ **SEMPRE** fechar issue após completar
+
+### **2. Criação de Issues** (`issue-creation.mdc`)
+- 📋 Dividir problemas em pedaços pequenos (1-4 horas)
+- 📋 Evitar dependências entre issues
+- 📋 Usar template padronizado
+- 📋 Critérios de aceitação claros
+
+### **3. Git Workflow** (`git-workflow.mdc`)
+- 🌿 Nomenclatura de branches padronizada
+- 🌿 Commits seguindo Conventional Commits
+- 🌿 Pull Requests obrigatórios
+- 🌿 Revisão de código
+
+---
+
+## 🚀 **FLUXO RÁPIDO**
+
+### **Antes de Começar:**
+1. **Analisar problema** completamente
+2. **Criar issue** no GitHub
+3. **Criar branch** a partir de develop
+
+### **Durante Desenvolvimento:**
+1. **Seguir padrões** NestJS
+2. **Commits pequenos** e frequentes
+3. **Testar localmente**
+
+### **Após Desenvolvimento:**
+1. **Criar Pull Request**
+2. **Aguardar revisão**
+3. **Merge para develop**
+4. **Fechar issue**
+5. **Deletar branch**
+
+---
+
+## 📋 **CHECKLIST RÁPIDO**
+
+### **Antes de Alterar Código:**
+- [ ] Problema analisado?
+- [ ] Issue criada?
+- [ ] Branch criada?
+
+### **Durante Desenvolvimento:**
+- [ ] Padrões seguidos?
+- [ ] Código compila?
+- [ ] Testes passam?
+- [ ] Commits padronizados?
+
+### **Após Desenvolvimento:**
+- [ ] PR criado?
+- [ ] Revisão aprovada?
+- [ ] Issue fechada?
+- [ ] Branch deletada?
+
+---
+
+## 🔧 **COMANDOS ESSENCIAIS**
+
+### **Git:**
+```bash
+# Criar branch
+git checkout -b feature/issue-123-descricao
+
+# Commit
+git add -p
+git commit -m "feat(escopo): descrição"
+
+# Push
+git push origin feature/issue-123-descricao
+```
+
+### **Desenvolvimento:**
+```bash
+# Instalar
+npm install
+
+# Desenvolvimento
+npm run start:dev
+
+# Build
+npm run build
+
+# Testes
+npm run test
+
+# Lint
+npm run lint
+```
+
+### **Banco:**
+```bash
+# Migrações
+npm run prisma:migrate
+
+# Studio
+npm run prisma:studio
+```
+
+---
+
+## 📚 **DOCUMENTAÇÃO COMPLETA**
+
+- **Fluxo Completo**: `.cursor/rules/development-workflow.mdc`
+- **Criação de Issues**: `.cursor/rules/issue-creation.mdc`
+- **Git Workflow**: `.cursor/rules/git-workflow.mdc`
+- **Padrões de Código**: `.cursor/rules/modules.mdc`
+- **Commits**: `.cursor/rules/commit-flow.mdc`
+
+---
+
+**💡 Use este índice como referência rápida para seguir as regras do projeto!**

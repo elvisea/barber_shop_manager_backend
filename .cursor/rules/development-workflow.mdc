@@ -1,0 +1,246 @@
+---
+description: Fluxo de trabalho completo para desenvolvimento NestJS/Node.js
+globs: ["**/*.ts", "**/*.js", "**/*.json", "**/*.md"]
+alwaysApply: true
+---
+
+# 🚀 Fluxo de Desenvolvimento - Barber Shop Manager
+
+Este documento define o fluxo completo de trabalho para desenvolvimento no projeto NestJS/Node.js, desde a identificação de problemas até a finalização de features.
+
+---
+
+## 🎯 **PRINCÍPIOS FUNDAMENTAIS**
+
+### ✅ **Regras Obrigatórias:**
+- **SEMPRE** seguir o fluxo de branches definido para develop
+- **NUNCA** fazer commits diretos na branch develop
+- **SEMPRE** criar pull requests para mesclar código na develop
+- **SEMPRE** fechar issues após completar a tarefa
+- **SEMPRE** analisar problema antes de alterar código
+
+---
+
+## 📋 **FLUXO COMPLETO DE DESENVOLVIMENTO**
+
+### **FASE 1: ANÁLISE E PLANEJAMENTO** 🔍
+
+#### 1.1 **Analisar Problema**
+- [ ] Identificar e entender completamente o problema
+- [ ] Verificar se já existe issue relacionada
+- [ ] Analisar impacto e dependências
+- [ ] Documentar contexto e requisitos
+
+#### 1.2 **Planejar Descrição da Issue**
+- [ ] Dividir problema em pedaços pequenos e gerenciáveis
+- [ ] Evitar dependências entre issues
+- [ ] Garantir que cada issue seja uma tarefa de duração razoável (1-4 horas)
+- [ ] Definir critérios de aceitação claros
+- [ ] Especificar arquivos e módulos afetados
+
+#### 1.3 **Criar Issue no GitHub**
+- [ ] Título claro e descritivo
+- [ ] Descrição detalhada com contexto
+- [ ] Critérios de aceitação definidos
+- [ ] Labels apropriadas
+- [ ] Assignee definido
+
+### **FASE 2: EXECUÇÃO** ⚙️
+
+#### 2.1 **Preparar Ambiente**
+- [ ] Criar branch a partir de `develop`
+- [ ] Nome da branch: `feature/issue-{numero}-{descricao-curta}`
+- [ ] Verificar se código compila: `npm run build`
+- [ ] Executar testes: `npm run test` (quando disponível)
+
+#### 2.2 **Desenvolver Feature**
+- [ ] Seguir padrões de código definidos no projeto
+- [ ] Implementar seguindo arquitetura NestJS (Controller → Service → Repository)
+- [ ] Usar DTOs para validação de entrada/saída
+- [ ] Aplicar tratamento de erros centralizado
+- [ ] Documentar com Swagger
+- [ ] Adicionar logs apropriados
+
+#### 2.3 **Validação Local**
+- [ ] Código compila sem erros: `npm run build`
+- [ ] Testes passam: `npm run test`
+- [ ] Migrações executam: `npm run prisma:migrate`
+- [ ] Linting passa: `npm run lint`
+- [ ] Documentação atualizada
+
+### **FASE 3: QUALIDADE E REVISÃO** ✅
+
+#### 3.1 **Checklist de Qualidade**
+- [ ] Código compila sem erros
+- [ ] Testes passam (quando disponível)
+- [ ] Migrações executam corretamente
+- [ ] Convenções de nomenclatura seguidas
+- [ ] Documentação atualizada
+- [ ] Commit message seguindo padrão Conventional Commits
+- [ ] Código revisado e testado localmente
+
+#### 3.2 **Commit e Push**
+- [ ] Revisar alterações: `git status` e `git diff`
+- [ ] Adicionar arquivos seletivamente: `git add -p`
+- [ ] Commit com mensagem padronizada: `git commit -m "tipo(escopo): descrição"`
+- [ ] Push para branch: `git push origin feature/issue-{numero}-{descricao-curta}`
+
+### **FASE 4: INTEGRAÇÃO** 🔄
+
+#### 4.1 **Criar Pull Request**
+- [ ] Título descritivo
+- [ ] Descrição detalhada com mudanças
+- [ ] Link para issue relacionada
+- [ ] Screenshots (se aplicável)
+- [ ] Checklist de revisão preenchido
+
+#### 4.2 **Revisão e Merge**
+- [ ] Aguardar aprovação de revisão
+- [ ] Resolver conflitos se necessário
+- [ ] Merge para `develop`
+- [ ] Deletar branch após merge
+
+#### 4.3 **Finalização**
+- [ ] Fechar issue no GitHub
+- [ ] Verificar se feature funciona em `develop`
+- [ ] Atualizar documentação se necessário
+
+---
+
+## 🏗️ **PADRÕES DE DESENVOLVIMENTO NESTJS**
+
+### **Estrutura de Módulos**
+```
+src/modules/<nome-modulo>/
+├── controllers/         # Entrada HTTP
+├── services/            # Lógica de negócio
+├── repositories/        # Acesso a dados
+├── dtos/                # Contratos de entrada/saída
+├── contracts/           # Interfaces de repositório
+└── <module>.module.ts   # Configuração do módulo
+```
+
+### **Convenções de Código**
+- **Controllers**: Recebem DTOs, chamam services, retornam DTOs
+- **Services**: Contêm lógica de negócio, usam repositories
+- **Repositories**: Acesso ao banco via Prisma
+- **DTOs**: Validação com `class-validator`, documentação Swagger
+- **Exceções**: Usar `CustomHttpException` e `ErrorMessageService`
+
+### **Padrões de Nomenclatura**
+- **Arquivos**: `kebab-case` (ex: `user-create.controller.ts`)
+- **Classes**: `PascalCase` (ex: `UserCreateController`)
+- **Métodos**: `camelCase` (ex: `createUser`)
+- **Variáveis**: `camelCase` (ex: `userData`)
+- **Constantes**: `UPPER_SNAKE_CASE` (ex: `MAX_RETRY_ATTEMPTS`)
+
+---
+
+## 📝 **TEMPLATES DE COMMITS**
+
+### **Formato Obrigatório:**
+```
+<tipo>(<escopo>): <descrição>
+```
+
+### **Tipos Aceitos:**
+- `feat`: Nova funcionalidade
+- `fix`: Correção de bug
+- `docs`: Documentação
+- `style`: Formatação, espaços
+- `refactor`: Refatoração de código
+- `perf`: Melhoria de performance
+- `test`: Testes
+- `chore`: Manutenção, dependências
+
+### **Exemplos:**
+```bash
+feat(auth): add password reset functionality
+fix(user): handle email validation error
+docs(api): update authentication endpoints
+refactor(service): simplify user creation logic
+```
+
+---
+
+## 🔧 **COMANDOS ESSENCIAIS**
+
+### **Desenvolvimento**
+```bash
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
+npm run start:dev
+
+# Compilar projeto
+npm run build
+
+# Executar testes
+npm run test
+
+# Linting
+npm run lint
+```
+
+### **Banco de Dados**
+```bash
+# Executar migrações
+npm run prisma:migrate
+
+# Reset do banco (CUIDADO!)
+npm run prisma:reset
+
+# Visualizar banco
+npm run prisma:studio
+```
+
+### **Git Workflow**
+```bash
+# Criar branch
+git checkout -b feature/issue-123-add-user-validation
+
+# Verificar status
+git status
+git diff
+
+# Adicionar arquivos
+git add -p
+
+# Commit
+git commit -m "feat(user): add email validation"
+
+# Push
+git push origin feature/issue-123-add-user-validation
+```
+
+---
+
+## ⚠️ **CHECKLIST FINAL**
+
+Antes de finalizar qualquer tarefa:
+
+- [ ] **Código**: Compila sem erros
+- [ ] **Testes**: Passam (quando disponível)
+- [ ] **Migrações**: Executam corretamente
+- [ ] **Convenções**: Nomenclatura seguida
+- [ ] **Documentação**: Atualizada
+- [ ] **Commit**: Mensagem padronizada
+- [ ] **PR**: Criado e mesclado para develop
+- [ ] **Issue**: Fechada
+- [ ] **Branch**: Removida
+
+---
+
+## 🚨 **REGRAS CRÍTICAS**
+
+1. **NUNCA** commitar diretamente em `develop` ou `main`
+2. **SEMPRE** criar branch para cada feature/fix
+3. **SEMPRE** analisar problema antes de codificar
+4. **SEMPRE** criar issue antes de começar desenvolvimento
+5. **SEMPRE** seguir padrões de commit
+6. **SEMPRE** fechar issue após completar tarefa
+
+---
+
+**💡 Este fluxo garante qualidade, rastreabilidade e colaboração eficiente no projeto!**

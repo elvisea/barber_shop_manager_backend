@@ -1,0 +1,224 @@
+---
+description: Guia para análise de problemas e criação de issues no GitHub
+globs: ["**/*.md", "**/*.ts", "**/*.js"]
+alwaysApply: false
+---
+
+# 📋 Guia de Criação de Issues - Barber Shop Manager
+
+Este documento define como analisar problemas e criar issues eficazes no GitHub para o projeto NestJS.
+
+---
+
+## 🔍 **ANÁLISE DE PROBLEMAS**
+
+### **Antes de Qualquer Alteração de Código:**
+
+1. **Identificar o Problema**
+   - [ ] Entender completamente o que precisa ser feito
+   - [ ] Verificar se já existe issue relacionada
+   - [ ] Analisar impacto no sistema
+   - [ ] Identificar dependências
+
+2. **Contextualizar**
+   - [ ] Documentar o contexto atual
+   - [ ] Identificar arquivos/módulos afetados
+   - [ ] Verificar se há regras de negócio envolvidas
+   - [ ] Considerar impacto em outras funcionalidades
+
+---
+
+## 📝 **CRIAÇÃO DE ISSUES**
+
+### **Princípios para Issues Eficazes:**
+
+#### ✅ **Dividir em Pedaços Pequenos**
+- **Duração ideal**: 1-4 horas por issue
+- **Escopo limitado**: Uma funcionalidade específica
+- **Independência**: Sem dependências entre issues
+- **Testabilidade**: Pode ser testada isoladamente
+
+#### ✅ **Evitar Issues Muito Grandes**
+- ❌ "Implementar sistema completo de agendamentos"
+- ✅ "Criar DTOs para agendamento"
+- ✅ "Implementar controller de criação de agendamento"
+- ✅ "Adicionar validação de horários"
+
+---
+
+## 🏗️ **TEMPLATE DE ISSUE**
+
+### **Título**
+```
+[Escopo] Descrição clara e concisa
+```
+
+**Exemplos:**
+- `feat(auth): add password reset functionality`
+- `fix(user): handle email validation error`
+- `refactor(service): simplify user creation logic`
+
+### **Descrição**
+```markdown
+## 📋 Descrição
+
+[Contexto do problema e o que precisa ser feito]
+
+## 🎯 Objetivo
+
+[O que esta issue vai resolver]
+
+## 📍 Localização
+
+- **Arquivos afetados**: `src/modules/user/...`
+- **Módulos envolvidos**: User, Auth
+- **Banco de dados**: [se aplicável]
+
+## 🔧 Implementação Sugerida
+
+[Passos ou abordagem sugerida]
+
+## ✅ Critérios de Aceitação
+
+- [ ] [Critério específico e testável]
+- [ ] [Outro critério]
+- [ ] [Mais um critério]
+
+## 🏷️ Labels
+
+- `feat` / `fix` / `refactor` / `docs`
+- `high` / `medium` / `low` (prioridade)
+- `backend` / `frontend` / `database`
+
+## 📚 Referências
+
+- [Links relevantes]
+- [Documentação relacionada]
+```
+
+---
+
+## 🎯 **EXEMPLOS DE ISSUES BEM ESTRUTURADAS**
+
+### **Issue de Feature (feat)**
+```markdown
+## feat(user): add email validation in user creation
+
+### Descrição
+Atualmente o sistema não valida se o email já existe antes de criar um usuário, causando duplicatas.
+
+### Objetivo
+Implementar validação de email único na criação de usuários.
+
+### Localização
+- **Arquivo**: `src/modules/user/services/user-create.service.ts`
+- **DTO**: `src/modules/user/dtos/create-user-request.dto.ts`
+
+### Implementação Sugerida
+1. Adicionar método `findByEmail` no UserRepository
+2. Validar email no UserCreateService
+3. Lançar exceção se email já existir
+
+### Critérios de Aceitação
+- [ ] Email duplicado retorna erro 409
+- [ ] Mensagem de erro clara
+- [ ] Teste unitário para validação
+- [ ] Documentação Swagger atualizada
+```
+
+### **Issue de Fix (fix)**
+```markdown
+## fix(auth): handle expired token error properly
+
+### Descrição
+Tokens expirados estão retornando erro 500 em vez de 401, causando confusão no frontend.
+
+### Objetivo
+Corrigir tratamento de tokens expirados para retornar status 401.
+
+### Localização
+- **Arquivo**: `src/common/guards/jwt-auth.guard.ts`
+- **Service**: `src/modules/auth/services/auth.service.ts`
+
+### Implementação Sugerida
+1. Verificar tipo de erro no JwtAuthGuard
+2. Lançar UnauthorizedException para tokens expirados
+3. Atualizar tratamento no AllExceptionsFilter
+
+### Critérios de Aceitação
+- [ ] Token expirado retorna 401
+- [ ] Mensagem de erro clara
+- [ ] Log apropriado gerado
+- [ ] Teste de integração atualizado
+```
+
+---
+
+## 🚫 **ANTI-PADRÕES**
+
+### **Issues Muito Grandes (Evitar)**
+```markdown
+❌ "Implementar sistema completo de agendamentos"
+❌ "Refatorar toda a arquitetura de autenticação"
+❌ "Adicionar testes para todo o projeto"
+```
+
+### **Issues Muito Pequenas (Evitar)**
+```markdown
+❌ "Adicionar ponto e vírgula no arquivo X"
+❌ "Corrigir typo na documentação"
+❌ "Renomear variável Y"
+```
+
+### **Issues Sem Contexto (Evitar)**
+```markdown
+❌ "Corrigir bug"
+❌ "Melhorar código"
+❌ "Adicionar feature"
+```
+
+---
+
+## 🔄 **FLUXO DE CRIAÇÃO DE ISSUE**
+
+1. **Analisar Problema** (5-10 min)
+   - Entender completamente o que precisa ser feito
+   - Verificar se já existe issue relacionada
+
+2. **Dividir em Pedaços** (5-10 min)
+   - Quebrar em tarefas de 1-4 horas
+   - Garantir independência entre issues
+
+3. **Criar Issue** (5-10 min)
+   - Usar template padronizado
+   - Preencher todos os campos obrigatórios
+   - Adicionar labels apropriadas
+
+4. **Validar Issue** (2-5 min)
+   - Revisar se está clara e completa
+   - Verificar se critérios são testáveis
+   - Confirmar que não há dependências
+
+---
+
+## 📊 **MÉTRICAS DE QUALIDADE**
+
+### **Issue Bem Estruturada:**
+- ✅ Título claro e descritivo
+- ✅ Descrição com contexto suficiente
+- ✅ Critérios de aceitação específicos e testáveis
+- ✅ Duração estimada de 1-4 horas
+- ✅ Labels apropriadas
+- ✅ Sem dependências com outras issues
+
+### **Sinais de Issue Mal Estruturada:**
+- ❌ Título vago ("Corrigir bug")
+- ❌ Descrição sem contexto
+- ❌ Critérios vagos ("Funcionar corretamente")
+- ❌ Duração muito longa (>8 horas)
+- ❌ Múltiplas dependências
+- ❌ Escopo muito amplo
+
+---
+
+**💡 Lembre-se: Issues bem estruturadas facilitam o desenvolvimento e garantem qualidade no código!**
