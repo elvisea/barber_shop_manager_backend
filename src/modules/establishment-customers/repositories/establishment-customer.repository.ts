@@ -61,6 +61,24 @@ export class EstablishmentCustomerRepository
     });
   }
 
+  async findByEmailAndEstablishment(
+    establishmentId: string,
+    email: string,
+  ): Promise<EstablishmentCustomer | null> {
+    return this.prisma.establishmentCustomer.findFirst({
+      where: { establishmentId, email },
+    });
+  }
+
+  async findByPhoneAndEstablishment(
+    establishmentId: string,
+    phone: string,
+  ): Promise<EstablishmentCustomer | null> {
+    return this.prisma.establishmentCustomer.findFirst({
+      where: { establishmentId, phone },
+    });
+  }
+
   async findAllByEstablishmentPaginated({
     establishmentId,
     skip,
@@ -97,8 +115,12 @@ export class EstablishmentCustomerRepository
   async updateByIdAndEstablishment(
     customerId: string,
     establishmentId: string,
-    dto: Partial<{ name: string; email?: string; phone?: string }>,
-  ) {
+    dto: Partial<{
+      name: string;
+      email?: string | null;
+      phone?: string | null;
+    }>,
+  ): Promise<EstablishmentCustomer> {
     return this.prisma.establishmentCustomer.update({
       where: {
         id: customerId,

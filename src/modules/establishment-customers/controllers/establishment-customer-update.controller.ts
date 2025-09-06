@@ -10,9 +10,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerFindByIdParamDTO } from '../dtos/establishment-customer-find-by-id-param.dto';
 import { EstablishmentCustomerUpdateRequestDTO } from '../dtos/establishment-customer-update-request.dto';
+import { EstablishmentCustomerUpdateResponseDTO } from '../dtos/establishment-customer-update-response.dto';
 import { EstablishmentCustomerUpdateService } from '../services/establishment-customer-update.service';
 
 import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
@@ -31,7 +31,7 @@ export class EstablishmentCustomerUpdateController {
 
   @Patch()
   @ApiOperation({ summary: 'Update customer by ID' })
-  @ApiResponse({ status: 200, type: EstablishmentCustomerCreateResponseDTO })
+  @ApiResponse({ status: 200, type: EstablishmentCustomerUpdateResponseDTO })
   @ApiBadRequestResponse({
     description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
     schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
@@ -75,7 +75,7 @@ export class EstablishmentCustomerUpdateController {
     @GetRequestId() userId: string,
     @Param() params: EstablishmentCustomerFindByIdParamDTO,
     @Body() dto: EstablishmentCustomerUpdateRequestDTO,
-  ): Promise<EstablishmentCustomerCreateResponseDTO> {
+  ): Promise<EstablishmentCustomerUpdateResponseDTO> {
     return this.establishmentCustomerUpdateService.execute(
       params.customerId,
       params.establishmentId,

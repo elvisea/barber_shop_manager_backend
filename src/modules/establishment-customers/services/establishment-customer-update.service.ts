@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 import { EstablishmentCustomerUpdateRequestDTO } from '../dtos/establishment-customer-update-request.dto';
+import { EstablishmentCustomerUpdateResponseDTO } from '../dtos/establishment-customer-update-response.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -24,10 +24,11 @@ export class EstablishmentCustomerUpdateService {
     establishmentId: string,
     userId: string,
     dto: EstablishmentCustomerUpdateRequestDTO,
-  ): Promise<EstablishmentCustomerCreateResponseDTO> {
+  ): Promise<EstablishmentCustomerUpdateResponseDTO> {
     this.logger.log(
       `Updating customer ${customerId} for establishment ${establishmentId} by user ${userId}`,
     );
+    this.logger.log(`Received update data: ${JSON.stringify(dto)}`);
 
     await this.establishmentOwnerAccessService.assertOwnerHasAccess(
       establishmentId,
@@ -57,12 +58,13 @@ export class EstablishmentCustomerUpdateService {
 
     // Validar duplicidade de email/phone se alterados
     if (dto.email && dto.email !== customer.email) {
-      const exists = await this.establishmentCustomerRepository.existsByEmail(
-        establishmentId,
-        dto.email,
-      );
+      const existingCustomer =
+        await this.establishmentCustomerRepository.findByEmailAndEstablishment(
+          establishmentId,
+          dto.email,
+        );
 
-      if (exists) {
+      if (existingCustomer && existingCustomer.id !== customerId) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS,
           { ESTABLISHMENT_ID: establishmentId, EMAIL: dto.email },
@@ -79,12 +81,13 @@ export class EstablishmentCustomerUpdateService {
     }
 
     if (dto.phone && dto.phone !== customer.phone) {
-      const exists = await this.establishmentCustomerRepository.existsByPhone(
-        establishmentId,
-        dto.phone,
-      );
+      const existingCustomer =
+        await this.establishmentCustomerRepository.findByPhoneAndEstablishment(
+          establishmentId,
+          dto.phone,
+        );
 
-      if (exists) {
+      if (existingCustomer && existingCustomer.id !== customerId) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS,
           { ESTABLISHMENT_ID: establishmentId, PHONE: dto.phone },
@@ -100,19 +103,34 @@ export class EstablishmentCustomerUpdateService {
       }
     }
 
+    // Preparar dados para atualização (apenas campos fornecidos)
+    const updateData: Partial<{
+      name: string;
+      email?: string | null;
+      phone?: string | null;
+    }> = {};
+
+    if (dto.name !== undefined) updateData.name = dto.name;
+    if (dto.email !== undefined)
+      updateData.email = dto.email === '' ? null : dto.email;
+    if (dto.phone !== undefined)
+      updateData.phone = dto.phone === '' ? null : dto.phone;
+
+    this.logger.log(
+      `Updating customer with data: ${JSON.stringify(updateData)}`,
+    );
+
     const updated =
       await this.establishmentCustomerRepository.updateByIdAndEstablishment(
         customerId,
         establishmentId,
-        dto,
+        updateData,
       );
 
-    this.logger.log(`Customer ${customerId} updated successfully.`);
+    this.logger.log(
+      `Customer ${customerId} updated successfully. Data: ${JSON.stringify(updated)}`,
+    );
 
-    return {
-      ...updated,
-      email: updated.email || undefined,
-      phone: updated.phone || undefined,
-    };
+    return updated;
   }
 }

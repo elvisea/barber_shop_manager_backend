@@ -14,9 +14,30 @@ export interface IEstablishmentCustomerRepository {
     customerId: string,
     establishmentId: string,
   ): Promise<EstablishmentCustomer | null>;
+  findByEmailAndEstablishment(
+    establishmentId: string,
+    email: string,
+  ): Promise<EstablishmentCustomer | null>;
+  findByPhoneAndEstablishment(
+    establishmentId: string,
+    phone: string,
+  ): Promise<EstablishmentCustomer | null>;
   findAllByEstablishmentPaginated(params: {
     establishmentId: string;
     skip: number;
     take: number;
   }): Promise<{ data: EstablishmentCustomer[]; total: number }>;
+  updateByIdAndEstablishment(
+    customerId: string,
+    establishmentId: string,
+    dto: Partial<{
+      name: string;
+      email?: string | null;
+      phone?: string | null;
+    }>,
+  ): Promise<EstablishmentCustomer>;
+  deleteByIdAndEstablishment(
+    customerId: string,
+    establishmentId: string,
+  ): Promise<void>;
 }
