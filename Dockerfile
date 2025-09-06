@@ -54,4 +54,4 @@ EXPOSE 3333
 USER nestjs
 
 # Comando para produção
-CMD ["node", "dist/main.js"] 
+CMD ["node", "dist/src/main.js"]
