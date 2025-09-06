@@ -333,11 +333,53 @@ npm run test:cov
 
 ---
 
-## 📚 Documentação da API
+## 📚 Documentação
 
+### API Documentation
 Após iniciar a aplicação, acesse:
 - **Swagger UI**: `http://localhost:3000/api`
 - **Redoc**: `http://localhost:3000/api-docs`
+
+### 📁 Documentação Organizada
+
+Toda a documentação do projeto está organizada na pasta `docs/` com a seguinte estrutura:
+
+```
+docs/
+├── api/                          # Documentação da API
+│   ├── import-to-postman.md
+│   ├── README-routes-documentation.md
+│   ├── routes.yaml
+│   └── SUMMARY.md
+├── development/                  # Guias de desenvolvimento
+│   └── import-guidelines.md
+├── implementation/               # Documentação de implementação
+│   ├── members-module-implementation.md
+│   └── user-email-verification-flow.md
+├── refactoring/                 # Documentação de refatoração
+│   └── members-module-refactoring.md
+├── setup/                       # Guias de configuração
+│   ├── github-actions-setup.md
+│   ├── prisma-setup.md
+│   └── production-environment.md
+└── README.md                    # Índice principal
+```
+
+#### 🚀 Guias Rápidos
+- **[Setup do Prisma](docs/setup/prisma-setup.md)** - Configuração completa do Prisma ORM
+- **[Configuração de Produção](docs/setup/production-environment.md)** - Deploy e variáveis de ambiente
+- **[GitHub Actions](docs/setup/github-actions-setup.md)** - CI/CD e secrets necessários
+- **[Guidelines de Imports](docs/development/import-guidelines.md)** - Padrões de organização de código
+
+#### 📋 Documentação Técnica
+- **[Implementação do Módulo Members](docs/implementation/members-module-implementation.md)** - Guia completo de implementação
+- **[Refatoração do Módulo Members](docs/refactoring/members-module-refactoring.md)** - Estratégia de refatoração paralela
+- **[Fluxo de Verificação de Email](docs/implementation/user-email-verification-flow.md)** - Implementação de verificação
+
+#### 📊 API Documentation
+- **[Resumo da API](docs/api/SUMMARY.md)** - Estatísticas e visão geral
+- **[Importar para Postman](docs/api/import-to-postman.md)** - Como usar a documentação
+- **[routes.yaml](docs/api/routes.yaml)** - Documentação OpenAPI 3.0 completa
 
 ---
 

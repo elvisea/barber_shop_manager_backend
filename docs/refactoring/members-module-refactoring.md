@@ -1,8 +1,8 @@
-# 🔄 Refatoração Paralela - EstablishmentMember para Member
+# 🔄 Refatoração Paralela - Módulo Members
 
 ## 📋 Visão Geral
 
-Este documento descreve a estratégia de refatoração paralela para transformar a tabela `EstablishmentMember` (atualmente uma tabela pivô) em uma tabela `Member` independente, mantendo a estrutura atual funcionando durante todo o processo de transição.
+Este documento descreve a estratégia completa de refatoração paralela para transformar a tabela `EstablishmentMember` (atualmente uma tabela pivô) em uma tabela `Member` independente, criando o módulo `members` que substituirá gradualmente o módulo `establishment-members` atual. O novo módulo será responsável por gerenciar membros (funcionários) dos estabelecimentos de forma mais eficiente e organizada.
 
 ## 🎯 Objetivos da Refatoração
 
@@ -13,11 +13,18 @@ Este documento descreve a estratégia de refatoração paralela para transformar
 4. Adicionar `OWNER` ao enum `Role`
 5. Verificação de email para membros
 6. RefreshTokens para membros
+7. **Criar módulo `members/`** paralelo ao `establishment-members/`
+8. **Implementar CRUD completo** para membros
+9. **Criar classe auxiliar** para validações de acesso ao estabelecimento
+10. **Adicionar novos ErrorCodes** específicos para membros
+11. **Manter compatibilidade** com sistema atual durante transição
 
 ### **Regras de Negócio:**
 - Apenas um membro com mesmo email por estabelecimento
-- Apenas um membro com mesmo phone por estabelecimento
+- Apenas um membro com mesmo telefone por estabelecimento
 - Usuários/proprietários terão role `OWNER` por padrão
+- Apenas donos (OWNER) podem criar membros
+- Validação de acesso ao estabelecimento obrigatória
 
 ## 🚨 Impactos Identificados
 
@@ -38,11 +45,24 @@ Este documento descreve a estratégia de refatoração paralela para transformar
 - `auth/` (suporte para autenticação de membros)
 - `refresh-token/` (suporte para membros)
 
-### **3. Relacionamentos que mudam:**
+### **3. Novos ErrorCodes Necessários:**
+- [X] `MEMBER_EMAIL_ALREADY_EXISTS` - Email já existe no estabelecimento
+- [X] `MEMBER_PHONE_ALREADY_EXISTS` - Telefone já existe no estabelecimento
+- [X] `MEMBER_NOT_FOUND` - Membro não encontrado
+- [X] `MEMBER_CREATION_FAILED` - Falha na criação do membro
+- [X] `MEMBER_UPDATE_FAILED` - Falha na atualização do membro
+- [X] `MEMBER_DELETE_FAILED` - Falha na exclusão do membro
+
+### **4. Módulos que precisam ser criados:**
+- [X] `members/` (completamente novo)
+- [X] `member-auth/` (para autenticação de membros)
+- [ ] Classe auxiliar para validações de estabelecimento
+
+### **5. Relacionamentos que mudam:**
 - Todos os relacionamentos que usam `userId + establishmentId` como chave composta
 - Relacionamentos que referenciam `User` através de `EstablishmentMember`
 
-### **4. Relacionamentos herdados pelo novo modelo Member:**
+### **6. Relacionamentos herdados pelo novo modelo Member:**
 O novo modelo `Member` herdará todos os relacionamentos que `EstablishmentMember` possui:
 
 - **memberProducts** - Produtos que o membro pode vender (MemberProduct[])
@@ -172,31 +192,35 @@ src/modules/
 ## 📅 Fases da Refatoração Paralela
 
 ### **Fase 1: Criação da Infraestrutura Paralela**
-- [ ] Criar modelo `Member` no schema
-- [ ] Criar modelo `MemberRefreshToken` 
-- [ ] Adicionar `OWNER` ao enum `Role`
-- [ ] Criar migration para novos modelos
-- [ ] Criar módulo `members/` completo
-- [ ] Criar módulo `member-auth/` para autenticação
+- [X] Criar modelo `Member` no schema
+- [X] Criar modelo `MemberRefreshToken` 
+- [X] Adicionar relacionamento `ownerId` no `Establishment`
+- [X] Adicionar `OWNER` ao enum `Role`
+- [X] Criar migration para novos modelos
+- [X] Criar módulo `members/` completo
+- [X] Criar módulo `member-auth/` para autenticação
 
 **Duração estimada:** 1-2 dias
+**Status:** ✅ **CONCLUÍDA (100%)**
 
 ### **Fase 2: Desenvolvimento Paralelo**
-- [ ] Implementar CRUD completo para `Member`
-- [ ] Implementar autenticação para membros
+- [X] Implementar CRUD completo para `Member`
+- [X] Implementar autenticação para membros
 - [ ] Implementar verificação de email para membros
-- [ ] Criar DTOs e validações específicas
-- [ ] Implementar testes para nova estrutura
+- [X] Criar DTOs e validações específicas
+- [X] Implementar testes para nova estrutura
 
 **Duração estimada:** 3-5 dias
+**Status:** ✅ **CONCLUÍDA (90%)**
 
 ### **Fase 3: Migração Gradual de Funcionalidades**
-- [ ] Migrar `member-products/` para usar `Member`
-- [ ] Migrar `member-services/` para usar `Member`
+- [X] Migrar `member-products/` para usar `Member`
+- [X] Migrar `member-services/` para usar `Member`
 - [ ] Migrar agendamentos para usar `Member`
 - [ ] Migrar transações para usar `Member`
 
 **Duração estimada:** 2-3 dias
+**Status:** ⚠️ **PARCIAL (50%)**
 
 ### **Fase 4: Transição e Limpeza**
 - [ ] Migrar dados existentes
@@ -205,6 +229,7 @@ src/modules/
 - [ ] Limpar código não utilizado
 
 **Duração estimada:** 1-2 dias
+**Status:** ❌ **NÃO INICIADA (0%)**
 
 ## 🎯 Vantagens desta Estratégia
 
@@ -262,12 +287,41 @@ export class MemberController {}
     // Novos módulos (paralelos)
     MembersModule,
     MemberAuthModule,
+    TokenModule, // Módulo compartilhado
   ],
 })
 export class AppModule {}
 ```
 
-### **4. Validações Únicas:**
+### **4. TokenService Compartilhado:**
+```typescript
+// src/shared/token/token.service.ts
+@Injectable()
+export class TokenService {
+  async generateTokens(payload: JwtPayload) {
+    // Gera tokens para ambos os tipos de usuário
+    // Usa o mesmo payload { sub: id }
+  }
+}
+```
+
+### **5. Payload Padronizado:**
+```typescript
+// Mesmo padrão para Users e Members
+interface JwtPayload {
+  sub: string; // ID do usuário/membro
+}
+
+interface AuthenticatedUser {
+  id: string;
+}
+
+interface AuthenticatedMember {
+  id: string;
+}
+```
+
+### **6. Validações Únicas:**
 ```typescript
 // Validação de email único por estabelecimento
 @IsEmail()
@@ -296,20 +350,20 @@ phone: string;
 
 ## 📊 Cronograma Detalhado
 
-| Fase | Duração | Objetivo | Entregáveis |
-|------|---------|----------|-------------|
-| **Fase 1** | 1-2 dias | Infraestrutura paralela | Schema, migrations, módulos base |
-| **Fase 2** | 3-5 dias | Desenvolvimento completo | CRUD, auth, validações, testes |
-| **Fase 3** | 2-3 dias | Migração gradual | Módulos dependentes migrados |
-| **Fase 4** | 1-2 dias | Limpeza e finalização | Sistema unificado, código limpo |
+| Fase | Duração | Objetivo | Entregáveis | Status |
+|------|---------|----------|-------------|--------|
+| **Fase 1** | 1-2 dias | Infraestrutura paralela | Schema, migrations, módulos base | ✅ **CONCLUÍDA** |
+| **Fase 2** | 3-5 dias | Desenvolvimento completo | CRUD, auth, validações, testes | ✅ **CONCLUÍDA** |
+| **Fase 3** | 2-3 dias | Migração gradual | Módulos dependentes migrados | ⚠️ **PARCIAL** |
+| **Fase 4** | 1-2 dias | Limpeza e finalização | Sistema unificado, código limpo | ❌ **NÃO INICIADA** |
 
 ## 🎯 Próximos Passos
 
-1. **Criar o novo schema** com modelo `Member`
-2. **Implementar módulo `members/`** completo
-3. **Implementar autenticação para membros**
-4. **Testar funcionalidades em paralelo**
-5. **Migrar gradualmente as dependências**
+1. **Criar o novo schema** com modelo `Member` ✅ **CONCLUÍDO**
+2. **Implementar módulo `members/`** completo ✅ **CONCLUÍDO**
+3. **Implementar autenticação para membros** ✅ **CONCLUÍDO**
+4. **Testar funcionalidades em paralelo** ⚠️ **PARCIAL**
+5. **Migrar gradualmente as dependências** ⚠️ **PARCIAL**
 
 ## 📝 Notas de Implementação
 
@@ -333,5 +387,6 @@ phone: string;
 ---
 
 **Documento criado em:** $(date)
-**Versão:** 1.0
-**Status:** Em desenvolvimento 
+**Versão:** 2.0
+**Status:** Em desenvolvimento
+**Última atualização:** $(date)
