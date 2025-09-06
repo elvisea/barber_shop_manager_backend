@@ -37,9 +37,7 @@ async function bootstrap(): Promise<void> {
   const isDevelopment =
     configService.get('NODE_ENV', 'development') === 'development';
 
-  const origin = isDevelopment
-    ? '*'
-    : 'https://barbershop-manager.bytefulcode.tech';
+  const origin = isDevelopment ? '*' : '*'; // TODO: change to the production domain
 
   app.enableCors({
     origin,
