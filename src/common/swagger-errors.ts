@@ -386,4 +386,97 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND,
     },
   },
+
+  // Códigos para agendamentos
+  [ErrorCode.APPOINTMENT_NOT_FOUND]: {
+    description: 'Appointment not found',
+    example: {
+      statusCode: 404,
+      message: 'Appointment with ID [APPOINTMENT_ID] not found.',
+      error: 'Not Found',
+      errorCode: ErrorCode.APPOINTMENT_NOT_FOUND,
+    },
+  },
+  [ErrorCode.APPOINTMENT_CONFLICT]: {
+    description: 'Appointment time conflict',
+    example: {
+      statusCode: 409,
+      message: 'Appointment time conflicts with existing appointment.',
+      error: 'Conflict',
+      errorCode: ErrorCode.APPOINTMENT_CONFLICT,
+    },
+  },
+  [ErrorCode.APPOINTMENT_INVALID_TIME]: {
+    description: 'Invalid appointment time',
+    example: {
+      statusCode: 400,
+      message: 'Invalid appointment time. Start time must be before end time.',
+      error: 'Bad Request',
+      errorCode: ErrorCode.APPOINTMENT_INVALID_TIME,
+    },
+  },
+  [ErrorCode.APPOINTMENT_MEMBER_UNAVAILABLE]: {
+    description: 'Member unavailable for appointment',
+    example: {
+      statusCode: 409,
+      message: 'Member [MEMBER_ID] is unavailable at the requested time.',
+      error: 'Conflict',
+      errorCode: ErrorCode.APPOINTMENT_MEMBER_UNAVAILABLE,
+    },
+  },
+  [ErrorCode.APPOINTMENT_ESTABLISHMENT_CLOSED]: {
+    description: 'Establishment closed at appointment time',
+    example: {
+      statusCode: 409,
+      message: 'Establishment is closed at the requested appointment time.',
+      error: 'Conflict',
+      errorCode: ErrorCode.APPOINTMENT_ESTABLISHMENT_CLOSED,
+    },
+  },
+  [ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE]: {
+    description: 'Service not available for appointment',
+    example: {
+      statusCode: 409,
+      message:
+        'Service [SERVICE_ID] is not available for the requested appointment.',
+      error: 'Conflict',
+      errorCode: ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE,
+    },
+  },
+  [ErrorCode.APPOINTMENT_CUSTOMER_NOT_FOUND]: {
+    description: 'Customer not found for appointment',
+    example: {
+      statusCode: 404,
+      message: 'Customer [CUSTOMER_ID] not found for appointment.',
+      error: 'Not Found',
+      errorCode: ErrorCode.APPOINTMENT_CUSTOMER_NOT_FOUND,
+    },
+  },
+  [ErrorCode.APPOINTMENT_CREATION_FAILED]: {
+    description: 'Appointment creation failed',
+    example: {
+      statusCode: 400,
+      message: 'Failed to create appointment.',
+      error: 'Bad Request',
+      errorCode: ErrorCode.APPOINTMENT_CREATION_FAILED,
+    },
+  },
+  [ErrorCode.APPOINTMENT_UPDATE_FAILED]: {
+    description: 'Appointment update failed',
+    example: {
+      statusCode: 400,
+      message: 'Failed to update appointment [APPOINTMENT_ID].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.APPOINTMENT_UPDATE_FAILED,
+    },
+  },
+  [ErrorCode.APPOINTMENT_DELETE_FAILED]: {
+    description: 'Appointment delete failed',
+    example: {
+      statusCode: 400,
+      message: 'Failed to delete appointment [APPOINTMENT_ID].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.APPOINTMENT_DELETE_FAILED,
+    },
+  },
 };

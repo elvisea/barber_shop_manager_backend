@@ -148,4 +148,37 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND]: {
     message: 'Email verification not found for email [EMAIL].',
   },
+
+  // Códigos para agendamentos
+  [ErrorCode.APPOINTMENT_NOT_FOUND]: {
+    message: 'Appointment with ID [APPOINTMENT_ID] not found.',
+  },
+  [ErrorCode.APPOINTMENT_CONFLICT]: {
+    message: 'Appointment time conflicts with existing appointment.',
+  },
+  [ErrorCode.APPOINTMENT_INVALID_TIME]: {
+    message: 'Invalid appointment time. Start time must be before end time.',
+  },
+  [ErrorCode.APPOINTMENT_MEMBER_UNAVAILABLE]: {
+    message: 'Member [MEMBER_ID] is unavailable at the requested time.',
+  },
+  [ErrorCode.APPOINTMENT_ESTABLISHMENT_CLOSED]: {
+    message: 'Establishment is closed at the requested appointment time.',
+  },
+  [ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE]: {
+    message:
+      'Service [SERVICE_ID] is not available for the requested appointment.',
+  },
+  [ErrorCode.APPOINTMENT_CUSTOMER_NOT_FOUND]: {
+    message: 'Customer [CUSTOMER_ID] not found for appointment.',
+  },
+  [ErrorCode.APPOINTMENT_CREATION_FAILED]: {
+    message: 'Failed to create appointment.',
+  },
+  [ErrorCode.APPOINTMENT_UPDATE_FAILED]: {
+    message: 'Failed to update appointment [APPOINTMENT_ID].',
+  },
+  [ErrorCode.APPOINTMENT_DELETE_FAILED]: {
+    message: 'Failed to delete appointment [APPOINTMENT_ID].',
+  },
 } as const;
