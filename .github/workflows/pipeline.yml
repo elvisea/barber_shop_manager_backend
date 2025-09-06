@@ -1,18 +1,31 @@
 name: Barber Shop Manager CI/CD Pipeline
 
+# =============================================================================
+# FLUXO DE DESENVOLVIMENTO E CI/CD
+# =============================================================================
+# 
+# Esta pipeline segue as melhores práticas de desenvolvimento:
+# 
+# 1. DESENVOLVIMENTO:
+#    - Desenvolvedores trabalham na branch 'develop'
+#    - Commits diretos em develop não acionam pipeline
+#    - Desenvolvimento local sem overhead de CI/CD
+# 
+# 2. INTEGRAÇÃO:
+#    - Pull Requests de develop → main acionam pipeline
+#    - Pipeline executa: Quality → Test → Build → Deploy
+#    - Apenas PRs aprovados fazem deploy para produção
+# 
+# 3. SEGURANÇA:
+#    - Push direto para main NÃO aciona pipeline
+#    - Deploy apenas via PRs aprovados
+#    - Ambiente de produção protegido
+# 
+# 4. FLUXO RECOMENDADO:
+#    develop → PR → main → Deploy automático
+# 
+# =============================================================================
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/**'
-      - '.github/workflows/pipeline.yml'
-      - 'Dockerfile'
-      - 'docker-compose.yml'
-      - 'prisma/**'
   pull_request:
     branches:
       - main
@@ -74,6 +87,7 @@ env:
   GEMINI_BASE_URL: ${{ secrets.GEMINI_BASE_URL }}
 
 jobs:
+  # Job de Qualidade - Executa linting, build e verificações básicas
   quality:
     name: Quality Check
     runs-on: ubuntu-latest
@@ -102,6 +116,7 @@ jobs:
       - name: Check Types
         run: npm run build
         
+  # Job de Testes - Executa testes unitários e e2e
   test:
     name: Run Tests
     runs-on: ubuntu-latest
@@ -127,6 +142,7 @@ jobs:
       - name: Run E2E Tests
         run: npm run test:e2e || true
 
+  # Job de Build - Compila aplicação e constrói imagem Docker
   build:
     name: Build App
     needs: test
@@ -169,6 +185,7 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/barber_shop_manager_backend:latest
 
+  # Job de Deploy - Faz deploy para produção (apenas em PRs aprovados)
   deploy:
     name: Deploy to Production
     needs: [build]
