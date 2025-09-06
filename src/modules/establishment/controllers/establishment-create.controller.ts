@@ -27,7 +27,7 @@ import { Roles } from '@/modules/auth/decorators/roles.decorator';
 export class EstablishmentCreateController {
   constructor(
     private readonly establishmentCreateService: EstablishmentCreateService,
-  ) { }
+  ) {}
 
   @Post()
   @Roles(UserRole.OWNER)
