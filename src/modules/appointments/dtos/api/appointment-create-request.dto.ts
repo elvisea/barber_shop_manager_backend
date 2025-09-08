@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsDateString,
+  IsDate,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
+  MinDate,
 } from 'class-validator';
 
 export class AppointmentCreateRequestDTO {
@@ -30,8 +32,12 @@ export class AppointmentCreateRequestDTO {
     example: '2024-01-21T10:00:00Z',
   })
   @IsNotEmpty()
-  @IsDateString()
-  startTime: string;
+  @Type(() => Date)
+  @IsDate()
+  @MinDate(() => new Date(), {
+    message: 'startTime must not be in the past',
+  })
+  startTime: Date;
 
   @ApiProperty({
     description: 'Observações do agendamento',

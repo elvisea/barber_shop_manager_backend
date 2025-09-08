@@ -1,12 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AppointmentStatus } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsDateString,
+  IsDate,
   IsEnum,
   IsOptional,
   IsString,
   IsUUID,
+  MinDate,
 } from 'class-validator';
 
 export class AppointmentUpdateRequestDTO {
@@ -23,8 +25,12 @@ export class AppointmentUpdateRequestDTO {
     example: '2024-01-21T10:00:00Z',
   })
   @IsOptional()
-  @IsDateString()
-  startTime?: string;
+  @Type(() => Date)
+  @IsDate()
+  @MinDate(() => new Date(), {
+    message: 'startTime must not be in the past',
+  })
+  startTime?: Date;
 
   @ApiPropertyOptional({
     description: 'Status do agendamento',

@@ -23,7 +23,7 @@ export class AppointmentCreateService {
     private readonly appointmentRepository: AppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
     private readonly errorMessageService: ErrorMessageService,
-  ) {}
+  ) { }
 
   /**
    * Cria um novo agendamento com validações de negócio
@@ -82,7 +82,7 @@ export class AppointmentCreateService {
       customerId: dto.customerId,
       memberId: dto.memberId,
       establishmentId,
-      startTime: new Date(dto.startTime),
+      startTime: dto.startTime,
       endTime: new Date(endTime),
       totalAmount,
       totalDuration,
@@ -114,20 +114,21 @@ export class AppointmentCreateService {
     };
   }
 
+
   /**
    * Valida se o horário de início é anterior ao horário de fim
    */
-  private validateTimeRange(startTime: string, endTime: string): void {
-    const start = new Date(startTime);
+  private validateTimeRange(startTime: Date, endTime: string): void {
+    const start = startTime;
     const end = new Date(endTime);
 
     if (start >= end) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.INVALID_TIME_RANGE,
-        { START_TIME: startTime, END_TIME: endTime },
+        { START_TIME: startTime.toISOString(), END_TIME: endTime },
       );
 
-      this.logger.warn(`Invalid time range: ${startTime} >= ${endTime}`);
+      this.logger.warn(`Invalid time range: ${startTime.toISOString()} >= ${endTime}`);
 
       throw new CustomHttpException(
         message,
@@ -136,14 +137,14 @@ export class AppointmentCreateService {
       );
     }
 
-    this.logger.log(`Time range validated: ${startTime} < ${endTime}`);
+    this.logger.log(`Time range validated: ${startTime.toISOString()} < ${endTime}`);
   }
 
   /**
    * Calcula o valor total, duração total e horário de fim baseado nos serviços
    */
   private calculateTotalsAndEndTime(
-    startTime: string,
+    startTime: Date,
     services: EstablishmentService[],
   ): {
     totalAmount: number;
@@ -160,8 +161,7 @@ export class AppointmentCreateService {
     );
 
     // Calcular endTime baseado no startTime + totalDuration
-    const start = new Date(startTime);
-    const end = new Date(start.getTime() + totalDuration * 60000); // 60000ms = 1 minuto
+    const end = new Date(startTime.getTime() + totalDuration * 60000); // 60000ms = 1 minuto
     const endTime = end.toISOString();
 
     this.logger.log(

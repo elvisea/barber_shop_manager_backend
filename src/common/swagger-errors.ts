@@ -489,4 +489,13 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.INVALID_TIME_RANGE,
     },
   },
+  [ErrorCode.APPOINTMENT_START_TIME_IN_PAST]: {
+    description: 'Appointment start time in the past',
+    example: {
+      statusCode: 400,
+      message: 'Appointment start time [START_TIME] cannot be in the past.',
+      error: 'Bad Request',
+      errorCode: ErrorCode.APPOINTMENT_START_TIME_IN_PAST,
+    },
+  },
 };

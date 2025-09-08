@@ -185,4 +185,7 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Invalid time range: start time [START_TIME] must be before end time [END_TIME].',
   },
+  [ErrorCode.APPOINTMENT_START_TIME_IN_PAST]: {
+    message: 'Appointment start time [START_TIME] cannot be in the past.',
+  },
 } as const;
