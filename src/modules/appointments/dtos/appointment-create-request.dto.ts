@@ -1,60 +1,64 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
   IsArray,
   IsDateString,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
-  ValidateNested,
 } from 'class-validator';
 
-class AppointmentServiceItemDTO {
-  @ApiProperty({ example: 'a2f8d3b4-1234-4a5b-9c7d-1e2f3a4b5c6d' })
+export class AppointmentCreateRequestDTO {
+  @ApiProperty({
+    description: 'ID do cliente',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsNotEmpty()
   @IsUUID()
-  serviceId!: string;
-
-  @ApiProperty({ example: 50 })
-  @Type(() => Number)
-  price!: number;
-
-  @ApiProperty({ example: 30, description: 'Duration in minutes' })
-  @Type(() => Number)
-  duration!: number;
+  customerId: string;
 
   @ApiProperty({
-    example: 0.4,
-    description: 'Commission ratio between 0 and 1',
+    description: 'ID do estabelecimento',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  @Type(() => Number)
-  commission!: number;
-}
-
-export class AppointmentCreateRequestDTO {
-  @ApiProperty({ example: 'b3a8c7d6-89ab-4cde-9123-456789abcdef' })
+  @IsNotEmpty()
   @IsUUID()
-  customerId!: string;
+  establishmentId: string;
 
-  @ApiProperty({ example: 'c4d5e6f7-0123-4567-89ab-cdef01234567' })
+  @ApiProperty({
+    description: 'ID do funcionário/membro',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsNotEmpty()
   @IsUUID()
-  memberId!: string;
+  memberId: string;
 
-  @ApiProperty({ example: '2025-09-15T14:00:00.000Z' })
+  @ApiProperty({
+    description: 'Data e hora de início do agendamento',
+    example: '2024-01-21T10:00:00Z',
+  })
+  @IsNotEmpty()
   @IsDateString()
-  startTime!: string;
+  startTime: string;
 
-  @ApiProperty({ example: '2025-09-15T14:30:00.000Z' })
-  @IsDateString()
-  endTime!: string;
-
-  @ApiProperty({ example: 'Customer prefers warm water', required: false })
+  @ApiProperty({
+    description: 'Observações do agendamento',
+    example: 'Cliente prefere corte mais curto',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   notes?: string;
 
-  @ApiProperty({ type: [AppointmentServiceItemDTO] })
+  @ApiProperty({
+    description: 'IDs dos serviços do agendamento',
+    example: [
+      '550e8400-e29b-41d4-a716-446655440000',
+      '550e8400-e29b-41d4-a716-446655440001',
+    ],
+    type: [String],
+  })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AppointmentServiceItemDTO)
-  services!: AppointmentServiceItemDTO[];
+  @IsUUID(4, { each: true })
+  serviceIds: string[];
 }

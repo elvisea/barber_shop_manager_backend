@@ -1,14 +1,25 @@
-import { Body, Controller, Param, Put } from '@nestjs/common';
+import { Body, Controller, Param, Put, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { UpdateAppointmentDocs } from '../docs';
+import {
+  AppointmentUpdateParamDTO,
+  AppointmentUpdateRequestDTO,
+} from '../dtos';
+
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Appointments')
 @Controller('appointments')
+@UseGuards(JwtAuthGuard)
 export class AppointmentUpdateController {
-  @Put(':id')
+  @Put(':appointmentId')
   @UpdateAppointmentDocs()
-  async handler(@Param('id') id: string, @Body() dto: any) {
+  async handler(
+    @Param() params: AppointmentUpdateParamDTO,
+    @Body() dto: AppointmentUpdateRequestDTO,
+  ) {
     // TODO: Implementar lógica de atualização de agendamento
+    // params.appointmentId, dto.memberId, dto.status, dto.serviceIds, etc.
   }
 }
