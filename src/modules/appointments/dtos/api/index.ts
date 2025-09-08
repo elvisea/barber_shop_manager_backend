@@ -16,6 +16,7 @@ export { AppointmentFindAllResponseDTO } from './appointment-find-all-response.d
 export { AppointmentFindOneResponseDTO } from './appointment-find-one-response.dto';
 
 // Parameter DTOs
+export { AppointmentCreateParamDTO } from './appointment-create-param.dto';
 export { AppointmentDeleteParamDTO } from './appointment-delete-param.dto';
 export { AppointmentFindByIdParamDTO } from './appointment-find-by-id-param.dto';
 export { AppointmentUpdateParamDTO } from './appointment-update-param.dto';

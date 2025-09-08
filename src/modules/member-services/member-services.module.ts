@@ -18,5 +18,6 @@ import { MembersModule } from '@/modules/members/members.module';
     MemberServiceFindAllService,
     MemberServiceRepository,
   ],
+  exports: [MemberServiceRepository],
 })
 export class MemberServicesModule {}

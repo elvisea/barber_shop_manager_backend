@@ -2,7 +2,6 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -52,9 +51,16 @@ export function CreateAppointmentDocs() {
       },
     }),
     ApiBadRequestResponse({
-      description: 'Dados inválidos fornecidos',
+      description: 'Dados inválidos fornecidos ou validação de negócio falhou',
       schema: {
-        example: SwaggerErrors[ErrorCode.APPOINTMENT_INVALID_TIME].example,
+        oneOf: [
+          {
+            example: SwaggerErrors[ErrorCode.INVALID_TIME_RANGE].example,
+          },
+          {
+            example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example,
+          },
+        ],
       },
     }),
     ApiUnauthorizedResponse({
@@ -68,40 +74,39 @@ export function CreateAppointmentDocs() {
       },
     }),
     ApiForbiddenResponse({
-      description: 'Acesso negado ao estabelecimento',
-      schema: {
-        example:
-          SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER].example,
-      },
-    }),
-    ApiNotFoundResponse({
-      description: 'Cliente ou funcionário não encontrado',
+      description:
+        'Acesso negado - usuário não tem permissão para criar agendamentos',
       schema: {
         oneOf: [
           {
             example:
-              SwaggerErrors[ErrorCode.APPOINTMENT_CUSTOMER_NOT_FOUND].example,
+              SwaggerErrors[ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT].example,
           },
           {
-            example: SwaggerErrors[ErrorCode.MEMBER_NOT_FOUND].example,
+            example:
+              SwaggerErrors[ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE]
+                .example,
           },
         ],
       },
     }),
-    ApiConflictResponse({
-      description: 'Conflito de horário ou estabelecimento fechado',
+    ApiNotFoundResponse({
+      description: 'Recurso não encontrado',
       schema: {
         oneOf: [
           {
-            example: SwaggerErrors[ErrorCode.APPOINTMENT_CONFLICT].example,
+            example: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].example,
           },
           {
             example:
-              SwaggerErrors[ErrorCode.APPOINTMENT_ESTABLISHMENT_CLOSED].example,
+              SwaggerErrors[ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND].example,
+          },
+          {
+            example: SwaggerErrors[ErrorCode.MEMBER_NOT_FOUND].example,
           },
           {
             example:
-              SwaggerErrors[ErrorCode.APPOINTMENT_MEMBER_UNAVAILABLE].example,
+              SwaggerErrors[ErrorCode.ESTABLISHMENT_SERVICE_NOT_FOUND].example,
           },
         ],
       },

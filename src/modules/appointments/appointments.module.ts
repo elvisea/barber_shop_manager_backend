@@ -6,17 +6,27 @@ import { AppointmentFindAllController } from './controllers/appointment-find-all
 import { AppointmentFindByIdController } from './controllers/appointment-find-by-id.controller';
 import { AppointmentUpdateController } from './controllers/appointment-update.controller';
 import { AppointmentRepository } from './repositories/appointment.repository';
+import { AppointmentAccessValidationService } from './services/appointment-access-validation.service';
 import { AppointmentCreateService } from './services/appointment-create.service';
 import { AppointmentDeleteService } from './services/appointment-delete.service';
 import { AppointmentFindAllService } from './services/appointment-find-all.service';
 import { AppointmentFindByIdService } from './services/appointment-find-by-id.service';
 import { AppointmentUpdateService } from './services/appointment-update.service';
 
-import { ErrorMessageModule } from '@/error-message/error-message.module';
-import { PrismaModule } from '@/prisma/prisma.module';
+import { EstablishmentCustomerModule } from '@/modules/establishment-customers/establishment-customer.module';
+import { EstablishmentServicesModule } from '@/modules/establishment-services/establishment-services.module';
+import { EstablishmentModule } from '@/modules/establishment/establishment.module';
+import { MemberServicesModule } from '@/modules/member-services/member-services.module';
+import { MembersModule } from '@/modules/members/members.module';
 
 @Module({
-  imports: [PrismaModule, ErrorMessageModule],
+  imports: [
+    EstablishmentModule,
+    EstablishmentCustomerModule,
+    EstablishmentServicesModule,
+    MemberServicesModule,
+    MembersModule,
+  ],
   controllers: [
     AppointmentCreateController,
     AppointmentFindAllController,
@@ -25,6 +35,7 @@ import { PrismaModule } from '@/prisma/prisma.module';
     AppointmentDeleteController,
   ],
   providers: [
+    AppointmentAccessValidationService,
     AppointmentCreateService,
     AppointmentFindAllService,
     AppointmentFindByIdService,
@@ -33,4 +44,4 @@ import { PrismaModule } from '@/prisma/prisma.module';
     AppointmentRepository,
   ],
 })
-export class AppointmentsModule {}
+export class AppointmentsModule { }
