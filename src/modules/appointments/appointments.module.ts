@@ -13,9 +13,9 @@ import { AppointmentFindAllService } from './services/appointment-find-all.servi
 import { AppointmentFindByIdService } from './services/appointment-find-by-id.service';
 import { AppointmentUpdateService } from './services/appointment-update.service';
 
+import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from '@/modules/establishment-customers/establishment-customer.module';
 import { EstablishmentServicesModule } from '@/modules/establishment-services/establishment-services.module';
-import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { MemberServicesModule } from '@/modules/member-services/member-services.module';
 import { MembersModule } from '@/modules/members/members.module';
 
@@ -44,4 +44,4 @@ import { MembersModule } from '@/modules/members/members.module';
     AppointmentRepository,
   ],
 })
-export class AppointmentsModule { }
+export class AppointmentsModule {}
