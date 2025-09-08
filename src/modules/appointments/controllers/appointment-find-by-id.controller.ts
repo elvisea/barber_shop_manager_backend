@@ -7,13 +7,13 @@ import { AppointmentFindByIdParamDTO } from '../dtos';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Appointments')
-@Controller('appointments')
+@Controller('establishments/:establishmentId/appointments')
 @UseGuards(JwtAuthGuard)
 export class AppointmentFindByIdController {
   @Get(':appointmentId')
   @FindAppointmentByIdDocs()
   async handler(@Param() params: AppointmentFindByIdParamDTO) {
     // TODO: Implementar lógica de busca de agendamento por ID
-    // params.appointmentId
+    // params.establishmentId, params.appointmentId
   }
 }

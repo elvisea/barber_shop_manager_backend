@@ -7,13 +7,13 @@ import { AppointmentDeleteParamDTO } from '../dtos';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Appointments')
-@Controller('appointments')
+@Controller('establishments/:establishmentId/appointments')
 @UseGuards(JwtAuthGuard)
 export class AppointmentDeleteController {
   @Delete(':appointmentId')
   @DeleteAppointmentDocs()
   async handler(@Param() params: AppointmentDeleteParamDTO) {
     // TODO: Implementar lógica de exclusão de agendamento
-    // params.appointmentId
+    // params.establishmentId, params.appointmentId
   }
 }
