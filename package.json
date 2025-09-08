@@ -23,6 +23,8 @@
     "prisma:studio": "prisma studio",
     "prisma:reset": "prisma migrate reset",
     "db:push": "prisma db push",
+    "seed": "ts-node -r tsconfig-paths/register prisma/seeds/index.ts",
+    "seed:reset": "prisma migrate reset --force && npm run seed",
     "docs:generate": "ts-node -r tsconfig-paths/register scripts/generate-routes-yaml.ts",
     "docs:generate-all": "npm run docs:generate"
   },
