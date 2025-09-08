@@ -1,10 +1,10 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { AppointmentStatus, EstablishmentService } from '@prisma/client';
 
-import { IAppointmentRepository } from '../contracts/appointment-repository.interface';
 import { AppointmentCreateRequestDTO } from '../dtos/api/appointment-create-request.dto';
 import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
 import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
+import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
 
@@ -20,7 +20,7 @@ export class AppointmentCreateService {
   private readonly logger = new Logger(AppointmentCreateService.name);
 
   constructor(
-    private readonly appointmentRepository: IAppointmentRepository,
+    private readonly appointmentRepository: AppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
