@@ -7,6 +7,7 @@ import { EmailModule } from './email/email.module';
 import { ErrorMessageModule } from './error-message/error-message.module';
 import { HttpClientModule } from './http-client/http-client.module';
 import { AIModule } from './modules/ai/ai.module';
+import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EstablishmentModule } from './modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
@@ -53,6 +54,7 @@ import { TokenModule } from './shared/token/token.module';
     AIModule,
     UserEmailVerificationModule,
     MemberEmailVerificationModule,
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [
