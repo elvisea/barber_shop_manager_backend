@@ -479,4 +479,13 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.APPOINTMENT_DELETE_FAILED,
     },
   },
+  [ErrorCode.INVALID_TIME_RANGE]: {
+    description: 'Invalid time range',
+    example: {
+      statusCode: 400,
+      message: 'Invalid time range: start time [START_TIME] must be before end time [END_TIME].',
+      error: 'Bad Request',
+      errorCode: ErrorCode.INVALID_TIME_RANGE,
+    },
+  },
 };
