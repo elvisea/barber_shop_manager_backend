@@ -10,7 +10,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { AppointmentFindAllResponseDTO } from '../dtos/appointment-find-all-response.dto';
+import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
