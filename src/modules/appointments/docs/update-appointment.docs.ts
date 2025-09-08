@@ -20,7 +20,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de atualização de agendamento
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint PUT /appointments/:id
+ * para o endpoint PUT /establishments/{establishmentId}/appointments/{appointmentId}
  */
 export function UpdateAppointmentDocs() {
   return applyDecorators(
@@ -30,7 +30,12 @@ export function UpdateAppointmentDocs() {
     }),
     ApiBearerAuth(),
     ApiParam({
-      name: 'id',
+      name: 'establishmentId',
+      description: 'ID único do estabelecimento',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiParam({
+      name: 'appointmentId',
       description: 'ID único do agendamento (UUID)',
       example: '550e8400-e29b-41d4-a716-446655440000',
       type: String,

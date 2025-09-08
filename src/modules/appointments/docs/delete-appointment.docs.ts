@@ -17,7 +17,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de exclusão de agendamento
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint DELETE /appointments/:id
+ * para o endpoint DELETE /establishments/{establishmentId}/appointments/{appointmentId}
  */
 export function DeleteAppointmentDocs() {
   return applyDecorators(
@@ -27,7 +27,12 @@ export function DeleteAppointmentDocs() {
     }),
     ApiBearerAuth(),
     ApiParam({
-      name: 'id',
+      name: 'establishmentId',
+      description: 'ID único do estabelecimento',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiParam({
+      name: 'appointmentId',
       description: 'ID único do agendamento (UUID)',
       example: '550e8400-e29b-41d4-a716-446655440000',
       type: String,

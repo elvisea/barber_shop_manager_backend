@@ -18,14 +18,6 @@ export class AppointmentCreateRequestDTO {
   customerId: string;
 
   @ApiProperty({
-    description: 'ID do estabelecimento',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsNotEmpty()
-  @IsUUID()
-  establishmentId: string;
-
-  @ApiProperty({
     description: 'ID do funcionário/membro',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
