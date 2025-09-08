@@ -1,40 +1,47 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { AppointmentStatus } from '@prisma/client';
 import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
 
-export enum AppointmentStatusFilter {
-  PENDING = 'PENDING',
-  CONFIRMED = 'CONFIRMED',
-  CANCELED = 'CANCELED',
-}
-
 export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
-  @ApiPropertyOptional({ example: 'a1b2c3d4-... (establishmentId)' })
-  @IsUUID()
-  establishmentId!: string;
-
-  @ApiPropertyOptional({ example: 'c4d5e6f7-0123-4567-89ab-cdef01234567' })
-  @IsOptional()
-  @IsUUID()
-  memberId?: string;
-
-  @ApiPropertyOptional({ example: 'b3a8c7d6-89ab-4cde-9123-456789abcdef' })
+  @ApiPropertyOptional({
+    description: 'ID do cliente',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
   @IsOptional()
   @IsUUID()
   customerId?: string;
 
-  @ApiPropertyOptional({ enum: AppointmentStatusFilter })
+  @ApiPropertyOptional({
+    description: 'ID do funcionário/membro',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
   @IsOptional()
-  @IsEnum(AppointmentStatusFilter)
-  status?: AppointmentStatusFilter;
+  @IsUUID()
+  memberId?: string;
 
-  @ApiPropertyOptional({ example: '2025-09-15T00:00:00.000Z' })
+  @ApiPropertyOptional({
+    description: 'Status do agendamento',
+    enum: AppointmentStatus,
+    example: AppointmentStatus.PENDING,
+  })
+  @IsOptional()
+  @IsEnum(AppointmentStatus)
+  status?: AppointmentStatus;
+
+  @ApiPropertyOptional({
+    description: 'Data de início para filtro',
+    example: '2024-01-21T00:00:00Z',
+  })
   @IsOptional()
   @IsDateString()
   startDate?: string;
 
-  @ApiPropertyOptional({ example: '2025-09-15T23:59:59.999Z' })
+  @ApiPropertyOptional({
+    description: 'Data de fim para filtro',
+    example: '2024-01-21T23:59:59Z',
+  })
   @IsOptional()
   @IsDateString()
   endDate?: string;
