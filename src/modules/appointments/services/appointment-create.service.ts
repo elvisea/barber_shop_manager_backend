@@ -1,8 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import {
-  AppointmentStatus,
-  EstablishmentService
-} from '@prisma/client';
+import { AppointmentStatus, EstablishmentService } from '@prisma/client';
 
 import { IAppointmentRepository } from '../contracts/appointment-repository.interface';
 import { AppointmentCreateRequestDTO } from '../dtos/api/appointment-create-request.dto';
@@ -26,7 +23,7 @@ export class AppointmentCreateService {
     private readonly appointmentRepository: IAppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   /**
    * Cria um novo agendamento com validações de negócio
@@ -66,14 +63,21 @@ export class AppointmentCreateService {
         dto.serviceIds,
       );
 
-    // 5. Calcular totais e endTime baseado nos serviços
+    // 5. Validar se os serviços são permitidos ao membro
+    await this.appointmentAccessValidationService.validateMemberAllowedServices(
+      establishmentId,
+      dto.memberId,
+      dto.serviceIds,
+    );
+
+    // 6. Calcular totais e endTime baseado nos serviços
     const { totalAmount, totalDuration, endTime } =
       this.calculateTotalsAndEndTime(dto.startTime, establishmentServices);
 
-    // 6. Validar horários
+    // 7. Validar horários
     this.validateTimeRange(dto.startTime, endTime);
 
-    // 7. Criar dados para o repositório
+    // 8. Criar dados para o repositório
     const repositoryData: AppointmentRepositoryCreateDTO = {
       customerId: dto.customerId,
       memberId: dto.memberId,
@@ -86,14 +90,14 @@ export class AppointmentCreateService {
       notes: dto.notes,
     };
 
-    // 8. Criar agendamento no banco
+    // 9. Criar agendamento no banco
     const appointment = await this.appointmentRepository.create(repositoryData);
 
     this.logger.log(
       `Appointment created successfully with ID: ${appointment.id}`,
     );
 
-    // 9. Retornar resposta
+    // 10. Retornar resposta
     return {
       id: appointment.id,
       establishmentId: appointment.establishmentId,

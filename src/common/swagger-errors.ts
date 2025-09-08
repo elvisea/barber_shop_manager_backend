@@ -483,7 +483,8 @@ export const SwaggerErrors: SwaggerErrorsType = {
     description: 'Invalid time range',
     example: {
       statusCode: 400,
-      message: 'Invalid time range: start time [START_TIME] must be before end time [END_TIME].',
+      message:
+        'Invalid time range: start time [START_TIME] must be before end time [END_TIME].',
       error: 'Bad Request',
       errorCode: ErrorCode.INVALID_TIME_RANGE,
     },

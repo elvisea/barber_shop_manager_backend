@@ -9,9 +9,10 @@ import {
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
-import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
+import { MemberServiceRepository } from '@/modules/member-services/repositories/member-service.repository';
 import { MemberRepository } from '@/modules/members/repositories/member.repository';
 
 export interface AppointmentAccessValidationResult {
@@ -32,8 +33,9 @@ export class AppointmentAccessValidationService {
     private readonly memberRepository: MemberRepository,
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
+    private readonly memberServiceRepository: MemberServiceRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   /**
    * Valida se o usuário pode criar agendamentos no estabelecimento
@@ -221,5 +223,52 @@ export class AppointmentAccessValidationService {
 
     this.logger.log(`All ${serviceIds.length} services validated successfully`);
     return validatedServices;
+  }
+
+  /**
+   * Valida se os serviços informados estão registrados para o membro no estabelecimento
+   */
+  async validateMemberAllowedServices(
+    establishmentId: string,
+    memberId: string,
+    serviceIds: string[],
+  ): Promise<void> {
+    this.logger.log(
+      `Validating member ${memberId} allowed services in establishment ${establishmentId}`,
+    );
+
+    for (const serviceId of serviceIds) {
+      const isAllowed =
+        await this.memberServiceRepository.existsByMemberEstablishmentService(
+          memberId,
+          establishmentId,
+          serviceId,
+        );
+
+      if (!isAllowed) {
+        const message = this.errorMessageService.getMessage(
+          ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE,
+          {
+            SERVICE_ID: serviceId,
+            MEMBER_ID: memberId,
+            ESTABLISHMENT_ID: establishmentId,
+          },
+        );
+
+        this.logger.warn(
+          `Service ${serviceId} is not registered for member ${memberId} in establishment ${establishmentId}`,
+        );
+
+        throw new CustomHttpException(
+          message,
+          HttpStatus.BAD_REQUEST,
+          ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE,
+        );
+      }
+    }
+
+    this.logger.log(
+      `All ${serviceIds.length} services are allowed for member ${memberId} in establishment ${establishmentId}`,
+    );
   }
 }
