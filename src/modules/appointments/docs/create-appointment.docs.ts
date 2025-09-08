@@ -11,7 +11,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { AppointmentCreateResponseDTO } from '../dtos/appointment-create-response.dto';
+import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
