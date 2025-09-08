@@ -7,6 +7,7 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -19,7 +20,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de criação de agendamento
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint POST /appointments
+ * para o endpoint POST /establishments/{establishmentId}/appointments
  */
 export function CreateAppointmentDocs() {
   return applyDecorators(
@@ -27,6 +28,11 @@ export function CreateAppointmentDocs() {
       summary: 'Criar novo agendamento',
       description:
         'Cria um novo agendamento para um cliente em um estabelecimento específico.',
+    }),
+    ApiParam({
+      name: 'establishmentId',
+      description: 'ID único do estabelecimento',
+      example: '550e8400-e29b-41d4-a716-446655440000',
     }),
     ApiBearerAuth(),
     ApiCreatedResponse({

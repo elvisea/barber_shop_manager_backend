@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CreateAppointmentDocs } from '../docs';
@@ -7,13 +7,16 @@ import { AppointmentCreateRequestDTO } from '../dtos';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Appointments')
-@Controller('appointments')
+@Controller('establishments/:establishmentId/appointments')
 @UseGuards(JwtAuthGuard)
 export class AppointmentCreateController {
   @Post()
   @CreateAppointmentDocs()
-  async handler(@Body() dto: AppointmentCreateRequestDTO) {
+  async handler(
+    @Param('establishmentId') establishmentId: string,
+    @Body() dto: AppointmentCreateRequestDTO,
+  ) {
     // TODO: Implementar lógica de criação de agendamento
-    // dto.customerId, dto.establishmentId, dto.memberId, dto.serviceIds, etc.
+    // establishmentId, dto.customerId, dto.memberId, dto.serviceIds, etc.
   }
 }

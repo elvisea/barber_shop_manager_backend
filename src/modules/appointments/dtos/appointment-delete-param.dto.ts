@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class AppointmentDeleteParamDTO {
+import { BaseEstablishmentParamDTO } from '@/common/dtos/base-establishment-param';
+
+export class AppointmentDeleteParamDTO extends BaseEstablishmentParamDTO {
   @ApiProperty({
     description: 'ID único do agendamento',
     example: '550e8400-e29b-41d4-a716-446655440000',

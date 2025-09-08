@@ -19,7 +19,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de busca de agendamento por ID
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint GET /appointments/:id
+ * para o endpoint GET /establishments/{establishmentId}/appointments/{appointmentId}
  */
 export function FindAppointmentByIdDocs() {
   return applyDecorators(
@@ -30,7 +30,12 @@ export function FindAppointmentByIdDocs() {
     }),
     ApiBearerAuth(),
     ApiParam({
-      name: 'id',
+      name: 'establishmentId',
+      description: 'ID único do estabelecimento',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiParam({
+      name: 'appointmentId',
       description: 'ID único do agendamento (UUID)',
       example: '550e8400-e29b-41d4-a716-446655440000',
       type: String,

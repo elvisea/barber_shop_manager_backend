@@ -10,7 +10,7 @@ import {
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Appointments')
-@Controller('appointments')
+@Controller('establishments/:establishmentId/appointments')
 @UseGuards(JwtAuthGuard)
 export class AppointmentUpdateController {
   @Put(':appointmentId')
@@ -20,6 +20,6 @@ export class AppointmentUpdateController {
     @Body() dto: AppointmentUpdateRequestDTO,
   ) {
     // TODO: Implementar lógica de atualização de agendamento
-    // params.appointmentId, dto.memberId, dto.status, dto.serviceIds, etc.
+    // params.establishmentId, params.appointmentId, dto.memberId, dto.status, dto.serviceIds, etc.
   }
 }
