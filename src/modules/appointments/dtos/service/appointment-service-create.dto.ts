@@ -3,10 +3,10 @@ import { Type } from 'class-transformer';
 import { IsNumber, IsPositive, IsUUID, Max, Min } from 'class-validator';
 
 /**
- * DTO base para serviços de agendamento
- * Usado em respostas da API e operações gerais
+ * DTO para criação de serviços de agendamento
+ * Usado ao criar um novo agendamento com serviços ou adicionar serviços a um agendamento existente
  */
-export class AppointmentServiceDTO {
+export class AppointmentServiceCreateDTO {
   @ApiProperty({
     description: 'ID do serviço do estabelecimento',
     example: '123e4567-e89b-12d3-a456-426614174000',

@@ -6,4 +6,6 @@
  */
 
 // Service DTOs
+export { AppointmentServiceCreateDTO } from './appointment-service-create.dto';
+export { AppointmentServiceUpdateDTO } from './appointment-service-update.dto';
 export { AppointmentServiceDTO } from './appointment-service.dto';
