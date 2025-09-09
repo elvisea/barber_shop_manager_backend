@@ -498,4 +498,14 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.APPOINTMENT_START_TIME_IN_PAST,
     },
   },
+  [ErrorCode.MEMBER_APPOINTMENT_CONFLICT]: {
+    description: 'Member appointment time conflict',
+    example: {
+      statusCode: 409,
+      message:
+        'Member [MEMBER_ID] already has an appointment scheduled between [START_TIME] and [END_TIME].',
+      error: 'Conflict',
+      errorCode: ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
+    },
+  },
 };

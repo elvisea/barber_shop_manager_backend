@@ -19,8 +19,15 @@ export class AppointmentRepository implements IAppointmentRepository {
       `Criando agendamento para cliente ${data.customerId} no estabelecimento ${data.establishmentId}`,
     );
 
+    const { services, ...appointmentData } = data;
+
     const appointment = await this.prismaService.appointment.create({
-      data,
+      data: {
+        ...appointmentData,
+        services: {
+          create: [...services],
+        },
+      },
       include: {
         customer: true,
         member: true,
@@ -33,7 +40,9 @@ export class AppointmentRepository implements IAppointmentRepository {
       },
     });
 
-    this.logger.log(`Agendamento criado com ID: ${appointment.id}`);
+    this.logger.log(
+      `Agendamento criado com ID: ${appointment.id} e ${services.length} serviços associados`,
+    );
     return appointment;
   }
 
@@ -249,5 +258,53 @@ export class AppointmentRepository implements IAppointmentRepository {
       `Encontrados ${appointments.length} agendamentos para cliente ${customerId}`,
     );
     return appointments;
+  }
+
+  async findConflictingAppointments(
+    memberId: string,
+    startTime: Date,
+    endTime: Date,
+    excludeAppointmentId?: string,
+  ): Promise<Appointment[]> {
+    this.logger.log(
+      `Verificando conflitos de horário para membro ${memberId} entre ${startTime.toISOString()} e ${endTime.toISOString()}`,
+    );
+
+    const whereClause: Prisma.AppointmentWhereInput = {
+      memberId,
+      OR: [
+        // Conflito: agendamento existente começa antes e termina depois do início do novo
+        {
+          startTime: { lt: endTime },
+          endTime: { gt: startTime },
+        },
+      ],
+    };
+
+    // Excluir agendamento específico se fornecido (para updates)
+    if (excludeAppointmentId) {
+      whereClause.id = { not: excludeAppointmentId };
+    }
+
+    const conflictingAppointments =
+      await this.prismaService.appointment.findMany({
+        where: whereClause,
+        include: {
+          customer: true,
+          member: true,
+          establishment: true,
+          services: {
+            include: {
+              service: true,
+            },
+          },
+        },
+        orderBy: { startTime: 'asc' },
+      });
+
+    this.logger.log(
+      `Encontrados ${conflictingAppointments.length} agendamentos conflitantes`,
+    );
+    return conflictingAppointments;
   }
 }

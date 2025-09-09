@@ -44,4 +44,14 @@ export interface IAppointmentRepository {
    * Busca agendamentos por cliente
    */
   findByCustomerId(customerId: string): Promise<Appointment[]>;
+
+  /**
+   * Busca agendamentos conflitantes para um membro em um período específico
+   */
+  findConflictingAppointments(
+    memberId: string,
+    startTime: Date,
+    endTime: Date,
+    excludeAppointmentId?: string,
+  ): Promise<Appointment[]>;
 }

@@ -2,6 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -44,8 +45,10 @@ export function CreateAppointmentDocs() {
         establishmentId: '550e8400-e29b-41d4-a716-446655440003',
         startTime: '2025-08-22T10:00:00.000Z',
         endTime: '2025-08-22T11:00:00.000Z',
+        totalAmount: 5000,
+        totalDuration: 60,
+        status: 'PENDING',
         notes: 'Corte de cabelo e barba',
-        status: 'SCHEDULED',
         createdAt: '2025-08-22T00:00:00.000Z',
         updatedAt: '2025-08-22T00:00:00.000Z',
       },
@@ -58,9 +61,20 @@ export function CreateAppointmentDocs() {
             example: SwaggerErrors[ErrorCode.INVALID_TIME_RANGE].example,
           },
           {
+            example:
+              SwaggerErrors[ErrorCode.APPOINTMENT_START_TIME_IN_PAST].example,
+          },
+          {
             example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example,
           },
         ],
+      },
+    }),
+    ApiConflictResponse({
+      description:
+        'Conflito de horários - membro já possui agendamento no período',
+      schema: {
+        example: SwaggerErrors[ErrorCode.MEMBER_APPOINTMENT_CONFLICT].example,
       },
     }),
     ApiUnauthorizedResponse({
@@ -81,6 +95,10 @@ export function CreateAppointmentDocs() {
           {
             example:
               SwaggerErrors[ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT].example,
+          },
+          {
+            example:
+              SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER].example,
           },
           {
             example:
