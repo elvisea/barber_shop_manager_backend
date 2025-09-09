@@ -1,8 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { MemberEmailVerificationResendResponseDTO } from '../dtos/member-email-verification-resend-response.dto';
 
