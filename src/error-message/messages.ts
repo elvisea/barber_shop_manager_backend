@@ -188,4 +188,8 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.APPOINTMENT_START_TIME_IN_PAST]: {
     message: 'Appointment start time [START_TIME] cannot be in the past.',
   },
+  [ErrorCode.MEMBER_APPOINTMENT_CONFLICT]: {
+    message:
+      'Member [MEMBER_ID] already has an appointment scheduled between [START_TIME] and [END_TIME].',
+  },
 } as const;

@@ -6,3 +6,4 @@
  */
 
 export { AppointmentRepositoryCreateDTO } from './appointment-repository-create.dto';
+export { AppointmentServiceRepositoryCreateDTO } from './appointment-service-create.dto';

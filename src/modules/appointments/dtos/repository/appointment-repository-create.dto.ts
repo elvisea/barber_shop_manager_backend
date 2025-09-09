@@ -1,5 +1,7 @@
 import { AppointmentStatus } from '@prisma/client';
 
+import { AppointmentServiceRepositoryCreateDTO } from './appointment-service-create.dto';
+
 /**
  * DTO específico para criação de agendamentos no repositório
  * Contém apenas os dados necessários para persistência no banco
@@ -14,4 +16,5 @@ export class AppointmentRepositoryCreateDTO {
   totalDuration: number;
   status: AppointmentStatus;
   notes?: string;
+  services: AppointmentServiceRepositoryCreateDTO[];
 }

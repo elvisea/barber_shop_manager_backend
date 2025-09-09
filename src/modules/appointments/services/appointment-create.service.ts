@@ -23,7 +23,7 @@ export class AppointmentCreateService {
     private readonly appointmentRepository: AppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   /**
    * Cria um novo agendamento com validações de negócio
@@ -74,10 +74,17 @@ export class AppointmentCreateService {
     const { totalAmount, totalDuration, endTime } =
       this.calculateTotalsAndEndTime(dto.startTime, establishmentServices);
 
-    // 7. Validar horários
+    // 7. Validar conflito de horários
+    await this.validateNoTimeConflict(
+      dto.memberId,
+      dto.startTime,
+      new Date(endTime),
+    );
+
+    // 8. Validar horários
     this.validateTimeRange(dto.startTime, endTime);
 
-    // 8. Criar dados para o repositório
+    // 9. Criar dados para o repositório
     const repositoryData: AppointmentRepositoryCreateDTO = {
       customerId: dto.customerId,
       memberId: dto.memberId,
@@ -88,16 +95,22 @@ export class AppointmentCreateService {
       totalDuration,
       status: AppointmentStatus.PENDING,
       notes: dto.notes,
+      services: establishmentServices.map((service) => ({
+        serviceId: service.id,
+        price: service.price,
+        duration: service.duration,
+        commission: Number(service.commission),
+      })),
     };
 
-    // 9. Criar agendamento no banco
+    // 10. Criar agendamento no banco
     const appointment = await this.appointmentRepository.create(repositoryData);
 
     this.logger.log(
       `Appointment created successfully with ID: ${appointment.id}`,
     );
 
-    // 10. Retornar resposta
+    // 11. Retornar resposta
     return {
       id: appointment.id,
       establishmentId: appointment.establishmentId,
@@ -114,6 +127,46 @@ export class AppointmentCreateService {
     };
   }
 
+  /**
+   * Valida se não há conflito de horários para o membro
+   */
+  private async validateNoTimeConflict(
+    memberId: string,
+    startTime: Date,
+    endTime: Date,
+  ): Promise<void> {
+    const conflictingAppointments =
+      await this.appointmentRepository.findConflictingAppointments(
+        memberId,
+        startTime,
+        endTime,
+      );
+
+    if (conflictingAppointments.length > 0) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
+        {
+          MEMBER_ID: memberId,
+          START_TIME: startTime.toISOString(),
+          END_TIME: endTime.toISOString(),
+        },
+      );
+
+      this.logger.warn(
+        `Time conflict found for member ${memberId}: ${conflictingAppointments.length} conflicting appointments`,
+      );
+
+      throw new CustomHttpException(
+        message,
+        HttpStatus.CONFLICT,
+        ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
+      );
+    }
+
+    this.logger.log(
+      `No time conflicts found for member ${memberId} between ${startTime.toISOString()} and ${endTime.toISOString()}`,
+    );
+  }
 
   /**
    * Valida se o horário de início é anterior ao horário de fim
@@ -128,7 +181,9 @@ export class AppointmentCreateService {
         { START_TIME: startTime.toISOString(), END_TIME: endTime },
       );
 
-      this.logger.warn(`Invalid time range: ${startTime.toISOString()} >= ${endTime}`);
+      this.logger.warn(
+        `Invalid time range: ${startTime.toISOString()} >= ${endTime}`,
+      );
 
       throw new CustomHttpException(
         message,
@@ -137,7 +192,9 @@ export class AppointmentCreateService {
       );
     }
 
-    this.logger.log(`Time range validated: ${startTime.toISOString()} < ${endTime}`);
+    this.logger.log(
+      `Time range validated: ${startTime.toISOString()} < ${endTime}`,
+    );
   }
 
   /**
