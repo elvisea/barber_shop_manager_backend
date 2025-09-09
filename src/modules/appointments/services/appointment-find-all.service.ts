@@ -1,13 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common';
 
-import { IAppointmentRepository } from '../contracts/appointment-repository.interface';
 import { AppointmentFindAllQueryDTO } from '../dtos/api/appointment-find-all-query.dto';
 import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
+import { AppointmentRepositoryFindAllDTO } from '../dtos/repository/appointment-repository-find-all.dto';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 @Injectable()
@@ -31,30 +28,52 @@ export class AppointmentFindAllService {
     // Validar se o usuário tem acesso ao estabelecimento
     await this.validateEstablishmentAccess(establishmentId, ownerId);
 
-    // Aplicar filtro de agendamentos não deletados
-    const queryWithFilters = {
-      ...query,
-      isDeleted: false,
+    // Calcular paginação
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Converter DTO de entrada para DTO do repositório
+    const repositoryQuery: AppointmentRepositoryFindAllDTO = {
+      customerId: query.customerId,
+      memberId: query.memberId,
+      status: query.status,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      isDeleted: query.isDeleted ?? false,
+      skip,
+      take: limit,
     };
 
     // Buscar agendamentos no repositório
     const appointments =
-      await this.appointmentRepository.findAll(queryWithFilters);
+      await this.appointmentRepository.findAll(repositoryQuery);
 
     this.logger.log(
       `Encontrados ${appointments.length} agendamentos para estabelecimento ${establishmentId}`,
     );
 
+    // Calcular metadados de paginação
+    const totalItems = appointments.length;
+    const totalPages = Math.ceil(totalItems / limit);
+
     // Converter para DTO de resposta
     const response: AppointmentFindAllResponseDTO = {
-      items: appointments.map((appointment) => ({
+      data: appointments.map((appointment) => ({
         id: appointment.id,
         customerId: appointment.customerId,
         memberId: appointment.memberId,
         startTime: appointment.startTime.toISOString(),
         endTime: appointment.endTime.toISOString(),
       })),
-      total: appointments.length,
+      meta: {
+        page,
+        limit,
+        total: {
+          items: totalItems,
+          pages: totalPages,
+        },
+      },
     };
 
     return response;

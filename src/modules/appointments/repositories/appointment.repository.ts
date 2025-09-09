@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Appointment, Prisma } from '@prisma/client';
 
 import { IAppointmentRepository } from '../contracts/appointment-repository.interface';
-import { AppointmentFindAllQueryDTO } from '../dtos/api/appointment-find-all-query.dto';
+import { AppointmentRepositoryFindAllDTO } from '../dtos';
 import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-request.dto';
 import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
 
@@ -72,58 +72,100 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointment;
   }
 
-  async findAll(query: AppointmentFindAllQueryDTO): Promise<Appointment[]> {
+  async findAll(
+    query: AppointmentRepositoryFindAllDTO,
+  ): Promise<Appointment[]> {
     this.logger.log(
       `Buscando agendamentos com filtros: ${JSON.stringify(query)}`,
     );
 
     const where: Prisma.AppointmentWhereInput = {};
 
-    // Filtrar por status de exclusão lógica (padrão: apenas não deletados)
-    where.isDeleted = query.isDeleted ?? false;
+    // Filtrar por status de exclusão lógica
+    where.isDeleted = query.isDeleted;
 
+    // Aplicar filtros opcionais
     if (query.customerId) {
       where.customerId = query.customerId;
+      this.logger.debug(`Filtro aplicado: customerId = ${query.customerId}`);
     }
 
     if (query.memberId) {
       where.memberId = query.memberId;
+      this.logger.debug(`Filtro aplicado: memberId = ${query.memberId}`);
     }
 
     if (query.status) {
       where.status = query.status;
+      this.logger.debug(`Filtro aplicado: status = ${query.status}`);
     }
 
+    // Filtro por período de datas
     if (query.startDate || query.endDate) {
       where.startTime = {};
       if (query.startDate) {
-        where.startTime.gte = new Date(query.startDate);
+        where.startTime.gte = query.startDate;
+        this.logger.debug(
+          `Filtro aplicado: startDate >= ${query.startDate.toISOString()}`,
+        );
       }
       if (query.endDate) {
-        where.startTime.lte = new Date(query.endDate);
+        where.startTime.lte = query.endDate;
+        this.logger.debug(
+          `Filtro aplicado: endDate <= ${query.endDate.toISOString()}`,
+        );
       }
     }
 
+    this.logger.debug(`Paginação: skip=${query.skip}, take=${query.take}`);
+
+    // Executar consulta otimizada
     const appointments = await this.prismaService.appointment.findMany({
       where,
       include: {
-        customer: true,
-        member: true,
-        establishment: true,
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        member: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        establishment: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         services: {
           include: {
-            service: true,
+            service: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
           },
         },
       },
       orderBy: {
         startTime: 'asc',
       },
-      skip: query.page ? (query.page - 1) * (query.limit || 10) : undefined,
-      take: query.limit,
+      skip: query.skip,
+      take: query.take,
     });
 
     this.logger.log(`Encontrados ${appointments.length} agendamentos`);
+
     return appointments;
   }
 
