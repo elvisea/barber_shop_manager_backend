@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/modules/auth/decorators/roles.decorator';
 
-@ApiTags('Agendamentos')
+@ApiTags('Appointments')
 @ApiBearerAuth()
 @Controller('establishments/:establishmentId/appointments')
 @UseGuards(JwtAuthGuard, RolesGuard)

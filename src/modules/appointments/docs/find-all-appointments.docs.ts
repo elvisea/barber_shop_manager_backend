@@ -9,6 +9,7 @@ import {
   ApiQuery,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AppointmentStatus } from '@prisma/client';
 
 import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
 
@@ -61,15 +62,8 @@ export function FindAllAppointmentsDocs() {
       name: 'status',
       required: false,
       description: 'Filtrar por status do agendamento',
-      example: 'SCHEDULED',
-      enum: [
-        'SCHEDULED',
-        'CONFIRMED',
-        'IN_PROGRESS',
-        'COMPLETED',
-        'CANCELLED',
-        'NO_SHOW',
-      ],
+      example: AppointmentStatus.PENDING,
+      enum: AppointmentStatus,
     }),
     ApiQuery({
       name: 'startDate',
@@ -84,6 +78,13 @@ export function FindAllAppointmentsDocs() {
       description: 'Data de fim para filtro (ISO 8601)',
       example: '2025-08-22T23:59:59.999Z',
       type: String,
+    }),
+    ApiQuery({
+      name: 'isDeleted',
+      required: false,
+      description: 'Filtrar por status de exclusão lógica',
+      example: false,
+      type: Boolean,
     }),
     ApiOkResponse({
       description: 'Lista de agendamentos retornada com sucesso',

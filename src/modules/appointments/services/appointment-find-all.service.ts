@@ -2,10 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { AppointmentFindAllQueryDTO } from '../dtos/api/appointment-find-all-query.dto';
 import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
-import { AppointmentRepositoryFindAllDTO } from '../dtos/repository/appointment-repository-find-all.dto';
+import { AppointmentFindAllMapper } from '../mappers/appointment-find-all.mapper';
 import { AppointmentRepository } from '../repositories/appointment.repository';
+import { calculatePagination } from '../utils/pagination.util';
 
-import { ErrorMessageService } from '@/error-message/error-message.service';
+import { AppointmentAccessValidationService } from './appointment-access-validation.service';
 
 @Injectable()
 export class AppointmentFindAllService {
@@ -13,39 +14,44 @@ export class AppointmentFindAllService {
 
   constructor(
     private readonly appointmentRepository: AppointmentRepository,
-    private readonly errorMessageService: ErrorMessageService,
+    private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
   ) {}
 
   async execute(
     establishmentId: string,
     query: AppointmentFindAllQueryDTO,
-    ownerId: string,
+    requesterId: string,
   ): Promise<AppointmentFindAllResponseDTO> {
     this.logger.log(
       `Buscando agendamentos para estabelecimento ${establishmentId} com filtros: ${JSON.stringify(query)}`,
     );
 
-    // Validar se o usuário tem acesso ao estabelecimento
-    await this.validateEstablishmentAccess(establishmentId, ownerId);
+    // 1. Validar se o estabelecimento existe e se o requisitante tem acesso
+    await this.validateRequesterAccess(establishmentId, requesterId);
 
-    // Calcular paginação
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+    // 2. Validar cliente se fornecido
+    if (query.customerId) {
+      await this.validateCustomer(establishmentId, query.customerId);
+    }
 
-    // Converter DTO de entrada para DTO do repositório
-    const repositoryQuery: AppointmentRepositoryFindAllDTO = {
-      customerId: query.customerId,
-      memberId: query.memberId,
-      status: query.status,
-      startDate: query.startDate,
-      endDate: query.endDate,
-      isDeleted: query.isDeleted ?? false,
-      skip,
-      take: limit,
-    };
+    // 3. Validar membro se fornecido
+    if (query.memberId) {
+      await this.validateMember(establishmentId, query.memberId);
+    }
 
-    // Buscar agendamentos no repositório
+    // 4. Calcular paginação
+    const pagination = calculatePagination({
+      page: query.page,
+      limit: query.limit,
+    });
+
+    // 5. Converter DTO de entrada para DTO do repositório
+    const repositoryQuery = AppointmentFindAllMapper.toRepositoryQuery(
+      query,
+      pagination,
+    );
+
+    // 6. Buscar agendamentos no repositório
     const appointments =
       await this.appointmentRepository.findAll(repositoryQuery);
 
@@ -53,43 +59,51 @@ export class AppointmentFindAllService {
       `Encontrados ${appointments.length} agendamentos para estabelecimento ${establishmentId}`,
     );
 
-    // Calcular metadados de paginação
-    const totalItems = appointments.length;
-    const totalPages = Math.ceil(totalItems / limit);
-
-    // Converter para DTO de resposta
-    const response: AppointmentFindAllResponseDTO = {
-      data: appointments.map((appointment) => ({
-        id: appointment.id,
-        customerId: appointment.customerId,
-        memberId: appointment.memberId,
-        startTime: appointment.startTime.toISOString(),
-        endTime: appointment.endTime.toISOString(),
-      })),
-      meta: {
-        page,
-        limit,
-        total: {
-          items: totalItems,
-          pages: totalPages,
-        },
-      },
-    };
+    // 7. Converter para DTO de resposta
+    const response = AppointmentFindAllMapper.toResponseDTO(
+      appointments,
+      pagination,
+    );
 
     return response;
   }
 
-  private async validateEstablishmentAccess(
+  private async validateRequesterAccess(
     establishmentId: string,
-    ownerId: string,
+    requesterId: string,
   ): Promise<void> {
-    // TODO: Implementar validação de acesso ao estabelecimento
-    // Por enquanto, apenas log da validação
-    this.logger.log(
-      `Validando acesso do usuário ${ownerId} ao estabelecimento ${establishmentId}`,
+    await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+      establishmentId,
+      requesterId,
     );
+    this.logger.log(
+      `Requisitante ${requesterId} tem acesso ao estabelecimento ${establishmentId}`,
+    );
+  }
 
-    // Esta validação deve ser implementada quando tivermos o service de estabelecimento
-    // Por enquanto, assumimos que o acesso é válido
+  private async validateCustomer(
+    establishmentId: string,
+    customerId: string,
+  ): Promise<void> {
+    await this.appointmentAccessValidationService.validateCustomer(
+      establishmentId,
+      customerId,
+    );
+    this.logger.log(
+      `Cliente ${customerId} validado para estabelecimento ${establishmentId}`,
+    );
+  }
+
+  private async validateMember(
+    establishmentId: string,
+    memberId: string,
+  ): Promise<void> {
+    await this.appointmentAccessValidationService.validateMember(
+      establishmentId,
+      memberId,
+    );
+    this.logger.log(
+      `Membro ${memberId} validado para estabelecimento ${establishmentId}`,
+    );
   }
 }
