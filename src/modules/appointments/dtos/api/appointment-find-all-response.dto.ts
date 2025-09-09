@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { BasePaginatedResponseDTO } from '@/common/dtos/base-paginated-response.dto';
+
 class AppointmentListItemDTO {
   @ApiProperty()
   id!: string;
@@ -17,10 +19,7 @@ class AppointmentListItemDTO {
   endTime!: string;
 }
 
-export class AppointmentFindAllResponseDTO {
+export class AppointmentFindAllResponseDTO extends BasePaginatedResponseDTO<AppointmentListItemDTO> {
   @ApiProperty({ type: [AppointmentListItemDTO] })
-  items!: AppointmentListItemDTO[];
-
-  @ApiProperty()
-  total!: number;
+  declare data: AppointmentListItemDTO[];
 }
