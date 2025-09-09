@@ -1,8 +1,8 @@
 import { Appointment } from '@prisma/client';
 
-import { AppointmentFindAllQueryDTO } from '../dtos/api/appointment-find-all-query.dto';
 import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-request.dto';
 import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
+import { AppointmentRepositoryFindAllDTO } from '../dtos/repository/appointment-repository-find-all.dto';
 
 export interface IAppointmentRepository {
   /**
@@ -18,7 +18,7 @@ export interface IAppointmentRepository {
   /**
    * Busca todos os agendamentos com filtros opcionais
    */
-  findAll(query: AppointmentFindAllQueryDTO): Promise<Appointment[]>;
+  findAll(query: AppointmentRepositoryFindAllDTO): Promise<Appointment[]>;
 
   /**
    * Atualiza um agendamento existente

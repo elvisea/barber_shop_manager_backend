@@ -1,6 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AppointmentStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  ValidateIf,
+} from 'class-validator';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
 
@@ -35,14 +43,30 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
     example: '2024-01-21T00:00:00Z',
   })
   @IsOptional()
-  @IsDateString()
-  startDate?: string;
+  @Type(() => Date)
+  @IsDate()
+  startDate?: Date;
 
   @ApiPropertyOptional({
     description: 'Data de fim para filtro',
     example: '2024-01-21T23:59:59Z',
   })
   @IsOptional()
-  @IsDateString()
-  endDate?: string;
+  @Type(() => Date)
+  @IsDate()
+  @ValidateIf((o) => o.startDate && o.endDate)
+  endDate?: Date;
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por status de exclusão lógica',
+    example: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  isDeleted?: boolean = false;
 }

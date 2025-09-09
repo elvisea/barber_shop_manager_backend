@@ -7,65 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Representa um plano de assinatura disponível para estabelecimentos.
-/// Exemplo: "Plano Sistema", "Atendimento A.I.", "Pacote Premium".
-model Plan {
-  /// Identificador único do plano.
-  id            String         @id @default(uuid()) @map("id")
-  /// Nome do plano (ex: "Atendimento A.I.").
-  name          String         @map("name")
-  /// Descrição detalhada do plano.
-  description   String?        @map("description")
-  /// Preço do plano em centavos (ex: 1999 = R$19,99).
-  price         Int            @map("price")
-  /// Duração do plano em dias (ex: 30 para mensal).
-  duration      Int            @map("duration")
-  /// Indica se o plano está ativo para novas assinaturas.
-  isActive      Boolean        @default(true) @map("is_active")
-  /// Data de criação do plano.
-  createdAt     DateTime       @default(now()) @map("created_at")
-  /// Data da última atualização do plano.
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  subscriptions Subscription[]
+// ============================================================================
+// CORE MODELS
+// ============================================================================
 
-  @@map("plans")
-}
-
-/// Representa a assinatura de um plano por um estabelecimento.
-/// Controla status, validade, pagamento e telefone vinculado ao serviço.
-model Subscription {
-  /// Identificador único da assinatura.
-  id              String             @id @default(uuid()) @map("id")
-  /// Estabelecimento que possui a assinatura.
-  establishmentId String             @map("establishment_id")
-  /// Plano assinado.
-  planId          String             @map("plan_id")
-  /// Usuário que realizou a assinatura (opcional).
-  createdById     String?            @map("created_by_id")
-  /// Data de início da assinatura.
-  startDate       DateTime           @map("start_date")
-  /// Data de término da assinatura.
-  endDate         DateTime           @map("end_date")
-  /// Status atual da assinatura.
-  status          SubscriptionStatus @default(PENDING) @map("status")
-  /// Indica se a assinatura está paga.
-  paid            Boolean            @default(false) @map("paid")
-  /// Telefone vinculado ao serviço (agora obrigatório).
-  phone           String             @map("phone")
-  /// Data de criação da assinatura.
-  createdAt       DateTime           @default(now()) @map("created_at")
-  /// Data da última atualização da assinatura.
-  updatedAt       DateTime           @updatedAt @map("updated_at")
-  createdBy       User?              @relation(fields: [createdById], references: [id])
-  establishment   Establishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  plan            Plan               @relation(fields: [planId], references: [id])
-
-  @@index([establishmentId])
-  @@index([planId])
-  @@index([createdById])
-  @@map("subscriptions")
-}
-
+/// Representa um usuário do sistema (dono ou funcionário).
 model User {
   id                   String                 @id @default(uuid()) @map("id")
   createdAt            DateTime               @default(now()) @map("created_at")
@@ -75,6 +21,12 @@ model User {
   phone                String                 @map("phone")
   password             String                 @map("password")
   role                 UserRole               @default(OWNER) @map("role")
+  /// Data de exclusão lógica.
+  deletedAt            DateTime?              @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy            String?                @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted            Boolean                @default(false) @map("is_deleted")
   ownedEstablishments  Establishment[]
   createdPaymentOrders PaymentOrder[]
   refreshTokens        RefreshToken[]
@@ -82,9 +34,12 @@ model User {
   emailVerification    UserEmailVerification?
 
   @@index([email])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("users")
 }
 
+/// Representa um estabelecimento/barbearia.
 model Establishment {
   id             String                  @id @default(uuid()) @map("id")
   name           String                  @map("name")
@@ -93,6 +48,12 @@ model Establishment {
   ownerId        String                  @map("owner_id")
   createdAt      DateTime                @default(now()) @map("created_at")
   updatedAt      DateTime                @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt      DateTime?               @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy      String?                 @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted      Boolean                 @default(false) @map("is_deleted")
   appointments   Appointment[]
   closurePeriods ClosurePeriod[]
   customers      EstablishmentCustomer[]
@@ -104,9 +65,123 @@ model Establishment {
   subscriptions  Subscription[]
 
   @@unique([ownerId, phone])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("establishments")
 }
 
+// ============================================================================
+// MEMBERS MODELS
+// ============================================================================
+
+/// Representa um membro/funcionário de um estabelecimento.
+model Member {
+  id                String                   @id @default(uuid()) @map("id")
+  name              String                   @map("name")
+  email             String                   @unique @map("email")
+  phone             String                   @unique @map("phone")
+  password          String                   @map("password")
+  role              MemberRole               @map("role")
+  isActive          Boolean                  @default(true) @map("is_active")
+  establishmentId   String                   @map("establishment_id")
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt         DateTime?                @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy         String?                  @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted         Boolean                  @default(false) @map("is_deleted")
+  appointments      Appointment[]
+  absencePeriods    MemberAbsencePeriod[]
+  emailVerification MemberEmailVerification?
+  memberProducts    MemberProduct[]
+  refreshTokens     MemberRefreshToken[]
+  memberServices    MemberService[]
+  workingHours      MemberWorkingHours[]
+  establishment     Establishment            @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  paymentOrders     PaymentOrder[]
+  transactions      Transaction[]
+
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("members")
+}
+
+/// Refresh tokens para autenticação de membros.
+model MemberRefreshToken {
+  id        String    @id @default(uuid()) @map("id")
+  token     String    @unique @map("token")
+  expiresAt DateTime  @map("expires_at")
+  revoked   Boolean   @default(false) @map("revoked")
+  userAgent String?   @map("user_agent")
+  ipAddress String?   @map("ip_address")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  memberId  String    @map("member_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("member_refresh_tokens")
+}
+
+/// Horários de trabalho dos membros.
+model MemberWorkingHours {
+  id        String    @id @default(uuid()) @map("id")
+  dayOfWeek Int       @map("day_of_week")
+  startTime String    @map("start_time")
+  endTime   String    @map("end_time")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  memberId  String    @map("member_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, dayOfWeek])
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("member_working_hours")
+}
+
+/// Períodos de ausência dos membros.
+model MemberAbsencePeriod {
+  id        String    @id @default(uuid()) @map("id")
+  reason    String?   @map("reason")
+  startDate DateTime  @map("start_date")
+  endDate   DateTime  @map("end_date")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  memberId  String    @map("member_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("member_absence_periods")
+}
+
+// ============================================================================
+// CUSTOMERS MODELS
+// ============================================================================
+
+/// Clientes dos estabelecimentos.
 model EstablishmentCustomer {
   id              String        @id @default(uuid()) @map("id")
   createdAt       DateTime      @default(now()) @map("created_at")
@@ -115,15 +190,28 @@ model EstablishmentCustomer {
   email           String?       @map("email")
   phone           String?       @map("phone")
   establishmentId String        @map("establishment_id")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?     @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?       @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean       @default(false) @map("is_deleted")
   appointments    Appointment[]
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   transactions    Transaction[]
 
   @@unique([establishmentId, email])
   @@unique([establishmentId, phone])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("establishment_customers")
 }
 
+// ============================================================================
+// PRODUCTS & SERVICES MODELS
+// ============================================================================
+
+/// Produtos dos estabelecimentos.
 model EstablishmentProduct {
   id               String            @id @default(uuid()) @map("id")
   name             String            @map("name")
@@ -134,14 +222,23 @@ model EstablishmentProduct {
   establishmentId  String            @map("establishment_id")
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt        DateTime?         @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy        String?           @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted        Boolean           @default(false) @map("is_deleted")
   establishment    Establishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   memberProducts   MemberProduct[]
   transactionItems TransactionItem[]
 
   @@unique([establishmentId, name])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("establishment_products")
 }
 
+/// Serviços dos estabelecimentos.
 model EstablishmentService {
   id                  String               @id @default(uuid()) @map("id")
   name                String               @map("name")
@@ -152,15 +249,24 @@ model EstablishmentService {
   establishmentId     String               @map("establishment_id")
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt           DateTime?            @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy           String?              @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted           Boolean              @default(false) @map("is_deleted")
   appointmentServices AppointmentService[]
   establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   memberServices      MemberService[]
   transactionItems    TransactionItem[]
 
   @@unique([establishmentId, name])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("establishment_services")
 }
 
+/// Produtos personalizados por membro.
 model MemberProduct {
   id              String               @id @default(uuid()) @map("id")
   price           Int                  @map("price")
@@ -170,13 +276,22 @@ model MemberProduct {
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   memberId        String               @map("member_id")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?            @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?              @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean              @default(false) @map("is_deleted")
   member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
   product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, establishmentId, productId])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("member_products")
 }
 
+/// Serviços personalizados por membro.
 model MemberService {
   id              String               @id @default(uuid()) @map("id")
   price           Int                  @map("price")
@@ -187,112 +302,26 @@ model MemberService {
   createdAt       DateTime             @default(now()) @map("created_at")
   updatedAt       DateTime             @updatedAt @map("updated_at")
   memberId        String               @map("member_id")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?            @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?              @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean              @default(false) @map("is_deleted")
   member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
   service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, establishmentId, serviceId])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("member_services")
 }
 
-model OpeningHours {
-  id              String        @id @default(uuid()) @map("id")
-  dayOfWeek       Int           @map("day_of_week")
-  openingTime     String        @map("opening_time")
-  closingTime     String        @map("closing_time")
-  establishmentId String        @map("establishment_id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+// ============================================================================
+// APPOINTMENTS MODELS
+// ============================================================================
 
-  @@unique([establishmentId, dayOfWeek])
-  @@map("opening_hours")
-}
-
-model ClosurePeriod {
-  id              String        @id @default(uuid()) @map("id")
-  startDate       DateTime      @map("start_date")
-  endDate         DateTime      @map("end_date")
-  reason          String?       @map("reason")
-  establishmentId String        @map("establishment_id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-
-  @@map("closure_periods")
-}
-
-model MemberWorkingHours {
-  id        String   @id @default(uuid()) @map("id")
-  dayOfWeek Int      @map("day_of_week")
-  startTime String   @map("start_time")
-  endTime   String   @map("end_time")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  memberId  String   @map("member_id")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@unique([memberId, dayOfWeek])
-  @@map("member_working_hours")
-}
-
-model MemberAbsencePeriod {
-  id        String   @id @default(uuid()) @map("id")
-  reason    String?  @map("reason")
-  startDate DateTime @map("start_date")
-  endDate   DateTime @map("end_date")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  memberId  String   @map("member_id")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@map("member_absence_periods")
-}
-
-model UserEmailVerification {
-  id        String   @id @default(uuid()) @map("id")
-  email     String   @unique @map("email")
-  token     String   @map("token")
-  expiresAt DateTime @map("expires_at")
-  verified  Boolean  @default(false) @map("verified")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  userId    String   @unique @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([email])
-  @@map("user_email_verifications")
-}
-
-model MemberEmailVerification {
-  id        String   @id @default(uuid()) @map("id")
-  email     String   @unique @map("email")
-  token     String   @map("token")
-  expiresAt DateTime @map("expires_at")
-  verified  Boolean  @default(false) @map("verified")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  memberId  String   @unique @map("member_id")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@index([email])
-  @@map("member_email_verifications")
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid()) @map("id")
-  token     String   @unique @map("token")
-  expiresAt DateTime @map("expires_at")
-  revoked   Boolean  @default(false) @map("revoked")
-  userAgent String?  @map("user_agent")
-  ipAddress String?  @map("ip_address")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("refresh_tokens")
-}
-
+/// Agendamentos de clientes.
 model Appointment {
   id              String                @id @default(uuid()) @map("id")
   startTime       DateTime              @map("start_time")
@@ -306,15 +335,24 @@ model Appointment {
   customerId      String                @map("customer_id")
   memberId        String                @map("member_id")
   establishmentId String                @map("establishment_id")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?             @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?               @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean               @default(false) @map("is_deleted")
   services        AppointmentService[]
   customer        EstablishmentCustomer @relation(fields: [customerId], references: [id])
   establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   member          Member                @relation(fields: [memberId], references: [id])
   transaction     Transaction?
 
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("appointments")
 }
 
+/// Serviços realizados em um agendamento.
 model AppointmentService {
   id            String               @id @default(uuid()) @map("id")
   price         Int                  @map("price")
@@ -322,13 +360,26 @@ model AppointmentService {
   commission    Decimal              @map("commission") @db.Decimal(5, 4)
   appointmentId String               @map("appointment_id")
   serviceId     String               @map("service_id")
+  /// Data de exclusão lógica.
+  deletedAt     DateTime?            @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy     String?              @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted     Boolean              @default(false) @map("is_deleted")
   appointment   Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   service       EstablishmentService @relation(fields: [serviceId], references: [id])
 
   @@unique([appointmentId, serviceId])
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("appointment_services")
 }
 
+// ============================================================================
+// TRANSACTIONS MODELS
+// ============================================================================
+
+/// Transações financeiras.
 model Transaction {
   id               String                @id @default(uuid()) @map("id")
   totalAmount      Int                   @map("total_amount")
@@ -345,14 +396,23 @@ model Transaction {
   customerId       String                @map("customer_id")
   memberId         String                @map("member_id")
   establishmentId  String                @map("establishment_id")
+  /// Data de exclusão lógica.
+  deletedAt        DateTime?             @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy        String?               @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted        Boolean               @default(false) @map("is_deleted")
   items            TransactionItem[]
   appointment      Appointment?          @relation(fields: [appointmentId], references: [id])
   customer         EstablishmentCustomer @relation(fields: [customerId], references: [id])
   member           Member                @relation(fields: [memberId], references: [id])
 
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("transactions")
 }
 
+/// Itens de uma transação.
 model TransactionItem {
   id            String                @id @default(uuid()) @map("id")
   itemType      ItemType              @map("item_type")
@@ -365,13 +425,22 @@ model TransactionItem {
   transactionId String                @map("transaction_id")
   productId     String?               @map("product_id")
   serviceId     String?               @map("service_id")
+  /// Data de exclusão lógica.
+  deletedAt     DateTime?             @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy     String?               @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted     Boolean               @default(false) @map("is_deleted")
   product       EstablishmentProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
   service       EstablishmentService? @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   transaction   Transaction           @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("transaction_items")
 }
 
+/// Ordens de pagamento para membros.
 model PaymentOrder {
   id              String        @id @default(uuid()) @map("id")
   totalAmount     Int           @map("total_amount")
@@ -386,74 +455,210 @@ model PaymentOrder {
   memberId        String        @map("member_id")
   establishmentId String        @map("establishment_id")
   createdById     String        @map("created_by_id")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?     @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?       @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean       @default(false) @map("is_deleted")
   createdBy       User          @relation(fields: [createdById], references: [id])
   member          Member        @relation(fields: [memberId], references: [id])
 
+  @@index([deletedAt])
+  @@index([isDeleted])
   @@map("payment_orders")
 }
 
-/// Representa um membro/funcionário de um estabelecimento.
-/// Tabela principal de membros do sistema.
-model Member {
-  /// Identificador único do membro.
-  id                String                   @id @default(uuid()) @map("id")
-  /// Nome completo do membro.
-  name              String                   @map("name")
-  /// Email único do membro (único por estabelecimento).
-  email             String                   @unique @map("email")
-  /// Telefone único do membro (único por estabelecimento).
-  phone             String                   @unique @map("phone")
-  /// Senha criptografada do membro.
-  password          String                   @map("password")
-  /// Papel/função do membro no estabelecimento.
-  role              MemberRole               @map("role")
-  /// Indica se o membro está ativo.
-  isActive          Boolean                  @default(true) @map("is_active")
-  /// Estabelecimento ao qual o membro pertence.
-  establishmentId   String                   @map("establishment_id")
-  /// Data de criação do membro.
-  createdAt         DateTime                 @default(now()) @map("created_at")
-  /// Data da última atualização do membro.
-  updatedAt         DateTime                 @updatedAt @map("updated_at")
-  appointments      Appointment[]
-  absencePeriods    MemberAbsencePeriod[]
-  emailVerification MemberEmailVerification?
-  memberProducts    MemberProduct[]
-  refreshTokens     MemberRefreshToken[]
-  memberServices    MemberService[]
-  workingHours      MemberWorkingHours[]
-  establishment     Establishment            @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
-  paymentOrders     PaymentOrder[]
-  transactions      Transaction[]
+// ============================================================================
+// SUBSCRIPTIONS MODELS
+// ============================================================================
 
-  @@map("members")
+/// Planos de assinatura disponíveis.
+model Plan {
+  id            String         @id @default(uuid()) @map("id")
+  name          String         @map("name")
+  description   String?        @map("description")
+  price         Int            @map("price")
+  duration      Int            @map("duration")
+  isActive      Boolean        @default(true) @map("is_active")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt     DateTime?      @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy     String?        @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  subscriptions Subscription[]
+
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("plans")
 }
 
-/// Refresh tokens para autenticação de membros.
-/// Permite que membros mantenham sessões ativas.
-model MemberRefreshToken {
-  /// Identificador único do token.
-  id        String   @id @default(uuid()) @map("id")
-  /// Token de refresh único.
-  token     String   @unique @map("token")
-  /// Data de expiração do token.
-  expiresAt DateTime @map("expires_at")
-  /// Indica se o token foi revogado.
-  revoked   Boolean  @default(false) @map("revoked")
-  /// User agent do dispositivo que solicitou o token.
-  userAgent String?  @map("user_agent")
-  /// Endereço IP do dispositivo que solicitou o token.
-  ipAddress String?  @map("ip_address")
-  /// Data de criação do token.
-  createdAt DateTime @default(now()) @map("created_at")
-  /// Data da última atualização do token.
-  updatedAt DateTime @updatedAt @map("updated_at")
-  /// Membro ao qual o token pertence.
-  memberId  String   @map("member_id")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+/// Assinaturas de planos por estabelecimentos.
+model Subscription {
+  id              String             @id @default(uuid()) @map("id")
+  establishmentId String             @map("establishment_id")
+  planId          String             @map("plan_id")
+  createdById     String?            @map("created_by_id")
+  startDate       DateTime           @map("start_date")
+  endDate         DateTime           @map("end_date")
+  status          SubscriptionStatus @default(PENDING) @map("status")
+  paid            Boolean            @default(false) @map("paid")
+  phone           String             @map("phone")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?          @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?            @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean            @default(false) @map("is_deleted")
+  createdBy       User?              @relation(fields: [createdById], references: [id])
+  establishment   Establishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  plan            Plan               @relation(fields: [planId], references: [id])
 
-  @@map("member_refresh_tokens")
+  @@index([establishmentId])
+  @@index([planId])
+  @@index([createdById])
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("subscriptions")
 }
+
+// ============================================================================
+// EMAIL VERIFICATION MODELS
+// ============================================================================
+
+/// Verificação de email de usuários.
+model UserEmailVerification {
+  id        String    @id @default(uuid()) @map("id")
+  email     String    @unique @map("email")
+  token     String    @map("token")
+  expiresAt DateTime  @map("expires_at")
+  verified  Boolean   @default(false) @map("verified")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  userId    String    @unique @map("user_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("user_email_verifications")
+}
+
+/// Verificação de email de membros.
+model MemberEmailVerification {
+  id        String    @id @default(uuid()) @map("id")
+  email     String    @unique @map("email")
+  token     String    @map("token")
+  expiresAt DateTime  @map("expires_at")
+  verified  Boolean   @default(false) @map("verified")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  memberId  String    @unique @map("member_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("member_email_verifications")
+}
+
+// ============================================================================
+// AUTHENTICATION MODELS
+// ============================================================================
+
+/// Refresh tokens para autenticação de usuários.
+model RefreshToken {
+  id        String    @id @default(uuid()) @map("id")
+  token     String    @unique @map("token")
+  expiresAt DateTime  @map("expires_at")
+  revoked   Boolean   @default(false) @map("revoked")
+  userAgent String?   @map("user_agent")
+  ipAddress String?   @map("ip_address")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  userId    String    @map("user_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("refresh_tokens")
+}
+
+// ============================================================================
+// CONFIGURATION MODELS
+// ============================================================================
+
+/// Horários de funcionamento dos estabelecimentos.
+model OpeningHours {
+  id              String        @id @default(uuid()) @map("id")
+  dayOfWeek       Int           @map("day_of_week")
+  openingTime     String        @map("opening_time")
+  closingTime     String        @map("closing_time")
+  establishmentId String        @map("establishment_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?     @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?       @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean       @default(false) @map("is_deleted")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@unique([establishmentId, dayOfWeek])
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("opening_hours")
+}
+
+/// Períodos de fechamento dos estabelecimentos.
+model ClosurePeriod {
+  id              String        @id @default(uuid()) @map("id")
+  startDate       DateTime      @map("start_date")
+  endDate         DateTime      @map("end_date")
+  reason          String?       @map("reason")
+  establishmentId String        @map("establishment_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  /// Data de exclusão lógica.
+  deletedAt       DateTime?     @map("deleted_at")
+  /// ID do usuário que realizou a exclusão.
+  deletedBy       String?       @map("deleted_by")
+  /// Flag para facilitar consultas de registros não deletados.
+  isDeleted       Boolean       @default(false) @map("is_deleted")
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([isDeleted])
+  @@map("closure_periods")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
 
 enum UserRole {
   OWNER
@@ -494,11 +699,6 @@ enum ItemType {
   SERVICE
 }
 
-/// Status da assinatura de um plano.
-/// - ACTIVE: Assinatura ativa e válida.
-/// - EXPIRED: Assinatura expirada (data final atingida).
-/// - CANCELLED: Assinatura cancelada pelo usuário ou sistema.
-/// - PENDING: Assinatura aguardando pagamento ou ativação.
 enum SubscriptionStatus {
   ACTIVE
   EXPIRED

@@ -9,6 +9,7 @@ import {
   ApiQuery,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AppointmentStatus } from '@prisma/client';
 
 import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
 
@@ -61,15 +62,8 @@ export function FindAllAppointmentsDocs() {
       name: 'status',
       required: false,
       description: 'Filtrar por status do agendamento',
-      example: 'SCHEDULED',
-      enum: [
-        'SCHEDULED',
-        'CONFIRMED',
-        'IN_PROGRESS',
-        'COMPLETED',
-        'CANCELLED',
-        'NO_SHOW',
-      ],
+      example: AppointmentStatus.PENDING,
+      enum: AppointmentStatus,
     }),
     ApiQuery({
       name: 'startDate',
@@ -85,6 +79,13 @@ export function FindAllAppointmentsDocs() {
       example: '2025-08-22T23:59:59.999Z',
       type: String,
     }),
+    ApiQuery({
+      name: 'isDeleted',
+      required: false,
+      description: 'Filtrar por status de exclusão lógica',
+      example: false,
+      type: Boolean,
+    }),
     ApiOkResponse({
       description: 'Lista de agendamentos retornada com sucesso',
       type: AppointmentFindAllResponseDTO,
@@ -94,20 +95,17 @@ export function FindAllAppointmentsDocs() {
             id: '550e8400-e29b-41d4-a716-446655440000',
             customerId: '550e8400-e29b-41d4-a716-446655440001',
             memberId: '550e8400-e29b-41d4-a716-446655440002',
-            establishmentId: '550e8400-e29b-41d4-a716-446655440003',
             startTime: '2025-08-22T10:00:00.000Z',
             endTime: '2025-08-22T11:00:00.000Z',
-            notes: 'Corte de cabelo e barba',
-            status: 'SCHEDULED',
-            createdAt: '2025-08-22T00:00:00.000Z',
-            updatedAt: '2025-08-22T00:00:00.000Z',
           },
         ],
         meta: {
           page: 1,
           limit: 10,
-          total: 1,
-          totalPages: 1,
+          total: {
+            items: 1,
+            pages: 1,
+          },
         },
       },
     }),
