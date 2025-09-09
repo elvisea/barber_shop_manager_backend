@@ -35,4 +35,7 @@ export class MemberResponseDTO {
   updatedAt: Date;
 }
 
-export class MemberPaginatedResponseDTO extends BasePaginatedResponseDTO<MemberResponseDTO> {}
+export class MemberPaginatedResponseDTO extends BasePaginatedResponseDTO<MemberResponseDTO> {
+  @ApiProperty({ type: [MemberResponseDTO] })
+  declare data: MemberResponseDTO[];
+}

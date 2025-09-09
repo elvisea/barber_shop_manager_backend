@@ -20,7 +20,10 @@ class Meta {
 }
 
 export class BasePaginatedResponseDTO<T> {
-  @ApiProperty({ isArray: true })
+  @ApiProperty({
+    isArray: true,
+    description: 'Array of items',
+  })
   data: T[];
 
   @ApiProperty({ type: Meta })

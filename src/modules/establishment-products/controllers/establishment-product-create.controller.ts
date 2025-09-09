@@ -1,14 +1,7 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiConflictResponse,
-  ApiForbiddenResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+import { CreateProductDocs } from '../docs/create-product.docs';
 import { EstablishmentProductCreateParamDTO } from '../dtos/establishment-product-create-param.dto';
 import { EstablishmentProductCreateRequestDTO } from '../dtos/establishment-product-create-request.dto';
 import { EstablishmentProductCreateResponseDTO } from '../dtos/establishment-product-create-response.dto';
@@ -16,11 +9,8 @@ import { EstablishmentProductCreateService } from '../services/establishment-pro
 
 import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { SwaggerErrors } from '@/common/swagger-errors';
-import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Establishment Products')
-@ApiBearerAuth()
 @Controller('establishments/:establishmentId/products')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentProductCreateController {
@@ -29,32 +19,7 @@ export class EstablishmentProductCreateController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create product for establishment' })
-  @ApiResponse({ status: 201, type: EstablishmentProductCreateResponseDTO })
-  @ApiForbiddenResponse({
-    description:
-      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
-        .description,
-    schema: {
-      example:
-        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
-          .example,
-    },
-  })
-  @ApiConflictResponse({
-    description:
-      SwaggerErrors[ErrorCode.ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS]
-        .description,
-    schema: {
-      example:
-        SwaggerErrors[ErrorCode.ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS]
-          .example,
-    },
-  })
-  @ApiBadRequestResponse({
-    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
-    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
-  })
+  @CreateProductDocs()
   async handle(
     @GetRequestId() userId: string,
     @Param() params: EstablishmentProductCreateParamDTO,
