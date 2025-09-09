@@ -1,0 +1,19 @@
+/**
+ * Documentação Swagger para controllers de {{moduleName}}
+ *
+ * Este arquivo centraliza todas as documentações dos endpoints
+ * do módulo de {{moduleName}} para facilitar importação e manutenção.
+ */
+
+// Create operations
+export { Create{{EntityName}}Docs } from './create-{{entityName}}.docs';
+
+// Read operations
+export { FindAll{{EntityName}}sDocs } from './find-all-{{entityName}}s.docs';
+export { Find{{EntityName}}ByIdDocs } from './find-{{entityName}}-by-id.docs';
+
+// Update operations
+export { Update{{EntityName}}Docs } from './update-{{entityName}}.docs';
+
+// Delete operations
+export { Delete{{EntityName}}Docs } from './delete-{{entityName}}.docs';
