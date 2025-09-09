@@ -1,0 +1,94 @@
+import { applyDecorators } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+
+import { {{EntityName}}CreateResponseDTO } from '../dtos/api/{{entityName}}-create-response.dto';
+
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
+
+/**
+ * Documentação completa do endpoint de criação de {{entityName}}
+ *
+ * Este decorator composto aplica toda a documentação Swagger necessária
+ * para o endpoint POST /{{moduleName}}/{{entityName}}s
+ */
+export function Create{{EntityName}}Docs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Criar novo {{entityName}}',
+      description: 'Cria um novo {{entityName}} no sistema.',
+    }),
+    ApiParam({
+      name: '{{moduleName}}Id',
+      description: 'ID único do {{moduleName}}',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiBearerAuth(),
+    ApiCreatedResponse({
+      description: '{{EntityName}} criado com sucesso',
+      type: {{EntityName}}CreateResponseDTO,
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        name: 'Exemplo de {{entityName}}',
+        createdAt: '2025-08-22T00:00:00.000Z',
+        updatedAt: '2025-08-22T00:00:00.000Z',
+      },
+    }),
+    ApiBadRequestResponse({
+      description: 'Dados inválidos fornecidos ou validação de negócio falhou',
+      schema: {
+        oneOf: [
+          {
+            example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example,
+          },
+        ],
+      },
+    }),
+    ApiConflictResponse({
+      description: 'Conflito - {{entityName}} já existe ou viola regra de negócio',
+      schema: {
+        example: SwaggerErrors[ErrorCode.CONFLICT].example,
+      },
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token de autenticação inválido ou ausente',
+      schema: {
+        example: {
+          statusCode: 401,
+          message: 'Unauthorized',
+          error: 'Unauthorized',
+        },
+      },
+    }),
+    ApiForbiddenResponse({
+      description: 'Acesso negado - usuário não tem permissão para criar {{entityName}}',
+      schema: {
+        oneOf: [
+          {
+            example: SwaggerErrors[ErrorCode.ACCESS_DENIED].example,
+          },
+        ],
+      },
+    }),
+    ApiNotFoundResponse({
+      description: 'Recurso não encontrado',
+      schema: {
+        oneOf: [
+          {
+            example: SwaggerErrors[ErrorCode.NOT_FOUND].example,
+          },
+        ],
+      },
+    }),
+  );
+}

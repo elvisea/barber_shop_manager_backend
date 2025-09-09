@@ -1,0 +1,103 @@
+import { applyDecorators } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+
+import { {{EntityName}}FindAllResponseDTO } from '../dtos/api/{{entityName}}-find-all-response.dto';
+
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
+
+/**
+ * Documentação completa do endpoint de listagem de {{entityName}}s
+ *
+ * Este decorator composto aplica toda a documentação Swagger necessária
+ * para o endpoint GET /{{moduleName}}/{{entityName}}s
+ */
+export function FindAll{{EntityName}}sDocs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Listar {{entityName}}s',
+      description: 'Lista todos os {{entityName}}s com paginação e filtros opcionais.',
+    }),
+    ApiBearerAuth(),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      description: 'Número da página para paginação',
+      example: 1,
+      type: Number,
+    }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: 'Número de itens por página',
+      example: 10,
+      type: Number,
+    }),
+    ApiQuery({
+      name: 'search',
+      required: false,
+      description: 'Termo de busca para filtrar {{entityName}}s',
+      example: 'exemplo',
+      type: String,
+    }),
+    ApiOkResponse({
+      description: 'Lista de {{entityName}}s retornada com sucesso',
+      type: {{EntityName}}FindAllResponseDTO,
+      example: {
+        data: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            name: 'Exemplo de {{entityName}}',
+            createdAt: '2025-08-22T00:00:00.000Z',
+            updatedAt: '2025-08-22T00:00:00.000Z',
+          },
+        ],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: {
+            items: 1,
+            pages: 1,
+          },
+        },
+      },
+    }),
+    ApiBadRequestResponse({
+      description: 'Parâmetros de consulta inválidos',
+      schema: {
+        example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example,
+      },
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token de autenticação inválido ou ausente',
+      schema: {
+        example: {
+          statusCode: 401,
+          message: 'Unauthorized',
+          error: 'Unauthorized',
+        },
+      },
+    }),
+    ApiForbiddenResponse({
+      description: 'Acesso negado - usuário não tem permissão para listar {{entityName}}s',
+      schema: {
+        example: SwaggerErrors[ErrorCode.ACCESS_DENIED].example,
+      },
+    }),
+    ApiNotFoundResponse({
+      description: 'Recurso não encontrado',
+      schema: {
+        example: SwaggerErrors[ErrorCode.NOT_FOUND].example,
+      },
+    }),
+  );
+}

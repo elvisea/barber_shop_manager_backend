@@ -1,0 +1,63 @@
+import { applyDecorators } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+
+import { SwaggerErrors } from '@/common/swagger-errors';
+import { ErrorCode } from '@/enums/error-code';
+
+/**
+ * Documentação completa do endpoint de exclusão de {{entityName}}
+ *
+ * Este decorator composto aplica toda a documentação Swagger necessária
+ * para o endpoint DELETE /{{moduleName}}/{{entityName}}s/:id
+ */
+export function Delete{{EntityName}}Docs() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Excluir {{entityName}}',
+      description: 'Remove um {{entityName}} do sistema permanentemente.',
+    }),
+    ApiParam({
+      name: 'id',
+      description: 'ID único do {{entityName}}',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+    ApiBearerAuth(),
+    ApiNoContentResponse({
+      description: '{{EntityName}} excluído com sucesso',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token de autenticação inválido ou ausente',
+      schema: {
+        example: {
+          statusCode: 401,
+          message: 'Unauthorized',
+          error: 'Unauthorized',
+        },
+      },
+    }),
+    ApiForbiddenResponse({
+      description: 'Acesso negado - usuário não tem permissão para excluir este {{entityName}}',
+      schema: {
+        oneOf: [
+          {
+            example: SwaggerErrors[ErrorCode.ACCESS_DENIED].example,
+          },
+        ],
+      },
+    }),
+    ApiNotFoundResponse({
+      description: '{{EntityName}} não encontrado',
+      schema: {
+        example: SwaggerErrors[ErrorCode.NOT_FOUND].example,
+      },
+    }),
+  );
+}
