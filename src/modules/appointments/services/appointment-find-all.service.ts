@@ -1,13 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common';
 
-import { IAppointmentRepository } from '../contracts/appointment-repository.interface';
 import { AppointmentFindAllQueryDTO } from '../dtos/api/appointment-find-all-query.dto';
 import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 @Injectable()
@@ -17,7 +13,7 @@ export class AppointmentFindAllService {
   constructor(
     private readonly appointmentRepository: AppointmentRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) {}
+  ) { }
 
   async execute(
     establishmentId: string,

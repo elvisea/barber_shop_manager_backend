@@ -12,7 +12,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class AppointmentRepository implements IAppointmentRepository {
   private readonly logger = new Logger(AppointmentRepository.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(data: AppointmentRepositoryCreateDTO): Promise<Appointment> {
     this.logger.log(
