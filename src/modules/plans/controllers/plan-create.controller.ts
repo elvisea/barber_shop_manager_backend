@@ -1,11 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { CreatePlanDocs } from '../docs';
 import { PlanCreateRequestDTO } from '../dtos/plan-create-request.dto';
 import { PlanCreateResponseDTO } from '../dtos/plan-create-response.dto';
 import { PlanCreateService } from '../services/plan-create.service';
@@ -18,8 +14,7 @@ export class PlanCreateController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new plan' })
-  @ApiResponse({ status: 201, type: PlanCreateResponseDTO })
+  @CreatePlanDocs()
   async handle(
     @Body() dto: PlanCreateRequestDTO,
   ): Promise<PlanCreateResponseDTO> {
