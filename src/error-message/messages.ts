@@ -190,6 +190,6 @@ export const messages: Record<ErrorCode, { message: string }> = {
   },
   [ErrorCode.MEMBER_APPOINTMENT_CONFLICT]: {
     message:
-      'Member [MEMBER_ID] already has an appointment scheduled between [START_TIME] and [END_TIME].',
+      'Member [MEMBER_ID] already has a conflicting appointment scheduled between [START_TIME] and [END_TIME]. Please choose a different time slot.',
   },
 } as const;
