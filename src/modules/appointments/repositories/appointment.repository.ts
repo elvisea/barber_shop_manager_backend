@@ -79,6 +79,9 @@ export class AppointmentRepository implements IAppointmentRepository {
 
     const where: Prisma.AppointmentWhereInput = {};
 
+    // Filtrar por status de exclusão lógica (padrão: apenas não deletados)
+    where.isDeleted = query.isDeleted ?? false;
+
     if (query.customerId) {
       where.customerId = query.customerId;
     }

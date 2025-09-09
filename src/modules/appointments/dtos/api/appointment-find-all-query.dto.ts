@@ -1,6 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AppointmentStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
 
@@ -45,4 +51,12 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por status de exclusão lógica',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isDeleted?: boolean;
 }
