@@ -272,10 +272,14 @@ export class AppointmentRepository implements IAppointmentRepository {
 
     const whereClause: Prisma.AppointmentWhereInput = {
       memberId,
-      OR: [
-        // Conflito: agendamento existente começa antes e termina depois do início do novo
+      isDeleted: false, // Filtrar apenas agendamentos não deletados
+      AND: [
+        // Conflito: agendamento existente sobrepõe com o novo
+        // Condição: startTime < novo_endTime AND endTime > novo_startTime
         {
           startTime: { lt: endTime },
+        },
+        {
           endTime: { gt: startTime },
         },
       ],

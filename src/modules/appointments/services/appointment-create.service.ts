@@ -143,17 +143,20 @@ export class AppointmentCreateService {
       );
 
     if (conflictingAppointments.length > 0) {
+      // Pegar o primeiro agendamento conflitante para mostrar na mensagem
+      const conflictingAppointment = conflictingAppointments[0];
+
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
         {
           MEMBER_ID: memberId,
-          START_TIME: startTime.toISOString(),
-          END_TIME: endTime.toISOString(),
+          START_TIME: conflictingAppointment.startTime.toISOString(),
+          END_TIME: conflictingAppointment.endTime.toISOString(),
         },
       );
 
       this.logger.warn(
-        `Time conflict found for member ${memberId}: ${conflictingAppointments.length} conflicting appointments`,
+        `Time conflict found for member ${memberId}: ${conflictingAppointments.length} conflicting appointments. Conflicting appointment: ${conflictingAppointment.id} (${conflictingAppointment.startTime.toISOString()} - ${conflictingAppointment.endTime.toISOString()})`,
       );
 
       throw new CustomHttpException(
