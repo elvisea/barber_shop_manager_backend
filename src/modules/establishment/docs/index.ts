@@ -17,3 +17,6 @@ export { UpdateEstablishmentDocs } from './update-establishment.docs';
 
 // Delete operations
 export { DeleteEstablishmentDocs } from './delete-establishment.docs';
+
+// Evolution API operations
+export { CreateEvolutionApiInstanceDocs } from './create-evolution-api-instance.docs';

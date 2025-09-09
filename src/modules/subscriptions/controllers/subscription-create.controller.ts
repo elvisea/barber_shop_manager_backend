@@ -7,13 +7,9 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+import { CreateSubscriptionDocs } from '../docs/create-subscription.docs';
 import { SubscriptionCreateParamDTO } from '../dtos/subscription-create-param.dto';
 import { SubscriptionCreateRequestDTO } from '../dtos/subscription-create-request.dto';
 import { SubscriptionCreateResponseDTO } from '../dtos/subscription-create-response.dto';
@@ -23,7 +19,6 @@ import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Subscriptions')
-@ApiBearerAuth()
 @Controller('establishments/:establishmentId/subscriptions')
 @UseGuards(JwtAuthGuard)
 export class SubscriptionCreateController {
@@ -33,8 +28,7 @@ export class SubscriptionCreateController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create subscription for establishment' })
-  @ApiResponse({ status: 201, type: SubscriptionCreateResponseDTO })
+  @CreateSubscriptionDocs()
   async handle(
     @GetRequestId() userId: string,
     @Param() params: SubscriptionCreateParamDTO,

@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -8,23 +9,39 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 
-import { MemberServiceCreateResponseDTO } from '../dtos/member-service-create-response.dto';
+import { MemberProductCreateResponseDTO } from '../dtos/member-product-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
- * Documentação completa do endpoint de atribuição de serviço a membro
+ * Documentação completa do endpoint de associação de produto a membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint POST /establishments/:establishmentId/members/:memberId/services/:serviceId
+ * para o endpoint POST /establishments/:establishmentId/members/:memberId/products/:productId
  */
-export function CreateMemberServiceDocs() {
+export function CreateMemberProductDocs() {
   return applyDecorators(
+    ApiBearerAuth(),
     ApiOperation({
-      summary: 'Assign a service to a member in an establishment',
+      summary: 'Assign a product to a member in an establishment',
+      description:
+        'Associa um produto a um membro em um estabelecimento específico.',
     }),
-    ApiResponse({ status: 201, type: MemberServiceCreateResponseDTO }),
+    ApiResponse({
+      status: 201,
+      description: 'Produto associado ao membro com sucesso',
+      type: MemberProductCreateResponseDTO,
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        memberId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+        productId: 'b2c3d4e5-f6g7-8901-2345-678901bcdefg',
+        price: 25.5,
+        commission: 2.55,
+        createdAt: '2023-10-27T10:00:00.000Z',
+        updatedAt: '2023-10-27T10:00:00.000Z',
+      },
+    }),
     ApiBadRequestResponse({
       description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
       schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
@@ -59,16 +76,16 @@ export function CreateMemberServiceDocs() {
           },
           {
             example:
-              SwaggerErrors[ErrorCode.ESTABLISHMENT_SERVICE_NOT_FOUND].example,
+              SwaggerErrors[ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND].example,
           },
         ],
       },
     }),
     ApiConflictResponse({
       description:
-        SwaggerErrors[ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS].description,
+        SwaggerErrors[ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS].description,
       schema: {
-        example: SwaggerErrors[ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS].example,
+        example: SwaggerErrors[ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS].example,
       },
     }),
   );
