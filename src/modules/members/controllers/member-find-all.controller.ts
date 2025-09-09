@@ -1,21 +1,13 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { BaseEstablishmentParamDTO } from '../../../common/dtos/base-establishment-param';
+import { FindAllMembersDocs } from '../docs';
 import { MemberFindAllQueryDTO, MemberPaginatedResponseDTO } from '../dtos';
 import { MemberFindAllService } from '../services/member-find-all.service';
 
 import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { SwaggerErrors } from '@/common/swagger-errors';
-import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
@@ -25,26 +17,7 @@ export class MemberFindAllController {
   constructor(private readonly memberFindAllService: MemberFindAllService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Find all members with pagination' })
-  @ApiResponse({ status: 200, type: MemberPaginatedResponseDTO })
-  @ApiNotFoundResponse({
-    description: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].description,
-    schema: {
-      example: SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND].example,
-    },
-  })
-  @ApiForbiddenResponse({
-    description:
-      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER].description,
-    schema: {
-      oneOf: [
-        {
-          example:
-            SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER].example,
-        },
-      ],
-    },
-  })
+  @FindAllMembersDocs()
   async handle(
     @GetRequestId() userId: string,
     @Param() params: BaseEstablishmentParamDTO,

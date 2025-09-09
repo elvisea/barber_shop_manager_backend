@@ -1,14 +1,7 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiConflictResponse,
-  ApiForbiddenResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+import { CreateServiceDocs } from '../docs/create-service.docs';
 import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 import { EstablishmentServiceParamDTO } from '../dtos/establishment-service-param.dto';
@@ -16,11 +9,8 @@ import { EstablishmentServiceCreateService } from '../services/establishment-ser
 
 import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { SwaggerErrors } from '@/common/swagger-errors';
-import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Establishment Services')
-@ApiBearerAuth()
 @Controller('establishments/:establishmentId/services')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentServiceCreateController {
@@ -29,32 +19,7 @@ export class EstablishmentServiceCreateController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new establishment service' })
-  @ApiResponse({ status: 201, type: EstablishmentServiceCreateResponseDTO })
-  @ApiBadRequestResponse({
-    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
-    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
-  })
-  @ApiForbiddenResponse({
-    description:
-      SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
-        .description,
-    schema: {
-      example:
-        SwaggerErrors[ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED]
-          .example,
-    },
-  })
-  @ApiConflictResponse({
-    description:
-      SwaggerErrors[ErrorCode.ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS]
-        .description,
-    schema: {
-      example:
-        SwaggerErrors[ErrorCode.ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS]
-          .example,
-    },
-  })
+  @CreateServiceDocs()
   async handle(
     @GetRequestId() userId: string,
     @Param() params: EstablishmentServiceParamDTO,

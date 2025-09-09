@@ -1,20 +1,13 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { FindAllEstablishmentsDocs } from '../docs';
 import { EstablishmentFindAllQueryDTO } from '../dtos/establishment-find-all-query.dto';
 import { EstablishmentFindAllResponseDTO } from '../dtos/establishment-find-all-response.dto';
 import { EstablishmentFindAllService } from '../services/establishment-find-all.service';
 
 import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { SwaggerErrors } from '@/common/swagger-errors';
-import { ErrorCode } from '@/enums/error-code';
 
 @ApiTags('Establishments')
 @ApiBearerAuth()
@@ -26,12 +19,7 @@ export class EstablishmentFindAllController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Find establishments (paginated)' })
-  @ApiResponse({ status: 200, type: EstablishmentFindAllResponseDTO })
-  @ApiBadRequestResponse({
-    description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,
-    schema: { example: SwaggerErrors[ErrorCode.VALIDATION_ERROR].example },
-  })
+  @FindAllEstablishmentsDocs()
   async handle(
     @GetRequestId() userId: string,
     @Query() query: EstablishmentFindAllQueryDTO,
