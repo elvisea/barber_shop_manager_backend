@@ -20,7 +20,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: barber_shop_manager_backend_db_container
+    container_name: barber_shop_manager_backend_db
     environment:
       POSTGRES_DB: barber_shop_manager_backend_db_dev
       POSTGRES_USER: barber_shop_manager_backend_db_dev_user
@@ -85,7 +85,7 @@ DATABASE_URL=postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_ma
 
 # Configurações de Containers Docker
 CONTAINER_NAME_APP=barber_shop_manager_backend_dev
-CONTAINER_NAME_DATABASE=barber_shop_manager_backend_db_container
+CONTAINER_NAME_DATABASE=barber_shop_manager_backend_db
 DOCKER_HOST_IP=172.17.0.1
 
 # Configurações de JWT (se necessário)
@@ -588,7 +588,7 @@ const appointmentsByPeriod = await prisma.appointment.findMany({
 docker ps | grep postgres
 
 # Verificar logs do container
-docker logs barber_shop_manager_backend_db_container
+docker logs barber_shop_manager_backend_db
 
 # Testar conexão manual
 psql postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@172.17.0.1:5432/barber_shop_manager_backend_db_dev

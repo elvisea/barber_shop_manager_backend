@@ -148,7 +148,7 @@ docker system df
 ## 🌐 Configuração de Rede
 
 ### Rede Existente
-O projeto está configurado para usar a rede `barber_evolution_net` que já existe no servidor.
+O projeto está configurado para usar a rede `barber_shop_manager_network` que já existe no servidor.
 
 ### Portas Configuradas
 - **Aplicação:** `3333` (configurável via variável `PORT`)
@@ -161,7 +161,7 @@ O projeto está configurado para usar a rede `barber_evolution_net` que já exis
 docker network ls
 
 # Verificar containers na rede
-docker network inspect barber_evolution_net
+docker network inspect barber_shop_manager_network
 ```
 
 ## 🔒 Segurança
