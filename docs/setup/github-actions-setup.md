@@ -130,7 +130,7 @@ O pipeline é executado quando:
 ### Configuração do Servidor
 - O servidor deve ter Docker e Docker Compose instalados
 - O usuário SSH deve ter permissões para executar Docker
-- A rede `barber_evolution_net` deve existir no servidor
+- A rede `barber_shop_manager_network` deve existir no servidor
 
 ### Docker Hub
 - Crie uma conta no Docker Hub

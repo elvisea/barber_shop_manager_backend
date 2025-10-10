@@ -13,8 +13,11 @@ RUN npm install
 # Copia o restante do código
 COPY . .
 
+# Tornar o script de desenvolvimento executável
+RUN chmod +x scripts/start-dev.sh
+
 # Expondo a porta padrão do NestJS
 EXPOSE 3333
 
 # Comando padrão para desenvolvimento (hot reload)
-CMD ["npm", "run", "start:dev"] 
+CMD ["./scripts/start-dev.sh"] 
