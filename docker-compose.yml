@@ -39,4 +39,4 @@ volumes:
 
 networks:
   barber_shop_manager_network:
-    driver: bridge
+    external: true
