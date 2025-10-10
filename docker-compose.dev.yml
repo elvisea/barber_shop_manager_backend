@@ -4,12 +4,10 @@ services:
     container_name: ${CONTAINER_NAME_DATABASE}
     ports:
       - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}"
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     volumes:
-      - data_barber_shop_manager_backend:/var/lib/postgresql/data
+      - ${VOLUME_DB_DATA:-barber_shop_manager_db_data_dev}:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
@@ -18,19 +16,19 @@ services:
       start_period: 30s
       timeout: 5s
     networks:
-      - barber_evolution_net
+      - barber_shop_manager_network
 
   app:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: barber_shop_manager_backend_app_dev
-    command: sh -c "npx prisma generate && npx prisma migrate deploy && npm run start:dev"
+    container_name: ${CONTAINER_NAME_APP}
+    command: ./scripts/start-dev.sh
     ports:
       - "3333:3333"
     volumes:
-      - ./:/usr/src/app
-      - /usr/src/app/node_modules
+      - ${VOLUME_APP_SOURCE:-./}:/usr/src/app
+      - ${VOLUME_APP_NODE_MODULES:-barber_shop_manager_app_node_modules_dev}:/usr/src/app/node_modules
     env_file:
       - .env
     depends_on:
@@ -38,12 +36,14 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - barber_evolution_net
+      - barber_shop_manager_network
 
 volumes:
-  data_barber_shop_manager_backend:
+  barber_shop_manager_db_data_dev:
+    driver: local
+  barber_shop_manager_app_node_modules_dev:
     driver: local
 
 networks:
-  barber_evolution_net:
-    external: true
+  barber_shop_manager_network:
+    driver: bridge
