@@ -27,7 +27,8 @@ POSTGRES_EXTERNAL_PORT=5434
 POSTGRES_DB=your_db_name
 POSTGRES_USER=your_db_user
 POSTGRES_PASSWORD=your_db_password
-DATABASE_URL=postgresql://your_db_user:your_db_password@db:5432/your_db_name?schema=public
+# O banco de dados está em projeto separado (barber_master_database)
+DATABASE_URL=postgresql://your_db_user:your_db_password@postgres_barber_master:5432/your_db_name?schema=public
 ```
 
 ### 🔐 JWT Configuration
@@ -115,11 +116,13 @@ docker-compose up -d
 # Executar migrations
 docker-compose exec app npx prisma migrate deploy
 
-# Backup do banco
-docker-compose exec db pg_dump -U $POSTGRES_USER $POSTGRES_DB > backup.sql
+# Backup do banco (banco está em projeto separado barber_master_database)
+# Execute no diretório do projeto barber_master_database:
+docker exec ${CONTAINER_NAME_DATABASE} pg_dump -U $POSTGRES_USER $POSTGRES_DB > backup.sql
 
-# Restore do banco
-docker-compose exec -T db psql -U $POSTGRES_USER $POSTGRES_DB < backup.sql
+# Restore do banco (banco está em projeto separado barber_master_database)
+# Execute no diretório do projeto barber_master_database:
+docker exec -i ${CONTAINER_NAME_DATABASE} psql -U $POSTGRES_USER $POSTGRES_DB < backup.sql
 ```
 
 ## 📊 Monitoramento
@@ -129,10 +132,11 @@ docker-compose exec -T db psql -U $POSTGRES_USER $POSTGRES_DB < backup.sql
 # Logs da aplicação
 docker-compose logs -f app
 
-# Logs do banco
-docker-compose logs -f db
+# Logs do banco (banco está em projeto separado barber_master_database)
+# Execute no diretório do projeto barber_master_database:
+docker logs -f ${CONTAINER_NAME_DATABASE}
 
-# Logs de todos os serviços
+# Logs de todos os serviços da aplicação
 docker-compose logs -f
 ```
 
@@ -148,7 +152,7 @@ docker system df
 ## 🌐 Configuração de Rede
 
 ### Rede Existente
-O projeto está configurado para usar a rede `barber_shop_manager_network` que já existe no servidor.
+O projeto está configurado para usar a rede `barber_shop_manager_network` que já existe no servidor. Esta rede é compartilhada entre a aplicação e o banco de dados, que está em um projeto separado (`barber_master_database`).
 
 ### Portas Configuradas
 - **Aplicação:** `3333` (configurável via variável `PORT`)
@@ -197,5 +201,8 @@ Configure as variáveis de email apenas se a funcionalidade de email estiver sen
 - A aplicação usa a porta `3333` por padrão
 
 ### Volumes
-- **Banco de Dados:** Volume persistente `data_barber_shop_manager_backend` para dados do PostgreSQL
-- **Uploads:** Não configurado neste momento (pode ser adicionado posteriormente se necessário) 
+- **Banco de Dados:** Volume persistente `data_barber_master` para dados do PostgreSQL (gerenciado no projeto `barber_master_database`)
+- **Uploads:** Não configurado neste momento (pode ser adicionado posteriormente se necessário)
+
+### ⚠️ Importante: Banco de Dados Separado
+O banco de dados PostgreSQL está em um projeto separado (`barber_master_database`). Para operações de manutenção do banco (backup, restore, logs), você precisa executar os comandos no contexto do projeto `barber_master_database`, não neste projeto. 
