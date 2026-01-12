@@ -6,9 +6,7 @@ import { IUserEmailVerificationRepository } from '../contracts/user-email-verifi
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
-export class UserEmailVerificationRepository
-  implements IUserEmailVerificationRepository
-{
+export class UserEmailVerificationRepository implements IUserEmailVerificationRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createUserEmailVerification(data: {

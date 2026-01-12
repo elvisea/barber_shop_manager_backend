@@ -8,9 +8,7 @@ import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-cu
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
-export class EstablishmentCustomerRepository
-  implements IEstablishmentCustomerRepository
-{
+export class EstablishmentCustomerRepository implements IEstablishmentCustomerRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async existsByEmail(
