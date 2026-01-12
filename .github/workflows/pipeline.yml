@@ -49,7 +49,7 @@ env:
   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   POSTGRES_EXTERNAL_PORT: ${{ secrets.POSTGRES_EXTERNAL_PORT }}
-  DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres_barber_master:5432/${{ secrets.POSTGRES_DB }}?schema=public
+  DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres_barber_shop_manager:5432/${{ secrets.POSTGRES_DB }}?schema=public
 
   # Configurações de JWT
   JWT_SECRET_PUBLIC_KEY: ${{ secrets.JWT_SECRET_PUBLIC_KEY }}
