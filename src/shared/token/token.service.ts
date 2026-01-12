@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
 
 import { JwtPayload } from '@/modules/auth/interfaces/jwt-payload.interface';
 
@@ -26,13 +27,27 @@ export class TokenService {
       '7d',
     );
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: environment === 'development' ? '24h' : accessTokenExpiration,
-    });
+    const accessTokenOptions: jwt.SignOptions = {
+      expiresIn: (environment === 'development'
+        ? '24h'
+        : accessTokenExpiration) as jwt.SignOptions['expiresIn'],
+    };
 
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: environment === 'development' ? '30d' : refreshTokenExpiration,
-    });
+    const refreshTokenOptions: jwt.SignOptions = {
+      expiresIn: (environment === 'development'
+        ? '30d'
+        : refreshTokenExpiration) as jwt.SignOptions['expiresIn'],
+    };
+
+    const accessToken = await this.jwtService.signAsync(
+      payload,
+      accessTokenOptions,
+    );
+
+    const refreshToken = await this.jwtService.signAsync(
+      payload,
+      refreshTokenOptions,
+    );
 
     return { accessToken, refreshToken };
   }
