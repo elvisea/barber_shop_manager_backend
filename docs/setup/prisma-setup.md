@@ -14,21 +14,21 @@ Este documento detalha **passo a passo** como foi configurado o Prisma ORM com P
 
 **⚠️ Importante:** O banco de dados PostgreSQL está em um projeto separado (`barber_master_database`). A aplicação se conecta ao banco através da rede Docker compartilhada `barber_shop_manager_network`.
 
-O banco de dados está configurado no projeto `barber_master_database` com o serviço `postgres_barber_master`. Para iniciar o banco, execute os comandos no diretório do projeto `barber_master_database`:
+O banco de dados está configurado no projeto `barber_master_database` com o serviço `postgres_barber_shop_manager`. Para iniciar o banco, execute os comandos no diretório do projeto `barber_master_database`:
 
 ```bash
 # No diretório barber_master_database
 docker-compose up -d
 
 # Verificar se o container está rodando
-docker ps | grep postgres_barber_master
+docker ps | grep barber_shop_manager_db
 ```
 
 ### 2. Verificar Conexão com o Banco
 
 ```bash
 # Verificar se o container do banco está na rede compartilhada
-docker network inspect barber_shop_manager_network | grep postgres_barber_master
+docker network inspect barber_shop_manager_network | grep barber_shop_manager_db
 ```
 
 ## 🛠️ Configuração do Projeto NestJS
@@ -62,8 +62,8 @@ POSTGRES_USER=barber_shop_manager_backend_db_dev_user
 POSTGRES_PASSWORD=barber_shop_manager_backend_db_dev_password
 
 # URL de Conexão com o Banco de Dados (banco separado em projeto independente)
-# O banco está no projeto barber_master_database com serviço postgres_barber_master
-DATABASE_URL=postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@postgres_barber_master:5432/barber_shop_manager_backend_db_dev?schema=public
+# O banco está no projeto barber_master_database com serviço postgres_barber_shop_manager
+DATABASE_URL=postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@postgres_barber_shop_manager:5432/barber_shop_manager_backend_db_dev?schema=public
 
 # Configurações de Containers Docker
 CONTAINER_NAME_APP=barber_shop_manager_backend_dev
@@ -567,17 +567,17 @@ const appointmentsByPeriod = await prisma.appointment.findMany({
 
 ```bash
 # Verificar se o container está rodando (banco está em projeto separado)
-docker ps | grep postgres_barber_master
+docker ps | grep barber_shop_manager_db
 
 # Verificar logs do container (execute no projeto barber_master_database)
 docker logs ${CONTAINER_NAME_DATABASE}
 
 # Verificar se o container está na rede compartilhada
-docker network inspect barber_shop_manager_network | grep postgres_barber_master
+docker network inspect barber_shop_manager_network | grep barber_shop_manager_db
 
 # Testar conexão manual (do container da aplicação ou host)
 # Se estiver dentro do container da aplicação:
-psql postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@postgres_barber_master:5432/barber_shop_manager_backend_db_dev
+psql postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@postgres_barber_shop_manager:5432/barber_shop_manager_backend_db_dev
 
 # Se estiver no host (usando porta externa):
 psql postgresql://barber_shop_manager_backend_db_dev_user:barber_shop_manager_backend_db_dev_password@localhost:5434/barber_shop_manager_backend_db_dev

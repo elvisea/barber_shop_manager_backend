@@ -9,8 +9,8 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 REGISTRY=docker.io
 IMAGE_NAME=elvisea/barber_shop_manager_backend
 TAG=latest
-CONTAINER_NAME_APP=barber_shop_manager_backend_app
-CONTAINER_NAME_DATABASE=barber_shop_manager_backend_db
+CONTAINER_NAME_APP=barber_shop_manager_api
+CONTAINER_NAME_DATABASE=barber_shop_manager_db
 ```
 
 ### ⚙️ Application Configuration
@@ -28,7 +28,7 @@ POSTGRES_DB=your_db_name
 POSTGRES_USER=your_db_user
 POSTGRES_PASSWORD=your_db_password
 # O banco de dados está em projeto separado (barber_master_database)
-DATABASE_URL=postgresql://your_db_user:your_db_password@postgres_barber_master:5432/your_db_name?schema=public
+DATABASE_URL=postgresql://your_db_user:your_db_password@postgres_barber_shop_manager:5432/your_db_name?schema=public
 ```
 
 ### 🔐 JWT Configuration
@@ -85,7 +85,7 @@ docker-compose build
 docker-compose up -d
 
 # Ver logs
-docker-compose logs -f app
+docker-compose logs -f barber_shop_manager_api
 ```
 
 ### 3. Verificar Status
@@ -94,7 +94,7 @@ docker-compose logs -f app
 docker-compose ps
 
 # Health check
-docker-compose exec app curl http://localhost:3333/health
+docker-compose exec barber_shop_manager_api curl http://localhost:3333/health
 ```
 
 ## 🔧 Comandos Úteis
@@ -114,7 +114,7 @@ docker-compose up -d
 ### Manutenção
 ```bash
 # Executar migrations
-docker-compose exec app npx prisma migrate deploy
+docker-compose exec barber_shop_manager_api npx prisma migrate deploy
 
 # Backup do banco (banco está em projeto separado barber_master_database)
 # Execute no diretório do projeto barber_master_database:
@@ -130,7 +130,7 @@ docker exec -i ${CONTAINER_NAME_DATABASE} psql -U $POSTGRES_USER $POSTGRES_DB < 
 ### Logs
 ```bash
 # Logs da aplicação
-docker-compose logs -f app
+docker-compose logs -f barber_shop_manager_api
 
 # Logs do banco (banco está em projeto separado barber_master_database)
 # Execute no diretório do projeto barber_master_database:
@@ -201,7 +201,7 @@ Configure as variáveis de email apenas se a funcionalidade de email estiver sen
 - A aplicação usa a porta `3333` por padrão
 
 ### Volumes
-- **Banco de Dados:** Volume persistente `data_barber_master` para dados do PostgreSQL (gerenciado no projeto `barber_master_database`)
+- **Banco de Dados:** Volume persistente `barber_shop_manager_db_data` para dados do PostgreSQL (gerenciado no projeto `barber_master_database`)
 - **Uploads:** Não configurado neste momento (pode ser adicionado posteriormente se necessário)
 
 ### ⚠️ Importante: Banco de Dados Separado
