@@ -48,7 +48,7 @@ export class EvolutionApiWebhookService {
     // URL do webhook da nossa API
     const webhookUrl = this.configService.get<string>(
       'WEBHOOK_URL',
-      'http://barber_shop_manager_backend_app_dev:3333/api/webhook',
+      'http://barber_shop_manager_api:3333/api/webhook',
     );
 
     const webhookPayload: WebhookPayload = {
