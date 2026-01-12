@@ -1,23 +1,4 @@
 services:
-  db:
-    image: postgres:latest
-    container_name: ${CONTAINER_NAME_DATABASE}
-    ports:
-      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}"
-    env_file:
-      - .env
-    volumes:
-      - ${VOLUME_DB_DATA:-barber_shop_manager_db_data_dev}:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 5s
-    networks:
-      - barber_shop_manager_network
-
   app:
     build:
       context: .
@@ -31,16 +12,15 @@ services:
       - ${VOLUME_APP_NODE_MODULES:-barber_shop_manager_app_node_modules_dev}:/usr/src/app/node_modules
     env_file:
       - .env
-    depends_on:
-      db:
-        condition: service_healthy
+    environment:
+      # Override DATABASE_URL para apontar para o serviço postgres_barber_master (banco separado em projeto independente)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_barber_master:5432/${POSTGRES_DB}?schema=public
+      - NODE_ENV=development
     restart: unless-stopped
     networks:
       - barber_shop_manager_network
 
 volumes:
-  barber_shop_manager_db_data_dev:
-    driver: local
   barber_shop_manager_app_node_modules_dev:
     driver: local
 

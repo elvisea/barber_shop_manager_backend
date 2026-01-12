@@ -1,41 +1,19 @@
 services:
-  db:
-    image: postgres:latest
-    container_name: ${CONTAINER_NAME_DATABASE:-barber_shop_manager_backend_db}
-    restart: unless-stopped
-    env_file:
-      - .env
-    volumes:
-      - ${VOLUME_DB_DATA:-barber_shop_manager_db_data_prod}:/var/lib/postgresql/data
-    ports:
-      - "${POSTGRES_EXTERNAL_PORT:-5434}:5432"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 5s
-    networks:
-      - barber_shop_manager_network
-
   app:
     image: ${REGISTRY:-docker.io}/${IMAGE_NAME:-elvisea/barber_shop_manager_backend}:${TAG:-latest}
     container_name: ${CONTAINER_NAME_APP:-barber_shop_manager_backend_app}
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - NODE_ENV=production
+      # Override DATABASE_URL para apontar para o serviço postgres_barber_master (banco separado em projeto independente)
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_barber_master:5432/${POSTGRES_DB}?schema=public
     ports:
       - "${PORT:-3333}:3333"
-    depends_on:
-      db:
-        condition: service_healthy
     command: ./scripts/start-prod.sh
     networks:
       - barber_shop_manager_network
-
-volumes:
-  barber_shop_manager_db_data_prod:
-    driver: local
 
 networks:
   barber_shop_manager_network:
