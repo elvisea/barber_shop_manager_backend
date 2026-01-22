@@ -135,7 +135,7 @@ export class MemberAuthService {
       await this.tokenService.generateTokens(payload);
 
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    expiresAt.setUTCDate(expiresAt.getUTCDate() + 7);
 
     await this.memberRefreshTokenRepository.create({
       refreshToken,
