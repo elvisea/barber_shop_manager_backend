@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
+import { getFutureDate, getPastDate } from '@/common/utils/date-helpers';
 
 export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
   @ApiPropertyOptional({
@@ -40,7 +41,7 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
 
   @ApiPropertyOptional({
     description: 'Data de início para filtro',
-    example: '2024-01-21T00:00:00Z',
+    example: getPastDate(7),
   })
   @IsOptional()
   @Type(() => Date)
@@ -49,7 +50,7 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
 
   @ApiPropertyOptional({
     description: 'Data de fim para filtro',
-    example: '2024-01-21T23:59:59Z',
+    example: getFutureDate(7),
   })
   @IsOptional()
   @Type(() => Date)

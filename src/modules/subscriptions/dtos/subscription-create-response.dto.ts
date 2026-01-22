@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import {
+  getCurrentDate,
+  getEndDate,
+  getPastDate,
+} from '@/common/utils/date-helpers';
+
 export class SubscriptionCreateResponseDTO {
   @ApiProperty({ example: 'uuid-da-assinatura' })
   id: string;
@@ -10,10 +16,20 @@ export class SubscriptionCreateResponseDTO {
   @ApiProperty({ example: 'uuid-do-plano' })
   planId: string;
 
-  @ApiProperty({ example: '2024-07-20T00:00:00Z' })
+  @ApiProperty({
+    example: (() => {
+      const start = getPastDate(30);
+      return start;
+    })(),
+  })
   startDate: string;
 
-  @ApiProperty({ example: '2024-08-20T00:00:00Z' })
+  @ApiProperty({
+    example: (() => {
+      const start = getPastDate(30);
+      return getEndDate(start, 30);
+    })(),
+  })
   endDate: string;
 
   @ApiProperty({ example: true })
@@ -22,9 +38,9 @@ export class SubscriptionCreateResponseDTO {
   @ApiProperty({ example: '5511999999999' })
   phone: string;
 
-  @ApiProperty({ example: '2024-07-20T00:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   createdAt: string;
 
-  @ApiProperty({ example: '2024-07-20T00:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   updatedAt: string;
 }

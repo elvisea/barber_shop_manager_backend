@@ -10,6 +10,8 @@ import {
   MinDate,
 } from 'class-validator';
 
+import { getFutureDateTime } from '@/common/utils/date-helpers';
+
 export class AppointmentCreateRequestDTO {
   @ApiProperty({
     description: 'ID do cliente',
@@ -29,7 +31,7 @@ export class AppointmentCreateRequestDTO {
 
   @ApiProperty({
     description: 'Data e hora de início do agendamento',
-    example: '2024-01-21T10:00:00Z',
+    example: getFutureDateTime(1, 10, 0),
   })
   @IsNotEmpty()
   @Type(() => Date)

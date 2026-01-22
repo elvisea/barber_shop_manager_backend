@@ -11,6 +11,8 @@ import {
 
 import { EstablishmentEvolutionApiCreateInstanceResponseDTO } from '../dtos/establishment-evolution-api-create-instance-response.dto';
 
+import { getCurrentDate } from '@/common/utils/date-helpers';
+
 /**
  * Documentação completa do endpoint de criação de instância na Evolution API
  *
@@ -33,8 +35,8 @@ export function CreateEvolutionApiInstanceDocs() {
         instanceId: 'instance_123456789',
         status: 'active',
         establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-        createdAt: '2023-10-27T10:00:00.000Z',
-        updatedAt: '2023-10-27T10:00:00.000Z',
+        createdAt: getCurrentDate(),
+        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

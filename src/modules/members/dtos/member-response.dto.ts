@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { MemberRole } from '@prisma/client';
 
 import { BasePaginatedResponseDTO } from '@/common/dtos/base-paginated-response.dto';
+import { getCurrentDate } from '@/common/utils/date-helpers';
 
 export class MemberResponseDTO {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440001' })
@@ -28,10 +29,10 @@ export class MemberResponseDTO {
   @ApiProperty({ example: true })
   isActive: boolean;
 
-  @ApiProperty({ example: '2024-01-21T10:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   createdAt: Date;
 
-  @ApiProperty({ example: '2024-01-21T10:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   updatedAt: Date;
 }
 

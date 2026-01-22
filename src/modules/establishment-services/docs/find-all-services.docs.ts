@@ -11,6 +11,7 @@ import {
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getPastDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -40,8 +41,8 @@ export function FindAllServicesDocs() {
             price: 50.0,
             duration: 60,
             establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-            createdAt: '2023-10-27T10:00:00.000Z',
-            updatedAt: '2023-10-27T10:00:00.000Z',
+            createdAt: getPastDate(1),
+            updatedAt: getPastDate(1),
           },
           {
             id: '660f9511-f3ac-52e5-b841-678901bcdefg',
@@ -50,8 +51,8 @@ export function FindAllServicesDocs() {
             price: 30.0,
             duration: 30,
             establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-            createdAt: '2023-10-27T11:00:00.000Z',
-            updatedAt: '2023-10-27T11:00:00.000Z',
+            createdAt: getPastDate(0),
+            updatedAt: getPastDate(0),
           },
         ],
         meta: {

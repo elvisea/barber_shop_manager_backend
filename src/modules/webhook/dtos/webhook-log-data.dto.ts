@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
+import { getCurrentDate } from '@/common/utils/date-helpers';
 import { WebhookEvent } from '../enums/webhook-event.enum';
 
 export class WebhookLogDataDTO {
@@ -44,7 +45,7 @@ export class WebhookLogDataDTO {
   destination: string;
 
   @ApiProperty({
-    example: '2024-01-21T10:00:00Z',
+    example: getCurrentDate(),
     description: 'Data e hora do evento',
   })
   @IsNotEmpty({ message: 'Date time is required' })

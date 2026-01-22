@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { getCurrentDate } from '@/common/utils/date-helpers';
+
 export class EstablishmentFindOneResponseDTO {
   @ApiProperty({
     description: 'Establishment ID',
@@ -27,13 +29,13 @@ export class EstablishmentFindOneResponseDTO {
 
   @ApiProperty({
     description: 'Creation date',
-    example: '2024-07-03T10:00:00Z',
+    example: getCurrentDate(),
   })
   createdAt: Date;
 
   @ApiProperty({
     description: 'Last update date',
-    example: '2024-07-03T10:00:00Z',
+    example: getCurrentDate(),
   })
   updatedAt: Date;
 }

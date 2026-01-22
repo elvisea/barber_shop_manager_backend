@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { getCurrentDate, getFutureDateTime } from '@/common/utils/date-helpers';
+
 export class AppointmentCreateResponseDTO {
   @ApiProperty({ example: '6c2a0e2c-8f39-4c39-9a41-6a8b8a0f6b1e' })
   id!: string;
@@ -13,10 +15,10 @@ export class AppointmentCreateResponseDTO {
   @ApiProperty({ example: 'c4d5e6f7-0123-4567-89ab-cdef01234567' })
   memberId!: string;
 
-  @ApiProperty({ example: '2025-09-15T14:00:00.000Z' })
+  @ApiProperty({ example: getFutureDateTime(1, 14, 0) })
   startTime!: string;
 
-  @ApiProperty({ example: '2025-09-15T14:30:00.000Z' })
+  @ApiProperty({ example: getFutureDateTime(1, 14, 30) })
   endTime!: string;
 
   @ApiProperty({ example: 5000 })
@@ -31,9 +33,9 @@ export class AppointmentCreateResponseDTO {
   @ApiProperty({ example: 'Cliente prefere corte mais curto', required: false })
   notes?: string;
 
-  @ApiProperty({ example: '2025-09-15T14:00:00.000Z' })
+  @ApiProperty({ example: getCurrentDate() })
   createdAt!: Date;
 
-  @ApiProperty({ example: '2025-09-15T14:00:00.000Z' })
+  @ApiProperty({ example: getCurrentDate() })
   updatedAt!: Date;
 }

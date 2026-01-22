@@ -12,6 +12,7 @@ import {
 import { EstablishmentProductCreateResponseDTO } from '../dtos/establishment-product-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getCurrentDate, getPastDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -39,8 +40,8 @@ export function UpdateProductDocs() {
         price: 30.0,
         imageUrl: 'http://example.com/shampoo-updated.jpg',
         establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-        createdAt: '2023-10-27T10:00:00.000Z',
-        updatedAt: '2023-10-27T11:30:00.000Z',
+        createdAt: getPastDate(1),
+        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

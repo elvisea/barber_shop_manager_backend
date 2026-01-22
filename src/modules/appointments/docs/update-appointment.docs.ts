@@ -14,6 +14,11 @@ import {
 import { AppointmentFindOneResponseDTO } from '../dtos/api/appointment-find-one-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import {
+  getCurrentDate,
+  getPastDate,
+  getFutureDateTime,
+} from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -48,8 +53,8 @@ export function UpdateAppointmentDocs() {
         customerId: '550e8400-e29b-41d4-a716-446655440001',
         memberId: '550e8400-e29b-41d4-a716-446655440002',
         establishmentId: '550e8400-e29b-41d4-a716-446655440003',
-        startTime: '2025-08-22T14:00:00.000Z',
-        endTime: '2025-08-22T15:00:00.000Z',
+        startTime: getFutureDateTime(1, 14, 0),
+        endTime: getFutureDateTime(1, 15, 0),
         notes: 'Corte de cabelo, barba e sobrancelha',
         status: 'CONFIRMED',
         services: [
@@ -66,8 +71,8 @@ export function UpdateAppointmentDocs() {
             duration: 20,
           },
         ],
-        createdAt: '2025-08-22T00:00:00.000Z',
-        updatedAt: '2025-08-22T12:00:00.000Z',
+        createdAt: getPastDate(1),
+        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { getCurrentDate } from '@/common/utils/date-helpers';
+
 export class PlanCreateResponseDTO {
   @ApiProperty({ example: 'uuid-do-plano' })
   id: string;
@@ -23,9 +25,9 @@ export class PlanCreateResponseDTO {
   @ApiProperty({ example: true })
   isActive: boolean;
 
-  @ApiProperty({ example: '2024-01-21T10:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   createdAt: Date;
 
-  @ApiProperty({ example: '2024-01-21T10:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   updatedAt: Date;
 }

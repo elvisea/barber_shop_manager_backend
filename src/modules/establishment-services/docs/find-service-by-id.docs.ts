@@ -11,6 +11,7 @@ import {
 import { EstablishmentServiceCreateResponseDTO } from '../dtos/establishment-service-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getCurrentDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -37,8 +38,8 @@ export function FindServiceByIdDocs() {
         price: 50.0,
         duration: 60,
         establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-        createdAt: '2023-10-27T10:00:00.000Z',
-        updatedAt: '2023-10-27T10:00:00.000Z',
+        createdAt: getCurrentDate(),
+        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

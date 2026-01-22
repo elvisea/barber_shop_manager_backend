@@ -12,6 +12,7 @@ import {
 import { MemberProductCreateResponseDTO } from '../dtos/member-product-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getCurrentDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -38,8 +39,8 @@ export function CreateMemberProductDocs() {
         productId: 'b2c3d4e5-f6g7-8901-2345-678901bcdefg',
         price: 25.5,
         commission: 2.55,
-        createdAt: '2023-10-27T10:00:00.000Z',
-        updatedAt: '2023-10-27T10:00:00.000Z',
+        createdAt: getCurrentDate(),
+        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

@@ -7,18 +7,32 @@ import {
   IsString,
 } from 'class-validator';
 
+import { getEndDate, getPastDate } from '@/common/utils/date-helpers';
+
 export class SubscriptionUpdateRequestDTO {
   @ApiProperty({ example: 'uuid-do-plano', required: false })
   @IsString()
   @IsOptional()
   planId?: string;
 
-  @ApiProperty({ example: '2024-07-20T00:00:00Z', required: false })
+  @ApiProperty({
+    example: (() => {
+      const start = getPastDate(30);
+      return start;
+    })(),
+    required: false,
+  })
   @IsDateString()
   @IsOptional()
   startDate?: string;
 
-  @ApiProperty({ example: '2024-08-20T00:00:00Z', required: false })
+  @ApiProperty({
+    example: (() => {
+      const start = getPastDate(30);
+      return getEndDate(start, 30);
+    })(),
+    required: false,
+  })
   @IsDateString()
   @IsOptional()
   endDate?: string;

@@ -4,6 +4,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MemberAuthResponseDTO } from '../dtos/member-auth-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getCurrentDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -32,8 +33,8 @@ export function MemberLoginDocs() {
           phone: '+5511987654321',
           role: 'BARBER',
           establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-          createdAt: '2023-10-27T10:00:00.000Z',
-          updatedAt: '2023-10-27T10:00:00.000Z',
+          createdAt: getCurrentDate(),
+          updatedAt: getCurrentDate(),
         },
       },
     }),

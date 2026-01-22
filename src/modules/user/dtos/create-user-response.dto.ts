@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { getCurrentDate } from '@/common/utils/date-helpers';
+
 export class CreateUserResponseDTO {
   @ApiProperty({
     example: 'cm0abc123def456ghi789',
@@ -26,13 +28,13 @@ export class CreateUserResponseDTO {
   phone: string;
 
   @ApiProperty({
-    example: '2024-01-21T10:00:00Z',
+    example: getCurrentDate(),
     description: 'User creation date',
   })
   createdAt: Date;
 
   @ApiProperty({
-    example: '2024-01-21T10:00:00Z',
+    example: getCurrentDate(),
     description: 'User last update date',
   })
   updatedAt: Date;

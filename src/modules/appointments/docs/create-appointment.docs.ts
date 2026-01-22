@@ -14,6 +14,7 @@ import {
 import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getCurrentDate, getFutureDateTime } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -43,14 +44,14 @@ export function CreateAppointmentDocs() {
         customerId: '550e8400-e29b-41d4-a716-446655440001',
         memberId: '550e8400-e29b-41d4-a716-446655440002',
         establishmentId: '550e8400-e29b-41d4-a716-446655440003',
-        startTime: '2025-08-22T10:00:00.000Z',
-        endTime: '2025-08-22T11:00:00.000Z',
+        startTime: getFutureDateTime(1, 10, 0),
+        endTime: getFutureDateTime(1, 11, 0),
         totalAmount: 5000,
         totalDuration: 60,
         status: 'PENDING',
         notes: 'Corte de cabelo e barba',
-        createdAt: '2025-08-22T00:00:00.000Z',
-        updatedAt: '2025-08-22T00:00:00.000Z',
+        createdAt: getCurrentDate(),
+        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

@@ -4,6 +4,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getCurrentDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -30,8 +31,8 @@ export function LoginDocs() {
           name: 'John Doe',
           email: 'john.doe@example.com',
           phone: '+5511987654321',
-          createdAt: '2023-10-27T10:00:00.000Z',
-          updatedAt: '2023-10-27T10:00:00.000Z',
+          createdAt: getCurrentDate(),
+          updatedAt: getCurrentDate(),
         },
       },
     }),

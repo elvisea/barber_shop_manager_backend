@@ -7,6 +7,8 @@ import {
   IsString,
 } from 'class-validator';
 
+import { getEndDate, getPastDate } from '@/common/utils/date-helpers';
+
 export class SubscriptionCreateRequestDTO {
   @ApiProperty({ example: 'uuid-do-estabelecimento' })
   @IsString()
@@ -18,11 +20,21 @@ export class SubscriptionCreateRequestDTO {
   @IsNotEmpty()
   planId: string;
 
-  @ApiProperty({ example: '2024-07-20T00:00:00Z' })
+  @ApiProperty({
+    example: (() => {
+      const start = getPastDate(30);
+      return start;
+    })(),
+  })
   @IsDateString()
   startDate: string;
 
-  @ApiProperty({ example: '2024-08-20T00:00:00Z' })
+  @ApiProperty({
+    example: (() => {
+      const start = getPastDate(30);
+      return getEndDate(start, 30);
+    })(),
+  })
   @IsDateString()
   endDate: string;
 

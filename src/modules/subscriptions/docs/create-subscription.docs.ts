@@ -3,6 +3,12 @@ import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { SubscriptionCreateResponseDTO } from '../dtos/subscription-create-response.dto';
 
+import {
+  getCurrentDate,
+  getEndDate,
+  getPastDate,
+} from '@/common/utils/date-helpers';
+
 /**
  * Documentação completa do endpoint de criação de assinatura
  *
@@ -21,16 +27,19 @@ export function CreateSubscriptionDocs() {
       status: HttpStatus.CREATED,
       description: 'Assinatura criada com sucesso',
       type: SubscriptionCreateResponseDTO,
-      example: {
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-        planId: 'b2c3d4e5-f6g7-8901-2345-678901bcdefg',
-        status: 'ACTIVE',
-        startDate: '2023-10-27T10:00:00.000Z',
-        endDate: '2023-11-27T10:00:00.000Z',
-        createdAt: '2023-10-27T10:00:00.000Z',
-        updatedAt: '2023-10-27T10:00:00.000Z',
-      },
+      example: (() => {
+        const startDate = getPastDate(30);
+        return {
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+          planId: 'b2c3d4e5-f6g7-8901-2345-678901bcdefg',
+          status: 'ACTIVE',
+          startDate: startDate,
+          endDate: getEndDate(startDate, 30),
+          createdAt: getCurrentDate(),
+          updatedAt: getCurrentDate(),
+        };
+      })(),
     }),
   );
 }

@@ -11,6 +11,8 @@ import {
   MinDate,
 } from 'class-validator';
 
+import { getFutureDateTime } from '@/common/utils/date-helpers';
+
 export class AppointmentUpdateRequestDTO {
   @ApiPropertyOptional({
     description: 'ID do funcionário/membro',
@@ -22,7 +24,7 @@ export class AppointmentUpdateRequestDTO {
 
   @ApiPropertyOptional({
     description: 'Data e hora de início do agendamento',
-    example: '2024-01-21T10:00:00Z',
+    example: getFutureDateTime(1, 10, 0),
   })
   @IsOptional()
   @Type(() => Date)

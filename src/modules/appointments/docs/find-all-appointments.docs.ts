@@ -14,6 +14,11 @@ import { AppointmentStatus } from '@prisma/client';
 import { AppointmentFindAllResponseDTO } from '../dtos/api/appointment-find-all-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import {
+  getFutureDate,
+  getFutureDateTime,
+  getPastDate,
+} from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -69,14 +74,14 @@ export function FindAllAppointmentsDocs() {
       name: 'startDate',
       required: false,
       description: 'Data de início para filtro (ISO 8601)',
-      example: '2025-08-22T00:00:00.000Z',
+      example: getPastDate(7),
       type: String,
     }),
     ApiQuery({
       name: 'endDate',
       required: false,
       description: 'Data de fim para filtro (ISO 8601)',
-      example: '2025-08-22T23:59:59.999Z',
+      example: getFutureDate(7),
       type: String,
     }),
     ApiQuery({
@@ -96,8 +101,8 @@ export function FindAllAppointmentsDocs() {
             id: '550e8400-e29b-41d4-a716-446655440000',
             customerId: '550e8400-e29b-41d4-a716-446655440001',
             memberId: '550e8400-e29b-41d4-a716-446655440002',
-            startTime: '2025-08-22T10:00:00.000Z',
-            endTime: '2025-08-22T11:00:00.000Z',
+            startTime: getFutureDateTime(1, 10, 0),
+            endTime: getFutureDateTime(1, 11, 0),
           },
         ],
         meta: {

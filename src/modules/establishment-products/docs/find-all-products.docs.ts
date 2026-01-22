@@ -10,6 +10,7 @@ import {
 import { EstablishmentProductFindAllResponseDTO } from '../dtos/establishment-product-find-all-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
+import { getPastDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -39,8 +40,8 @@ export function FindAllProductsDocs() {
             price: 25.5,
             imageUrl: 'http://example.com/shampoo.jpg',
             establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-            createdAt: '2023-10-27T10:00:00.000Z',
-            updatedAt: '2023-10-27T10:00:00.000Z',
+            createdAt: getPastDate(1),
+            updatedAt: getPastDate(1),
           },
           {
             id: '660f9511-f3ac-52e5-b841-678901bcdefg',
@@ -49,8 +50,8 @@ export function FindAllProductsDocs() {
             price: 30.0,
             imageUrl: 'http://example.com/condicionador.jpg',
             establishmentId: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-            createdAt: '2023-10-27T11:00:00.000Z',
-            updatedAt: '2023-10-27T11:00:00.000Z',
+            createdAt: getPastDate(0),
+            updatedAt: getPastDate(0),
           },
         ],
         meta: {

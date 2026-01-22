@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { getCurrentDate } from '@/common/utils/date-helpers';
+
 export class MemberProductCreateResponseDTO {
   @ApiProperty({ example: 'member-product-uuid' })
   id: string;
@@ -22,9 +24,9 @@ export class MemberProductCreateResponseDTO {
   })
   commission: number;
 
-  @ApiProperty({ example: '2024-07-03T10:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   createdAt: Date;
 
-  @ApiProperty({ example: '2024-07-03T10:00:00Z' })
+  @ApiProperty({ example: getCurrentDate() })
   updatedAt: Date;
 }

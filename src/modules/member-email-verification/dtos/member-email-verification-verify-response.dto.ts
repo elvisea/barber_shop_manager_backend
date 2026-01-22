@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { getCurrentDate, getFutureDateTime } from '@/common/utils/date-helpers';
+
 export class MemberEmailVerificationVerifyResponseDTO {
   @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -20,19 +22,19 @@ export class MemberEmailVerificationVerifyResponseDTO {
   verified: boolean;
 
   @ApiProperty({
-    example: '2024-01-21T10:00:00Z',
+    example: getFutureDateTime(1, 10, 0),
     description: 'Data de expiração do token',
   })
   expiresAt: Date;
 
   @ApiProperty({
-    example: '2024-01-21T10:00:00Z',
+    example: getCurrentDate(),
     description: 'Data de criação da verificação',
   })
   createdAt: Date;
 
   @ApiProperty({
-    example: '2024-01-21T10:00:00Z',
+    example: getCurrentDate(),
     description: 'Data da última atualização',
   })
   updatedAt: Date;
