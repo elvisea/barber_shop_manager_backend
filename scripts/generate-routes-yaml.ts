@@ -36,13 +36,13 @@ async function generateRoutesYaml(): Promise<void> {
     });
 
     // Definir caminho do arquivo de saída
-    const outputPath = join(process.cwd(), 'docs', 'routes.yaml');
+    const outputPath = join(process.cwd(), 'docs', 'api', 'routes.yaml');
 
-    // Criar diretório docs se não existir
+    // Criar diretório docs/api se não existir
     const fs = require('fs');
-    const docsDir = join(process.cwd(), 'docs');
-    if (!fs.existsSync(docsDir)) {
-      fs.mkdirSync(docsDir, { recursive: true });
+    const docsApiDir = join(process.cwd(), 'docs', 'api');
+    if (!fs.existsSync(docsApiDir)) {
+      fs.mkdirSync(docsApiDir, { recursive: true });
     }
 
     // Escrever arquivo YAML

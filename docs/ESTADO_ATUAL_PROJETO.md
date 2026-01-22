@@ -1,5 +1,32 @@
 # Análise do Estado Atual - Barber Shop Manager Backend
 
+## Atualizações Recentes (Janeiro 2026)
+
+### Commits de 22/01/2026
+
+- **feat: implementa datas dinâmicas nas documentações e DTOs** - Melhoria na documentação com exemplos dinâmicos de datas
+- **chore: adiciona dependência @nestjs/event-emitter** - Adicionado suporte para sistema de eventos
+- **refactor: resolve dependência circular usando relações do Prisma** - Correção de dependências circulares
+- **feat: implementa sistema de eventos para envio de emails** - Sistema de eventos para comunicação assíncrona
+- **fix: resolver conflito de exportação getErrorMessage** - Correção de conflitos de exportação
+- **refactor: criar funções utilitárias para extração de mensagens de erro** - Melhoria na organização de código
+- **fix(lint): substitui require() por import ES6 para body-parser** - Atualização para ES6 modules
+- **fix(lint): adiciona tipagem explícita em decoradores Transform e ValidateIf** - Melhorias de tipagem
+- **fix(lint): remove async desnecessário de métodos sem await** - Otimizações de código
+- **chore(lint): corrige variáveis não usadas e configura ESLint** - Configuração de linting
+- **chore(deps): atualiza package-lock.json com peer dependencies** - Atualização de dependências
+- **docs(docker): adiciona comentário sobre porta do PostgreSQL** - Melhorias na documentação
+- **fix(auth): usa UTC para cálculo de expiração de refresh tokens** - Correção de timezone
+- **refactor(prisma): remove isDeleted redundante e consolida migrations** - Otimização do schema
+
+### Melhorias Implementadas
+
+- Sistema de eventos para envio de emails assíncrono
+- Melhorias na documentação com exemplos dinâmicos
+- Correções de timezone para UTC em tokens
+- Otimizações de código e linting
+- Resolução de dependências circulares
+
 ## Visão Geral do Projeto
 
 O projeto é um sistema backend desenvolvido em **NestJS** para gerenciamento completo de barbearias. Utiliza:
@@ -10,6 +37,231 @@ O projeto é um sistema backend desenvolvido em **NestJS** para gerenciamento co
 - **Evolution API** para integração WhatsApp
 - **IA (Gemini/DeepSeek)** para automação de respostas
 - **Docker** para containerização
+
+## API Pronta para Frontend
+
+Esta seção lista todos os endpoints disponíveis organizados por tipo de autenticação e permissões, facilitando o desenvolvimento do frontend.
+
+### Autenticação de Usuários (Owners)
+
+#### Endpoints Públicos (Não requerem autenticação)
+
+- `POST /users` - Criar conta de usuário (OWNER/ROOT)
+- `POST /user-auth/login` - Login de usuário (retorna JWT + refresh token)
+- `GET /user-email-verification/verify?email=...&code=...` - Verificar email do usuário
+- `POST /user-email-verification/resend` - Reenviar código de verificação
+
+#### Endpoints Protegidos (Requerem JWT de User - Bearer Token)
+
+**Estabelecimentos:**
+- `POST /establishments` - Criar estabelecimento (apenas OWNER)
+- `GET /establishments` - Listar estabelecimentos do usuário autenticado
+- `GET /establishments/:id` - Buscar estabelecimento por ID
+- `PUT /establishments/:id` - Atualizar estabelecimento
+- `DELETE /establishments/:id` - Excluir estabelecimento (soft delete)
+- `POST /establishments/:establishmentId/evolution-api/instance` - Criar instância WhatsApp
+
+**Membros/Funcionários:**
+- `POST /establishments/:establishmentId/members` - Criar membro/funcionário
+- `GET /establishments/:establishmentId/members` - Listar membros do estabelecimento
+- `GET /establishments/:establishmentId/members/:memberId` - Buscar membro por ID
+- `PUT /establishments/:establishmentId/members/:memberId` - Atualizar membro
+- `DELETE /establishments/:establishmentId/members/:memberId` - Excluir membro
+
+**Clientes:**
+- `POST /establishments/:establishmentId/customers` - Criar cliente
+- `GET /establishments/:establishmentId/customers` - Listar clientes
+- `GET /establishments/:establishmentId/customers/:customerId` - Buscar cliente por ID
+- `PUT /establishments/:establishmentId/customers/:customerId` - Atualizar cliente
+- `DELETE /establishments/:establishmentId/customers/:customerId` - Excluir cliente
+
+**Serviços:**
+- `POST /establishments/:establishmentId/services` - Criar serviço
+- `GET /establishments/:establishmentId/services` - Listar serviços
+- `GET /establishments/:establishmentId/services/:serviceId` - Buscar serviço por ID
+- `PUT /establishments/:establishmentId/services/:serviceId` - Atualizar serviço
+- `DELETE /establishments/:establishmentId/services/:serviceId` - Excluir serviço
+
+**Produtos:**
+- `POST /establishments/:establishmentId/products` - Criar produto
+- `GET /establishments/:establishmentId/products` - Listar produtos
+- `GET /establishments/:establishmentId/products/:productId` - Buscar produto por ID
+- `PUT /establishments/:establishmentId/products/:productId` - Atualizar produto
+- `DELETE /establishments/:establishmentId/products/:productId` - Excluir produto
+
+**Serviços Personalizados por Membro:**
+- `POST /establishments/:establishmentId/members/:memberId/services` - Criar serviço personalizado
+- `GET /establishments/:establishmentId/members/:memberId/services` - Listar serviços do membro
+
+**Produtos Personalizados por Membro:**
+- `POST /establishments/:establishmentId/members/:memberId/products` - Criar produto personalizado
+
+**Agendamentos:**
+- `POST /establishments/:establishmentId/appointments` - Criar agendamento (OWNER ou ROOT)
+- `GET /establishments/:establishmentId/appointments` - Listar agendamentos (com paginação)
+- `GET /establishments/:establishmentId/appointments/:appointmentId` - Buscar agendamento por ID
+- `PUT /establishments/:establishmentId/appointments/:appointmentId` - Atualizar agendamento
+- `DELETE /establishments/:establishmentId/appointments/:appointmentId` - Excluir agendamento
+
+**Planos:**
+- `POST /plans` - Criar plano
+- `GET /plans` - Listar planos
+- `GET /plans/:planId` - Buscar plano por ID
+- `PUT /plans/:planId` - Atualizar plano
+- `DELETE /plans/:planId` - Excluir plano
+
+**Assinaturas:**
+- `POST /subscriptions` - Criar assinatura
+- `GET /subscriptions` - Listar assinaturas
+- `GET /subscriptions/:subscriptionId` - Buscar assinatura por ID
+- `PUT /subscriptions/:subscriptionId` - Atualizar assinatura
+- `DELETE /subscriptions/:subscriptionId` - Excluir assinatura
+
+### Autenticação de Membros (Funcionários)
+
+#### Endpoints Públicos (Não requerem autenticação)
+
+- `POST /member-auth/login` - Login de membro/funcionário (retorna JWT + refresh token)
+- `GET /member-email-verification/verify?email=...&code=...` - Verificar email do membro
+- `POST /member-email-verification/resend` - Reenviar código de verificação
+
+#### Endpoints Protegidos (Requerem JWT de Member - Bearer Token)
+
+**Nota:** Atualmente, os membros autenticados podem acessar os mesmos endpoints que os owners, mas a validação de acesso é feita no service. O sistema verifica se o membro pertence ao estabelecimento antes de permitir operações.
+
+**Endpoints disponíveis para membros:**
+- Todos os endpoints de agendamentos (criar, listar, buscar, atualizar, excluir)
+- Endpoints de visualização (listar clientes, serviços, produtos)
+- A validação de acesso é feita internamente verificando se o membro pertence ao estabelecimento
+
+**Limitações:**
+- Membros não podem criar/editar/excluir estabelecimentos
+- Membros não podem gerenciar outros membros
+- Membros podem criar agendamentos (validação no service permite isso)
+
+### Webhook (Público - Evolution API)
+
+- `POST /webhook` - Receber eventos da Evolution API (WhatsApp)
+
+## Permissões por Tipo de Usuário
+
+### UserRole.OWNER
+
+Usuários com role OWNER podem:
+
+- **Gerenciar Estabelecimentos:**
+  - Criar, listar, atualizar e excluir estabelecimentos
+  - Configurar integração WhatsApp (Evolution API)
+  - Visualizar todos os dados do estabelecimento
+
+- **Gerenciar Membros/Funcionários:**
+  - Criar, listar, atualizar e excluir membros
+  - Definir roles dos membros (RECEPTIONIST, HAIRDRESSER, BARBER)
+  - Gerenciar serviços e produtos personalizados por membro
+
+- **Gerenciar Clientes:**
+  - CRUD completo de clientes do estabelecimento
+  - Visualizar histórico de agendamentos por cliente
+
+- **Gerenciar Serviços e Produtos:**
+  - CRUD completo de serviços e produtos
+  - Definir preços, comissões e duração
+  - Gerenciar estoque de produtos
+
+- **Gerenciar Agendamentos:**
+  - Criar, listar, atualizar e excluir agendamentos
+  - Visualizar todos os agendamentos do estabelecimento
+  - Gerenciar status dos agendamentos
+
+- **Gerenciar Planos e Assinaturas:**
+  - CRUD completo de planos
+  - Criar e gerenciar assinaturas
+  - Visualizar status de assinaturas
+
+### UserRole.ROOT
+
+Usuários com role ROOT têm:
+
+- **Todas as permissões de OWNER**
+- Permissão adicional para criar agendamentos (além de OWNER)
+- Acesso administrativo completo ao sistema
+
+### MemberRole.RECEPTIONIST
+
+Funcionários com role RECEPTIONIST podem:
+
+- **Visualizar Dados:**
+  - Listar clientes do estabelecimento
+  - Listar serviços e produtos disponíveis
+  - Visualizar agendamentos
+
+- **Gerenciar Agendamentos:**
+  - Criar agendamentos (validação no service)
+  - Atualizar agendamentos existentes
+  - Visualizar histórico de agendamentos
+
+- **Limitações:**
+  - Não pode criar/editar estabelecimentos
+  - Não pode gerenciar membros
+  - Não pode criar/editar serviços e produtos
+  - Não pode gerenciar planos e assinaturas
+
+### MemberRole.HAIRDRESSER / BARBER
+
+Funcionários com roles HAIRDRESSER ou BARBER podem:
+
+- **Visualizar Dados:**
+  - Listar clientes do estabelecimento
+  - Listar serviços e produtos disponíveis
+  - Visualizar seus próprios agendamentos
+
+- **Gerenciar Agendamentos:**
+  - Criar agendamentos (validação no service)
+  - Atualizar agendamentos atribuídos a eles
+  - Visualizar histórico de seus agendamentos
+
+- **Serviços Personalizados:**
+  - Visualizar serviços personalizados configurados para eles
+  - (Futuro: poderão atualizar seus próprios preços/comissões)
+
+- **Limitações:**
+  - Não pode criar/editar estabelecimentos
+  - Não pode gerenciar membros
+  - Não pode criar/editar serviços e produtos gerais
+  - Não pode gerenciar planos e assinaturas
+  - Acesso limitado aos dados do estabelecimento
+
+## Observações Importantes para o Frontend
+
+1. **Autenticação:**
+   - Usuários (OWNER/ROOT) usam `/user-auth/login`
+   - Membros (funcionários) usam `/member-auth/login`
+   - Ambos retornam JWT tokens que devem ser enviados no header `Authorization: Bearer <token>`
+
+2. **Validação de Acesso:**
+   - A maioria dos endpoints usa apenas `JwtAuthGuard` sem `RolesGuard`
+   - A validação de acesso é feita nos services, verificando se o usuário/membro pertence ao estabelecimento
+   - Apenas 2 endpoints usam `@Roles()` explicitamente:
+     - `POST /establishments` (apenas OWNER)
+     - `POST /establishments/:establishmentId/appointments` (OWNER ou ROOT)
+
+3. **Soft Delete:**
+   - Todos os endpoints de exclusão fazem soft delete (não removem do banco)
+   - Registros excluídos têm `deletedAt` preenchido e `isDeleted = true`
+
+4. **Paginação:**
+   - Endpoints de listagem podem ter paginação (verificar documentação Swagger)
+   - Agendamentos têm paginação implementada
+
+5. **Validações:**
+   - Todos os DTOs são validados com `class-validator`
+   - Erros de validação retornam status 400 com detalhes
+   - Códigos de erro padronizados (ErrorCode enum)
+
+6. **Timezones:**
+   - Todas as datas são armazenadas em UTC no banco
+   - Frontend deve converter para timezone do usuário
+   - Usuários podem ter timezone preferido configurado
 
 ## Estrutura de Módulos
 
