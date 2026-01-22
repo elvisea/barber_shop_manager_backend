@@ -1,6 +1,6 @@
 import { HttpStatus, Logger } from '@nestjs/common';
 
-import { getErrorMessage } from './error-helpers';
+import { getErrorMessage as extractErrorMessage } from './error-helpers';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
@@ -38,7 +38,7 @@ export function handleServiceError(params: HandleServiceErrorParams): never {
   } = params;
 
   // Extrair detalhes do erro
-  const errorDetails = getErrorMessage(error);
+  const errorDetails = extractErrorMessage(error);
 
   // Fazer log com contexto
   logger.error(logMessage, {
@@ -60,7 +60,7 @@ export function handleServiceError(params: HandleServiceErrorParams): never {
  * @param params - Parâmetros para tratamento do erro
  * @returns Mensagem de erro formatada
  */
-export function getErrorMessage(
+export function getFormattedErrorMessage(
   params: Omit<HandleServiceErrorParams, 'httpStatus'>,
 ): string {
   const {
@@ -74,7 +74,7 @@ export function getErrorMessage(
   } = params;
 
   // Extrair detalhes do erro
-  const errorDetails = getErrorMessage(error);
+  const errorDetails = extractErrorMessage(error);
 
   // Fazer log com contexto
   logger.error(logMessage, {
@@ -133,7 +133,7 @@ export function handleToolError<T = any>(
   }
 
   // Para outros erros, usar tratamento genérico
-  const errorDetails = getErrorMessage(error);
+  const errorDetails = extractErrorMessage(error);
   logger.error(`❌ [${handlerName}] Erro ao executar operação`, {
     ...logContext,
     error: errorDetails,

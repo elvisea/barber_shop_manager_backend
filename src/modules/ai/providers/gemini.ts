@@ -6,6 +6,8 @@ import {
   ChatCompletionTool,
 } from 'openai/resources/chat/completions';
 
+import { getErrorMessage } from '@/common/utils';
+
 import { AIProvider } from '../interfaces/ai-provider-interface';
 
 /**
