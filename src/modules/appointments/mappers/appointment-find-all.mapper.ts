@@ -19,7 +19,7 @@ export class AppointmentFindAllMapper {
       status: query.status,
       startDate: query.startDate,
       endDate: query.endDate,
-      isDeleted: query.isDeleted ?? false,
+      includeDeleted: query.includeDeleted ?? false,
       skip: pagination.skip,
       take: pagination.limit,
     };

@@ -6,7 +6,7 @@ export class AppointmentRepositoryFindAllDTO {
   status?: AppointmentStatus;
   startDate?: Date;
   endDate?: Date;
-  isDeleted: boolean;
+  includeDeleted?: boolean;
   skip: number;
   take: number;
 }

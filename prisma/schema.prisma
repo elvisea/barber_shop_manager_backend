@@ -14,19 +14,20 @@ datasource db {
 /// Representa um usuário do sistema (dono ou funcionário).
 model User {
   id                   String                 @id @default(uuid()) @map("id")
-  createdAt            DateTime               @default(now()) @map("created_at")
-  updatedAt            DateTime               @updatedAt @map("updated_at")
+  createdAt            DateTime               @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt            DateTime               @updatedAt @db.Timestamptz @map("updated_at")
   email                String                 @unique @map("email")
   name                 String                 @map("name")
   phone                String                 @map("phone")
   password             String                 @map("password")
   role                 UserRole               @default(OWNER) @map("role")
+  /// Timezone preferido do usuário (IANA timezone string, ex: "America/Sao_Paulo", "Europe/London")
+  /// Se não configurado, frontend detecta automaticamente do navegador
+  timezone             String?                @map("timezone") @db.VarChar(50)
   /// Data de exclusão lógica.
-  deletedAt            DateTime?              @map("deleted_at")
+  deletedAt            DateTime?              @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy            String?                @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted            Boolean                @default(false) @map("is_deleted")
   ownedEstablishments  Establishment[]
   createdPaymentOrders PaymentOrder[]
   refreshTokens        RefreshToken[]
@@ -35,7 +36,6 @@ model User {
 
   @@index([email])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("users")
 }
 
@@ -46,14 +46,12 @@ model Establishment {
   address        String                  @map("address")
   phone          String                  @map("phone")
   ownerId        String                  @map("owner_id")
-  createdAt      DateTime                @default(now()) @map("created_at")
-  updatedAt      DateTime                @updatedAt @map("updated_at")
+  createdAt      DateTime                @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt      DateTime                @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt      DateTime?               @map("deleted_at")
+  deletedAt      DateTime?               @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy      String?                 @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted      Boolean                 @default(false) @map("is_deleted")
   appointments   Appointment[]
   closurePeriods ClosurePeriod[]
   customers      EstablishmentCustomer[]
@@ -66,7 +64,6 @@ model Establishment {
 
   @@unique([ownerId, phone])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("establishments")
 }
 
@@ -84,14 +81,12 @@ model Member {
   role              MemberRole               @map("role")
   isActive          Boolean                  @default(true) @map("is_active")
   establishmentId   String                   @map("establishment_id")
-  createdAt         DateTime                 @default(now()) @map("created_at")
-  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  createdAt         DateTime                 @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt         DateTime                 @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt         DateTime?                @map("deleted_at")
+  deletedAt         DateTime?                @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy         String?                  @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted         Boolean                  @default(false) @map("is_deleted")
   appointments      Appointment[]
   absencePeriods    MemberAbsencePeriod[]
   emailVerification MemberEmailVerification?
@@ -104,7 +99,6 @@ model Member {
   transactions      Transaction[]
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("members")
 }
 
@@ -112,23 +106,20 @@ model Member {
 model MemberRefreshToken {
   id        String    @id @default(uuid()) @map("id")
   token     String    @unique @map("token")
-  expiresAt DateTime  @map("expires_at")
+  expiresAt DateTime  @db.Timestamptz @map("expires_at")
   revoked   Boolean   @default(false) @map("revoked")
   userAgent String?   @map("user_agent")
   ipAddress String?   @map("ip_address")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
   memberId  String    @map("member_id")
   /// Data de exclusão lógica.
-  deletedAt DateTime? @map("deleted_at")
+  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted Boolean   @default(false) @map("is_deleted")
   member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("member_refresh_tokens")
 }
 
@@ -138,20 +129,17 @@ model MemberWorkingHours {
   dayOfWeek Int       @map("day_of_week")
   startTime String    @map("start_time")
   endTime   String    @map("end_time")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
   memberId  String    @map("member_id")
   /// Data de exclusão lógica.
-  deletedAt DateTime? @map("deleted_at")
+  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted Boolean   @default(false) @map("is_deleted")
   member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, dayOfWeek])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("member_working_hours")
 }
 
@@ -159,21 +147,18 @@ model MemberWorkingHours {
 model MemberAbsencePeriod {
   id        String    @id @default(uuid()) @map("id")
   reason    String?   @map("reason")
-  startDate DateTime  @map("start_date")
-  endDate   DateTime  @map("end_date")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  startDate DateTime  @db.Timestamptz @map("start_date")
+  endDate   DateTime  @db.Timestamptz @map("end_date")
+  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
   memberId  String    @map("member_id")
   /// Data de exclusão lógica.
-  deletedAt DateTime? @map("deleted_at")
+  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted Boolean   @default(false) @map("is_deleted")
   member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("member_absence_periods")
 }
 
@@ -184,18 +169,16 @@ model MemberAbsencePeriod {
 /// Clientes dos estabelecimentos.
 model EstablishmentCustomer {
   id              String        @id @default(uuid()) @map("id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime      @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime      @updatedAt @db.Timestamptz @map("updated_at")
   name            String        @map("name")
   email           String?       @map("email")
   phone           String?       @map("phone")
   establishmentId String        @map("establishment_id")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?     @map("deleted_at")
+  deletedAt       DateTime?     @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?       @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean       @default(false) @map("is_deleted")
   appointments    Appointment[]
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   transactions    Transaction[]
@@ -203,7 +186,6 @@ model EstablishmentCustomer {
   @@unique([establishmentId, email])
   @@unique([establishmentId, phone])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("establishment_customers")
 }
 
@@ -220,21 +202,18 @@ model EstablishmentProduct {
   commission       Decimal           @map("commission") @db.Decimal(5, 4)
   stock            Int               @map("stock")
   establishmentId  String            @map("establishment_id")
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
+  createdAt        DateTime          @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt        DateTime          @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt        DateTime?         @map("deleted_at")
+  deletedAt        DateTime?         @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy        String?           @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted        Boolean           @default(false) @map("is_deleted")
   establishment    Establishment     @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   memberProducts   MemberProduct[]
   transactionItems TransactionItem[]
 
   @@unique([establishmentId, name])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("establishment_products")
 }
 
@@ -247,14 +226,12 @@ model EstablishmentService {
   price               Int                  @map("price")
   commission          Decimal              @map("commission") @db.Decimal(5, 4)
   establishmentId     String               @map("establishment_id")
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
+  createdAt           DateTime             @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt           DateTime             @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt           DateTime?            @map("deleted_at")
+  deletedAt           DateTime?            @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy           String?              @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted           Boolean              @default(false) @map("is_deleted")
   appointmentServices AppointmentService[]
   establishment       Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   memberServices      MemberService[]
@@ -262,7 +239,6 @@ model EstablishmentService {
 
   @@unique([establishmentId, name])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("establishment_services")
 }
 
@@ -273,21 +249,18 @@ model MemberProduct {
   commission      Decimal              @map("commission") @db.Decimal(5, 4)
   establishmentId String               @map("establishment_id")
   productId       String               @map("product_id")
-  createdAt       DateTime             @default(now()) @map("created_at")
-  updatedAt       DateTime             @updatedAt @map("updated_at")
+  createdAt       DateTime             @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime             @updatedAt @db.Timestamptz @map("updated_at")
   memberId        String               @map("member_id")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?            @map("deleted_at")
+  deletedAt       DateTime?            @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?              @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean              @default(false) @map("is_deleted")
   member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
   product         EstablishmentProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, establishmentId, productId])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("member_products")
 }
 
@@ -299,21 +272,18 @@ model MemberService {
   duration        Int                  @map("duration")
   establishmentId String               @map("establishment_id")
   serviceId       String               @map("service_id")
-  createdAt       DateTime             @default(now()) @map("created_at")
-  updatedAt       DateTime             @updatedAt @map("updated_at")
+  createdAt       DateTime             @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime             @updatedAt @db.Timestamptz @map("updated_at")
   memberId        String               @map("member_id")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?            @map("deleted_at")
+  deletedAt       DateTime?            @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?              @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean              @default(false) @map("is_deleted")
   member          Member               @relation(fields: [memberId], references: [id], onDelete: Cascade)
   service         EstablishmentService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, establishmentId, serviceId])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("member_services")
 }
 
@@ -324,23 +294,21 @@ model MemberService {
 /// Agendamentos de clientes.
 model Appointment {
   id              String                @id @default(uuid()) @map("id")
-  startTime       DateTime              @map("start_time")
-  endTime         DateTime              @map("end_time")
+  startTime       DateTime              @db.Timestamptz @map("start_time")
+  endTime         DateTime              @db.Timestamptz @map("end_time")
   totalAmount     Int                   @map("total_amount")
   totalDuration   Int                   @map("total_duration")
   status          AppointmentStatus     @default(PENDING) @map("status")
   notes           String?               @map("notes")
-  createdAt       DateTime              @default(now()) @map("created_at")
-  updatedAt       DateTime              @updatedAt @map("updated_at")
+  createdAt       DateTime              @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime              @updatedAt @db.Timestamptz @map("updated_at")
   customerId      String                @map("customer_id")
   memberId        String                @map("member_id")
   establishmentId String                @map("establishment_id")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?             @map("deleted_at")
+  deletedAt       DateTime?             @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?               @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean               @default(false) @map("is_deleted")
   services        AppointmentService[]
   customer        EstablishmentCustomer @relation(fields: [customerId], references: [id])
   establishment   Establishment         @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
@@ -348,7 +316,6 @@ model Appointment {
   transaction     Transaction?
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("appointments")
 }
 
@@ -361,17 +328,14 @@ model AppointmentService {
   appointmentId String               @map("appointment_id")
   serviceId     String               @map("service_id")
   /// Data de exclusão lógica.
-  deletedAt     DateTime?            @map("deleted_at")
+  deletedAt     DateTime?            @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy     String?              @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted     Boolean              @default(false) @map("is_deleted")
   appointment   Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   service       EstablishmentService @relation(fields: [serviceId], references: [id])
 
   @@unique([appointmentId, serviceId])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("appointment_services")
 }
 
@@ -389,26 +353,23 @@ model Transaction {
   paymentMethod    PaymentMethod         @map("payment_method")
   paymentStatus    PaymentStatus         @map("payment_status")
   notes            String?               @map("notes")
-  transactionDate  DateTime              @default(now()) @map("transaction_date")
-  createdAt        DateTime              @default(now()) @map("created_at")
-  updatedAt        DateTime              @updatedAt @map("updated_at")
+  transactionDate  DateTime              @default(now()) @db.Timestamptz @map("transaction_date")
+  createdAt        DateTime              @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt        DateTime              @updatedAt @db.Timestamptz @map("updated_at")
   appointmentId    String?               @unique @map("appointment_id")
   customerId       String                @map("customer_id")
   memberId         String                @map("member_id")
   establishmentId  String                @map("establishment_id")
   /// Data de exclusão lógica.
-  deletedAt        DateTime?             @map("deleted_at")
+  deletedAt        DateTime?             @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy        String?               @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted        Boolean               @default(false) @map("is_deleted")
   items            TransactionItem[]
   appointment      Appointment?          @relation(fields: [appointmentId], references: [id])
   customer         EstablishmentCustomer @relation(fields: [customerId], references: [id])
   member           Member                @relation(fields: [memberId], references: [id])
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("transactions")
 }
 
@@ -420,23 +381,20 @@ model TransactionItem {
   unitPrice     Int                   @map("unit_price")
   totalPrice    Int                   @map("total_price")
   commission    Decimal               @map("commission") @db.Decimal(5, 4)
-  createdAt     DateTime              @default(now()) @map("created_at")
-  updatedAt     DateTime              @updatedAt @map("updated_at")
+  createdAt     DateTime              @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt     DateTime              @updatedAt @db.Timestamptz @map("updated_at")
   transactionId String                @map("transaction_id")
   productId     String?               @map("product_id")
   serviceId     String?               @map("service_id")
   /// Data de exclusão lógica.
-  deletedAt     DateTime?             @map("deleted_at")
+  deletedAt     DateTime?             @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy     String?               @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted     Boolean               @default(false) @map("is_deleted")
   product       EstablishmentProduct? @relation(fields: [productId], references: [id], onDelete: Restrict)
   service       EstablishmentService? @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   transaction   Transaction           @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("transaction_items")
 }
 
@@ -446,26 +404,23 @@ model PaymentOrder {
   totalAmount     Int           @map("total_amount")
   status          PaymentStatus @map("status")
   paymentMethod   PaymentMethod @map("payment_method")
-  paymentDate     DateTime?     @map("payment_date")
-  periodStart     DateTime      @map("period_start")
-  periodEnd       DateTime      @map("period_end")
+  paymentDate     DateTime?     @db.Timestamptz @map("payment_date")
+  periodStart     DateTime      @db.Timestamptz @map("period_start")
+  periodEnd       DateTime      @db.Timestamptz @map("period_end")
   notes           String?       @map("notes")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime      @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime      @updatedAt @db.Timestamptz @map("updated_at")
   memberId        String        @map("member_id")
   establishmentId String        @map("establishment_id")
   createdById     String        @map("created_by_id")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?     @map("deleted_at")
+  deletedAt       DateTime?     @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?       @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean       @default(false) @map("is_deleted")
   createdBy       User          @relation(fields: [createdById], references: [id])
   member          Member        @relation(fields: [memberId], references: [id])
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("payment_orders")
 }
 
@@ -481,18 +436,15 @@ model Plan {
   price         Int            @map("price")
   duration      Int            @map("duration")
   isActive      Boolean        @default(true) @map("is_active")
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
+  createdAt     DateTime       @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt     DateTime       @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt     DateTime?      @map("deleted_at")
+  deletedAt     DateTime?      @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy     String?        @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted     Boolean        @default(false) @map("is_deleted")
   subscriptions Subscription[]
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("plans")
 }
 
@@ -502,19 +454,17 @@ model Subscription {
   establishmentId String             @map("establishment_id")
   planId          String             @map("plan_id")
   createdById     String?            @map("created_by_id")
-  startDate       DateTime           @map("start_date")
-  endDate         DateTime           @map("end_date")
+  startDate       DateTime           @db.Timestamptz @map("start_date")
+  endDate         DateTime           @db.Timestamptz @map("end_date")
   status          SubscriptionStatus @default(PENDING) @map("status")
   paid            Boolean            @default(false) @map("paid")
   phone           String             @map("phone")
-  createdAt       DateTime           @default(now()) @map("created_at")
-  updatedAt       DateTime           @updatedAt @map("updated_at")
+  createdAt       DateTime           @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime           @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?          @map("deleted_at")
+  deletedAt       DateTime?          @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?            @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean            @default(false) @map("is_deleted")
   createdBy       User?              @relation(fields: [createdById], references: [id])
   establishment   Establishment      @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   plan            Plan               @relation(fields: [planId], references: [id])
@@ -523,7 +473,6 @@ model Subscription {
   @@index([planId])
   @@index([createdById])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("subscriptions")
 }
 
@@ -536,22 +485,19 @@ model UserEmailVerification {
   id        String    @id @default(uuid()) @map("id")
   email     String    @unique @map("email")
   token     String    @map("token")
-  expiresAt DateTime  @map("expires_at")
+  expiresAt DateTime  @db.Timestamptz @map("expires_at")
   verified  Boolean   @default(false) @map("verified")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
   userId    String    @unique @map("user_id")
   /// Data de exclusão lógica.
-  deletedAt DateTime? @map("deleted_at")
+  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted Boolean   @default(false) @map("is_deleted")
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("user_email_verifications")
 }
 
@@ -560,22 +506,19 @@ model MemberEmailVerification {
   id        String    @id @default(uuid()) @map("id")
   email     String    @unique @map("email")
   token     String    @map("token")
-  expiresAt DateTime  @map("expires_at")
+  expiresAt DateTime  @db.Timestamptz @map("expires_at")
   verified  Boolean   @default(false) @map("verified")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
   memberId  String    @unique @map("member_id")
   /// Data de exclusão lógica.
-  deletedAt DateTime? @map("deleted_at")
+  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted Boolean   @default(false) @map("is_deleted")
   member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([email])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("member_email_verifications")
 }
 
@@ -587,23 +530,20 @@ model MemberEmailVerification {
 model RefreshToken {
   id        String    @id @default(uuid()) @map("id")
   token     String    @unique @map("token")
-  expiresAt DateTime  @map("expires_at")
+  expiresAt DateTime  @db.Timestamptz @map("expires_at")
   revoked   Boolean   @default(false) @map("revoked")
   userAgent String?   @map("user_agent")
   ipAddress String?   @map("ip_address")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
   userId    String    @map("user_id")
   /// Data de exclusão lógica.
-  deletedAt DateTime? @map("deleted_at")
+  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted Boolean   @default(false) @map("is_deleted")
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("refresh_tokens")
 }
 
@@ -618,41 +558,35 @@ model OpeningHours {
   openingTime     String        @map("opening_time")
   closingTime     String        @map("closing_time")
   establishmentId String        @map("establishment_id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime      @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime      @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?     @map("deleted_at")
+  deletedAt       DateTime?     @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?       @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean       @default(false) @map("is_deleted")
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
   @@unique([establishmentId, dayOfWeek])
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("opening_hours")
 }
 
 /// Períodos de fechamento dos estabelecimentos.
 model ClosurePeriod {
   id              String        @id @default(uuid()) @map("id")
-  startDate       DateTime      @map("start_date")
-  endDate         DateTime      @map("end_date")
+  startDate       DateTime      @db.Timestamptz @map("start_date")
+  endDate         DateTime      @db.Timestamptz @map("end_date")
   reason          String?       @map("reason")
   establishmentId String        @map("establishment_id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime      @default(now()) @db.Timestamptz @map("created_at")
+  updatedAt       DateTime      @updatedAt @db.Timestamptz @map("updated_at")
   /// Data de exclusão lógica.
-  deletedAt       DateTime?     @map("deleted_at")
+  deletedAt       DateTime?     @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy       String?       @map("deleted_by")
-  /// Flag para facilitar consultas de registros não deletados.
-  isDeleted       Boolean       @default(false) @map("is_deleted")
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
   @@index([deletedAt])
-  @@index([isDeleted])
   @@map("closure_periods")
 }
 

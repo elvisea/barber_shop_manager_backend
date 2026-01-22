@@ -58,7 +58,8 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
   endDate?: Date;
 
   @ApiPropertyOptional({
-    description: 'Filtrar por status de exclusão lógica',
+    description:
+      'Incluir registros deletados na busca (por padrão, apenas não deletados são retornados)',
     example: false,
   })
   @IsOptional()
@@ -68,5 +69,5 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
     return value;
   })
   @IsBoolean()
-  isDeleted?: boolean = false;
+  includeDeleted?: boolean = false;
 }

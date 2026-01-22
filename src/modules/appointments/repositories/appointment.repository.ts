@@ -82,7 +82,10 @@ export class AppointmentRepository implements IAppointmentRepository {
     const where: Prisma.AppointmentWhereInput = {};
 
     // Filtrar por status de exclusão lógica
-    where.isDeleted = query.isDeleted;
+    // Se includeDeleted for false (padrão), retorna apenas registros não deletados (deletedAt IS NULL)
+    if (!query.includeDeleted) {
+      where.deletedAt = null;
+    }
 
     // Aplicar filtros opcionais
     if (query.customerId) {
@@ -317,7 +320,7 @@ export class AppointmentRepository implements IAppointmentRepository {
 
     const whereClause: Prisma.AppointmentWhereInput = {
       memberId,
-      isDeleted: false, // Filtrar apenas agendamentos não deletados
+      deletedAt: null, // Filtrar apenas agendamentos não deletados
       AND: [
         // Conflito: agendamento existente sobrepõe com o novo
         // Condição: startTime < novo_endTime AND endTime > novo_startTime

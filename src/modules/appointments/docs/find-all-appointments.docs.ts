@@ -80,9 +80,10 @@ export function FindAllAppointmentsDocs() {
       type: String,
     }),
     ApiQuery({
-      name: 'isDeleted',
+      name: 'includeDeleted',
       required: false,
-      description: 'Filtrar por status de exclusão lógica',
+      description:
+        'Incluir registros deletados na busca (por padrão, apenas não deletados são retornados)',
       example: false,
       type: Boolean,
     }),
