@@ -12,7 +12,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 export class AppointmentDeleteController {
   @Delete(':appointmentId')
   @DeleteAppointmentDocs()
-  async handler(@Param() params: AppointmentDeleteParamDTO) {
+  async handler(@Param() _params: AppointmentDeleteParamDTO) {
     // TODO: Implementar lógica de exclusão de agendamento
     // params.establishmentId, params.appointmentId
   }

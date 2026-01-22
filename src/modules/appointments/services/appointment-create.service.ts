@@ -38,11 +38,14 @@ export class AppointmentCreateService {
     );
 
     // 1. Validar acesso do usuário (dono OU membro do estabelecimento)
-    const { establishment, isOwner, member } =
-      await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
-        establishmentId,
-        ownerId,
-      );
+    const {
+      establishment: _establishment,
+      isOwner: _isOwner,
+      member: _member,
+    } = await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+      establishmentId,
+      ownerId,
+    );
 
     // 2. Validar cliente existe no estabelecimento
     await this.appointmentAccessValidationService.validateCustomer(

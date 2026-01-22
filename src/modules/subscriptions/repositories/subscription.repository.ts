@@ -11,17 +11,20 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class SubscriptionRepository implements ISubscriptionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: SubscriptionCreateDTO): Promise<Subscription> {
+  async create(_data: SubscriptionCreateDTO): Promise<Subscription> {
     // TODO: Implementar
     return {} as Subscription;
   }
 
-  async update(id: string, data: SubscriptionUpdateDTO): Promise<Subscription> {
+  async update(
+    _id: string,
+    _data: SubscriptionUpdateDTO,
+  ): Promise<Subscription> {
     // TODO: Implementar
     return {} as Subscription;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(_id: string): Promise<void> {
     // TODO: Implementar
   }
 
@@ -30,7 +33,7 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     return [];
   }
 
-  async findById(id: string): Promise<Subscription | null> {
+  async findById(_id: string): Promise<Subscription | null> {
     // TODO: Implementar
     return null;
   }

@@ -16,8 +16,8 @@ export class AppointmentUpdateController {
   @Put(':appointmentId')
   @UpdateAppointmentDocs()
   async handler(
-    @Param() params: AppointmentUpdateParamDTO,
-    @Body() dto: AppointmentUpdateRequestDTO,
+    @Param() _params: AppointmentUpdateParamDTO,
+    @Body() _dto: AppointmentUpdateRequestDTO,
   ) {
     // TODO: Implementar lógica de atualização de agendamento
     // params.establishmentId, params.appointmentId, dto.memberId, dto.status, dto.serviceIds, etc.

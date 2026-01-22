@@ -12,7 +12,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 export class AppointmentFindByIdController {
   @Get(':appointmentId')
   @FindAppointmentByIdDocs()
-  async handler(@Param() params: AppointmentFindByIdParamDTO) {
+  async handler(@Param() _params: AppointmentFindByIdParamDTO) {
     // TODO: Implementar lógica de busca de agendamento por ID
     // params.establishmentId, params.appointmentId
   }

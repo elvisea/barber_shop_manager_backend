@@ -93,7 +93,7 @@ export class PlanToolHandlers {
     definition: PLAN_TOOLS[0],
     handler: async (
       args: PlanCreateRequestDTO,
-      context?: ToolContext,
+      _context?: ToolContext,
     ): Promise<ToolResult<PlanCreateResponseDTO>> => {
       this.logger.log(`🛠️ [CREATE_PLAN] Iniciando criação de plano`);
 
@@ -197,7 +197,7 @@ export class PlanToolHandlers {
     definition: PLAN_TOOLS[1],
     handler: async (
       args: PlanFindAllQueryDTO,
-      context?: ToolContext,
+      _context?: ToolContext,
     ): Promise<ToolResult<PlanFindAllResponseDTO>> => {
       this.logger.log(`📋 [GET_PLANS] Iniciando busca de planos`);
 

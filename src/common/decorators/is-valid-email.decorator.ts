@@ -12,7 +12,7 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: any, _args: ValidationArguments) {
           if (typeof value !== 'string') {
             return false;
           }
@@ -61,7 +61,7 @@ export function IsValidEmail(validationOptions?: ValidationOptions) {
 
           return true;
         },
-        defaultMessage(args: ValidationArguments) {
+        defaultMessage(_args: ValidationArguments) {
           return 'Email must have a valid format and use a real domain';
         },
       },
