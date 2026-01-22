@@ -19,7 +19,7 @@ export class MemberUpdateRequestDTO {
   @ApiPropertyOptional({ example: 'joao@barbearia.com' })
   @IsOptional()
   @IsEmail()
-  @Transform(({ value }) => value?.toLowerCase())
+  @Transform(({ value }: { value: string }) => value?.toLowerCase())
   email?: string;
 
   @ApiPropertyOptional({ example: '+5511999999999' })

@@ -17,7 +17,7 @@ export class MemberCreateRequestDTO {
 
   @ApiProperty({ example: 'joao@barbearia.com' })
   @IsEmail()
-  @Transform(({ value }) => value.toLowerCase())
+  @Transform(({ value }: { value: string }) => value.toLowerCase())
   email: string;
 
   @ApiProperty({ example: '+5511999999999' })

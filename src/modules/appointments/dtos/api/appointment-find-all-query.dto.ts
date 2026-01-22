@@ -54,7 +54,7 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @ValidateIf((o) => o.startDate && o.endDate)
+  @ValidateIf((o: AppointmentFindAllQueryDTO) => !!o.startDate && !!o.endDate)
   endDate?: Date;
 
   @ApiPropertyOptional({
@@ -63,7 +63,7 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
     example: false,
   })
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }: { value: string }) => {
     if (value === 'true') return true;
     if (value === 'false') return false;
     return value;

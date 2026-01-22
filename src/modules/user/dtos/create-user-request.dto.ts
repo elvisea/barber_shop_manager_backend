@@ -27,7 +27,7 @@ export class CreateUserRequestDTO {
   @IsValidEmail({
     message: 'Email must have a valid format and use a real domain',
   })
-  @Transform(({ value }) => value.toLowerCase())
+  @Transform(({ value }: { value: string }) => value.toLowerCase())
   email: string;
 
   @ApiProperty({
