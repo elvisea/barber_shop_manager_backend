@@ -11,31 +11,28 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class SubscriptionRepository implements ISubscriptionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(_data: SubscriptionCreateDTO): Promise<Subscription> {
+  create(_data: SubscriptionCreateDTO): Promise<Subscription> {
     // TODO: Implementar
-    return {} as Subscription;
+    return Promise.resolve({} as Subscription);
   }
 
-  async update(
-    _id: string,
-    _data: SubscriptionUpdateDTO,
-  ): Promise<Subscription> {
+  update(_id: string, _data: SubscriptionUpdateDTO): Promise<Subscription> {
     // TODO: Implementar
-    return {} as Subscription;
+    return Promise.resolve({} as Subscription);
   }
 
   async delete(_id: string): Promise<void> {
     // TODO: Implementar
   }
 
-  async findAll(): Promise<Subscription[]> {
+  findAll(): Promise<Subscription[]> {
     // TODO: Implementar
-    return [];
+    return Promise.resolve([]);
   }
 
-  async findById(_id: string): Promise<Subscription | null> {
+  findById(_id: string): Promise<Subscription | null> {
     // TODO: Implementar
-    return null;
+    return Promise.resolve(null);
   }
 
   async findActivePaidByPhone(

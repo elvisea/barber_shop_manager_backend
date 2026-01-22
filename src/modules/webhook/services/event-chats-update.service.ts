@@ -6,7 +6,7 @@ import { ChatsUpdateLog } from '../interfaces';
 export class EventChatsUpdateService {
   private readonly logger = new Logger(EventChatsUpdateService.name);
 
-  async handle(payload: ChatsUpdateLog): Promise<void> {
+  handle(payload: ChatsUpdateLog): Promise<void> {
     this.logger.log(
       '[EventChatsUpdateService] Starting processing of chats.update event',
     );
@@ -19,12 +19,13 @@ export class EventChatsUpdateService {
       this.logger.log(
         '[EventChatsUpdateService] Processing completed successfully.',
       );
+      return Promise.resolve();
     } catch (err) {
       this.logger.error(
         '[EventChatsUpdateService] Error processing event:',
         err,
       );
-      throw err;
+      return Promise.reject(err);
     }
   }
 }

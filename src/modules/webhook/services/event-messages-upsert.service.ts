@@ -114,7 +114,7 @@ export class EventMessagesUpsertService {
    *
    * @param payload Mensagem recebida do webhook
    */
-  async handle(payload: MessagesUpsertLog): Promise<void> {
+  handle(payload: MessagesUpsertLog): Promise<void> {
     try {
       const { remoteJid, message } = this.extractDataPayload(payload);
 
@@ -165,12 +165,14 @@ export class EventMessagesUpsertService {
       this.logger.log(
         '[EventMessagesUpsertService] Mensagem processada com sucesso',
       );
+
+      return Promise.resolve();
     } catch (error) {
       this.logger.error(
         '[EventMessagesUpsertService] Erro ao processar mensagem:',
         error,
       );
-      throw error; // Re-throw para que o router possa tratar
+      return Promise.reject(error);
     }
   }
 
