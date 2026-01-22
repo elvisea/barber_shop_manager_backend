@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
 import { AppModule } from '@/app.module';
 import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
@@ -54,8 +55,8 @@ async function bootstrap(): Promise<void> {
 
   /* Increase body parser limits */
   /* verify if this is necessary */
-  app.use(require('body-parser').json({ limit: '10mb' }));
-  app.use(require('body-parser').urlencoded({ limit: '10mb', extended: true }));
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
   /* Apply global custom exception filter */
   app.useGlobalFilters(new AllExceptionsFilter());
