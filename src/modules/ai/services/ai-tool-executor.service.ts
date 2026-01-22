@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { ToolRegistryService } from '../tools/registry/tool-registry';
 
+import { getErrorMessage } from '@/common/utils';
+
 /**
  * ⚙️ AIToolExecutorService - Executor Centralizado de Tools da IA
  *
@@ -162,18 +164,19 @@ export class AIToolExecutorService {
         result: result.data ?? result,
         success: true,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
         `❌ [EXECUTOR] Erro ao executar tool "${toolCall.name}":`,
         error,
       );
-      this.logger.error(`❌ [EXECUTOR] Mensagem de erro: ${error.message}`);
+      const errorMessage = getErrorMessage(error);
+      this.logger.error(`❌ [EXECUTOR] Mensagem de erro: ${errorMessage}`);
 
       return {
         toolCall,
         result: null,
         success: false,
-        error: error.message,
+        error: errorMessage,
       };
     }
   }

@@ -88,9 +88,13 @@ export class EvolutionApiWebhookService {
       this.logger.log(
         `✅ [WEBHOOK] Webhook configurado com sucesso para instância: ${instanceName}`,
       );
-    } catch (webhookError: any) {
+    } catch (webhookError: unknown) {
+      const errorMessage =
+        webhookError instanceof Error
+          ? webhookError.message
+          : String(webhookError);
       this.logger.error(
-        `❌ [WEBHOOK] Erro ao configurar webhook: ${webhookError.message}`,
+        `❌ [WEBHOOK] Erro ao configurar webhook: ${errorMessage}`,
       );
 
       // Não falhar a operação principal se o webhook falhar
@@ -160,9 +164,13 @@ export class EvolutionApiWebhookService {
       this.logger.log(
         `✅ [WEBHOOK] Webhook desabilitado com sucesso para instância: ${instanceName}`,
       );
-    } catch (webhookError: any) {
+    } catch (webhookError: unknown) {
+      const errorMessage =
+        webhookError instanceof Error
+          ? webhookError.message
+          : String(webhookError);
       this.logger.error(
-        `❌ [WEBHOOK] Erro ao desabilitar webhook: ${webhookError.message}`,
+        `❌ [WEBHOOK] Erro ao desabilitar webhook: ${errorMessage}`,
       );
       throw webhookError;
     }
@@ -204,9 +212,13 @@ export class EvolutionApiWebhookService {
       );
 
       return response;
-    } catch (webhookError: any) {
+    } catch (webhookError: unknown) {
+      const errorMessage =
+        webhookError instanceof Error
+          ? webhookError.message
+          : String(webhookError);
       this.logger.error(
-        `❌ [WEBHOOK] Erro ao buscar configuração do webhook: ${webhookError.message}`,
+        `❌ [WEBHOOK] Erro ao buscar configuração do webhook: ${errorMessage}`,
       );
       throw webhookError;
     }

@@ -43,12 +43,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     if (err || !user) {
+      const errorMessage =
+        err?.message || info?.message || 'User not authenticated';
       this.logger.warn(
         JSON.stringify(
           {
             ...logContext,
             event: 'unauthorized',
-            error: err?.message || info?.message || 'User not authenticated',
+            error: errorMessage,
           },
           null,
           2,

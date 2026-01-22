@@ -4,6 +4,7 @@ import { MemberEmailVerification } from '@prisma/client';
 import { MemberEmailVerificationRepository } from '../repositories/member-email-verification.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { getErrorMessage } from '@/common/utils';
 import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
@@ -107,9 +108,10 @@ export class MemberEmailVerificationResendService {
       this.logger.log(
         `Member verification email sent successfully to: ${email}`,
       );
-    } catch (emailError) {
+    } catch (emailError: unknown) {
+      const errorMessage = getErrorMessage(emailError);
       this.logger.error(
-        `Failed to send member verification email to ${email}: ${emailError.message}`,
+        `Failed to send member verification email to ${email}: ${errorMessage}`,
       );
 
       // Don't throw error here, just log it

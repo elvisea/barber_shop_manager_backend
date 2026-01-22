@@ -3,6 +3,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { MemberRepository } from '../repositories/member.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { handleServiceError } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
@@ -58,19 +59,23 @@ export class MemberDeleteService {
       await this.memberRepository.deleteMember(memberId);
 
       this.logger.log(`Member deleted: ${memberId}`);
-    } catch (error) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_DELETE_FAILED,
-        { MEMBER_ID: memberId, ESTABLISHMENT_ID: establishmentId },
-      );
-
-      this.logger.error(`Failed to delete member: ${error.message}`);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.BAD_REQUEST,
-        ErrorCode.MEMBER_DELETE_FAILED,
-      );
+    } catch (error: unknown) {
+      handleServiceError({
+        error,
+        logger: this.logger,
+        errorMessageService: this.errorMessageService,
+        errorCode: ErrorCode.MEMBER_DELETE_FAILED,
+        httpStatus: HttpStatus.BAD_REQUEST,
+        logMessage: 'Failed to delete member',
+        logContext: {
+          memberId,
+          establishmentId,
+        },
+        errorParams: {
+          MEMBER_ID: memberId,
+          ESTABLISHMENT_ID: establishmentId,
+        },
+      });
     }
   }
 }

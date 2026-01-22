@@ -62,9 +62,13 @@ export class EstablishmentEvolutionApiCreateInstanceService {
       this.logger.log(
         `✅ [ESTABLISHMENT-EVOLUTION-API] Webhook configurado com sucesso para instância: ${instanceResponse.instance.instanceName}`,
       );
-    } catch (webhookError) {
+    } catch (webhookError: unknown) {
+      const errorMessage =
+        webhookError instanceof Error
+          ? webhookError.message
+          : String(webhookError);
       this.logger.warn(
-        `⚠️ [ESTABLISHMENT-EVOLUTION-API] Instância criada, mas webhook não foi configurado: ${webhookError.message}`,
+        `⚠️ [ESTABLISHMENT-EVOLUTION-API] Instância criada, mas webhook não foi configurado: ${errorMessage}`,
       );
       // Não falhar a operação principal se o webhook falhar
       // A instância foi criada com sucesso, apenas o webhook não foi configurado

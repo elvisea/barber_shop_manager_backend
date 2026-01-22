@@ -103,9 +103,13 @@ export class MemberAuthService {
           authRequest.email,
         );
         this.logger.log(`Verification email re-sent for: ${authRequest.email}`);
-      } catch (resendError) {
+      } catch (resendError: unknown) {
+        const errorMessage =
+          resendError instanceof Error
+            ? resendError.message
+            : String(resendError);
         this.logger.error(
-          `Failed to re-send verification email: ${resendError.message}`,
+          `Failed to re-send verification email: ${errorMessage}`,
         );
         // Don't throw error here, just log it
       }

@@ -96,4 +96,4 @@ async function bootstrap(): Promise<void> {
 }
 
 // Initialize the application
-bootstrap();
+void bootstrap();

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as qrcode from 'qrcode-terminal';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { getErrorMessage } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { HttpClientService } from '@/http-client/http-client.service';
 
@@ -120,18 +121,23 @@ export class EvolutionApiInstanceService {
       this.printQrCode(response);
 
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
       this.logger.error(
-        `❌ [EVOLUTION-API] Erro ao criar instância: ${error.message}`,
+        `❌ [EVOLUTION-API] Erro ao criar instância: ${errorMessage}`,
       );
 
-      const errorMessage =
-        error.response?.data?.message ||
+      // Verificar se é um erro HTTP do axios
+      const httpError = error as {
+        response?: { data?: { message?: string }; status?: number };
+      };
+      const apiErrorMessage =
+        httpError.response?.data?.message ||
         'Erro ao criar instância na Evolution API';
 
       throw new CustomHttpException(
-        errorMessage,
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        apiErrorMessage,
+        httpError.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
         ErrorCode.VALIDATION_ERROR,
       );
     }
@@ -160,10 +166,11 @@ export class EvolutionApiInstanceService {
           this.logger.log(
             '📱 [EVOLUTION-API] QR Code impresso no terminal acima!',
           );
-        } catch (terminalError) {
+        } catch (terminalError: unknown) {
           // Se qrcode-terminal falhar, imprimir informações alternativas
+          const errorMessage = getErrorMessage(terminalError);
           this.logger.warn(
-            `⚠️ [EVOLUTION-API] qrcode-terminal falhou: ${terminalError.message}`,
+            `⚠️ [EVOLUTION-API] qrcode-terminal falhou: ${errorMessage}`,
           );
           this.logger.log(
             '📱 [EVOLUTION-API] QR Code não pôde ser impresso no terminal',
@@ -180,9 +187,10 @@ export class EvolutionApiInstanceService {
           `📱 [EVOLUTION-API] ID da instância: ${response.instance.instanceId}`,
         );
         this.logger.log('='.repeat(50));
-      } catch (qrError) {
+      } catch (qrError: unknown) {
+        const errorMessage = getErrorMessage(qrError);
         this.logger.warn(
-          `⚠️ [EVOLUTION-API] Erro ao gerar QR Code no terminal: ${qrError.message}`,
+          `⚠️ [EVOLUTION-API] Erro ao gerar QR Code no terminal: ${errorMessage}`,
         );
         this.logger.log(
           `📱 [EVOLUTION-API] Código QR disponível: ${response.qrcode.code.substring(0, 100)}...`,

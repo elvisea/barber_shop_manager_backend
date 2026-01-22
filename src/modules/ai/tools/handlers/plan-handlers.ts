@@ -8,6 +8,8 @@ import {
   ToolResult,
 } from '../types/tool-definition.types';
 
+import { handleToolError } from '@/common/utils';
+import { ErrorMessageService } from '@/error-message/error-message.service';
 import { HttpClientService } from '@/http-client/http-client.service';
 import { PlanCreateRequestDTO } from '@/modules/plans/dtos/plan-create-request.dto';
 import { PlanCreateResponseDTO } from '@/modules/plans/dtos/plan-create-response.dto';
@@ -47,6 +49,7 @@ export class PlanToolHandlers {
   constructor(
     private readonly httpClientService: HttpClientService,
     private readonly configService: ConfigService,
+    private readonly errorMessageService: ErrorMessageService,
   ) {
     this.apiUrl =
       this.configService.get<string>('API_BASE_URL') || 'http://localhost:3333';
@@ -153,16 +156,17 @@ export class PlanToolHandlers {
           success: true,
           data: response,
         };
-      } catch (error: any) {
-        this.logger.error(`❌ [CREATE_PLAN] Erro ao criar plano:`, error);
-        this.logger.error(
-          `❌ [CREATE_PLAN] Mensagem de erro: ${error.message}`,
-        );
-
-        return {
-          success: false,
-          error: error.message,
-        };
+      } catch (error: unknown) {
+        return handleToolError({
+          error,
+          logger: this.logger,
+          errorMessageService: this.errorMessageService,
+          handlerName: 'CREATE_PLAN',
+          logContext: {
+            planName: validatedArgs.name,
+            price: validatedArgs.price,
+          },
+        });
       }
     },
   };
@@ -257,14 +261,17 @@ export class PlanToolHandlers {
           success: true,
           data: transformedResponse,
         };
-      } catch (error: any) {
-        this.logger.error(`❌ [GET_PLANS] Erro ao buscar planos:`, error);
-        this.logger.error(`❌ [GET_PLANS] Mensagem de erro: ${error.message}`);
-
-        return {
-          success: false,
-          error: error.message,
-        };
+      } catch (error: unknown) {
+        return handleToolError({
+          error,
+          logger: this.logger,
+          errorMessageService: this.errorMessageService,
+          handlerName: 'GET_PLANS',
+          logContext: {
+            page: validatedArgs.page,
+            limit: validatedArgs.limit,
+          },
+        });
       }
     },
   };

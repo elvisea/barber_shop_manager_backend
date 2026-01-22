@@ -102,12 +102,10 @@ export class GeminiProvider implements AIProvider {
       );
       this.logger.log('✅ [GEMINI] Resposta gerada com sucesso');
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('❌ [GEMINI] Erro ao gerar resposta:', error);
-      this.logger.error(
-        '❌ [GEMINI] Detalhes do erro:',
-        error?.message || error,
-      );
+      const errorMessage = getErrorMessage(error);
+      this.logger.error('❌ [GEMINI] Detalhes do erro:', errorMessage);
       return {
         role: 'assistant',
         content:

@@ -8,6 +8,8 @@ import {
 
 import { AIProvider } from '../interfaces/ai-provider-interface';
 
+import { getErrorMessage } from '@/common/utils';
+
 /**
  * DeepseekProvider - Provider para integração com a API DeepSeek (compatível OpenAI)
  *
@@ -103,12 +105,10 @@ export class DeepseekProvider implements AIProvider {
       );
       this.logger.log('✅ [DEEPSEEK] Resposta gerada com sucesso');
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('❌ [DEEPSEEK] Erro ao gerar resposta:', error);
-      this.logger.error(
-        '❌ [DEEPSEEK] Detalhes do erro:',
-        error?.message || error,
-      );
+      const errorMessage = getErrorMessage(error);
+      this.logger.error('❌ [DEEPSEEK] Detalhes do erro:', errorMessage);
       return {
         role: 'assistant',
         content:

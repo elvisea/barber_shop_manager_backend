@@ -20,8 +20,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // Se a resposta for um objeto (como em CustomHttpException), podemos extrair os dados
     if (typeof errorResponse === 'object' && errorResponse !== null) {
-      message = (errorResponse as any).message || 'Erro desconhecido';
-      errorCode = (errorResponse as any).errorCode || '';
+      const errorObj = errorResponse as {
+        message?: string;
+        errorCode?: string;
+      };
+      message = errorObj.message || 'Erro desconhecido';
+      errorCode = errorObj.errorCode || '';
     } else {
       message = errorResponse;
     }

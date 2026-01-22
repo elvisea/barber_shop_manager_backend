@@ -4,6 +4,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 import { MessagesUpsertLog } from '../interfaces';
 
+import { getErrorMessage } from '@/common/utils';
 import { HttpClientService } from '@/http-client/http-client.service';
 import { AIProviderFactoryService } from '@/modules/ai/services/ai-provider-factory.service';
 import { ToolRegistryService } from '@/modules/ai/tools/registry/tool-registry';
@@ -333,11 +334,12 @@ export class EventMessagesUpsertService {
                 success: !!result.success,
                 tool: toolCall.function.name,
               };
-            } catch (error) {
+            } catch (error: unknown) {
               this.logger.error(`❌ [TOOL] Erro executando tool:`, error);
+              const errorMessage = getErrorMessage(error);
               return {
                 tool_call_id: toolCall.id,
-                content: `Erro executando ${toolCall.function.name}: ${error.message}`,
+                content: `Erro executando ${toolCall.function.name}: ${errorMessage}`,
                 success: false,
                 tool: toolCall.function.name,
               };

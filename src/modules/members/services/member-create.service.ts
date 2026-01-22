@@ -5,6 +5,7 @@ import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { getErrorMessage, handleServiceError } from '@/common/utils';
 import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
@@ -118,28 +119,33 @@ export class MemberCreateService {
         this.logger.log(
           `Verification email sent successfully to: ${dto.email}`,
         );
-      } catch (emailError) {
+      } catch (emailError: unknown) {
+        const errorMessage = getErrorMessage(emailError);
         this.logger.error(
-          `Failed to send verification email to ${dto.email}: ${emailError.message}`,
+          `Failed to send verification email to ${dto.email}: ${errorMessage}`,
         );
         // Don't throw error here, just log it
         // The member was still created successfully
       }
 
       return MemberMapper.toResponseDTO(member, false);
-    } catch (error) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_CREATION_FAILED,
-        { EMAIL: dto.email, ESTABLISHMENT_ID: establishmentId },
-      );
-
-      this.logger.error(`Failed to create member: ${error.message}`);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.BAD_REQUEST,
-        ErrorCode.MEMBER_CREATION_FAILED,
-      );
+    } catch (error: unknown) {
+      handleServiceError({
+        error,
+        logger: this.logger,
+        errorMessageService: this.errorMessageService,
+        errorCode: ErrorCode.MEMBER_CREATION_FAILED,
+        httpStatus: HttpStatus.BAD_REQUEST,
+        logMessage: 'Failed to create member',
+        logContext: {
+          email: dto.email,
+          establishmentId,
+        },
+        errorParams: {
+          EMAIL: dto.email,
+          ESTABLISHMENT_ID: establishmentId,
+        },
+      });
     }
   }
 }

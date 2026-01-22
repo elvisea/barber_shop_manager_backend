@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
 
+import { getErrorMessage, getErrorStack } from '@/common/utils';
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -25,10 +27,12 @@ export class EmailService {
       });
 
       this.logger.log(`Email enviado com sucesso para: ${to}`);
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
+      const errorStack = getErrorStack(error);
       this.logger.error(
-        `Erro ao enviar email para ${to}: ${error.message}`,
-        error.stack,
+        `Erro ao enviar email para ${to}: ${errorMessage}`,
+        errorStack,
       );
 
       // Re-throw the error to be handled by the calling service
@@ -55,10 +59,12 @@ export class EmailService {
       });
 
       this.logger.log(`Email com template enviado com sucesso para: ${to}`);
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error);
+      const errorStack = getErrorStack(error);
       this.logger.error(
-        `Erro ao enviar email com template para ${to}: ${error.message}`,
-        error.stack,
+        `Erro ao enviar email com template para ${to}: ${errorMessage}`,
+        errorStack,
       );
 
       // Re-throw the error to be handled by the calling service

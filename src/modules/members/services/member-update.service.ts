@@ -5,6 +5,7 @@ import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { handleServiceError } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
@@ -115,19 +116,23 @@ export class MemberUpdateService {
       this.logger.log(`Member updated: ${member.id}`);
 
       return MemberMapper.toResponseDTO(member, false);
-    } catch (error) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_UPDATE_FAILED,
-        { MEMBER_ID: memberId, ESTABLISHMENT_ID: establishmentId },
-      );
-
-      this.logger.error(`Failed to update member: ${error.message}`);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.BAD_REQUEST,
-        ErrorCode.MEMBER_UPDATE_FAILED,
-      );
+    } catch (error: unknown) {
+      handleServiceError({
+        error,
+        logger: this.logger,
+        errorMessageService: this.errorMessageService,
+        errorCode: ErrorCode.MEMBER_UPDATE_FAILED,
+        httpStatus: HttpStatus.BAD_REQUEST,
+        logMessage: 'Failed to update member',
+        logContext: {
+          memberId,
+          establishmentId,
+        },
+        errorParams: {
+          MEMBER_ID: memberId,
+          ESTABLISHMENT_ID: establishmentId,
+        },
+      });
     }
   }
 }

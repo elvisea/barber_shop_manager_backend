@@ -7,6 +7,7 @@ import { UserMapper } from '../mappers/user.mapper';
 import { UserRepository } from '../repositories/user.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { handleServiceError } from '@/common/utils';
 import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
@@ -100,21 +101,21 @@ export class CreateUserService {
       );
 
       return createUserResponseDTO;
-    } catch (error) {
-      this.logger.error(
-        `Error creating user with email ${userData.email}: ${error.message}`,
-      );
-
-      const errorMessage = this.errorMessageService.getMessage(
-        ErrorCode.USER_CREATION_FAILED,
-        { EMAIL: userData.email },
-      );
-
-      throw new CustomHttpException(
-        errorMessage,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        ErrorCode.USER_CREATION_FAILED,
-      );
+    } catch (error: unknown) {
+      handleServiceError({
+        error,
+        logger: this.logger,
+        errorMessageService: this.errorMessageService,
+        errorCode: ErrorCode.USER_CREATION_FAILED,
+        httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+        logMessage: 'Error creating user',
+        logContext: {
+          email: userData.email,
+        },
+        errorParams: {
+          EMAIL: userData.email,
+        },
+      });
     }
   }
 }
