@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { hashValue } from '../../../utils/hash-value';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
@@ -8,9 +9,10 @@ import { UserRepository } from '../repositories/user.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { handleServiceError } from '@/common/utils';
-import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { UserCreatedEvent } from '@/modules/emails/events/user-created.event';
+import { UserVerificationTokenSentEvent } from '@/modules/emails/events/user-verification-token-sent.event';
 import { UserEmailVerificationCreateService } from '@/modules/user-email-verification/services/user-email-verification-create.service';
 
 @Injectable()
@@ -24,10 +26,10 @@ export class CreateUserService {
   private static readonly EMAIL_VERIFICATION_EXPIRATION_MINUTES = 1440;
 
   constructor(
-    private readonly emailService: EmailService,
     private readonly userRepository: UserRepository,
     private readonly errorMessageService: ErrorMessageService,
     private readonly userEmailVerificationCreateService: UserEmailVerificationCreateService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -74,6 +76,14 @@ export class CreateUserService {
       const newUser = await this.userRepository.createUser(userDataToCreate);
       this.logger.log(`User with ID ${newUser.id} created successfully.`);
 
+      // Emitir evento de usuário criado
+      const userCreatedEvent = new UserCreatedEvent({
+        userId: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+      });
+      this.eventEmitter.emit('user.created', userCreatedEvent);
+
       // Create email verification
       const emailVerification =
         await this.userEmailVerificationCreateService.execute(
@@ -84,13 +94,30 @@ export class CreateUserService {
 
       this.logger.log(`Email verification created for user ${newUser.id}`);
 
-      // Send welcome email with verification code
-      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?code=${emailVerification.plainToken}`;
+      // Formatar data de expiração no formato brasileiro
+      const expiresAtFormatted = emailVerification.expiresAt.toLocaleString(
+        'pt-BR',
+        {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'America/Sao_Paulo',
+        },
+      );
 
-      await this.emailService.sendEmail(
-        newUser.email,
-        'Welcome! Please verify your email',
-        `Hello ${newUser.name}, your account has been created successfully! Please use the verification code: ${emailVerification.plainToken} or click the link: ${verificationUrl}`,
+      // Emitir evento de token de verificação enviado
+      const verificationTokenSentEvent = new UserVerificationTokenSentEvent({
+        userId: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        token: emailVerification.plainToken,
+        expiresAt: expiresAtFormatted,
+      });
+      this.eventEmitter.emit(
+        'user.verification.token.sent',
+        verificationTokenSentEvent,
       );
 
       // Create response DTO

@@ -1,14 +1,16 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { MemberCreateRequestDTO, MemberResponseDTO } from '../dtos';
 import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { getErrorMessage, handleServiceError } from '@/common/utils';
-import { EmailService } from '@/email/email.service';
+import { handleServiceError } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { MemberCreatedEvent } from '@/modules/emails/events/member-created.event';
+import { MemberVerificationTokenSentEvent } from '@/modules/emails/events/member-verification-token-sent.event';
 import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 import { MemberEmailVerificationCreateService } from '@/modules/member-email-verification/services/member-email-verification-create.service';
 import { generateTempPassword } from '@/utils/generate-temp-password';
@@ -23,7 +25,7 @@ export class MemberCreateService {
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly memberEmailVerificationCreateService: MemberEmailVerificationCreateService,
-    private readonly emailService: EmailService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -94,6 +96,15 @@ export class MemberCreateService {
 
       this.logger.log(`Member created with ID: ${member.id}`);
 
+      // Emitir evento de membro criado
+      const memberCreatedEvent = new MemberCreatedEvent({
+        memberId: member.id,
+        email: member.email,
+        name: member.name,
+        tempPassword,
+      });
+      this.eventEmitter.emit('member.created', memberCreatedEvent);
+
       // 6. Cria verificação de email e envia código
       try {
         const verification =
@@ -102,27 +113,47 @@ export class MemberCreateService {
             dto.email,
           );
 
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify-member-email?code=${verification.plainToken}`;
+        // Formatar data de expiração no formato brasileiro
+        const expiresAtFormatted = verification.expiresAt.toLocaleString(
+          'pt-BR',
+          {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Sao_Paulo',
+          },
+        );
 
-        await this.emailService.sendEmail(
-          dto.email,
-          'Bem-vindo! Verifique seu email - Barbearia',
-          `Olá ${dto.name}!\n\n` +
-            `Bem-vindo à nossa barbearia! Para começar a usar sua conta, você precisa verificar seu email.\n\n` +
-            `Seu código de verificação é: ${verification.plainToken}\n\n` +
-            `Ou clique no link: ${verificationUrl}\n\n` +
-            `Sua senha temporária é: ${tempPassword}\n\n` +
-            `Este código expira em 24 horas.\n\n` +
-            `Atenciosamente,\nEquipe da Barbearia`,
+        // Emitir evento de token de verificação enviado
+        const verificationTokenSentEvent = new MemberVerificationTokenSentEvent(
+          {
+            memberId: member.id,
+            email: member.email,
+            name: member.name,
+            token: verification.plainToken,
+            expiresAt: expiresAtFormatted,
+            tempPassword,
+          },
+        );
+        this.eventEmitter.emit(
+          'member.verification.token.sent',
+          verificationTokenSentEvent,
         );
 
         this.logger.log(
-          `Verification email sent successfully to: ${dto.email}`,
+          `Verification token event emitted for member: ${member.id}`,
         );
       } catch (emailError: unknown) {
-        const errorMessage = getErrorMessage(emailError);
         this.logger.error(
-          `Failed to send verification email to ${dto.email}: ${errorMessage}`,
+          `Failed to create verification for member ${member.id}`,
+          {
+            error:
+              emailError instanceof Error
+                ? emailError.message
+                : String(emailError),
+          },
         );
         // Don't throw error here, just log it
         // The member was still created successfully

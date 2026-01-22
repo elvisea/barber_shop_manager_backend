@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { EmailModule } from './email/email.module';
@@ -9,6 +10,7 @@ import { HttpClientModule } from './http-client/http-client.module';
 import { AIModule } from './modules/ai/ai.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EmailsModule } from './modules/emails/emails.module';
 import { EstablishmentModule } from './modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
@@ -32,10 +34,12 @@ import { TokenModule } from './shared/token/token.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    EventEmitterModule.forRoot(),
     HttpClientModule,
     PrismaModule,
     ErrorMessageModule,
     EmailModule,
+    EmailsModule,
     TokenModule,
     AuthModule,
     UserModule,
