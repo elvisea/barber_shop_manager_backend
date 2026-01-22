@@ -7,10 +7,8 @@ import { MemberEmailVerificationCreateService } from './services/member-email-ve
 import { MemberEmailVerificationResendService } from './services/member-email-verification-resend.service';
 import { MemberEmailVerificationVerifyService } from './services/member-email-verification-verify.service';
 
-import { EmailModule } from '@/email/email.module';
-
 @Module({
-  imports: [EmailModule],
+  imports: [],
   controllers: [
     MemberEmailVerificationVerifyController,
     MemberEmailVerificationResendController,

@@ -1,4 +1,4 @@
-import { UserEmailVerification } from '@prisma/client';
+import { User, UserEmailVerification } from '@prisma/client';
 
 export interface IUserEmailVerificationRepository {
   createUserEmailVerification(data: {
@@ -9,6 +9,10 @@ export interface IUserEmailVerificationRepository {
   }): Promise<UserEmailVerification>;
 
   findByEmail(email: string): Promise<UserEmailVerification | null>;
+
+  findByEmailWithUser(
+    email: string,
+  ): Promise<(UserEmailVerification & { user: User }) | null>;
 
   findByUserId(userId: string): Promise<UserEmailVerification | null>;
 

@@ -1,13 +1,13 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MemberEmailVerification } from '@prisma/client';
 
 import { MemberEmailVerificationRepository } from '../repositories/member-email-verification.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { getErrorMessage } from '@/common/utils';
-import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { MemberVerificationTokenSentEvent } from '@/modules/emails/events/member-verification-token-sent.event';
 import { generateVerificationData } from '@/utils/generate-verification-data';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class MemberEmailVerificationResendService {
   constructor(
     private readonly memberEmailVerificationRepository: MemberEmailVerificationRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly emailService: EmailService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -40,11 +40,11 @@ export class MemberEmailVerificationResendService {
   ): Promise<MemberEmailVerification & { plainToken: string }> {
     this.logger.log(`Resending member email verification for: ${email}`);
 
-    // Find existing verification by email
-    const existingVerification =
-      await this.memberEmailVerificationRepository.findByEmail(email);
+    // Find existing verification by email with member included
+    const existingVerificationWithMember =
+      await this.memberEmailVerificationRepository.findByEmailWithMember(email);
 
-    if (!existingVerification) {
+    if (!existingVerificationWithMember) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND,
         { EMAIL: email },
@@ -60,10 +60,10 @@ export class MemberEmailVerificationResendService {
     }
 
     // Check if already verified
-    if (existingVerification.verified) {
+    if (existingVerificationWithMember.verified) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.EMAIL_ALREADY_VERIFIED,
-        { USER_ID: existingVerification.memberId },
+        { USER_ID: existingVerificationWithMember.memberId },
       );
 
       this.logger.warn(message);
@@ -84,7 +84,7 @@ export class MemberEmailVerificationResendService {
     // Update the existing verification with new token and expiration
     const updatedVerification =
       await this.memberEmailVerificationRepository.updateTokenAndExpiration(
-        existingVerification.id,
+        existingVerificationWithMember.id,
         {
           token: hashedToken, // Save hashed version
           expiresAt,
@@ -92,31 +92,39 @@ export class MemberEmailVerificationResendService {
       );
 
     this.logger.log(
-      `Member email verification resent with new code for member: ${existingVerification.memberId}`,
+      `Member email verification resent with new code for member: ${existingVerificationWithMember.memberId}`,
     );
 
-    // Send email with new verification code
-    try {
-      const verificationUrl = `${process.env.FRONTEND_URL}/verify-member-email?code=${token}`;
+    // Membro já está disponível via relação do Prisma
+    const member = existingVerificationWithMember.member;
 
-      await this.emailService.sendEmail(
-        email,
-        'Novo código de verificação de email - Membro',
-        `Seu novo código de verificação é: ${token}\n\nOu clique no link: ${verificationUrl}\n\nEste código expira em ${expiresInMinutes / 60} horas.`,
-      );
+    // Formatar data de expiração no formato brasileiro
+    const expiresAtFormatted = expiresAt.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Sao_Paulo',
+    });
 
-      this.logger.log(
-        `Member verification email sent successfully to: ${email}`,
-      );
-    } catch (emailError: unknown) {
-      const errorMessage = getErrorMessage(emailError);
-      this.logger.error(
-        `Failed to send member verification email to ${email}: ${errorMessage}`,
-      );
+    // Emitir evento de token de verificação enviado
+    const verificationTokenSentEvent = new MemberVerificationTokenSentEvent({
+      memberId: member.id,
+      email: member.email,
+      name: member.name,
+      token,
+      expiresAt: expiresAtFormatted,
+      // Não incluir tempPassword no resend, pois não é um novo membro
+    });
+    this.eventEmitter.emit(
+      'member.verification.token.sent',
+      verificationTokenSentEvent,
+    );
 
-      // Don't throw error here, just log it
-      // The verification was still created successfully
-    }
+    this.logger.log(
+      `Verification token event emitted for member: ${member.id}`,
+    );
 
     // Return the updated verification with plain token for email sending
     return {

@@ -1,13 +1,13 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserEmailVerification } from '@prisma/client';
 
 import { UserEmailVerificationRepository } from '../repositories/user-email-verification.repository';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { getErrorMessage } from '@/common/utils';
-import { EmailService } from '@/email/email.service';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { UserVerificationTokenSentEvent } from '@/modules/emails/events/user-verification-token-sent.event';
 import { generateVerificationData } from '@/utils/generate-verification-data';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class UserEmailVerificationResendService {
   constructor(
     private readonly userEmailVerificationRepository: UserEmailVerificationRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly emailService: EmailService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(
@@ -38,11 +38,11 @@ export class UserEmailVerificationResendService {
   ): Promise<UserEmailVerification & { plainToken: string }> {
     this.logger.log(`Resending email verification for: ${email}`);
 
-    // Find existing verification by email
-    const existingVerification =
-      await this.userEmailVerificationRepository.findByEmail(email);
+    // Find existing verification by email with user included
+    const existingVerificationWithUser =
+      await this.userEmailVerificationRepository.findByEmailWithUser(email);
 
-    if (!existingVerification) {
+    if (!existingVerificationWithUser) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.USER_EMAIL_VERIFICATION_NOT_FOUND,
         { EMAIL: email },
@@ -58,10 +58,10 @@ export class UserEmailVerificationResendService {
     }
 
     // Check if already verified
-    if (existingVerification.verified) {
+    if (existingVerificationWithUser.verified) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.EMAIL_ALREADY_VERIFIED,
-        { USER_ID: existingVerification.userId },
+        { USER_ID: existingVerificationWithUser.userId },
       );
 
       this.logger.warn(message);
@@ -82,7 +82,7 @@ export class UserEmailVerificationResendService {
     // Update the existing verification with new token and expiration
     const updatedVerification =
       await this.userEmailVerificationRepository.updateTokenAndExpiration(
-        existingVerification.id,
+        existingVerificationWithUser.id,
         {
           token: hashedToken, // Save hashed version
           expiresAt,
@@ -90,29 +90,36 @@ export class UserEmailVerificationResendService {
       );
 
     this.logger.log(
-      `Email verification resent with new code for user: ${existingVerification.userId}`,
+      `Email verification resent with new code for user: ${existingVerificationWithUser.userId}`,
     );
 
-    // Send email with new verification code
-    try {
-      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?code=${token}`;
+    // Usuário já está disponível via relação do Prisma
+    const user = existingVerificationWithUser.user;
 
-      await this.emailService.sendEmail(
-        email,
-        'Novo código de verificação de email',
-        `Seu novo código de verificação é: ${token}\n\nOu clique no link: ${verificationUrl}\n\nEste código expira em ${expiresInMinutes / 60} horas.`,
-      );
+    // Formatar data de expiração no formato brasileiro
+    const expiresAtFormatted = expiresAt.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Sao_Paulo',
+    });
 
-      this.logger.log(`Verification email sent successfully to: ${email}`);
-    } catch (emailError: unknown) {
-      const errorMessage = getErrorMessage(emailError);
-      this.logger.error(
-        `Failed to send verification email to ${email}: ${errorMessage}`,
-      );
+    // Emitir evento de token de verificação enviado
+    const verificationTokenSentEvent = new UserVerificationTokenSentEvent({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      token,
+      expiresAt: expiresAtFormatted,
+    });
+    this.eventEmitter.emit(
+      'user.verification.token.sent',
+      verificationTokenSentEvent,
+    );
 
-      // Don't throw error here, just log it
-      // The verification was still created successfully
-    }
+    this.logger.log(`Verification token event emitted for user: ${user.id}`);
 
     // Return the updated verification with plain token for email sending
     return {
