@@ -1,6 +1,7 @@
 import { UserRole } from '@prisma/client';
 import { hash } from 'bcryptjs';
 import { PasswordHasher } from '../utils/hash-password';
+import { SeedEncryption } from '../utils/encrypt';
 
 /**
  * Dados de usuários para seeds
@@ -37,12 +38,21 @@ export class UserSeedData {
   static async generateUsers() {
     const hashedPassword = await PasswordHasher.hashPassword(this.DEFAULT_PASSWORD);
 
+    // CPFs de exemplo para seeds (já limpos, sem formatação)
+    const ownerCpf = '12345678909';
+    const rootCpf = '98765432100';
+
+    // Criptografar CPFs
+    const encryptedOwnerCpf = SeedEncryption.encrypt(ownerCpf);
+    const encryptedRootCpf = SeedEncryption.encrypt(rootCpf);
+
     return [
       {
         email: 'owner@bytefulcode.tech',
         name: 'João Silva',
         phone: '+5511999888777',
         password: hashedPassword,
+        document: encryptedOwnerCpf,
         role: UserRole.OWNER,
       },
       {
@@ -50,6 +60,7 @@ export class UserSeedData {
         name: 'Admin Sistema',
         phone: '+5511888777666',
         password: hashedPassword,
+        document: encryptedRootCpf,
         role: UserRole.ROOT,
       },
     ];

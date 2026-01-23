@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 
 import { getCurrentDate } from '@/common/utils/date-helpers';
 
@@ -26,6 +27,25 @@ export class CreateUserResponseDTO {
     description: 'User phone number',
   })
   phone: string;
+
+  @ApiProperty({
+    example: UserRole.OWNER,
+    enum: UserRole,
+    description: 'User role',
+  })
+  role: UserRole;
+
+  @ApiProperty({
+    example: false,
+    description: 'Email verification status',
+  })
+  emailVerified: boolean;
+
+  @ApiProperty({
+    example: false,
+    description: 'Whether the user is fake/fictional (for testing purposes)',
+  })
+  isFake: boolean;
 
   @ApiProperty({
     example: getCurrentDate(),

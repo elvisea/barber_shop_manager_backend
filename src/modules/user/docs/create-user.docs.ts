@@ -19,15 +19,25 @@ import { ErrorCode } from '@/enums/error-code';
  */
 export function CreateUserDocs() {
   return applyDecorators(
-    ApiOperation({ summary: 'Create new user' }),
+    ApiOperation({
+      summary: 'Create new user',
+      description:
+        'Creates a new user account. If the email already exists but is not verified, a new verification token will be sent. If the email is already verified, returns an error.',
+    }),
     ApiResponse({
       status: 201,
-      description: 'User created successfully',
+      description:
+        'User created successfully or verification token resent for existing unverified user',
       type: CreateUserResponseDTO,
     }),
     ApiConflictResponse({
-      description: SwaggerErrors[ErrorCode.USER_ALREADY_EXISTS].description,
-      schema: { example: SwaggerErrors[ErrorCode.USER_ALREADY_EXISTS].example },
+      description:
+        'Email already exists and is verified. Use EMAIL_ALREADY_EXISTS_VERIFIED error code.',
+      schema: {
+        example:
+          SwaggerErrors[ErrorCode.EMAIL_ALREADY_EXISTS_VERIFIED]?.example ||
+          SwaggerErrors[ErrorCode.USER_ALREADY_EXISTS].example,
+      },
     }),
     ApiBadRequestResponse({
       description: SwaggerErrors[ErrorCode.VALIDATION_ERROR].description,

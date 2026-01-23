@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User, UserEmailVerification } from '@prisma/client';
+import { User } from '@prisma/client';
 
 import { IUserRepository } from '../contracts/user-repository.interface';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
@@ -17,6 +17,7 @@ export class UserRepository implements IUserRepository {
         email: data.email,
         phone: data.phone,
         password: data.password,
+        document: data.document,
       },
     });
   }
@@ -24,19 +25,6 @@ export class UserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
     return this.prismaService.user.findUnique({
       where: { email },
-    });
-  }
-
-  async findByEmailWithVerification(
-    email: string,
-  ): Promise<
-    (User & { emailVerification: UserEmailVerification | null }) | null
-  > {
-    return this.prismaService.user.findUnique({
-      where: { email },
-      include: {
-        emailVerification: true,
-      },
     });
   }
 
@@ -56,6 +44,27 @@ export class UserRepository implements IUserRepository {
   async deleteUser(id: string): Promise<User> {
     return this.prismaService.user.delete({
       where: { id },
+    });
+  }
+
+  async updateEmailVerified(userId: string, verified: boolean): Promise<User> {
+    return this.prismaService.user.update({
+      where: { id: userId },
+      data: { emailVerified: verified },
+    });
+  }
+
+  async updateWhatsappConnection(
+    userId: string,
+    connected: boolean,
+    phoneNumber?: string | null,
+  ): Promise<User> {
+    return this.prismaService.user.update({
+      where: { id: userId },
+      data: {
+        whatsappConnected: connected,
+        ...(phoneNumber !== undefined && { whatsappPhone: phoneNumber }),
+      },
     });
   }
 }

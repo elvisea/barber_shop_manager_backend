@@ -38,11 +38,19 @@ async function bootstrap(): Promise<void> {
   const isDevelopment =
     configService.get('NODE_ENV', 'development') === 'development';
 
-  const origin = isDevelopment ? '*' : '*'; // TODO: change to the production domain
+  // Habilita CORS com origens configuráveis via variável de ambiente
+  // Em desenvolvimento, permite todas as origens (equivalente a "*")
+  // Em produção, usa a lista de origens configurada
+  const corsOrigins: string[] = configService
+    .get<string>(
+      'CORS_ORIGINS',
+      'http://localhost:3000, http://localhost:3001, http://127.0.0.1:3000',
+    )
+    .split(',')
+    .map((origin: string) => origin.trim());
 
   app.enableCors({
-    origin,
-    credentials: true,
+    origin: isDevelopment ? true : corsOrigins, // true = permite todas em dev
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
       'Origin',
@@ -51,6 +59,7 @@ async function bootstrap(): Promise<void> {
       'Accept',
       'Authorization',
     ],
+    credentials: true,
   });
 
   /* Increase body parser limits */

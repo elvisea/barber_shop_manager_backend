@@ -9,6 +9,8 @@ import {
 } from 'class-validator';
 
 import { IsValidEmail } from '@/common/decorators/is-valid-email.decorator';
+import { IsValidCpf } from '@/common/validators/cpf.validator';
+import { IsPassword } from '@/common/validators/password.validator';
 
 export class CreateUserRequestDTO {
   @ApiProperty({
@@ -32,10 +34,12 @@ export class CreateUserRequestDTO {
 
   @ApiProperty({
     example: 'Str0ngP@ssw0rd!',
-    description: 'User password (minimum 6 characters)',
+    description:
+      'User password (minimum 8 characters, must contain uppercase, lowercase, number and special character)',
   })
   @IsString()
-  @MinLength(6)
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @IsPassword()
   password: string;
 
   @ApiProperty({
@@ -44,4 +48,14 @@ export class CreateUserRequestDTO {
   })
   @IsPhoneNumber('BR')
   phone: string;
+
+  @ApiProperty({
+    example: '12345678909',
+    description:
+      'User CPF (Brazilian tax ID) - accepts formatted or unformatted',
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'CPF is required' })
+  @IsValidCpf()
+  document: string;
 }

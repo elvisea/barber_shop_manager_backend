@@ -24,6 +24,16 @@ model User {
   /// Timezone preferido do usuário (IANA timezone string, ex: "America/Sao_Paulo", "Europe/London")
   /// Se não configurado, frontend detecta automaticamente do navegador
   timezone             String?                @map("timezone") @db.VarChar(50)
+  /// Status de verificação de email
+  emailVerified        Boolean                @default(false) @map("email_verified")
+  /// CPF ou documento criptografado (AES-256-GCM)
+  document             String                 @map("document") @db.VarChar(255)
+  /// Indica se o usuário é fake/fictício (para testes)
+  isFake               Boolean                @default(false) @map("is_fake")
+  /// Status de conexão WhatsApp
+  whatsappConnected    Boolean                @default(false) @map("whatsapp_connected")
+  /// Telefone WhatsApp
+  whatsappPhone        String?                @map("whatsapp_phone")
   /// Data de exclusão lógica.
   deletedAt            DateTime?              @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
@@ -32,7 +42,7 @@ model User {
   createdPaymentOrders PaymentOrder[]
   refreshTokens        RefreshToken[]
   createdSubscriptions Subscription[]
-  emailVerification    UserEmailVerification?
+  tokens               Token[]
 
   @@index([email])
   @@index([deletedAt])
@@ -494,7 +504,8 @@ model UserEmailVerification {
   deletedAt DateTime? @db.Timestamptz @map("deleted_at")
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Nota: Relação removida - modelo deprecado, usando Token genérico agora
+  /// user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email])
   @@index([deletedAt])
@@ -545,6 +556,29 @@ model RefreshToken {
 
   @@index([deletedAt])
   @@map("refresh_tokens")
+}
+
+/// Tokens genéricos para verificação de email, reset de senha, etc.
+model Token {
+  id        String    @id @default(uuid()) @map("id")
+  type      TokenType @map("type")
+  token     String    @map("token")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  used      Boolean   @default(false) @map("used")
+  metadata  Json?     @map("metadata")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  userId    String    @map("user_id")
+  /// Data de exclusão lógica.
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  /// ID do usuário que realizou a exclusão.
+  deletedBy String?   @map("deleted_by")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([token])
+  @@index([deletedAt])
+  @@map("tokens")
 }
 
 // ============================================================================
@@ -638,4 +672,11 @@ enum SubscriptionStatus {
   EXPIRED
   CANCELLED
   PENDING
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  WHATSAPP_VERIFICATION
+  OTP
 }
