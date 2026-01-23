@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-import { getCurrentDate } from '@/common/utils/date-helpers';
 import { WebhookEvent } from '../enums/webhook-event.enum';
+
+import { getCurrentDate } from '@/common/utils/date-helpers';
 
 export class WebhookLogDataDTO {
   @ApiProperty({ example: 'local-instance', required: false })
