@@ -7,3 +7,7 @@
 
 // Create operations
 export { CreateUserDocs } from './create-user.docs';
+
+// Email verification operations
+export { VerifyEmailDocs } from './verify-email.docs';
+export { ResendVerificationDocs } from './resend-verification.docs';
