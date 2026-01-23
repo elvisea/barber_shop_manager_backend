@@ -12,7 +12,8 @@
  *   email: 'user@example.com',
  *   name: 'John Doe',
  *   token: '123456',
- *   expiresAt: '31/12/2024 23:59'
+ *   expiresAt: '31/12/2024 23:59',
+ *   template: 'account_creation'
  * }));
  * ```
  */
@@ -42,17 +43,30 @@ export class UserVerificationTokenSentEvent {
    */
   expiresAt: string;
 
+  /**
+   * Template do email a ser usado
+   */
+  template:
+    | 'account_creation'
+    | 'account_creation_existing'
+    | 'email_verification_resend';
+
   constructor(data: {
     userId: string;
     email: string;
     name: string;
     token: string;
     expiresAt: string;
+    template:
+      | 'account_creation'
+      | 'account_creation_existing'
+      | 'email_verification_resend';
   }) {
     this.userId = data.userId;
     this.email = data.email;
     this.name = data.name;
     this.token = data.token;
     this.expiresAt = data.expiresAt;
+    this.template = data.template;
   }
 }

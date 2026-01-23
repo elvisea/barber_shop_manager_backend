@@ -12,12 +12,11 @@ import { MemberFindAllService } from './services/member-find-all.service';
 import { MemberFindByIdService } from './services/member-find-by-id.service';
 import { MemberUpdateService } from './services/member-update.service';
 
-import { EmailModule } from '@/email/email.module';
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { MemberEmailVerificationModule } from '@/modules/member-email-verification/member-email-verification.module';
 
 @Module({
-  imports: [EstablishmentModule, EmailModule, MemberEmailVerificationModule],
+  imports: [EstablishmentModule, MemberEmailVerificationModule],
   controllers: [
     MemberCreateController,
     MemberFindAllController,

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
-import { EmailService } from '@/email/email.service';
-import { getErrorMessage } from '@/common/utils';
-
 import { MemberVerificationTokenSentEvent } from '../events/member-verification-token-sent.event';
+
+import { EmailService } from '@/common/email-service/services/email.service';
+import { maskEmail } from '@/common/utils';
 
 /**
  * Listener responsável por processar o evento de token de verificação enviado para membro.
@@ -47,44 +47,49 @@ export class MemberVerificationTokenSentListener {
     });
 
     try {
-      const verificationUrl = `${process.env.FRONTEND_URL}/verify-member-email?code=${event.token}`;
-
       const isResend = !event.tempPassword;
 
-      let emailBody = `Olá ${event.name}!\n\n`;
-
-      if (isResend) {
-        emailBody += `Você solicitou um novo código de verificação de email.\n\n`;
-      } else {
-        emailBody += `Bem-vindo à nossa barbearia! Para começar a usar sua conta, você precisa verificar seu email.\n\n`;
-      }
-
-      emailBody += `Seu código de verificação é: ${event.token}\n\n`;
-      emailBody += `Ou clique no link: ${verificationUrl}\n\n`;
-
-      if (event.tempPassword) {
-        emailBody += `Sua senha temporária é: ${event.tempPassword}\n\n`;
-      }
-
-      emailBody += `Este código expira em 24 horas.\n\n`;
-      emailBody += `Atenciosamente,\nEquipe da Barbearia`;
+      // Determinar template e assunto baseado no contexto
+      const template = isResend
+        ? 'email_verification_resend'
+        : 'account_creation';
 
       const subject = isResend
-        ? 'Novo código de verificação de email - Membro'
-        : 'Bem-vindo! Verifique seu email - Barbearia';
+        ? 'Novo Código de Verificação - Barber Shop Manager'
+        : 'Bem-vindo ao Barber Shop Manager - Verifique seu Email';
 
-      await this.emailService.sendEmail(event.email, subject, emailBody);
+      // Preparar variáveis para o template
+      const variables: Record<string, string> = {
+        name: event.name,
+        token: event.token,
+        expiresAt: event.expiresAt,
+      };
+
+      // Se houver senha temporária, adicionar ao corpo do email via variável customizada
+      // Nota: Os templates atuais não suportam senha temporária, então vamos usar account_creation
+      // e adicionar a senha como parte do token ou criar um template específico no futuro
+      if (event.tempPassword) {
+        // Por enquanto, vamos incluir a senha temporária na mensagem
+        // Em uma versão futura, podemos criar um template específico para membros
+        variables.token = `${event.token}\n\nSua senha temporária é: ${event.tempPassword}`;
+      }
+
+      await this.emailService.send({
+        to: event.email,
+        subject,
+        template: template,
+        variables,
+      });
 
       this.logger.log('Member verification email sent successfully', {
         memberId: event.memberId,
         email: event.email,
       });
     } catch (error: unknown) {
-      const errorMessage = getErrorMessage(error);
       this.logger.error('Failed to send member verification email', {
         memberId: event.memberId,
-        email: event.email,
-        error: errorMessage,
+        email: maskEmail(event.email),
+        error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       });
 

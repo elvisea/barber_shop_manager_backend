@@ -4,7 +4,6 @@ import { APP_FILTER } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { EmailModule } from './email/email.module';
 import { ErrorMessageModule } from './error-message/error-message.module';
 import { HttpClientModule } from './http-client/http-client.module';
 import { AIModule } from './modules/ai/ai.module';
@@ -24,7 +23,6 @@ import { PlansModule } from './modules/plans/plans.module';
 import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UserModule } from './modules/user/user.module';
-import { UserEmailVerificationModule } from './modules/user-email-verification/user-email-verification.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TokenModule } from './shared/token/token.module';
@@ -38,7 +36,6 @@ import { TokenModule } from './shared/token/token.module';
     HttpClientModule,
     PrismaModule,
     ErrorMessageModule,
-    EmailModule,
     EmailsModule,
     TokenModule,
     AuthModule,
@@ -56,7 +53,6 @@ import { TokenModule } from './shared/token/token.module';
     RefreshTokenModule,
     WebhookModule,
     AIModule,
-    UserEmailVerificationModule,
     MemberEmailVerificationModule,
     AppointmentsModule,
   ],
