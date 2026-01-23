@@ -113,6 +113,7 @@ export class UserEmailVerificationResendService {
       name: user.name,
       token,
       expiresAt: expiresAtFormatted,
+      template: 'email_verification_resend',
     });
     this.eventEmitter.emit(
       'user.verification.token.sent',

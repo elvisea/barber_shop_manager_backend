@@ -34,10 +34,26 @@ export class UserEmailVerificationRepository implements IUserEmailVerificationRe
   async findByEmailWithUser(
     email: string,
   ): Promise<(UserEmailVerification & { user: User }) | null> {
-    return this.prisma.userEmailVerification.findUnique({
+    // Relação removida - modelo deprecado, usando Token genérico agora
+    // Retorna apenas o UserEmailVerification sem a relação
+    const verification = await this.prisma.userEmailVerification.findUnique({
       where: { email },
-      include: { user: true },
     });
+
+    if (!verification) {
+      return null;
+    }
+
+    // Busca o usuário separadamente se necessário
+    const user = await this.prisma.user.findUnique({
+      where: { id: verification.userId },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return { ...verification, user };
   }
 
   async findByUserId(userId: string): Promise<UserEmailVerification | null> {
