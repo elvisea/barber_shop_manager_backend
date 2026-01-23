@@ -508,4 +508,15 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
     },
   },
+
+  // Códigos para envio de email
+  [ErrorCode.EMAIL_SEND_FAILED]: {
+    description: 'Failed to send email',
+    example: {
+      statusCode: 500,
+      message: 'Failed to send email to [EMAIL]. Please try again later.',
+      error: 'Internal Server Error',
+      errorCode: ErrorCode.EMAIL_SEND_FAILED,
+    },
+  },
 };

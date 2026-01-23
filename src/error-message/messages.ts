@@ -192,4 +192,9 @@ export const messages: Record<ErrorCode, { message: string }> = {
     message:
       'Member [MEMBER_ID] already has a conflicting appointment scheduled between [START_TIME] and [END_TIME]. Please choose a different time slot.',
   },
+
+  // Códigos para envio de email
+  [ErrorCode.EMAIL_SEND_FAILED]: {
+    message: 'Failed to send email to [EMAIL]. Please try again later.',
+  },
 } as const;
