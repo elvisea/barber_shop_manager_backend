@@ -14,4 +14,5 @@ export interface IUserRepository {
     connected: boolean,
     phoneNumber?: string | null,
   ): Promise<User>;
+  updatePassword(userId: string, hashedPassword: string): Promise<User>;
 }

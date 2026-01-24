@@ -26,4 +26,16 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
       },
     });
   }
+
+  /**
+   * Invalidates all refresh tokens for a user.
+   * @param userId - The user ID.
+   * @returns A promise that resolves when all tokens are invalidated.
+   */
+  async invalidateAllUserTokens(userId: string): Promise<void> {
+    await this.prismaService.refreshToken.updateMany({
+      where: { userId, revoked: false },
+      data: { revoked: true },
+    });
+  }
 }

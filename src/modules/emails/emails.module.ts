@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 
 import { MemberCreatedListener } from './listeners/member-created.listener';
 import { MemberVerificationTokenSentListener } from './listeners/member-verification-token-sent.listener';
+import { PasswordResetTokenSentListener } from './listeners/password-reset-token-sent.listener';
+import { PasswordResetListener } from './listeners/password-reset.listener';
 import { UserCreatedListener } from './listeners/user-created.listener';
 import { UserVerificationTokenSentListener } from './listeners/user-verification-token-sent.listener';
 
@@ -14,6 +16,8 @@ import { EmailServiceModule } from '@/common/email-service/email-service.module'
     MemberCreatedListener,
     UserVerificationTokenSentListener,
     MemberVerificationTokenSentListener,
+    PasswordResetTokenSentListener,
+    PasswordResetListener,
   ],
 })
 export class EmailsModule {}
