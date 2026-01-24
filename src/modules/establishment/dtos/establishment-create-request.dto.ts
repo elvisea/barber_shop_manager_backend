@@ -30,12 +30,12 @@ export class EstablishmentCreateRequestDTO {
   name: string;
 
   @ApiProperty({
-    description: 'Phone number of the establishment',
+    description: 'Phone number of the establishment in E.164 format',
     example: '+5511999999999',
     required: true,
   })
   @IsString()
   @IsNotEmpty()
-  @IsPhoneNumber('BR')
+  @IsPhoneNumber()
   phone: string;
 }

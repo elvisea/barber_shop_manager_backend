@@ -1,31 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-class MetaTotal {
-  @ApiProperty({ example: 1 })
-  items: number;
+import { PaginatedResultUtil } from '../utils/pagination.util';
 
-  @ApiProperty({ example: 1 })
-  pages: number;
-}
-
-class Meta {
-  @ApiProperty({ example: 1 })
-  page: number;
-
-  @ApiProperty({ example: 10 })
-  limit: number;
-
-  @ApiProperty({ type: MetaTotal })
-  total: MetaTotal;
-}
-
-export class BasePaginatedResponseDTO<T> {
+export class BasePaginatedResponseDTO<T> extends PaginatedResultUtil<T> {
   @ApiProperty({
     isArray: true,
     description: 'Array of items',
   })
-  data: T[];
+  declare data: T[];
 
-  @ApiProperty({ type: Meta })
-  meta: Meta;
+  @ApiProperty({
+    type: PaginatedResultUtil,
+    description: 'Pagination metadata',
+  })
+  declare meta: PaginatedResultUtil<T>['meta'];
 }

@@ -42,16 +42,11 @@ export class MemberServiceFindAllService {
         take: limit,
       });
 
-    return {
-      data: data.map(MemberServiceMapper.toFindAllResponse),
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: Math.ceil(total / limit),
-        },
-      },
-    };
+    return new MemberServiceFindAllResponseDTO(
+      data.map(MemberServiceMapper.toFindAllResponse),
+      page,
+      limit,
+      total,
+    );
   }
 }

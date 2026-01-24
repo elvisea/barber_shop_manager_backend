@@ -49,21 +49,14 @@ export class EstablishmentServiceFindAllService {
         },
       );
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: data.map((service) => ({
+    return new EstablishmentServiceFindAllResponseDTO(
+      data.map((service) => ({
         ...service,
         commission: Number(service.commission),
       })),
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: totalPages,
-        },
-      },
-    };
+      page,
+      limit,
+      total,
+    );
   }
 }

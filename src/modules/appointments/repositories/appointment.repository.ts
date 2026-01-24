@@ -172,6 +172,48 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointments;
   }
 
+  async count(query: AppointmentRepositoryFindAllDTO): Promise<number> {
+    this.logger.log(
+      `Contando agendamentos com filtros: ${JSON.stringify(query)}`,
+    );
+
+    const where: Prisma.AppointmentWhereInput = {};
+
+    // Filtrar por status de exclusão lógica
+    if (!query.includeDeleted) {
+      where.deletedAt = null;
+    }
+
+    // Aplicar filtros opcionais (mesmos do findAll)
+    if (query.customerId) {
+      where.customerId = query.customerId;
+    }
+
+    if (query.memberId) {
+      where.memberId = query.memberId;
+    }
+
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    // Filtro por período de datas
+    if (query.startDate || query.endDate) {
+      where.startTime = {};
+      if (query.startDate) {
+        where.startTime.gte = query.startDate;
+      }
+      if (query.endDate) {
+        where.startTime.lte = query.endDate;
+      }
+    }
+
+    const total = await this.prismaService.appointment.count({ where });
+
+    this.logger.log(`Total de agendamentos: ${total}`);
+    return total;
+  }
+
   async update(
     id: string,
     data: AppointmentUpdateRequestDTO,

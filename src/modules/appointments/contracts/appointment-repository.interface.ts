@@ -21,6 +21,11 @@ export interface IAppointmentRepository {
   findAll(query: AppointmentRepositoryFindAllDTO): Promise<Appointment[]>;
 
   /**
+   * Conta o total de agendamentos com os mesmos filtros de findAll
+   */
+  count(query: AppointmentRepositoryFindAllDTO): Promise<number>;
+
+  /**
    * Atualiza um agendamento existente
    */
   update(id: string, data: AppointmentUpdateRequestDTO): Promise<Appointment>;

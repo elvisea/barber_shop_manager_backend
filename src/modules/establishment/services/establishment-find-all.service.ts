@@ -30,18 +30,6 @@ export class EstablishmentFindAllService {
         take: limit,
       });
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: totalPages,
-        },
-      },
-    };
+    return new EstablishmentFindAllResponseDTO(data, page, limit, total);
   }
 }

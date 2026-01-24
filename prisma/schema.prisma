@@ -72,7 +72,8 @@ model Establishment {
   openingHours   OpeningHours[]
   subscriptions  Subscription[]
 
-  @@unique([ownerId, phone])
+  // Note: Unique constraint on (ownerId, phone) is managed via partial unique index in migration
+  // to allow soft delete - only enforces uniqueness when deletedAt IS NULL
   @@index([deletedAt])
   @@map("establishments")
 }

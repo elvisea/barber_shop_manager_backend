@@ -235,7 +235,7 @@ export class PlanToolHandlers {
           });
 
         this.logger.log(
-          `📋 [GET_PLANS] Planos encontrados: ${response.data.length} de ${response.meta.total.items}`,
+          `📋 [GET_PLANS] Planos encontrados: ${response.data.length} de ${response.meta.totalItems}`,
         );
 
         // ✅ Converter preços de centavos para reais

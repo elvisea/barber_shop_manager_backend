@@ -18,9 +18,12 @@ export class EstablishmentCustomerCreateRequestDTO {
   @IsEmail()
   email?: string;
 
-  @ApiPropertyOptional({ example: '+5511999999999' })
+  @ApiPropertyOptional({
+    example: '+5511999999999',
+    description: 'Phone number in E.164 format',
+  })
   @IsOptional()
   @IsString()
-  @IsPhoneNumber('BR')
+  @IsPhoneNumber()
   phone?: string;
 }

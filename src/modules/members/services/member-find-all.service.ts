@@ -43,24 +43,12 @@ export class MemberFindAllService {
         take: limit,
       });
 
-    // 4. Calcula metadados da paginação
-    const totalPages = Math.ceil(total / limit);
-
-    // 5. Mapeia dados para resposta
+    // 4. Mapeia dados para resposta
     const members = MemberMapper.toResponseDTOArray(data, false);
 
     this.logger.log(`Found ${members.length} members out of ${total} total`);
 
-    return {
-      data: members,
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: totalPages,
-        },
-      },
-    };
+    // 5. Retorna resposta paginada com metadados calculados automaticamente
+    return new MemberPaginatedResponseDTO(members, page, limit, total);
   }
 }

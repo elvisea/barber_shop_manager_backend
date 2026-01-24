@@ -31,26 +31,21 @@ export class AppointmentFindAllMapper {
   static toResponseDTO(
     appointments: Appointment[],
     pagination: PaginationResult,
+    totalItems: number,
   ): AppointmentFindAllResponseDTO {
-    const totalItems = appointments.length;
-    const totalPages = Math.ceil(totalItems / pagination.limit);
+    const appointmentItems = appointments.map((appointment) => ({
+      id: appointment.id,
+      customerId: appointment.customerId,
+      memberId: appointment.memberId,
+      startTime: appointment.startTime.toISOString(),
+      endTime: appointment.endTime.toISOString(),
+    }));
 
-    return {
-      data: appointments.map((appointment) => ({
-        id: appointment.id,
-        customerId: appointment.customerId,
-        memberId: appointment.memberId,
-        startTime: appointment.startTime.toISOString(),
-        endTime: appointment.endTime.toISOString(),
-      })),
-      meta: {
-        page: pagination.page,
-        limit: pagination.limit,
-        total: {
-          items: totalItems,
-          pages: totalPages,
-        },
-      },
-    };
+    return new AppointmentFindAllResponseDTO(
+      appointmentItems,
+      pagination.page,
+      pagination.limit,
+      totalItems,
+    );
   }
 }

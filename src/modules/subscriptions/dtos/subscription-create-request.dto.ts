@@ -42,9 +42,12 @@ export class SubscriptionCreateRequestDTO {
   @IsBoolean()
   paid?: boolean = false;
 
-  @ApiProperty({ example: '5511999999999' })
+  @ApiProperty({
+    example: '+5511999999999',
+    description: 'Phone number in E.164 format',
+  })
   @IsString()
   @IsNotEmpty()
-  @IsPhoneNumber('BR')
+  @IsPhoneNumber()
   phone: string;
 }

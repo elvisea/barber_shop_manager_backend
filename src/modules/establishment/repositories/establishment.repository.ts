@@ -11,8 +11,11 @@ export class EstablishmentRepository implements IEstablishmentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(establishmentId: string): Promise<Establishment | null> {
-    return this.prisma.establishment.findUnique({
-      where: { id: establishmentId },
+    return this.prisma.establishment.findFirst({
+      where: {
+        id: establishmentId,
+        deletedAt: null,
+      },
     });
   }
 
@@ -43,6 +46,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
       where: {
         phone,
         ownerId,
+        deletedAt: null,
       },
     });
   }
@@ -55,6 +59,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
       where: {
         id: establishmentId,
         ownerId,
+        deletedAt: null,
       },
     });
   }
@@ -64,8 +69,11 @@ export class EstablishmentRepository implements IEstablishmentRepository {
   ): Promise<
     (Establishment & { members: Array<{ id: string; role: string }> }) | null
   > {
-    return this.prisma.establishment.findUnique({
-      where: { id: establishmentId },
+    return this.prisma.establishment.findFirst({
+      where: {
+        id: establishmentId,
+        deletedAt: null,
+      },
       include: { members: true },
     });
   }
@@ -79,6 +87,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
 
     const where = {
       ownerId: userId,
+      deletedAt: null,
     };
 
     const [data, total] = await Promise.all([
@@ -104,11 +113,17 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     });
   }
 
-  async deleteByIdAndUser(establishmentId: string): Promise<void> {
-    await this.prisma.establishment.delete({
+  async deleteByIdAndUser(
+    establishmentId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.prisma.establishment.update({
       where: {
         id: establishmentId,
-        // Não há userId direto, mas a validação deve ser feita antes no service
+      },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: userId,
       },
     });
   }

@@ -26,11 +26,11 @@ export class EstablishmentUpdateRequestDTO {
   address?: string;
 
   @ApiPropertyOptional({
-    description: 'Phone number of the establishment',
+    description: 'Phone number of the establishment in E.164 format',
     example: '+5511999999999',
   })
   @IsOptional()
   @IsString()
-  @IsPhoneNumber('BR')
+  @IsPhoneNumber()
   phone?: string;
 }

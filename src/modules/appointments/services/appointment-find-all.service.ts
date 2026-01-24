@@ -51,18 +51,21 @@ export class AppointmentFindAllService {
       pagination,
     );
 
-    // 6. Buscar agendamentos no repositório
-    const appointments =
-      await this.appointmentRepository.findAll(repositoryQuery);
+    // 6. Buscar agendamentos e total no repositório
+    const [appointments, total] = await Promise.all([
+      this.appointmentRepository.findAll(repositoryQuery),
+      this.appointmentRepository.count(repositoryQuery),
+    ]);
 
     this.logger.log(
-      `Encontrados ${appointments.length} agendamentos para estabelecimento ${establishmentId}`,
+      `Encontrados ${appointments.length} agendamentos de ${total} total para estabelecimento ${establishmentId}`,
     );
 
     // 7. Converter para DTO de resposta
     const response = AppointmentFindAllMapper.toResponseDTO(
       appointments,
       pagination,
+      total,
     );
 
     return response;

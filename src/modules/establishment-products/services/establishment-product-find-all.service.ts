@@ -41,22 +41,15 @@ export class EstablishmentProductFindAllService {
         },
       );
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: data.map((product) => ({
+    return new EstablishmentProductFindAllResponseDTO(
+      data.map((product) => ({
         ...product,
         commission: Number(product.commission),
         description: product.description || undefined,
       })),
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: totalPages,
-        },
-      },
-    };
+      page,
+      limit,
+      total,
+    );
   }
 }

@@ -31,7 +31,7 @@ export interface IEstablishmentRepository {
     dto: Partial<{ name: string; address: string; phone: string }>,
   ): Promise<Establishment>;
 
-  deleteByIdAndUser(establishmentId: string): Promise<void>;
+  deleteByIdAndUser(establishmentId: string, userId: string): Promise<void>;
 
   findByIdWithMembersAdmin(
     establishmentId: string,

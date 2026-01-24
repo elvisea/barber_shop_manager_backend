@@ -43,22 +43,15 @@ export class EstablishmentCustomerFindAllService {
         },
       );
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: data.map((customer) => ({
+    return new EstablishmentCustomerFindAllResponseDTO(
+      data.map((customer) => ({
         ...customer,
         email: customer.email || undefined,
         phone: customer.phone || undefined,
       })),
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: totalPages,
-        },
-      },
-    };
+      page,
+      limit,
+      total,
+    );
   }
 }

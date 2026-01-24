@@ -35,16 +35,6 @@ export class PlanFindAllService {
       updatedAt: plan.updatedAt,
     }));
 
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total: {
-          items: total,
-          pages: Math.ceil(total / limit),
-        },
-      },
-    };
+    return new PlanFindAllResponseDTO(data, page, limit, total);
   }
 }

@@ -23,7 +23,10 @@ export class EstablishmentDeleteService {
       userId,
     );
 
-    await this.establishmentRepository.deleteByIdAndUser(establishmentId);
+    await this.establishmentRepository.deleteByIdAndUser(
+      establishmentId,
+      userId,
+    );
 
     this.logger.log(`Establishment ${establishmentId} deleted successfully.`);
   }
