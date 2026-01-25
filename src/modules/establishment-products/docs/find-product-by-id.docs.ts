@@ -18,7 +18,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de busca de produto por ID
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint GET /establishments/:establishmentId/products/:productId
+ * para o endpoint GET /products/:productId
  */
 export function FindProductByIdDocs() {
   return applyDecorators(

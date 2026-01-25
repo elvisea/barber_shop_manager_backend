@@ -15,7 +15,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de exclusão de produto
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint DELETE /establishments/:establishmentId/products/:productId
+ * para o endpoint DELETE /products/:productId
  */
 export function DeleteProductDocs() {
   return applyDecorators(

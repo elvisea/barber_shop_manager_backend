@@ -26,8 +26,8 @@ paths:
                   name: John Doe
                   email: john.doe@example.com
                   phone: '+5511987654321'
-                  createdAt: '2026-01-23T02:29:01.248Z'
-                  updatedAt: '2026-01-23T02:29:01.248Z'
+                  createdAt: '2026-01-25T20:21:53.949Z'
+                  updatedAt: '2026-01-25T20:21:53.949Z'
         '400':
           description: Validation error
           content:
@@ -53,6 +53,141 @@ paths:
       summary: Authenticate user and return tokens
       tags:
         - Authentication
+  /auth/password-reset:
+    post:
+      description: >-
+        Solicita um código de redefinição de senha por email. Por segurança, sempre retorna sucesso mesmo se o email não
+        estiver cadastrado.
+      operationId: RequestPasswordResetController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestPasswordResetRequestDto'
+            examples:
+              example1:
+                summary: Exemplo de solicitação
+                description: Exemplo de requisição de redefinição de senha
+                value:
+                  email: usuario@example.com
+      responses:
+        '204':
+          description: Solicitação processada com sucesso
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+      summary: Solicitar redefinição de senha
+      tags:
+        - Auth
+  /auth/password-reset/verify:
+    post:
+      description: >-
+        Valida se o token de redefinição de senha é válido e não expirou. Deve ser chamado antes de permitir a
+        redefinição da senha.
+      operationId: ValidatePasswordResetTokenController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidatePasswordResetTokenRequestDto'
+            examples:
+              example1:
+                summary: Exemplo de validação
+                description: Exemplo de validação de token
+                value:
+                  email: usuario@example.com
+                  token: '123456'
+      responses:
+        '204':
+          description: Token válido
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: User not found
+                  error: Not Found
+                  errorCode: USER_NOT_FOUND
+      summary: Validar token de redefinição de senha
+      tags:
+        - Auth
+  /auth/password-reset/confirm:
+    post:
+      description: >-
+        Redefine a senha do usuário usando o token válido. Após a redefinição, todos os refresh tokens do usuário são
+        invalidados (logout de todos os dispositivos).
+      operationId: ResetPasswordController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequestDto'
+            examples:
+              example1:
+                summary: Exemplo de redefinição
+                description: Exemplo de redefinição de senha
+                value:
+                  email: usuario@example.com
+                  token: '123456'
+                  newPassword: NovaSenh@123
+                  confirmPassword: NovaSenh@123
+      responses:
+        '204':
+          description: Senha redefinida com sucesso
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: User not found
+                  error: Not Found
+                  errorCode: USER_NOT_FOUND
+      summary: Redefinir senha
+      tags:
+        - Auth
   /users:
     post:
       description: >-
@@ -108,72 +243,24 @@ paths:
       summary: Create new user
       tags:
         - Users
-  /user-email-verification/verify:
-    get:
-      operationId: UserEmailVerificationVerifyController_handle
-      parameters:
-        - name: email
-          required: true
-          in: query
-          description: Email do usuário que está verificando
-          schema:
-            example: user@example.com
-            type: string
-        - name: code
-          required: true
-          in: query
-          description: Código de verificação enviado por email
-          schema:
-            example: '123456'
-            type: string
-      responses:
-        '200':
-          description: Email verificado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserEmailVerificationVerifyResponseDTO'
-        '400':
-          description: Verification token expired
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message: Verification token [TOKEN] has expired.
-                  error: Bad Request
-                  errorCode: VERIFICATION_TOKEN_EXPIRED
-        '409':
-          description: Email already verified
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: Email for user [USER_ID] is already verified.
-                  error: Conflict
-                  errorCode: EMAIL_ALREADY_VERIFIED
-      summary: Verificar email do usuário com código
-      tags:
-        - Verificação de Email
-  /user-email-verification/resend:
+  /users/email-verification/verify:
     post:
-      description: Solicita um novo token de verificação para o email especificado. Útil quando o token anterior expirou.
-      operationId: UserEmailVerificationResendController_handle
+      description: Verifica o email do usuário usando o código de verificação enviado por email.
+      operationId: VerifyEmailController_handle
       parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserEmailVerificationResendRequestDTO'
+              $ref: '#/components/schemas/VerifyEmailRequestDto'
       responses:
         '200':
-          description: Token reenviado com sucesso
+          description: Email verificado com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserEmailVerificationResendResponseDTO'
+                $ref: '#/components/schemas/VerifyEmailResponseDto'
         '400':
           description: Validation error
           content:
@@ -187,15 +274,15 @@ paths:
                   error: Bad Request
                   errorCode: VALIDATION_ERROR
         '404':
-          description: User email verification not found
+          description: User not found
           content:
             application/json:
               schema:
                 example:
                   statusCode: 404
-                  message: Email verification not found for email [EMAIL].
+                  message: User not found
                   error: Not Found
-                  errorCode: USER_EMAIL_VERIFICATION_NOT_FOUND
+                  errorCode: USER_NOT_FOUND
         '409':
           description: Email already verified
           content:
@@ -206,9 +293,62 @@ paths:
                   message: Email for user [USER_ID] is already verified.
                   error: Conflict
                   errorCode: EMAIL_ALREADY_VERIFIED
-      summary: Reenviar token de verificação de email
+      summary: Verify user email
       tags:
-        - Verificação de Email
+        - Users
+  /users/email-verification/resend:
+    post:
+      description: Reenvia um novo código de verificação para o email do usuário.
+      operationId: ResendVerificationController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequestDto'
+      responses:
+        '200':
+          description: Novo código de verificação enviado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendVerificationResponseDto'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: User not found
+                  error: Not Found
+                  errorCode: USER_NOT_FOUND
+        '409':
+          description: Email already verified
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: Email for user [USER_ID] is already verified.
+                  error: Conflict
+                  errorCode: EMAIL_ALREADY_VERIFIED
+      summary: Resend verification code
+      tags:
+        - Users
   /establishments:
     post:
       operationId: EstablishmentCreateController_handle
@@ -451,8 +591,8 @@ paths:
                 instanceId: instance_123456789
                 status: active
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-23T02:29:00.770Z'
-                updatedAt: '2026-01-23T02:29:00.770Z'
+                createdAt: '2026-01-25T20:21:53.486Z'
+                updatedAt: '2026-01-25T20:21:53.486Z'
         '400':
           description: Dados inválidos
           content:
@@ -620,16 +760,10 @@ paths:
       summary: Find all customers (paginated)
       tags:
         - Establishment Customers
-  /establishments/{establishmentId}/customers/{customerId}:
+  /customers/{customerId}:
     get:
       operationId: EstablishmentCustomerFindByIdController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          schema:
-            example: uuid-estabelecimento
-            type: string
         - name: customerId
           required: true
           in: path
@@ -683,12 +817,6 @@ paths:
     delete:
       operationId: EstablishmentCustomerDeleteController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          schema:
-            example: uuid-estabelecimento
-            type: string
         - name: customerId
           required: true
           in: path
@@ -738,12 +866,6 @@ paths:
     patch:
       operationId: EstablishmentCustomerUpdateController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          schema:
-            example: uuid-estabelecimento
-            type: string
         - name: customerId
           required: true
           in: path
@@ -912,16 +1034,16 @@ paths:
                     price: 25.5
                     imageUrl: http://example.com/shampoo.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-22T02:29:01.324Z'
-                    updatedAt: '2026-01-22T02:29:01.324Z'
+                    createdAt: '2026-01-24T20:21:54.039Z'
+                    updatedAt: '2026-01-24T20:21:54.039Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Condicionador
                     description: Condicionador para cabelos secos
                     price: 30
                     imageUrl: http://example.com/condicionador.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-23T02:29:01.324Z'
-                    updatedAt: '2026-01-23T02:29:01.324Z'
+                    createdAt: '2026-01-25T20:21:54.039Z'
+                    updatedAt: '2026-01-25T20:21:54.039Z'
                 meta:
                   page: 1
                   limit: 10
@@ -954,18 +1076,11 @@ paths:
       summary: Find all products (paginated)
       tags:
         - Establishment Products
-  /establishments/{establishmentId}/products/{productId}:
+  /products/{productId}:
     get:
       description: Busca um produto específico de um estabelecimento pelo ID.
       operationId: EstablishmentProductFindByIdController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: uuid-estabelecimento
-            type: string
         - name: productId
           required: true
           in: path
@@ -987,8 +1102,8 @@ paths:
                 price: 25.5
                 imageUrl: http://example.com/shampoo.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-23T02:29:01.331Z'
-                updatedAt: '2026-01-23T02:29:01.331Z'
+                createdAt: '2026-01-25T20:21:54.046Z'
+                updatedAt: '2026-01-25T20:21:54.046Z'
         '400':
           description: Validation error
           content:
@@ -1030,13 +1145,6 @@ paths:
       description: Exclui um produto específico de um estabelecimento pelo ID.
       operationId: EstablishmentProductDeleteController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: uuid-estabelecimento
-            type: string
         - name: productId
           required: true
           in: path
@@ -1088,13 +1196,6 @@ paths:
       description: Atualiza um produto específico de um estabelecimento pelo ID.
       operationId: EstablishmentProductUpdateController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: uuid-estabelecimento
-            type: string
         - name: productId
           required: true
           in: path
@@ -1122,8 +1223,8 @@ paths:
                 price: 30
                 imageUrl: http://example.com/shampoo-updated.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-22T02:29:01.341Z'
-                updatedAt: '2026-01-23T02:29:01.341Z'
+                createdAt: '2026-01-24T20:21:54.059Z'
+                updatedAt: '2026-01-25T20:21:54.059Z'
         '400':
           description: Validation error
           content:
@@ -1203,8 +1304,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-23T02:29:00.868Z'
-                updatedAt: '2026-01-23T02:29:00.868Z'
+                createdAt: '2026-01-25T20:21:53.567Z'
+                updatedAt: '2026-01-25T20:21:53.567Z'
         '400':
           description: Validation error
           content:
@@ -1281,16 +1382,16 @@ paths:
                     price: 50
                     duration: 60
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-22T02:29:00.886Z'
-                    updatedAt: '2026-01-22T02:29:00.886Z'
+                    createdAt: '2026-01-24T20:21:53.584Z'
+                    updatedAt: '2026-01-24T20:21:53.584Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Barba
                     description: Aparar e modelar barba
                     price: 30
                     duration: 30
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-23T02:29:00.886Z'
-                    updatedAt: '2026-01-23T02:29:00.886Z'
+                    createdAt: '2026-01-25T20:21:53.584Z'
+                    updatedAt: '2026-01-25T20:21:53.584Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1333,18 +1434,11 @@ paths:
       summary: Find all services (paginated)
       tags:
         - Establishment Services
-  /establishments/{establishmentId}/services/{serviceId}:
+  /services/{serviceId}:
     get:
       description: Busca um serviço específico de um estabelecimento pelo ID.
       operationId: EstablishmentServiceFindByIdController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
         - name: serviceId
           required: true
           in: path
@@ -1366,8 +1460,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-23T02:29:00.894Z'
-                updatedAt: '2026-01-23T02:29:00.894Z'
+                createdAt: '2026-01-25T20:21:53.590Z'
+                updatedAt: '2026-01-25T20:21:53.590Z'
         '400':
           description: Validation error
           content:
@@ -1409,13 +1503,6 @@ paths:
       description: Exclui um serviço específico de um estabelecimento pelo ID.
       operationId: EstablishmentServiceDeleteController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
         - name: serviceId
           required: true
           in: path
@@ -1467,13 +1554,6 @@ paths:
       description: Atualiza um serviço específico de um estabelecimento pelo ID.
       operationId: EstablishmentServiceUpdateController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
         - name: serviceId
           required: true
           in: path
@@ -1501,8 +1581,8 @@ paths:
                 price: 60
                 duration: 75
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-22T02:29:00.904Z'
-                updatedAt: '2026-01-23T02:29:00.904Z'
+                createdAt: '2026-01-24T20:21:53.598Z'
+                updatedAt: '2026-01-25T20:21:53.598Z'
         '400':
           description: Validation error
           content:
@@ -1666,17 +1746,10 @@ paths:
       summary: Find all members with pagination
       tags:
         - Establishment Members
-  /establishments/{establishmentId}/members/{memberId}:
+  /members/{memberId}:
     get:
       operationId: MemberFindByIdController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: The ID of the establishment
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440000
-            type: string
         - name: memberId
           required: true
           in: path
@@ -1724,13 +1797,6 @@ paths:
     patch:
       operationId: MemberUpdateController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: The ID of the establishment
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440000
-            type: string
         - name: memberId
           required: true
           in: path
@@ -1789,13 +1855,6 @@ paths:
     delete:
       operationId: MemberDeleteController_handle
       parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: The ID of the establishment
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440000
-            type: string
         - name: memberId
           required: true
           in: path
@@ -1960,8 +2019,8 @@ paths:
                   phone: '+5511987654321'
                   role: BARBER
                   establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                  createdAt: '2026-01-23T02:29:01.368Z'
-                  updatedAt: '2026-01-23T02:29:01.368Z'
+                  createdAt: '2026-01-25T20:21:54.079Z'
+                  updatedAt: '2026-01-25T20:21:54.079Z'
         '400':
           description: Validation error
           content:
@@ -2042,8 +2101,8 @@ paths:
                 productId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 price: 25.5
                 commission: 2.55
-                createdAt: '2026-01-23T02:29:01.396Z'
-                updatedAt: '2026-01-23T02:29:01.396Z'
+                createdAt: '2026-01-25T20:21:54.101Z'
+                updatedAt: '2026-01-25T20:21:54.101Z'
         '400':
           description: Validation error
           content:
@@ -2469,10 +2528,10 @@ paths:
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
                 planId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 status: ACTIVE
-                startDate: '2025-12-24T02:29:01.472Z'
-                endDate: '2026-01-23T23:59:59.999Z'
-                createdAt: '2026-01-23T02:29:01.472Z'
-                updatedAt: '2026-01-23T02:29:01.472Z'
+                startDate: '2025-12-26T20:21:54.165Z'
+                endDate: '2026-01-25T23:59:59.999Z'
+                createdAt: '2026-01-25T20:21:54.165Z'
+                updatedAt: '2026-01-25T20:21:54.165Z'
       security:
         - bearer: []
       summary: Create subscription for establishment
@@ -2540,14 +2599,14 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 memberId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-24T10:00:00.000Z'
-                endTime: '2026-01-24T11:00:00.000Z'
+                startTime: '2026-01-26T10:00:00.000Z'
+                endTime: '2026-01-26T11:00:00.000Z'
                 totalAmount: 5000
                 totalDuration: 60
                 status: PENDING
                 notes: Corte de cabelo e barba
-                createdAt: '2026-01-23T02:29:00.691Z'
-                updatedAt: '2026-01-23T02:29:00.691Z'
+                createdAt: '2026-01-25T20:21:53.407Z'
+                updatedAt: '2026-01-25T20:21:53.407Z'
         '400':
           description: Dados inválidos fornecidos ou validação de negócio falhou
           content:
@@ -2700,14 +2759,14 @@ paths:
           in: query
           description: Data de início para filtro (ISO 8601)
           schema:
-            example: '2026-01-16T02:29:00.701Z'
+            example: '2026-01-18T20:21:53.420Z'
             type: string
         - name: endDate
           required: false
           in: query
           description: Data de fim para filtro (ISO 8601)
           schema:
-            example: '2026-01-30T00:00:00.000Z'
+            example: '2026-02-01T00:00:00.000Z'
             type: string
         - name: includeDeleted
           required: false
@@ -2728,8 +2787,8 @@ paths:
                   - id: 550e8400-e29b-41d4-a716-446655440000
                     customerId: 550e8400-e29b-41d4-a716-446655440001
                     memberId: 550e8400-e29b-41d4-a716-446655440002
-                    startTime: '2026-01-24T10:00:00.000Z'
-                    endTime: '2026-01-24T11:00:00.000Z'
+                    startTime: '2026-01-26T10:00:00.000Z'
+                    endTime: '2026-01-26T11:00:00.000Z'
                 meta:
                   page: 1
                   limit: 10
@@ -2810,8 +2869,8 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 memberId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-24T10:00:00.000Z'
-                endTime: '2026-01-24T11:00:00.000Z'
+                startTime: '2026-01-26T10:00:00.000Z'
+                endTime: '2026-01-26T11:00:00.000Z'
                 notes: Corte de cabelo e barba
                 status: SCHEDULED
                 services:
@@ -2819,8 +2878,8 @@ paths:
                     name: Corte de Cabelo
                     price: 25
                     duration: 30
-                createdAt: '2026-01-22T02:29:00.703Z'
-                updatedAt: '2026-01-22T02:29:00.703Z'
+                createdAt: '2026-01-24T20:21:53.423Z'
+                updatedAt: '2026-01-24T20:21:53.423Z'
         '400':
           description: ID inválido fornecido
           content:
@@ -2901,8 +2960,8 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 memberId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-24T14:00:00.000Z'
-                endTime: '2026-01-24T15:00:00.000Z'
+                startTime: '2026-01-26T14:00:00.000Z'
+                endTime: '2026-01-26T15:00:00.000Z'
                 notes: Corte de cabelo, barba e sobrancelha
                 status: CONFIRMED
                 services:
@@ -2914,8 +2973,8 @@ paths:
                     name: Barba
                     price: 15
                     duration: 20
-                createdAt: '2026-01-22T02:29:00.706Z'
-                updatedAt: '2026-01-23T02:29:00.706Z'
+                createdAt: '2026-01-24T20:21:53.425Z'
+                updatedAt: '2026-01-25T20:21:53.425Z'
         '400':
           description: Dados inválidos fornecidos
           content:
@@ -3115,6 +3174,53 @@ components:
       required:
         - accessToken
         - refreshToken
+    RequestPasswordResetRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: usuario@example.com
+          description: Email do usuário para redefinição de senha
+      required:
+        - email
+    ValidatePasswordResetTokenRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: usuario@example.com
+          description: Email do usuário
+        token:
+          type: string
+          example: '123456'
+          description: Token de redefinição de senha recebido por email (6 dígitos numéricos)
+      required:
+        - email
+        - token
+    ResetPasswordRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: usuario@example.com
+          description: Email do usuário
+        token:
+          type: string
+          example: '123456'
+          description: Token de redefinição de senha recebido por email (6 dígitos numéricos)
+        newPassword:
+          type: string
+          example: NovaSenh@123
+          description: Nova senha (mínimo 8 caracteres, deve conter maiúscula, minúscula, número e caractere especial)
+        confirmPassword:
+          type: string
+          example: NovaSenh@123
+          description: Confirmação da nova senha (deve ser igual à nova senha)
+      required:
+        - email
+        - token
+        - newPassword
+        - confirmPassword
     CreateUserRequestDTO:
       type: object
       properties:
@@ -3133,16 +3239,17 @@ components:
         phone:
           type: string
           example: '+5511999999999'
-          description: User phone number
+          description: User phone number in E.164 format
         document:
           type: string
           example: '12345678909'
-          description: User CPF (Brazilian tax ID) - accepts formatted or unformatted (optional)
+          description: User CPF (Brazilian tax ID) - accepts formatted or unformatted
       required:
         - name
         - email
         - password
         - phone
+        - document
     CreateUserResponseDTO:
       type: object
       properties:
@@ -3180,12 +3287,12 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.098Z'
+          example: '2026-01-25T20:21:53.832Z'
           description: User creation date
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.098Z'
+          example: '2026-01-25T20:21:53.832Z'
           description: User last update date
       required:
         - id
@@ -3197,94 +3304,57 @@ components:
         - isFake
         - createdAt
         - updatedAt
-    UserEmailVerificationVerifyResponseDTO:
+    VerifyEmailRequestDto:
       type: object
       properties:
-        id:
+        email:
           type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: ID da verificação de email
-        userId:
+          example: joao.silva@example.com
+          description: Email do usuário que está verificando
+        token:
           type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: ID do usuário
-        verified:
+          example: '123456'
+          description: Código de verificação enviado por email (6 dígitos numéricos)
+      required:
+        - email
+        - token
+    VerifyEmailResponseDto:
+      type: object
+      properties:
+        success:
           type: boolean
           example: true
-          description: Indica se o email foi verificado
-        expiresAt:
-          format: date-time
+          description: Indica se a verificação foi bem-sucedida
+        message:
           type: string
-          example: '2026-01-24T10:00:00.000Z'
-          description: Data de expiração do token
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-23T02:29:01.190Z'
-          description: Data de criação da verificação
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-23T02:29:01.190Z'
-          description: Data da última atualização
+          example: Email verificado com sucesso!
+          description: Mensagem de resposta
       required:
-        - id
-        - userId
-        - verified
-        - expiresAt
-        - createdAt
-        - updatedAt
-    UserEmailVerificationResendRequestDTO:
+        - success
+        - message
+    ResendVerificationRequestDto:
       type: object
       properties:
         email:
           type: string
-          example: usuario@email.com
-          description: Email do usuário para reenviar o token de verificação
+          example: joao.silva@example.com
+          description: Email do usuário para reenviar o código de verificação
       required:
         - email
-    UserEmailVerificationResendResponseDTO:
+    ResendVerificationResponseDto:
       type: object
       properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: ID da verificação de email
-        userId:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440001
-          description: ID do usuário
-        email:
-          type: string
-          example: usuario@email.com
-          description: Email do usuário
-        verified:
+        success:
           type: boolean
-          example: false
-          description: Status de verificação
-        expiresAt:
-          format: date-time
+          example: true
+          description: Indica se o reenvio foi bem-sucedido
+        message:
           type: string
-          example: '2026-01-24T10:00:00.000Z'
-          description: Data de expiração do token
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-23T02:29:01.183Z'
-          description: Data de criação
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-23T02:29:01.183Z'
-          description: Data de atualização
+          example: Novo código de verificação enviado com sucesso!
+          description: Mensagem de resposta
       required:
-        - id
-        - userId
-        - email
-        - verified
-        - expiresAt
-        - createdAt
-        - updatedAt
+        - success
+        - message
     EstablishmentCreateRequestDTO:
       type: object
       properties:
@@ -3300,7 +3370,7 @@ components:
           minLength: 1
         phone:
           type: string
-          description: Phone number of the establishment
+          description: Phone number of the establishment in E.164 format
           example: '+5511999999999'
       required:
         - address
@@ -3329,12 +3399,12 @@ components:
           format: date-time
           type: string
           description: Creation date
-          example: '2026-01-23T02:29:00.722Z'
+          example: '2026-01-25T20:21:53.439Z'
         updatedAt:
           format: date-time
           type: string
           description: Last update date
-          example: '2026-01-23T02:29:00.722Z'
+          example: '2026-01-25T20:21:53.439Z'
       required:
         - id
         - name
@@ -3342,33 +3412,55 @@ components:
         - phone
         - createdAt
         - updatedAt
-    MetaTotal:
+    PaginationMetadataUtil:
       type: object
       properties:
-        items:
+        currentPage:
           type: number
           example: 1
-        pages:
-          type: number
-          example: 1
-      required:
-        - items
-        - pages
-    Meta:
-      type: object
-      properties:
-        page:
-          type: number
-          example: 1
-        limit:
+          description: Current page number
+        itemsPerPage:
           type: number
           example: 10
-        total:
-          $ref: '#/components/schemas/MetaTotal'
+          description: Number of items per page
+        totalItems:
+          type: number
+          example: 100
+          description: Total number of items
+        totalPages:
+          type: number
+          example: 10
+          description: Total number of pages
+        hasNextPage:
+          type: boolean
+          example: true
+          description: Whether there is a next page
+        hasPreviousPage:
+          type: boolean
+          example: false
+          description: Whether there is a previous page
       required:
-        - page
-        - limit
-        - total
+        - currentPage
+        - itemsPerPage
+        - totalItems
+        - totalPages
+        - hasNextPage
+        - hasPreviousPage
+    PaginatedResultUtil:
+      type: object
+      properties:
+        data:
+          description: Array of items
+          type: array
+          items:
+            type: array
+        meta:
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginationMetadataUtil'
+      required:
+        - data
+        - meta
     EstablishmentFindAllResponseDTO:
       type: object
       properties:
@@ -3378,7 +3470,9 @@ components:
           items:
             $ref: '#/components/schemas/EstablishmentFindOneResponseDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -3395,7 +3489,7 @@ components:
           example: 123 Main St, Downtown, São Paulo - SP
         phone:
           type: string
-          description: Phone number of the establishment
+          description: Phone number of the establishment in E.164 format
           example: '+5511999999999'
     EstablishmentEvolutionApiCreateInstanceResponseDTO:
       type: object
@@ -3477,6 +3571,7 @@ components:
         phone:
           type: string
           example: '+5511999999999'
+          description: Phone number in E.164 format
       required:
         - name
     EstablishmentCustomerCreateResponseDTO:
@@ -3500,11 +3595,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.799Z'
+          example: '2026-01-25T20:21:53.513Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.799Z'
+          example: '2026-01-25T20:21:53.513Z'
       required:
         - id
         - establishmentId
@@ -3520,7 +3615,9 @@ components:
           items:
             $ref: '#/components/schemas/EstablishmentCustomerCreateResponseDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -3536,6 +3633,7 @@ components:
         phone:
           type: string
           example: '+5511999999999'
+          description: Phone number in E.164 format
     EstablishmentCustomerUpdateResponseDTO:
       type: object
       properties:
@@ -3557,11 +3655,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.812Z'
+          example: '2026-01-25T20:21:53.521Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.812Z'
+          example: '2026-01-25T20:21:53.521Z'
       required:
         - id
         - establishmentId
@@ -3621,11 +3719,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.282Z'
+          example: '2026-01-25T20:21:54.001Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.282Z'
+          example: '2026-01-25T20:21:54.001Z'
       required:
         - id
         - establishmentId
@@ -3644,7 +3742,9 @@ components:
           items:
             $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -3725,11 +3825,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.861Z'
+          example: '2026-01-25T20:21:53.562Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.861Z'
+          example: '2026-01-25T20:21:53.562Z'
       required:
         - id
         - name
@@ -3749,7 +3849,9 @@ components:
           items:
             $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -3830,11 +3932,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.950Z'
+          example: '2026-01-25T20:21:53.646Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.950Z'
+          example: '2026-01-25T20:21:53.646Z'
       required:
         - id
         - name
@@ -3853,7 +3955,9 @@ components:
           items:
             $ref: '#/components/schemas/MemberResponseDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -3897,17 +4001,17 @@ components:
         expiresAt:
           format: date-time
           type: string
-          example: '2026-01-24T10:00:00.000Z'
+          example: '2026-01-26T10:00:00.000Z'
           description: Data de expiração do token
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.067Z'
+          example: '2026-01-25T20:21:53.718Z'
           description: Data de criação da verificação
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.067Z'
+          example: '2026-01-25T20:21:53.718Z'
           description: Data da última atualização
       required:
         - id
@@ -3947,17 +4051,17 @@ components:
         expiresAt:
           format: date-time
           type: string
-          example: '2026-01-24T10:00:00.000Z'
+          example: '2026-01-26T10:00:00.000Z'
           description: Data de expiração do token
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.054Z'
+          example: '2026-01-25T20:21:53.712Z'
           description: Data de criação
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.054Z'
+          example: '2026-01-25T20:21:53.712Z'
           description: Data de atualização
       required:
         - id
@@ -4045,11 +4149,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.380Z'
+          example: '2026-01-25T20:21:54.087Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.380Z'
+          example: '2026-01-25T20:21:54.087Z'
       required:
         - id
         - memberId
@@ -4108,11 +4212,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.914Z'
+          example: '2026-01-25T20:21:53.611Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.914Z'
+          example: '2026-01-25T20:21:53.611Z'
       required:
         - id
         - memberId
@@ -4132,7 +4236,9 @@ components:
           items:
             type: array
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -4182,11 +4288,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.405Z'
+          example: '2026-01-25T20:21:54.108Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:01.405Z'
+          example: '2026-01-25T20:21:54.108Z'
       required:
         - id
         - name
@@ -4204,7 +4310,9 @@ components:
           items:
             $ref: '#/components/schemas/PlanCreateResponseDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -4237,16 +4345,17 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-24T02:29:01.461Z'
+          example: '2025-12-26T20:21:54.157Z'
         endDate:
           type: string
-          example: '2026-01-23T23:59:59.999Z'
+          example: '2026-01-25T23:59:59.999Z'
         paid:
           type: boolean
           example: true
         phone:
           type: string
-          example: '5511999999999'
+          example: '+5511999999999'
+          description: Phone number in E.164 format
       required:
         - establishmentId
         - planId
@@ -4268,10 +4377,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-24T02:29:01.458Z'
+          example: '2025-12-26T20:21:54.153Z'
         endDate:
           type: string
-          example: '2026-01-23T23:59:59.999Z'
+          example: '2026-01-25T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -4280,10 +4389,10 @@ components:
           example: '5511999999999'
         createdAt:
           type: string
-          example: '2026-01-23T02:29:01.458Z'
+          example: '2026-01-25T20:21:54.153Z'
         updatedAt:
           type: string
-          example: '2026-01-23T02:29:01.458Z'
+          example: '2026-01-25T20:21:54.153Z'
       required:
         - id
         - establishmentId
@@ -4356,7 +4465,7 @@ components:
           description: Destino do webhook
         date_time:
           type: string
-          example: '2026-01-23T02:29:01.488Z'
+          example: '2026-01-25T20:21:54.179Z'
           description: Data e hora do evento
         sender:
           type: string
@@ -4394,7 +4503,7 @@ components:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-24T10:00:00.000Z'
+          example: '2026-01-26T10:00:00.000Z'
         notes:
           type: string
           description: Observações do agendamento
@@ -4429,10 +4538,10 @@ components:
           example: c4d5e6f7-0123-4567-89ab-cdef01234567
         startTime:
           type: string
-          example: '2026-01-24T14:00:00.000Z'
+          example: '2026-01-26T14:00:00.000Z'
         endTime:
           type: string
-          example: '2026-01-24T14:30:00.000Z'
+          example: '2026-01-26T14:30:00.000Z'
         totalAmount:
           type: number
           example: 5000
@@ -4448,11 +4557,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.339Z'
+          example: '2026-01-25T20:21:52.970Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-23T02:29:00.339Z'
+          example: '2026-01-25T20:21:52.970Z'
       required:
         - id
         - establishmentId
@@ -4493,7 +4602,9 @@ components:
           items:
             $ref: '#/components/schemas/AppointmentListItemDTO'
         meta:
-          $ref: '#/components/schemas/Meta'
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
       required:
         - data
         - meta
@@ -4548,7 +4659,7 @@ components:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-24T10:00:00.000Z'
+          example: '2026-01-26T10:00:00.000Z'
         status:
           type: string
           description: Status do agendamento

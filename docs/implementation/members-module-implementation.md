@@ -1039,81 +1039,54 @@ import { SharedModule } from '@/shared/shared.module';
 export class MembersModule {}
 ```
 
-## 🎯 Classe Auxiliar para Validações
+## 🎯 Validação de Ownership
 
-### **`establishment-owner-access.service.ts`:**
+A validação de ownership é feita diretamente nos services usando o `EstablishmentRepository`. O padrão utilizado é:
+
 ```typescript
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+// Buscar establishment pelo ID
+const establishment = await this.establishmentRepository.findById(establishmentId);
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
-import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
+if (!establishment) {
+  const message = this.errorMessageService.getMessage(
+    ErrorCode.ESTABLISHMENT_NOT_FOUND,
+    { ESTABLISHMENT_ID: establishmentId },
+  );
+  this.logger.warn(message);
+  throw new CustomHttpException(
+    message,
+    HttpStatus.NOT_FOUND,
+    ErrorCode.ESTABLISHMENT_NOT_FOUND,
+  );
+}
 
-@Injectable()
-export class EstablishmentOwnerAccessService {
-  private readonly logger = new Logger(EstablishmentOwnerAccessService.name);
+// Verificar se o usuário é o dono
+if (establishment.ownerId !== userId) {
+  const message = this.errorMessageService.getMessage(
+    ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+    { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+  );
+  this.logger.warn(message);
+  throw new CustomHttpException(
+    message,
+    HttpStatus.FORBIDDEN,
+    ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+  );
+}
+```
 
-  constructor(
-    private readonly establishmentRepository: EstablishmentRepository,
-    private readonly errorMessageService: ErrorMessageService,
-  ) {}
+Para operações em itens específicos (find-by-id, update, delete), os repositórios incluem métodos que retornam o item com o establishment relacionado, permitindo verificar ownership diretamente:
 
-  /**
-   * Verifica se o estabelecimento existe e se o usuário é o dono
-   * @param establishmentId string
-   * @param ownerId string
-   * @returns establishment entity se encontrado e usuário é dono
-   */
-  async assertOwnerHasAccess(
-    establishmentId: string,
-    ownerId: string,
-  ) {
-    this.logger.log(
-      `Checking owner access for user ${ownerId} to establishment ${establishmentId}`,
-    );
+```typescript
+// Exemplo: buscar produto com establishment incluído
+const product = await this.establishmentProductRepository.findByIdWithEstablishment(productId);
 
-    // 1. Verifica se o estabelecimento existe
-    const establishment = await this.establishmentRepository.findById(establishmentId);
+if (!product) {
+  // produto não encontrado
+}
 
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-        { ESTABLISHMENT_ID: establishmentId },
-      );
-
-      this.logger.warn(
-        `Establishment not found: ${establishmentId} | User: ${ownerId}`,
-      );
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-      );
-    }
-
-    // 2. Verifica se o usuário é o dono do estabelecimento
-    if (establishment.ownerId !== ownerId) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: ownerId },
-      );
-
-      this.logger.warn(message);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-      );
-    }
-
-    this.logger.log(
-      `Owner access granted for user ${ownerId} to establishment ${establishmentId}`,
-    );
-    return establishment;
-  }
+if (product.establishment.ownerId !== userId) {
+  // usuário não é dono do estabelecimento
 }
 ```
 
@@ -1123,7 +1096,7 @@ export class EstablishmentOwnerAccessService {
 - [ ] Adicionar novos ErrorCodes ao enum
 - [ ] Adicionar mensagens de erro
 - [ ] Adicionar documentação Swagger
-- [ ] Criar classe auxiliar para validações
+- [ ] Implementar validação de ownership diretamente nos services
 - [ ] Criar estrutura de pastas do módulo
 
 ### **Fase 2: DTOs e Contratos**
