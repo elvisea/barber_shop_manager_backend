@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 
 import { EstablishmentEvolutionApiCreateInstanceResponseDTO } from '../dtos/establishment-evolution-api-create-instance-response.dto';
 
 import { EvolutionApiInstanceService } from './evolution-api-instance.service';
 import { EvolutionApiWebhookService } from './evolution-api-webhook.service';
 
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class EstablishmentEvolutionApiCreateInstanceService {
@@ -14,9 +18,10 @@ export class EstablishmentEvolutionApiCreateInstanceService {
   );
 
   constructor(
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
     private readonly evolutionApiInstanceService: EvolutionApiInstanceService,
     private readonly evolutionApiWebhookService: EvolutionApiWebhookService,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -27,12 +32,35 @@ export class EstablishmentEvolutionApiCreateInstanceService {
       `🔧 [ESTABLISHMENT-EVOLUTION-API] Iniciando criação de instância para estabelecimento: ${establishmentId}`,
     );
 
-    // ETAPA 1: Validar acesso usando EstablishmentOwnerAccessService
+    // ETAPA 1: Validar acesso
     const establishment =
-      await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-        establishmentId,
-        ownerId,
+      await this.establishmentRepository.findById(establishmentId);
+
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: establishmentId },
       );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
+
+    if (establishment.ownerId !== ownerId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: ownerId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     this.logger.log(
       `✅ [ESTABLISHMENT-EVOLUTION-API] Estabelecimento encontrado: ${establishment.name}`,

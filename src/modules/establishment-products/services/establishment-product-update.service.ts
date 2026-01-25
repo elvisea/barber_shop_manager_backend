@@ -7,7 +7,6 @@ import { EstablishmentProductRepository } from '../repositories/establishment-pr
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentProductUpdateService {
@@ -15,35 +14,25 @@ export class EstablishmentProductUpdateService {
 
   constructor(
     private readonly establishmentProductRepository: EstablishmentProductRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
     productId: string,
-    establishmentId: string,
     userId: string,
     dto: EstablishmentProductUpdateRequestDTO,
   ): Promise<EstablishmentProductCreateResponseDTO> {
-    this.logger.log(
-      `Updating product ${productId} for establishment ${establishmentId} by user ${userId}`,
-    );
+    this.logger.log(`Updating product ${productId} by user ${userId}`);
 
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
-
-    // Verificar se o produto existe
     const product =
-      await this.establishmentProductRepository.findByIdAndEstablishment(
+      await this.establishmentProductRepository.findByIdWithEstablishment(
         productId,
-        establishmentId,
       );
+
     if (!product) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND,
-        { PRODUCT_ID: productId, ESTABLISHMENT_ID: establishmentId },
+        { PRODUCT_ID: productId },
       );
       this.logger.warn(message);
       throw new CustomHttpException(
@@ -53,17 +42,30 @@ export class EstablishmentProductUpdateService {
       );
     }
 
+    if (product.establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: product.establishment.id, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
+
     // Verificar duplicidade de nome (se for alterar o nome)
     if (dto.name && dto.name !== product.name) {
       const alreadyExists =
         await this.establishmentProductRepository.existsByName(
-          establishmentId,
+          product.establishment.id,
           dto.name,
         );
       if (alreadyExists) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS,
-          { ESTABLISHMENT_ID: establishmentId, NAME: dto.name },
+          { ESTABLISHMENT_ID: product.establishment.id, NAME: dto.name },
         );
         this.logger.warn(message);
         throw new CustomHttpException(
@@ -74,12 +76,10 @@ export class EstablishmentProductUpdateService {
       }
     }
 
-    const updated =
-      await this.establishmentProductRepository.updateByIdAndEstablishment(
-        productId,
-        establishmentId,
-        dto,
-      );
+    const updated = await this.establishmentProductRepository.updateById(
+      productId,
+      dto,
+    );
 
     this.logger.log(`Product ${productId} updated successfully.`);
 

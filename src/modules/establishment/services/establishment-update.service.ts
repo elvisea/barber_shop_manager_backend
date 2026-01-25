@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 import { EstablishmentFindOneResponseDTO } from '../dtos/establishment-find-one-response.dto';
 import { EstablishmentUpdateRequestDTO } from '../dtos/establishment-update-request.dto';
 import { EstablishmentRepository } from '../repositories/establishment.repository';
 
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
 
 /**
  * Service responsible for updating an establishment.
@@ -19,7 +21,7 @@ export class EstablishmentUpdateService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -31,14 +33,28 @@ export class EstablishmentUpdateService {
       `Updating establishment ${establishmentId} by user ${userId}`,
     );
 
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
+    const establishment = await this.establishmentRepository.findByIdAndUser(
       establishmentId,
       userId,
     );
 
-    this.logger.log(
-      `Establishment ${establishmentId} found for user ${userId}. Proceeding with update.`,
-    );
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        {
+          USER_ID: userId,
+          ESTABLISHMENT_ID: establishmentId,
+        },
+      );
+
+      this.logger.warn(message);
+
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      );
+    }
 
     const updated = await this.establishmentRepository.update(
       establishmentId,

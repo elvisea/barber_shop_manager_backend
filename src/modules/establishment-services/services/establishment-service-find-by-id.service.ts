@@ -6,7 +6,6 @@ import { EstablishmentServiceRepository } from '../repositories/establishment-se
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentServiceFindByIdService {
@@ -16,42 +15,24 @@ export class EstablishmentServiceFindByIdService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
     serviceId: string,
-    establishmentId: string,
     userId: string,
   ): Promise<EstablishmentServiceCreateResponseDTO> {
-    this.logger.log(
-      `Finding service with ID ${serviceId} for establishment ${establishmentId} by user ${userId}`,
-    );
-
-    this.logger.log(
-      `Finding establishment with ID ${establishmentId} for userId=${userId}`,
-    );
-
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
-
-    this.logger.log(
-      `Establishment ${establishmentId} found for user ${userId}.`,
-    );
+    this.logger.log(`Finding service with ID ${serviceId} by user ${userId}`);
 
     const service =
-      await this.establishmentServiceRepository.findByIdAndEstablishment(
+      await this.establishmentServiceRepository.findByIdWithEstablishment(
         serviceId,
-        establishmentId,
       );
 
     if (!service) {
       const errorMessage = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_SERVICE_NOT_FOUND,
-        { SERVICE_ID: serviceId, ESTABLISHMENT_ID: establishmentId },
+        { SERVICE_ID: serviceId },
       );
 
       this.logger.warn(errorMessage);
@@ -60,6 +41,19 @@ export class EstablishmentServiceFindByIdService {
         errorMessage,
         HttpStatus.NOT_FOUND,
         ErrorCode.ESTABLISHMENT_SERVICE_NOT_FOUND,
+      );
+    }
+
+    if (service.establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: service.establishment.id, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
       );
     }
 

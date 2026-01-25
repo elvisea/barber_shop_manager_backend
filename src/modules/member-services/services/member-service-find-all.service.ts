@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 import { MemberServiceFindAllParamDTO } from '../dtos/member-service-find-all-param.dto';
 import { MemberServiceFindAllResponseDTO } from '../dtos/member-service-find-all-response.dto';
@@ -6,7 +6,10 @@ import { MemberServiceMapper } from '../mappers/member-service.mapper';
 import { MemberServiceRepository } from '../repositories/member-service.repository';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class MemberServiceFindAllService {
@@ -14,7 +17,8 @@ export class MemberServiceFindAllService {
 
   constructor(
     private readonly memberServiceRepository: MemberServiceRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -29,10 +33,35 @@ export class MemberServiceFindAllService {
       `Listing member services for member ${params.memberId} in establishment ${params.establishmentId}`,
     );
 
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
+    const establishment = await this.establishmentRepository.findById(
       params.establishmentId,
-      requesterId,
     );
+
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: params.establishmentId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
+
+    if (establishment.ownerId !== requesterId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: params.establishmentId, USER_ID: requesterId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     const { data, total } =
       await this.memberServiceRepository.findAllByMemberPaginated({

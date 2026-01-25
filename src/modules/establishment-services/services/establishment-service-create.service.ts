@@ -7,7 +7,7 @@ import { EstablishmentServiceRepository } from '../repositories/establishment-se
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class EstablishmentServiceCreateService {
@@ -16,7 +16,7 @@ export class EstablishmentServiceCreateService {
   constructor(
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
   ) {}
 
   async execute(
@@ -28,18 +28,34 @@ export class EstablishmentServiceCreateService {
       `Creating service "${dto.name}" for establishment ${establishmentId} by user ${userId}`,
     );
 
-    this.logger.log(
-      `Finding establishment with ID ${establishmentId} for userId=${userId}`,
-    );
+    const establishment =
+      await this.establishmentRepository.findById(establishmentId);
 
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: establishmentId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
 
-    this.logger.log(
-      `Establishment ${establishmentId} found for user ${userId}. Proceeding with service creation.`,
-    );
+    if (establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     this.logger.log(
       `Checking if service with name "${dto.name}" already exists in establishment ${establishmentId}`,

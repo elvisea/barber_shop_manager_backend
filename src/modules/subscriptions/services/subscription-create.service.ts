@@ -1,19 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 import { SubscriptionCreateRequestDTO } from '../dtos/subscription-create-request.dto';
 import { SubscriptionCreateResponseDTO } from '../dtos/subscription-create-response.dto';
 import { SubscriptionCreateDTO } from '../dtos/subscription-create.dto';
 import { SubscriptionRepository } from '../repositories/subscription.repository';
 
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class SubscriptionCreateService {
   private readonly logger = new Logger(SubscriptionCreateService.name);
 
   constructor(
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
     private readonly subscriptionRepository: SubscriptionRepository,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -21,10 +25,34 @@ export class SubscriptionCreateService {
     establishmentId: string,
     userId: string,
   ): Promise<SubscriptionCreateResponseDTO> {
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
+    const establishment =
+      await this.establishmentRepository.findById(establishmentId);
+
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: establishmentId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
+
+    if (establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     const data: SubscriptionCreateDTO = {
       establishmentId,

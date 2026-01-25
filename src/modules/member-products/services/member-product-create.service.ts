@@ -8,7 +8,7 @@ import { MemberProductRepository } from '../repositories/member-product.reposito
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 import { EstablishmentProductRepository } from '@/modules/establishment-products/repositories/establishment-product.repository';
 import { MemberRepository } from '@/modules/members/repositories/member.repository';
 
@@ -21,7 +21,7 @@ export class MemberProductCreateService {
     private readonly memberRepository: MemberRepository,
     private readonly establishmentProductRepository: EstablishmentProductRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
   ) {}
 
   async execute(
@@ -34,10 +34,35 @@ export class MemberProductCreateService {
     );
 
     // 1. Verifica se o requester é dono do estabelecimento
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
+    const establishment = await this.establishmentRepository.findById(
       params.establishmentId,
-      requesterId,
     );
+
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: params.establishmentId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
+
+    if (establishment.ownerId !== requesterId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: params.establishmentId, USER_ID: requesterId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     // 2. Verifica se o membro existe no estabelecimento
     const member = await this.memberRepository.findByEstablishmentAndId(

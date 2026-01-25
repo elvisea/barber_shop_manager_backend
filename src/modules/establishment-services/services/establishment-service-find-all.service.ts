@@ -1,10 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 import { EstablishmentServiceFindAllQueryDTO } from '../dtos/establishment-service-find-all-query.dto';
 import { EstablishmentServiceFindAllResponseDTO } from '../dtos/establishment-service-find-all-response.dto';
 import { EstablishmentServiceRepository } from '../repositories/establishment-service.repository';
 
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class EstablishmentServiceFindAllService {
@@ -12,7 +15,8 @@ export class EstablishmentServiceFindAllService {
 
   constructor(
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -27,18 +31,34 @@ export class EstablishmentServiceFindAllService {
       `Finding all services for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    this.logger.log(
-      `Finding establishment with ID ${establishmentId} for userId=${userId}`,
-    );
+    const establishment =
+      await this.establishmentRepository.findById(establishmentId);
 
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: establishmentId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
 
-    this.logger.log(
-      `Establishment ${establishmentId} found for user ${userId}. Proceeding with service find all.`,
-    );
+    if (establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     const { data, total } =
       await this.establishmentServiceRepository.findAllByEstablishmentPaginated(

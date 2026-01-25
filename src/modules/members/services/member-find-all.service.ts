@@ -1,10 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 import { MemberFindAllQueryDTO, MemberPaginatedResponseDTO } from '../dtos';
 import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
+import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
+import { ErrorCode } from '@/enums/error-code';
+import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class MemberFindAllService {
@@ -12,7 +15,8 @@ export class MemberFindAllService {
 
   constructor(
     private readonly memberRepository: MemberRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
+    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
@@ -25,10 +29,34 @@ export class MemberFindAllService {
     );
 
     // 1. Verifica se o estabelecimento existe e o usuário é o dono
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      requesterId,
-    );
+    const establishment =
+      await this.establishmentRepository.findById(establishmentId);
+
+    if (!establishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        { ESTABLISHMENT_ID: establishmentId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND,
+      );
+    }
+
+    if (establishment.ownerId !== requesterId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
 
     // 2. Calcula paginação
     const page = query.page || 1;

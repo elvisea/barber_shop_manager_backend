@@ -6,7 +6,6 @@ import { EstablishmentCustomerRepository } from '../repositories/establishment-c
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentCustomerFindByIdService {
@@ -16,40 +15,43 @@ export class EstablishmentCustomerFindByIdService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
     customerId: string,
-    establishmentId: string,
     userId: string,
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
-    this.logger.log(
-      `Finding customer ${customerId} in establishment ${establishmentId} by user ${userId}`,
-    );
-
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
+    this.logger.log(`Finding customer ${customerId} by user ${userId}`);
 
     const customer =
-      await this.establishmentCustomerRepository.findByIdAndEstablishment(
+      await this.establishmentCustomerRepository.findByIdWithEstablishment(
         customerId,
-        establishmentId,
       );
 
     if (!customer) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND,
-        { CUSTOMER_ID: customerId, ESTABLISHMENT_ID: establishmentId },
+        { CUSTOMER_ID: customerId },
       );
       this.logger.warn(message);
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
         ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND,
+      );
+    }
+
+    if (customer.establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: customer.establishment.id, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
       );
     }
 

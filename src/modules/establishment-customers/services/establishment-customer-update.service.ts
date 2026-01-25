@@ -7,7 +7,6 @@ import { EstablishmentCustomerRepository } from '../repositories/establishment-c
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentCustomerUpdateService {
@@ -15,36 +14,26 @@ export class EstablishmentCustomerUpdateService {
 
   constructor(
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
     customerId: string,
-    establishmentId: string,
     userId: string,
     dto: EstablishmentCustomerUpdateRequestDTO,
   ): Promise<EstablishmentCustomerUpdateResponseDTO> {
-    this.logger.log(
-      `Updating customer ${customerId} for establishment ${establishmentId} by user ${userId}`,
-    );
+    this.logger.log(`Updating customer ${customerId} by user ${userId}`);
     this.logger.log(`Received update data: ${JSON.stringify(dto)}`);
 
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
-
     const customer =
-      await this.establishmentCustomerRepository.findByIdAndEstablishment(
+      await this.establishmentCustomerRepository.findByIdWithEstablishment(
         customerId,
-        establishmentId,
       );
 
     if (!customer) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND,
-        { CUSTOMER_ID: customerId, ESTABLISHMENT_ID: establishmentId },
+        { CUSTOMER_ID: customerId },
       );
 
       this.logger.warn(message);
@@ -56,18 +45,31 @@ export class EstablishmentCustomerUpdateService {
       );
     }
 
+    if (customer.establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: customer.establishment.id, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+      );
+    }
+
     // Validar duplicidade de email/phone se alterados
     if (dto.email && dto.email !== customer.email) {
       const existingCustomer =
         await this.establishmentCustomerRepository.findByEmailAndEstablishment(
-          establishmentId,
+          customer.establishment.id,
           dto.email,
         );
 
       if (existingCustomer && existingCustomer.id !== customerId) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_CUSTOMER_EMAIL_ALREADY_EXISTS,
-          { ESTABLISHMENT_ID: establishmentId, EMAIL: dto.email },
+          { ESTABLISHMENT_ID: customer.establishment.id, EMAIL: dto.email },
         );
 
         this.logger.warn(message);
@@ -83,14 +85,14 @@ export class EstablishmentCustomerUpdateService {
     if (dto.phone && dto.phone !== customer.phone) {
       const existingCustomer =
         await this.establishmentCustomerRepository.findByPhoneAndEstablishment(
-          establishmentId,
+          customer.establishment.id,
           dto.phone,
         );
 
       if (existingCustomer && existingCustomer.id !== customerId) {
         const message = this.errorMessageService.getMessage(
           ErrorCode.ESTABLISHMENT_CUSTOMER_PHONE_ALREADY_EXISTS,
-          { ESTABLISHMENT_ID: establishmentId, PHONE: dto.phone },
+          { ESTABLISHMENT_ID: customer.establishment.id, PHONE: dto.phone },
         );
 
         this.logger.warn(message);
@@ -120,12 +122,10 @@ export class EstablishmentCustomerUpdateService {
       `Updating customer with data: ${JSON.stringify(updateData)}`,
     );
 
-    const updated =
-      await this.establishmentCustomerRepository.updateByIdAndEstablishment(
-        customerId,
-        establishmentId,
-        updateData,
-      );
+    const updated = await this.establishmentCustomerRepository.updateById(
+      customerId,
+      updateData,
+    );
 
     this.logger.log(
       `Customer ${customerId} updated successfully. Data: ${JSON.stringify(updated)}`,

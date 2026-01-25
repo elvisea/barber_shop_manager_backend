@@ -6,7 +6,6 @@ import { EstablishmentProductRepository } from '../repositories/establishment-pr
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentOwnerAccessService } from '@/modules/establishment/services/establishment-owner-access.service';
 
 @Injectable()
 export class EstablishmentProductFindByIdService {
@@ -16,40 +15,43 @@ export class EstablishmentProductFindByIdService {
 
   constructor(
     private readonly establishmentProductRepository: EstablishmentProductRepository,
-    private readonly establishmentOwnerAccessService: EstablishmentOwnerAccessService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
     productId: string,
-    establishmentId: string,
     userId: string,
   ): Promise<EstablishmentProductCreateResponseDTO> {
-    this.logger.log(
-      `Finding product ${productId} for establishment ${establishmentId} by user ${userId}`,
-    );
-
-    await this.establishmentOwnerAccessService.assertOwnerHasAccess(
-      establishmentId,
-      userId,
-    );
+    this.logger.log(`Finding product ${productId} by user ${userId}`);
 
     const product =
-      await this.establishmentProductRepository.findByIdAndEstablishment(
+      await this.establishmentProductRepository.findByIdWithEstablishment(
         productId,
-        establishmentId,
       );
 
     if (!product) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND,
-        { PRODUCT_ID: productId, ESTABLISHMENT_ID: establishmentId },
+        { PRODUCT_ID: productId },
       );
       this.logger.warn(message);
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
         ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND,
+      );
+    }
+
+    if (product.establishment.ownerId !== userId) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        { ESTABLISHMENT_ID: product.establishment.id, USER_ID: userId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
       );
     }
 
