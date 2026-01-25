@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Member, MemberEmailVerification, MemberRole } from '@prisma/client';
+import {
+  Member,
+  MemberEmailVerification,
+  MemberRole,
+  Prisma,
+} from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
 
 import { PrismaService } from '@/prisma/prisma.service';
+
+type MemberWithEstablishment = Prisma.MemberGetPayload<{
+  include: { establishment: true };
+}>;
 
 @Injectable()
 export class MemberRepository implements IMemberRepository {
@@ -32,6 +41,15 @@ export class MemberRepository implements IMemberRepository {
   async findById(id: string): Promise<Member | null> {
     return this.prisma.member.findUnique({
       where: { id },
+    });
+  }
+
+  async findByIdWithEstablishment(
+    id: string,
+  ): Promise<MemberWithEstablishment | null> {
+    return this.prisma.member.findUnique({
+      where: { id },
+      include: { establishment: true },
     });
   }
 

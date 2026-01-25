@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { EstablishmentService } from '@prisma/client';
+import { EstablishmentService, Prisma } from '@prisma/client';
 
 import { IEstablishmentServiceRepository } from '../contracts/establishment-service-repository.interface';
 import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
 import { EstablishmentServiceUpdateRequestDTO } from '../dtos/establishment-service-update-request.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
+
+type EstablishmentServiceWithEstablishment =
+  Prisma.EstablishmentServiceGetPayload<{
+    include: { establishment: true };
+  }>;
 
 @Injectable()
 export class EstablishmentServiceRepository implements IEstablishmentServiceRepository {
@@ -36,6 +41,15 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
         id: serviceId,
         establishmentId,
       },
+    });
+  }
+
+  async findByIdWithEstablishment(
+    serviceId: string,
+  ): Promise<EstablishmentServiceWithEstablishment | null> {
+    return this.prisma.establishmentService.findUnique({
+      where: { id: serviceId },
+      include: { establishment: true },
     });
   }
 

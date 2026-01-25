@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { EstablishmentProduct } from '@prisma/client';
+import { EstablishmentProduct, Prisma } from '@prisma/client';
 
 import { EstablishmentProductCreateRequestDTO } from '../dtos/establishment-product-create-request.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
+
+type EstablishmentProductWithEstablishment =
+  Prisma.EstablishmentProductGetPayload<{
+    include: { establishment: true };
+  }>;
 
 @Injectable()
 export class EstablishmentProductRepository {
@@ -34,6 +39,15 @@ export class EstablishmentProductRepository {
         id: productId,
         establishmentId,
       },
+    });
+  }
+
+  async findByIdWithEstablishment(
+    productId: string,
+  ): Promise<EstablishmentProductWithEstablishment | null> {
+    return this.prisma.establishmentProduct.findUnique({
+      where: { id: productId },
+      include: { establishment: true },
     });
   }
 
@@ -87,6 +101,28 @@ export class EstablishmentProductRepository {
         establishmentId,
       },
       data: dto,
+    });
+  }
+
+  async updateById(
+    productId: string,
+    dto: Partial<{
+      name: string;
+      description?: string;
+      price: number;
+      commission: number;
+      stock: number;
+    }>,
+  ) {
+    return this.prisma.establishmentProduct.update({
+      where: { id: productId },
+      data: dto,
+    });
+  }
+
+  async deleteById(productId: string): Promise<void> {
+    await this.prisma.establishmentProduct.delete({
+      where: { id: productId },
     });
   }
 }

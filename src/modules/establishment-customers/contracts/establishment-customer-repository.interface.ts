@@ -1,7 +1,12 @@
-import { EstablishmentCustomer } from '@prisma/client';
+import { EstablishmentCustomer, Prisma } from '@prisma/client';
 
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
+
+type EstablishmentCustomerWithEstablishment =
+  Prisma.EstablishmentCustomerGetPayload<{
+    include: { establishment: true };
+  }>;
 
 export interface IEstablishmentCustomerRepository {
   existsByEmail(establishmentId: string, email: string): Promise<boolean>;
@@ -14,6 +19,9 @@ export interface IEstablishmentCustomerRepository {
     customerId: string,
     establishmentId: string,
   ): Promise<EstablishmentCustomer | null>;
+  findByIdWithEstablishment(
+    customerId: string,
+  ): Promise<EstablishmentCustomerWithEstablishment | null>;
   findByEmailAndEstablishment(
     establishmentId: string,
     email: string,

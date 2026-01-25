@@ -1,4 +1,13 @@
-import { Member, MemberEmailVerification, MemberRole } from '@prisma/client';
+import {
+  Member,
+  MemberEmailVerification,
+  MemberRole,
+  Prisma,
+} from '@prisma/client';
+
+type MemberWithEstablishment = Prisma.MemberGetPayload<{
+  include: { establishment: true };
+}>;
 
 export interface IMemberRepository {
   createMember(data: {
@@ -11,6 +20,10 @@ export interface IMemberRepository {
   }): Promise<Member>;
 
   findById(id: string): Promise<Member | null>;
+
+  findByIdWithEstablishment(
+    id: string,
+  ): Promise<MemberWithEstablishment | null>;
 
   findByEmail(email: string): Promise<Member | null>;
 

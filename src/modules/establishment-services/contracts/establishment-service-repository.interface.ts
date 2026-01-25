@@ -1,6 +1,11 @@
-import { EstablishmentService } from '@prisma/client';
+import { EstablishmentService, Prisma } from '@prisma/client';
 
 import { EstablishmentServiceCreateRequestDTO } from '../dtos/establishment-service-create-request.dto';
+
+type EstablishmentServiceWithEstablishment =
+  Prisma.EstablishmentServiceGetPayload<{
+    include: { establishment: true };
+  }>;
 
 export interface IEstablishmentServiceRepository {
   createService(
@@ -12,6 +17,10 @@ export interface IEstablishmentServiceRepository {
     serviceId: string,
     establishmentId: string,
   ): Promise<EstablishmentService | null>;
+
+  findByIdWithEstablishment(
+    serviceId: string,
+  ): Promise<EstablishmentServiceWithEstablishment | null>;
 
   findAllByEstablishmentPaginated(params: {
     establishmentId: string;

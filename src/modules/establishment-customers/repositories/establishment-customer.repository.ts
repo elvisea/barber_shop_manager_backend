@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { EstablishmentCustomer } from '@prisma/client';
+import { EstablishmentCustomer, Prisma } from '@prisma/client';
 
 import { IEstablishmentCustomerRepository } from '../contracts/establishment-customer-repository.interface';
 import { EstablishmentCustomerCreateRequestDTO } from '../dtos/establishment-customer-create-request.dto';
 import { EstablishmentCustomerCreateResponseDTO } from '../dtos/establishment-customer-create-response.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
+
+type EstablishmentCustomerWithEstablishment =
+  Prisma.EstablishmentCustomerGetPayload<{
+    include: { establishment: true };
+  }>;
 
 @Injectable()
 export class EstablishmentCustomerRepository implements IEstablishmentCustomerRepository {
@@ -56,6 +61,15 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
   ): Promise<EstablishmentCustomer | null> {
     return this.prisma.establishmentCustomer.findFirst({
       where: { id: customerId, establishmentId },
+    });
+  }
+
+  async findByIdWithEstablishment(
+    customerId: string,
+  ): Promise<EstablishmentCustomerWithEstablishment | null> {
+    return this.prisma.establishmentCustomer.findUnique({
+      where: { id: customerId },
+      include: { establishment: true },
     });
   }
 
@@ -125,6 +139,26 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
         establishmentId,
       },
       data: dto,
+    });
+  }
+
+  async updateById(
+    customerId: string,
+    dto: Partial<{
+      name: string;
+      email?: string | null;
+      phone?: string | null;
+    }>,
+  ): Promise<EstablishmentCustomer> {
+    return this.prisma.establishmentCustomer.update({
+      where: { id: customerId },
+      data: dto,
+    });
+  }
+
+  async deleteById(customerId: string): Promise<void> {
+    await this.prisma.establishmentCustomer.delete({
+      where: { id: customerId },
     });
   }
 
