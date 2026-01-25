@@ -12,7 +12,6 @@ import { EstablishmentDeleteService } from './services/establishment-delete.serv
 import { EstablishmentEvolutionApiCreateInstanceService } from './services/establishment-evolution-api-create-instance.service';
 import { EstablishmentFindAllService } from './services/establishment-find-all.service';
 import { EstablishmentFindOneService } from './services/establishment-find-one.service';
-import { EstablishmentOwnerAccessService } from './services/establishment-owner-access.service';
 import { EstablishmentUpdateService } from './services/establishment-update.service';
 import { EvolutionApiInstanceService } from './services/evolution-api-instance.service';
 import { EvolutionApiWebhookService } from './services/evolution-api-webhook.service';
@@ -38,14 +37,12 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
     EvolutionApiInstanceService,
     EvolutionApiWebhookService,
     EstablishmentRepository,
-    EstablishmentOwnerAccessService,
     JwtAuthGuard,
   ],
   exports: [
     EstablishmentRepository,
     EvolutionApiInstanceService,
     EvolutionApiWebhookService,
-    EstablishmentOwnerAccessService,
   ],
 })
 export class EstablishmentModule {}
