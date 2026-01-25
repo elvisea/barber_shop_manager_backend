@@ -12,7 +12,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/customers/:customerId')
+@Controller('customers/:customerId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerUpdateController {
   constructor(
@@ -28,7 +28,6 @@ export class EstablishmentCustomerUpdateController {
   ): Promise<EstablishmentCustomerUpdateResponseDTO> {
     return this.establishmentCustomerUpdateService.execute(
       params.customerId,
-      params.establishmentId,
       userId,
       dto,
     );

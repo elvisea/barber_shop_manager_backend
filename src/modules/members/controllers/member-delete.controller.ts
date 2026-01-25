@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:memberId')
+@Controller('members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberDeleteController {
   constructor(private readonly memberDeleteService: MemberDeleteService) {}
@@ -29,10 +29,6 @@ export class MemberDeleteController {
     @GetRequestId() userId: string,
     @Param() params: MemberParamDTO,
   ): Promise<void> {
-    return this.memberDeleteService.execute(
-      params.establishmentId,
-      params.memberId,
-      userId,
-    );
+    return this.memberDeleteService.execute(params.memberId, userId);
   }
 }

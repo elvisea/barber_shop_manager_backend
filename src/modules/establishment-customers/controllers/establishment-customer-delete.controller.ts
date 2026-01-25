@@ -10,7 +10,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/customers/:customerId')
+@Controller('customers/:customerId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerDeleteController {
   constructor(
@@ -26,7 +26,6 @@ export class EstablishmentCustomerDeleteController {
   ): Promise<void> {
     await this.establishmentCustomerDeleteService.execute(
       params.customerId,
-      params.establishmentId,
       userId,
     );
     // 204 No Content: não retorna body

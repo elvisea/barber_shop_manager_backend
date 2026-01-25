@@ -10,7 +10,7 @@ import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Services')
-@Controller('establishments/:establishmentId/services/:serviceId')
+@Controller('services/:serviceId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentServiceFindByIdController {
   constructor(
@@ -25,7 +25,6 @@ export class EstablishmentServiceFindByIdController {
   ): Promise<EstablishmentServiceCreateResponseDTO> {
     return this.establishmentServiceFindByIdService.execute(
       params.serviceId,
-      params.establishmentId,
       userId,
     );
   }

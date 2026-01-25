@@ -14,7 +14,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:memberId')
+@Controller('members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberUpdateController {
   constructor(private readonly memberUpdateService: MemberUpdateService) {}
@@ -26,11 +26,6 @@ export class MemberUpdateController {
     @Param() params: MemberParamDTO,
     @Body() dto: MemberUpdateRequestDTO,
   ): Promise<MemberResponseDTO> {
-    return this.memberUpdateService.execute(
-      params.establishmentId,
-      params.memberId,
-      dto,
-      userId,
-    );
+    return this.memberUpdateService.execute(params.memberId, dto, userId);
   }
 }

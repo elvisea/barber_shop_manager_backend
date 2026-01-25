@@ -11,7 +11,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Customers')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/customers/:customerId')
+@Controller('customers/:customerId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentCustomerFindByIdController {
   constructor(
@@ -26,7 +26,6 @@ export class EstablishmentCustomerFindByIdController {
   ): Promise<EstablishmentCustomerCreateResponseDTO> {
     return this.establishmentCustomerFindByIdService.execute(
       params.customerId,
-      params.establishmentId,
       userId,
     );
   }

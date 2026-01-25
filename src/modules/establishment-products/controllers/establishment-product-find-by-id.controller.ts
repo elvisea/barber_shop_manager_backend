@@ -10,7 +10,7 @@ import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Products')
-@Controller('establishments/:establishmentId/products/:productId')
+@Controller('products/:productId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentProductFindByIdController {
   constructor(
@@ -25,7 +25,6 @@ export class EstablishmentProductFindByIdController {
   ): Promise<EstablishmentProductCreateResponseDTO> {
     return this.establishmentProductFindByIdService.execute(
       params.productId,
-      params.establishmentId,
       userId,
     );
   }

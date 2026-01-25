@@ -9,7 +9,7 @@ import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Services')
-@Controller('establishments/:establishmentId/services/:serviceId')
+@Controller('services/:serviceId')
 @UseGuards(JwtAuthGuard)
 export class EstablishmentServiceDeleteController {
   constructor(
@@ -25,7 +25,6 @@ export class EstablishmentServiceDeleteController {
   ): Promise<void> {
     await this.establishmentServiceDeleteService.execute(
       params.serviceId,
-      params.establishmentId,
       userId,
     );
     // 204 No Content: não retorna body

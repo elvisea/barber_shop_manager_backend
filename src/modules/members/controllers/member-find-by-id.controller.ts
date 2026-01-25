@@ -11,7 +11,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Establishment Members')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:memberId')
+@Controller('members/:memberId')
 @UseGuards(JwtAuthGuard)
 export class MemberFindByIdController {
   constructor(private readonly memberFindByIdService: MemberFindByIdService) {}
@@ -22,10 +22,6 @@ export class MemberFindByIdController {
     @GetRequestId() userId: string,
     @Param() params: MemberParamDTO,
   ): Promise<MemberResponseDTO> {
-    return this.memberFindByIdService.execute(
-      params.establishmentId,
-      params.memberId,
-      userId,
-    );
+    return this.memberFindByIdService.execute(params.memberId, userId);
   }
 }
