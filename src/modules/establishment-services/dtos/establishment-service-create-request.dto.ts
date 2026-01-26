@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -22,12 +23,12 @@ export class EstablishmentServiceCreateRequestDTO {
   description?: string;
 
   @ApiProperty({ example: 30, description: 'Duração em minutos' })
-  @IsNumber()
+  @IsInt()
   @Min(1)
   duration: number;
 
   @ApiProperty({ example: 5000, description: 'Preço em centavos' })
-  @IsNumber()
+  @IsInt()
   @Min(0)
   price: number;
 
