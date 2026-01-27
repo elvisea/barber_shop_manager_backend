@@ -3,3 +3,7 @@ export * from './member-find-all-query.dto';
 export * from './member-param.dto';
 export * from './member-response.dto';
 export * from './member-update-request.dto';
+export * from './member-verify-email-request.dto';
+export * from './member-verify-email-response.dto';
+export * from './member-resend-verification-request.dto';
+export * from './member-resend-verification-response.dto';

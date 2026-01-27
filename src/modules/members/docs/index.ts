@@ -17,3 +17,7 @@ export { UpdateMemberDocs } from './update-member.docs';
 
 // Delete operations
 export { DeleteMemberDocs } from './delete-member.docs';
+
+// Email verification operations
+export { VerifyMemberEmailDocs } from './verify-email.docs';
+export { ResendMemberVerificationDocs } from './resend-verification.docs';

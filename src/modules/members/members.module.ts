@@ -4,25 +4,31 @@ import { MemberCreateController } from './controllers/member-create.controller';
 import { MemberDeleteController } from './controllers/member-delete.controller';
 import { MemberFindAllController } from './controllers/member-find-all.controller';
 import { MemberFindByIdController } from './controllers/member-find-by-id.controller';
+import { MemberResendVerificationController } from './controllers/member-resend-verification.controller';
 import { MemberUpdateController } from './controllers/member-update.controller';
+import { MemberVerifyEmailController } from './controllers/member-verify-email.controller';
 import { MemberRepository } from './repositories/member.repository';
 import { MemberCreateService } from './services/member-create.service';
 import { MemberDeleteService } from './services/member-delete.service';
 import { MemberFindAllService } from './services/member-find-all.service';
 import { MemberFindByIdService } from './services/member-find-by-id.service';
+import { MemberResendVerificationService } from './services/member-resend-verification.service';
 import { MemberUpdateService } from './services/member-update.service';
+import { MemberVerifyEmailService } from './services/member-verify-email.service';
 
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
-import { MemberEmailVerificationModule } from '@/modules/member-email-verification/member-email-verification.module';
+import { TokensModule } from '@/modules/tokens/tokens.module';
 
 @Module({
-  imports: [EstablishmentModule, MemberEmailVerificationModule],
+  imports: [EstablishmentModule, TokensModule],
   controllers: [
     MemberCreateController,
     MemberFindAllController,
     MemberFindByIdController,
     MemberUpdateController,
     MemberDeleteController,
+    MemberVerifyEmailController,
+    MemberResendVerificationController,
   ],
   providers: [
     MemberCreateService,
@@ -31,7 +37,13 @@ import { MemberEmailVerificationModule } from '@/modules/member-email-verificati
     MemberUpdateService,
     MemberDeleteService,
     MemberRepository,
+    MemberVerifyEmailService,
+    MemberResendVerificationService,
   ],
-  exports: [MemberRepository],
+  exports: [
+    MemberRepository,
+    MemberVerifyEmailService,
+    MemberResendVerificationService,
+  ],
 })
 export class MembersModule {}
