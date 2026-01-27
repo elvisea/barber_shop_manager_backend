@@ -17,12 +17,14 @@ export class TokenRepository implements ITokenRepository {
   async create(data: CreateTokenData): Promise<Token> {
     this.logger.debug('Creating token', {
       userId: data.userId,
+      memberId: data.memberId,
       type: data.type,
     });
 
     return this.prisma.token.create({
       data: {
-        userId: data.userId,
+        ...(data.userId && { userId: data.userId }),
+        ...(data.memberId && { memberId: data.memberId }),
         type: data.type,
         token: data.token,
         expiresAt: data.expiresAt,
@@ -43,6 +45,31 @@ export class TokenRepository implements ITokenRepository {
     return this.prisma.token.findFirst({
       where: {
         userId,
+        type,
+        used: false,
+        deletedAt: null,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findByMemberIdAndType(
+    memberId: string,
+    type: TokenType,
+  ): Promise<Token | null> {
+    this.logger.debug('Finding token by memberId and type', {
+      memberId,
+      type,
+    });
+
+    return this.prisma.token.findFirst({
+      where: {
+        memberId,
         type,
         used: false,
         deletedAt: null,
@@ -86,6 +113,25 @@ export class TokenRepository implements ITokenRepository {
     await this.prisma.token.updateMany({
       where: {
         userId,
+        type,
+        used: false,
+        deletedAt: null,
+      },
+      data: {
+        used: true,
+      },
+    });
+  }
+
+  async invalidateMemberTokens(
+    memberId: string,
+    type: TokenType,
+  ): Promise<void> {
+    this.logger.debug('Invalidating member tokens', { memberId, type });
+
+    await this.prisma.token.updateMany({
+      where: {
+        memberId,
         type,
         used: false,
         deletedAt: null,
