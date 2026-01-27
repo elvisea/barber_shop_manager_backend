@@ -8,8 +8,8 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { MemberRefreshTokenRepository } from '@/modules/member-auth/repositories/member-refresh-token.repository';
-import { MemberEmailVerificationResendService } from '@/modules/member-email-verification/services/member-email-verification-resend.service';
 import { MemberRepository } from '@/modules/members/repositories/member.repository';
+import { MemberResendVerificationService } from '@/modules/members/services/member-resend-verification.service';
 import { TokenService } from '@/shared/token/token.service';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class MemberAuthService {
     private readonly memberRefreshTokenRepository: MemberRefreshTokenRepository,
     private readonly tokenService: TokenService,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly memberEmailVerificationResendService: MemberEmailVerificationResendService,
+    private readonly memberResendVerificationService: MemberResendVerificationService,
   ) {}
 
   async execute(
@@ -91,17 +91,21 @@ export class MemberAuthService {
 
     /**
      * Check if email is verified.
+     * Verifica se há um token de verificação usado (indicando que email foi verificado)
      */
-    if (!memberWithVerification.emailVerification?.verified) {
+    const isEmailVerified =
+      memberWithVerification.verificationToken?.used === true;
+
+    if (!isEmailVerified) {
       this.logger.warn(
         `Email not verified for member: ${memberWithVerification.id}`,
       );
 
       // Re-send verification email
       try {
-        await this.memberEmailVerificationResendService.execute(
-          authRequest.email,
-        );
+        await this.memberResendVerificationService.execute({
+          email: authRequest.email,
+        });
         this.logger.log(`Verification email re-sent for: ${authRequest.email}`);
       } catch (resendError: unknown) {
         const errorMessage =

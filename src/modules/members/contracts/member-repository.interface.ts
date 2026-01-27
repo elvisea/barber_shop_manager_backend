@@ -1,9 +1,4 @@
-import {
-  Member,
-  MemberEmailVerification,
-  MemberRole,
-  Prisma,
-} from '@prisma/client';
+import { Member, MemberRole, Prisma, Token } from '@prisma/client';
 
 type MemberWithEstablishment = Prisma.MemberGetPayload<{
   include: { establishment: true };
@@ -29,9 +24,7 @@ export interface IMemberRepository {
 
   findByEmailWithVerification(
     email: string,
-  ): Promise<
-    (Member & { emailVerification: MemberEmailVerification | null }) | null
-  >;
+  ): Promise<(Member & { verificationToken: Token | null }) | null>;
 
   findByEstablishmentAndId(
     establishmentId: string,

@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Member,
-  MemberEmailVerification,
-  MemberRole,
-  Prisma,
-} from '@prisma/client';
+import { Member, MemberRole, Prisma, Token, TokenType } from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
 
@@ -61,15 +56,32 @@ export class MemberRepository implements IMemberRepository {
 
   async findByEmailWithVerification(
     email: string,
-  ): Promise<
-    (Member & { emailVerification: MemberEmailVerification | null }) | null
-  > {
-    return this.prisma.member.findUnique({
+  ): Promise<(Member & { verificationToken: Token | null }) | null> {
+    const member = await this.prisma.member.findUnique({
       where: { email },
-      include: {
-        emailVerification: true,
+    });
+
+    if (!member) {
+      return null;
+    }
+
+    // Buscar token de verificação usado (indicando que email foi verificado)
+    const verificationToken = await this.prisma.token.findFirst({
+      where: {
+        memberId: member.id,
+        type: TokenType.EMAIL_VERIFICATION,
+        used: true,
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
+
+    return {
+      ...member,
+      verificationToken,
+    };
   }
 
   async findByEstablishmentAndId(

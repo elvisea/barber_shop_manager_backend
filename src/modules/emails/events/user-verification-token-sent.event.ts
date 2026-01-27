@@ -2,7 +2,7 @@
  * Evento emitido quando um token de verificação é enviado por email para um usuário.
  *
  * Este evento é emitido pelos services que enviam tokens de verificação
- * (CreateUserService, UserEmailVerificationResendService), permitindo que outros módulos
+ * (CreateUserService, ResendVerificationService), permitindo que outros módulos
  * (como EmailsModule) enviem o email de forma desacoplada.
  *
  * @example

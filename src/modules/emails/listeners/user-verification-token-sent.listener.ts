@@ -10,7 +10,7 @@ import { maskEmail } from '@/common/utils';
  * Listener responsável por processar o evento de token de verificação enviado para usuário.
  *
  * Este listener escuta o evento 'user.verification.token.sent' emitido pelos services
- * que enviam tokens de verificação (CreateUserService, UserEmailVerificationResendService),
+ * que enviam tokens de verificação (CreateUserService, ResendVerificationService),
  * e envia o email de verificação de forma desacoplada.
  *
  * @example

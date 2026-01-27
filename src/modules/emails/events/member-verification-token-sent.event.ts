@@ -2,7 +2,7 @@
  * Evento emitido quando um token de verificação é enviado por email para um membro.
  *
  * Este evento é emitido pelos services que enviam tokens de verificação
- * (MemberCreateService, MemberEmailVerificationResendService), permitindo que outros módulos
+ * (MemberCreateService, MemberResendVerificationService), permitindo que outros módulos
  * (como EmailsModule) enviem o email de forma desacoplada.
  *
  * @example
