@@ -26,8 +26,8 @@ paths:
                   name: John Doe
                   email: john.doe@example.com
                   phone: '+5511987654321'
-                  createdAt: '2026-01-25T20:21:53.949Z'
-                  updatedAt: '2026-01-25T20:21:53.949Z'
+                  createdAt: '2026-01-27T00:35:34.908Z'
+                  updatedAt: '2026-01-27T00:35:34.908Z'
         '400':
           description: Validation error
           content:
@@ -591,8 +591,8 @@ paths:
                 instanceId: instance_123456789
                 status: active
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-25T20:21:53.486Z'
-                updatedAt: '2026-01-25T20:21:53.486Z'
+                createdAt: '2026-01-27T00:35:34.499Z'
+                updatedAt: '2026-01-27T00:35:34.499Z'
         '400':
           description: Dados inválidos
           content:
@@ -1034,16 +1034,16 @@ paths:
                     price: 25.5
                     imageUrl: http://example.com/shampoo.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-24T20:21:54.039Z'
-                    updatedAt: '2026-01-24T20:21:54.039Z'
+                    createdAt: '2026-01-26T00:35:34.996Z'
+                    updatedAt: '2026-01-26T00:35:34.996Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Condicionador
                     description: Condicionador para cabelos secos
                     price: 30
                     imageUrl: http://example.com/condicionador.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-25T20:21:54.039Z'
-                    updatedAt: '2026-01-25T20:21:54.039Z'
+                    createdAt: '2026-01-27T00:35:34.996Z'
+                    updatedAt: '2026-01-27T00:35:34.996Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1102,8 +1102,8 @@ paths:
                 price: 25.5
                 imageUrl: http://example.com/shampoo.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-25T20:21:54.046Z'
-                updatedAt: '2026-01-25T20:21:54.046Z'
+                createdAt: '2026-01-27T00:35:35.002Z'
+                updatedAt: '2026-01-27T00:35:35.002Z'
         '400':
           description: Validation error
           content:
@@ -1223,8 +1223,8 @@ paths:
                 price: 30
                 imageUrl: http://example.com/shampoo-updated.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-24T20:21:54.059Z'
-                updatedAt: '2026-01-25T20:21:54.059Z'
+                createdAt: '2026-01-26T00:35:35.011Z'
+                updatedAt: '2026-01-27T00:35:35.011Z'
         '400':
           description: Validation error
           content:
@@ -1304,8 +1304,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-25T20:21:53.567Z'
-                updatedAt: '2026-01-25T20:21:53.567Z'
+                createdAt: '2026-01-27T00:35:34.580Z'
+                updatedAt: '2026-01-27T00:35:34.580Z'
         '400':
           description: Validation error
           content:
@@ -1382,16 +1382,16 @@ paths:
                     price: 50
                     duration: 60
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-24T20:21:53.584Z'
-                    updatedAt: '2026-01-24T20:21:53.584Z'
+                    createdAt: '2026-01-26T00:35:34.596Z'
+                    updatedAt: '2026-01-26T00:35:34.596Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Barba
                     description: Aparar e modelar barba
                     price: 30
                     duration: 30
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-25T20:21:53.584Z'
-                    updatedAt: '2026-01-25T20:21:53.584Z'
+                    createdAt: '2026-01-27T00:35:34.596Z'
+                    updatedAt: '2026-01-27T00:35:34.596Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1460,8 +1460,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-25T20:21:53.590Z'
-                updatedAt: '2026-01-25T20:21:53.590Z'
+                createdAt: '2026-01-27T00:35:34.601Z'
+                updatedAt: '2026-01-27T00:35:34.601Z'
         '400':
           description: Validation error
           content:
@@ -1581,8 +1581,8 @@ paths:
                 price: 60
                 duration: 75
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-24T20:21:53.598Z'
-                updatedAt: '2026-01-25T20:21:53.598Z'
+                createdAt: '2026-01-26T00:35:34.613Z'
+                updatedAt: '2026-01-27T00:35:34.613Z'
         '400':
           description: Validation error
           content:
@@ -1890,72 +1890,24 @@ paths:
       summary: Delete member
       tags:
         - Establishment Members
-  /member-email-verification/verify:
-    get:
-      operationId: MemberEmailVerificationVerifyController_handle
-      parameters:
-        - name: email
-          required: true
-          in: query
-          description: Email do membro que está verificando
-          schema:
-            example: membro@example.com
-            type: string
-        - name: code
-          required: true
-          in: query
-          description: Código de verificação enviado por email
-          schema:
-            example: '123456'
-            type: string
-      responses:
-        '200':
-          description: Email verificado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberEmailVerificationVerifyResponseDTO'
-        '400':
-          description: Verification token expired
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message: Verification token [TOKEN] has expired.
-                  error: Bad Request
-                  errorCode: VERIFICATION_TOKEN_EXPIRED
-        '409':
-          description: Email already verified
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: Email for user [USER_ID] is already verified.
-                  error: Conflict
-                  errorCode: EMAIL_ALREADY_VERIFIED
-      summary: Verificar email do membro com código
-      tags:
-        - Verificação de Email - Membro
-  /member-email-verification/resend:
+  /members/email-verification/verify:
     post:
-      description: Solicita um novo token de verificação para o email do membro especificado. Útil quando o token anterior expirou.
-      operationId: MemberEmailVerificationResendController_handle
+      description: Verifica o email do membro usando o código de verificação enviado por email.
+      operationId: MemberVerifyEmailController_handle
       parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MemberEmailVerificationResendRequestDTO'
+              $ref: '#/components/schemas/MemberVerifyEmailRequestDto'
       responses:
         '200':
-          description: Token reenviado com sucesso
+          description: Email verificado com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemberEmailVerificationResendResponseDTO'
+                $ref: '#/components/schemas/MemberVerifyEmailResponseDto'
         '400':
           description: Validation error
           content:
@@ -1969,28 +1921,61 @@ paths:
                   error: Bad Request
                   errorCode: VALIDATION_ERROR
         '404':
-          description: User email verification not found
+          description: Member not found
           content:
             application/json:
               schema:
                 example:
                   statusCode: 404
-                  message: Email verification not found for email [EMAIL].
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
                   error: Not Found
-                  errorCode: USER_EMAIL_VERIFICATION_NOT_FOUND
-        '409':
-          description: Email already verified
+                  errorCode: MEMBER_NOT_FOUND
+      summary: Verify member email
+      tags:
+        - Members
+  /members/email-verification/resend:
+    post:
+      description: Reenvia um novo código de verificação para o email do membro.
+      operationId: MemberResendVerificationController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberResendVerificationRequestDto'
+      responses:
+        '200':
+          description: Novo código de verificação enviado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberResendVerificationResponseDto'
+        '400':
+          description: Validation error
           content:
             application/json:
               schema:
                 example:
-                  statusCode: 409
-                  message: Email for user [USER_ID] is already verified.
-                  error: Conflict
-                  errorCode: EMAIL_ALREADY_VERIFIED
-      summary: Reenviar token de verificação de email para membro
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
+                  error: Not Found
+                  errorCode: MEMBER_NOT_FOUND
+      summary: Resend verification code for member
       tags:
-        - Verificação de Email - Membro
+        - Members
   /member-auth/login:
     post:
       description: Autentica um membro e retorna os tokens de acesso.
@@ -2019,8 +2004,8 @@ paths:
                   phone: '+5511987654321'
                   role: BARBER
                   establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                  createdAt: '2026-01-25T20:21:54.079Z'
-                  updatedAt: '2026-01-25T20:21:54.079Z'
+                  createdAt: '2026-01-27T00:35:35.033Z'
+                  updatedAt: '2026-01-27T00:35:35.033Z'
         '400':
           description: Validation error
           content:
@@ -2101,8 +2086,8 @@ paths:
                 productId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 price: 25.5
                 commission: 2.55
-                createdAt: '2026-01-25T20:21:54.101Z'
-                updatedAt: '2026-01-25T20:21:54.101Z'
+                createdAt: '2026-01-27T00:35:35.055Z'
+                updatedAt: '2026-01-27T00:35:35.055Z'
         '400':
           description: Validation error
           content:
@@ -2528,10 +2513,10 @@ paths:
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
                 planId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 status: ACTIVE
-                startDate: '2025-12-26T20:21:54.165Z'
-                endDate: '2026-01-25T23:59:59.999Z'
-                createdAt: '2026-01-25T20:21:54.165Z'
-                updatedAt: '2026-01-25T20:21:54.165Z'
+                startDate: '2025-12-28T00:35:35.116Z'
+                endDate: '2026-01-27T23:59:59.999Z'
+                createdAt: '2026-01-27T00:35:35.116Z'
+                updatedAt: '2026-01-27T00:35:35.116Z'
       security:
         - bearer: []
       summary: Create subscription for establishment
@@ -2599,14 +2584,14 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 memberId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-26T10:00:00.000Z'
-                endTime: '2026-01-26T11:00:00.000Z'
+                startTime: '2026-01-28T10:00:00.000Z'
+                endTime: '2026-01-28T11:00:00.000Z'
                 totalAmount: 5000
                 totalDuration: 60
                 status: PENDING
                 notes: Corte de cabelo e barba
-                createdAt: '2026-01-25T20:21:53.407Z'
-                updatedAt: '2026-01-25T20:21:53.407Z'
+                createdAt: '2026-01-27T00:35:34.425Z'
+                updatedAt: '2026-01-27T00:35:34.425Z'
         '400':
           description: Dados inválidos fornecidos ou validação de negócio falhou
           content:
@@ -2759,14 +2744,14 @@ paths:
           in: query
           description: Data de início para filtro (ISO 8601)
           schema:
-            example: '2026-01-18T20:21:53.420Z'
+            example: '2026-01-20T00:35:34.436Z'
             type: string
         - name: endDate
           required: false
           in: query
           description: Data de fim para filtro (ISO 8601)
           schema:
-            example: '2026-02-01T00:00:00.000Z'
+            example: '2026-02-03T00:00:00.000Z'
             type: string
         - name: includeDeleted
           required: false
@@ -2787,8 +2772,8 @@ paths:
                   - id: 550e8400-e29b-41d4-a716-446655440000
                     customerId: 550e8400-e29b-41d4-a716-446655440001
                     memberId: 550e8400-e29b-41d4-a716-446655440002
-                    startTime: '2026-01-26T10:00:00.000Z'
-                    endTime: '2026-01-26T11:00:00.000Z'
+                    startTime: '2026-01-28T10:00:00.000Z'
+                    endTime: '2026-01-28T11:00:00.000Z'
                 meta:
                   page: 1
                   limit: 10
@@ -2869,8 +2854,8 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 memberId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-26T10:00:00.000Z'
-                endTime: '2026-01-26T11:00:00.000Z'
+                startTime: '2026-01-28T10:00:00.000Z'
+                endTime: '2026-01-28T11:00:00.000Z'
                 notes: Corte de cabelo e barba
                 status: SCHEDULED
                 services:
@@ -2878,8 +2863,8 @@ paths:
                     name: Corte de Cabelo
                     price: 25
                     duration: 30
-                createdAt: '2026-01-24T20:21:53.423Z'
-                updatedAt: '2026-01-24T20:21:53.423Z'
+                createdAt: '2026-01-26T00:35:34.438Z'
+                updatedAt: '2026-01-26T00:35:34.438Z'
         '400':
           description: ID inválido fornecido
           content:
@@ -2960,8 +2945,8 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 memberId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-26T14:00:00.000Z'
-                endTime: '2026-01-26T15:00:00.000Z'
+                startTime: '2026-01-28T14:00:00.000Z'
+                endTime: '2026-01-28T15:00:00.000Z'
                 notes: Corte de cabelo, barba e sobrancelha
                 status: CONFIRMED
                 services:
@@ -2973,8 +2958,8 @@ paths:
                     name: Barba
                     price: 15
                     duration: 20
-                createdAt: '2026-01-24T20:21:53.425Z'
-                updatedAt: '2026-01-25T20:21:53.425Z'
+                createdAt: '2026-01-26T00:35:34.440Z'
+                updatedAt: '2026-01-27T00:35:34.440Z'
         '400':
           description: Dados inválidos fornecidos
           content:
@@ -3287,12 +3272,12 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.832Z'
+          example: '2026-01-27T00:35:34.810Z'
           description: User creation date
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.832Z'
+          example: '2026-01-27T00:35:34.810Z'
           description: User last update date
       required:
         - id
@@ -3399,12 +3384,12 @@ components:
           format: date-time
           type: string
           description: Creation date
-          example: '2026-01-25T20:21:53.439Z'
+          example: '2026-01-27T00:35:34.453Z'
         updatedAt:
           format: date-time
           type: string
           description: Last update date
-          example: '2026-01-25T20:21:53.439Z'
+          example: '2026-01-27T00:35:34.453Z'
       required:
         - id
         - name
@@ -3595,11 +3580,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.513Z'
+          example: '2026-01-27T00:35:34.524Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.513Z'
+          example: '2026-01-27T00:35:34.524Z'
       required:
         - id
         - establishmentId
@@ -3655,11 +3640,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.521Z'
+          example: '2026-01-27T00:35:34.533Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.521Z'
+          example: '2026-01-27T00:35:34.533Z'
       required:
         - id
         - establishmentId
@@ -3719,11 +3704,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:54.001Z'
+          example: '2026-01-27T00:35:34.959Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:54.001Z'
+          example: '2026-01-27T00:35:34.959Z'
       required:
         - id
         - establishmentId
@@ -3825,11 +3810,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.562Z'
+          example: '2026-01-27T00:35:34.575Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.562Z'
+          example: '2026-01-27T00:35:34.575Z'
       required:
         - id
         - name
@@ -3932,11 +3917,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.646Z'
+          example: '2026-01-27T00:35:34.653Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.646Z'
+          example: '2026-01-27T00:35:34.653Z'
       required:
         - id
         - name
@@ -3983,94 +3968,57 @@ components:
         isActive:
           type: boolean
           example: true
-    MemberEmailVerificationVerifyResponseDTO:
+    MemberVerifyEmailRequestDto:
       type: object
       properties:
-        id:
+        email:
           type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: ID da verificação de email
-        memberId:
+          example: membro@example.com
+          description: Email do membro que está verificando
+        token:
           type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: ID do membro
-        verified:
+          example: '123456'
+          description: Código de verificação enviado por email (6 dígitos numéricos)
+      required:
+        - email
+        - token
+    MemberVerifyEmailResponseDto:
+      type: object
+      properties:
+        success:
           type: boolean
           example: true
-          description: Indica se o email foi verificado
-        expiresAt:
-          format: date-time
+          description: Indica se a verificação foi bem-sucedida
+        message:
           type: string
-          example: '2026-01-26T10:00:00.000Z'
-          description: Data de expiração do token
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-25T20:21:53.718Z'
-          description: Data de criação da verificação
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-25T20:21:53.718Z'
-          description: Data da última atualização
+          example: Email verificado com sucesso!
+          description: Mensagem de resposta
       required:
-        - id
-        - memberId
-        - verified
-        - expiresAt
-        - createdAt
-        - updatedAt
-    MemberEmailVerificationResendRequestDTO:
+        - success
+        - message
+    MemberResendVerificationRequestDto:
       type: object
       properties:
         email:
           type: string
-          example: membro@email.com
-          description: Email do membro para reenviar o token de verificação
+          example: membro@example.com
+          description: Email do membro para reenviar o código de verificação
       required:
         - email
-    MemberEmailVerificationResendResponseDTO:
+    MemberResendVerificationResponseDto:
       type: object
       properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-          description: ID da verificação de email
-        memberId:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440001
-          description: ID do membro
-        email:
-          type: string
-          example: membro@email.com
-          description: Email do membro
-        verified:
+        success:
           type: boolean
-          example: false
-          description: Status de verificação
-        expiresAt:
-          format: date-time
+          example: true
+          description: Indica se o reenvio foi bem-sucedido
+        message:
           type: string
-          example: '2026-01-26T10:00:00.000Z'
-          description: Data de expiração do token
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-25T20:21:53.712Z'
-          description: Data de criação
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-25T20:21:53.712Z'
-          description: Data de atualização
+          example: Novo código de verificação enviado com sucesso!
+          description: Mensagem de resposta
       required:
-        - id
-        - memberId
-        - email
-        - verified
-        - expiresAt
-        - createdAt
-        - updatedAt
+        - success
+        - message
     MemberAuthRequestDTO:
       type: object
       properties:
@@ -4149,11 +4097,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:54.087Z'
+          example: '2026-01-27T00:35:35.041Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:54.087Z'
+          example: '2026-01-27T00:35:35.041Z'
       required:
         - id
         - memberId
@@ -4212,11 +4160,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.611Z'
+          example: '2026-01-27T00:35:34.621Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:53.611Z'
+          example: '2026-01-27T00:35:34.621Z'
       required:
         - id
         - memberId
@@ -4288,11 +4236,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:54.108Z'
+          example: '2026-01-27T00:35:35.062Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:54.108Z'
+          example: '2026-01-27T00:35:35.062Z'
       required:
         - id
         - name
@@ -4345,10 +4293,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-26T20:21:54.157Z'
+          example: '2025-12-28T00:35:35.108Z'
         endDate:
           type: string
-          example: '2026-01-25T23:59:59.999Z'
+          example: '2026-01-27T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -4377,10 +4325,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-26T20:21:54.153Z'
+          example: '2025-12-28T00:35:35.105Z'
         endDate:
           type: string
-          example: '2026-01-25T23:59:59.999Z'
+          example: '2026-01-27T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -4389,10 +4337,10 @@ components:
           example: '5511999999999'
         createdAt:
           type: string
-          example: '2026-01-25T20:21:54.153Z'
+          example: '2026-01-27T00:35:35.105Z'
         updatedAt:
           type: string
-          example: '2026-01-25T20:21:54.153Z'
+          example: '2026-01-27T00:35:35.105Z'
       required:
         - id
         - establishmentId
@@ -4465,7 +4413,7 @@ components:
           description: Destino do webhook
         date_time:
           type: string
-          example: '2026-01-25T20:21:54.179Z'
+          example: '2026-01-27T00:35:35.130Z'
           description: Data e hora do evento
         sender:
           type: string
@@ -4503,7 +4451,7 @@ components:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-26T10:00:00.000Z'
+          example: '2026-01-28T10:00:00.000Z'
         notes:
           type: string
           description: Observações do agendamento
@@ -4538,10 +4486,10 @@ components:
           example: c4d5e6f7-0123-4567-89ab-cdef01234567
         startTime:
           type: string
-          example: '2026-01-26T14:00:00.000Z'
+          example: '2026-01-28T14:00:00.000Z'
         endTime:
           type: string
-          example: '2026-01-26T14:30:00.000Z'
+          example: '2026-01-28T14:30:00.000Z'
         totalAmount:
           type: number
           example: 5000
@@ -4557,11 +4505,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:52.970Z'
+          example: '2026-01-27T00:35:34.044Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-25T20:21:52.970Z'
+          example: '2026-01-27T00:35:34.044Z'
       required:
         - id
         - establishmentId
@@ -4659,7 +4607,7 @@ components:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-26T10:00:00.000Z'
+          example: '2026-01-28T10:00:00.000Z'
         status:
           type: string
           description: Status do agendamento
