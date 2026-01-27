@@ -6,7 +6,7 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { maskEmail } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { TokenService } from '@/modules/tokens/services/token.service';
+import { PasswordResetTokenService } from '@/modules/tokens/services/password-reset-token.service';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class ValidatePasswordResetTokenService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService,
+    private readonly passwordResetTokenService: PasswordResetTokenService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -47,10 +47,11 @@ export class ValidatePasswordResetTokenService {
     }
 
     // Validar token usando o método reutilizável
-    const tokenRecord = await this.tokenService.validatePasswordResetToken(
-      validateDto.token,
-      user.id,
-    );
+    const tokenRecord =
+      await this.passwordResetTokenService.validatePasswordResetToken(
+        validateDto.token,
+        user.id,
+      );
 
     if (!tokenRecord) {
       this.logger.warn('Invalid or expired password reset token', {

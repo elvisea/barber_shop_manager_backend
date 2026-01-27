@@ -5,7 +5,7 @@ import { RequestPasswordResetRequestDto } from '../dtos';
 
 import { maskEmail } from '@/common/utils';
 import { PasswordResetTokenSentEvent } from '@/modules/emails/events/password-reset-token-sent.event';
-import { TokenService } from '@/modules/tokens/services/token.service';
+import { PasswordResetTokenService } from '@/modules/tokens/services/password-reset-token.service';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class RequestPasswordResetService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService,
+    private readonly passwordResetTokenService: PasswordResetTokenService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -53,7 +53,7 @@ export class RequestPasswordResetService {
 
     // Criar token de redefinição de senha
     const { token, tokenRecord } =
-      await this.tokenService.createPasswordResetToken(
+      await this.passwordResetTokenService.createPasswordResetToken(
         user.id,
         RequestPasswordResetService.EXPIRATION_MINUTES,
       );

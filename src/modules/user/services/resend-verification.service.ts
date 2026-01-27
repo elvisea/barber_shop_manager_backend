@@ -12,7 +12,7 @@ import { maskEmail } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { UserVerificationTokenSentEvent } from '@/modules/emails/events/user-verification-token-sent.event';
-import { TokenService } from '@/modules/tokens/services/token.service';
+import { EmailVerificationTokenService } from '@/modules/tokens/services/email-verification-token.service';
 
 @Injectable()
 export class ResendVerificationService {
@@ -22,7 +22,7 @@ export class ResendVerificationService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService,
+    private readonly emailVerificationTokenService: EmailVerificationTokenService,
     private readonly errorMessageService: ErrorMessageService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -75,7 +75,7 @@ export class ResendVerificationService {
 
     // Criar novo token de verificação
     const { token, tokenRecord } =
-      await this.tokenService.createEmailVerificationToken(
+      await this.emailVerificationTokenService.createEmailVerificationToken(
         user.id,
         ResendVerificationService.EXPIRATION_MINUTES,
       );

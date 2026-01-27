@@ -9,7 +9,8 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { PasswordResetEvent } from '@/modules/emails/events/password-reset.event';
 import { RefreshTokenRepository } from '@/modules/refresh-token/repositories/refresh-token.repository';
-import { TokenService } from '@/modules/tokens/services/token.service';
+import { PasswordResetTokenService } from '@/modules/tokens/services/password-reset-token.service';
+import { TokenValidationService } from '@/modules/tokens/services/token-validation.service';
 import { UserRepository } from '@/modules/user/repositories/user.repository';
 import { hashValue } from '@/utils/hash-value';
 
@@ -19,7 +20,8 @@ export class ResetPasswordService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService,
+    private readonly passwordResetTokenService: PasswordResetTokenService,
+    private readonly tokenValidationService: TokenValidationService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly errorMessageService: ErrorMessageService,
     private readonly eventEmitter: EventEmitter2,
@@ -64,10 +66,11 @@ export class ResetPasswordService {
     }
 
     // Validar token usando o método reutilizável
-    const tokenRecord = await this.tokenService.validatePasswordResetToken(
-      resetDto.token,
-      user.id,
-    );
+    const tokenRecord =
+      await this.passwordResetTokenService.validatePasswordResetToken(
+        resetDto.token,
+        user.id,
+      );
 
     if (!tokenRecord) {
       this.logger.warn('Invalid or expired password reset token', {
@@ -96,7 +99,7 @@ export class ResetPasswordService {
     // Atualizar senha, marcar token como usado e invalidar refresh tokens em paralelo
     await Promise.all([
       this.userRepository.updatePassword(user.id, hashedPassword),
-      this.tokenService.markTokenAsUsed(tokenRecord.id),
+      this.tokenValidationService.markTokenAsUsed(tokenRecord.id),
       this.refreshTokenRepository.invalidateAllUserTokens(user.id),
     ]);
 

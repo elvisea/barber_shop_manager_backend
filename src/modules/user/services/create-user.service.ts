@@ -14,7 +14,7 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { UserCreatedEvent } from '@/modules/emails/events/user-created.event';
 import { UserVerificationTokenSentEvent } from '@/modules/emails/events/user-verification-token-sent.event';
-import { TokenService } from '@/modules/tokens/services/token.service';
+import { EmailVerificationTokenService } from '@/modules/tokens/services/email-verification-token.service';
 
 @Injectable()
 export class CreateUserService {
@@ -29,7 +29,7 @@ export class CreateUserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly tokenService: TokenService,
+    private readonly emailVerificationTokenService: EmailVerificationTokenService,
     private readonly eventEmitter: EventEmitter2,
     private readonly encryptionService: EncryptionService,
   ) {}
@@ -182,7 +182,7 @@ export class CreateUserService {
 
     // Criar token de verificação
     const { token, tokenRecord } =
-      await this.tokenService.createEmailVerificationToken(
+      await this.emailVerificationTokenService.createEmailVerificationToken(
         user.id,
         CreateUserService.EMAIL_VERIFICATION_EXPIRATION_MINUTES,
       );

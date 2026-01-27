@@ -8,7 +8,7 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { maskEmail } from '@/common/utils';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { TokenService } from '@/modules/tokens/services/token.service';
+import { TokenValidationService } from '@/modules/tokens/services/token-validation.service';
 
 @Injectable()
 export class VerifyEmailService {
@@ -16,7 +16,7 @@ export class VerifyEmailService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService,
+    private readonly tokenValidationService: TokenValidationService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -67,7 +67,7 @@ export class VerifyEmailService {
     }
 
     // Obter token record e validar
-    const tokenRecord = await this.tokenService.getTokenRecord(
+    const tokenRecord = await this.tokenValidationService.getTokenRecord(
       verifyEmailDto.token,
       user.id,
       TokenType.EMAIL_VERIFICATION,
@@ -93,7 +93,7 @@ export class VerifyEmailService {
 
     // Executar operações em paralelo
     await Promise.all([
-      this.tokenService.markTokenAsUsed(tokenRecord.id),
+      this.tokenValidationService.markTokenAsUsed(tokenRecord.id),
       this.userRepository.updateEmailVerified(user.id, true),
     ]);
 

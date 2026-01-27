@@ -12,7 +12,7 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 import { MemberCreatedEvent } from '@/modules/emails/events/member-created.event';
 import { MemberVerificationTokenSentEvent } from '@/modules/emails/events/member-verification-token-sent.event';
 import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
-import { MemberEmailVerificationCreateService } from '@/modules/member-email-verification/services/member-email-verification-create.service';
+import { EmailVerificationTokenService } from '@/modules/tokens/services/email-verification-token.service';
 import { generateTempPassword } from '@/utils/generate-temp-password';
 import { hashValue } from '@/utils/hash-value';
 
@@ -20,11 +20,17 @@ import { hashValue } from '@/utils/hash-value';
 export class MemberCreateService {
   private readonly logger = new Logger(MemberCreateService.name);
 
+  /**
+   * Tempo de expiração da verificação de email em minutos.
+   * 15 minutos (reduzido de 24 horas para maior segurança).
+   */
+  private static readonly EMAIL_VERIFICATION_EXPIRATION_MINUTES = 15;
+
   constructor(
     private readonly memberRepository: MemberRepository,
     private readonly errorMessageService: ErrorMessageService,
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly memberEmailVerificationCreateService: MemberEmailVerificationCreateService,
+    private readonly emailVerificationTokenService: EmailVerificationTokenService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -131,14 +137,15 @@ export class MemberCreateService {
 
       // 6. Cria verificação de email e envia código
       try {
-        const verification =
-          await this.memberEmailVerificationCreateService.execute(
+        // Criar token de verificação usando EmailVerificationTokenService
+        const { token, tokenRecord } =
+          await this.emailVerificationTokenService.createEmailVerificationTokenForMember(
             member.id,
-            dto.email,
+            MemberCreateService.EMAIL_VERIFICATION_EXPIRATION_MINUTES,
           );
 
         // Formatar data de expiração no formato brasileiro
-        const expiresAtFormatted = verification.expiresAt.toLocaleString(
+        const expiresAtFormatted = tokenRecord.expiresAt.toLocaleString(
           'pt-BR',
           {
             day: '2-digit',
@@ -156,7 +163,7 @@ export class MemberCreateService {
             memberId: member.id,
             email: member.email,
             name: member.name,
-            token: verification.plainToken,
+            token,
             expiresAt: expiresAtFormatted,
             tempPassword,
           },
