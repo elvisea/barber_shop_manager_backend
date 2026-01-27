@@ -1,5 +1,7 @@
 import { Member, MemberRole, Prisma, Token } from '@prisma/client';
 
+import { MemberRelationshipsSummaryDTO } from '../dtos/member-summary-response.dto';
+
 type MemberWithEstablishment = Prisma.MemberGetPayload<{
   include: { establishment: true };
 }>;
@@ -30,6 +32,11 @@ export interface IMemberRepository {
     establishmentId: string,
     memberId: string,
   ): Promise<Member | null>;
+
+  findByEstablishmentAndIdWithEstablishment(
+    establishmentId: string,
+    memberId: string,
+  ): Promise<MemberWithEstablishment | null>;
 
   findByEmailAndEstablishment(
     email: string,
@@ -92,4 +99,9 @@ export interface IMemberRepository {
     establishmentId: string,
     excludeId: string,
   ): Promise<boolean>;
+
+  getMemberSummary(
+    memberId: string,
+    establishmentId: string,
+  ): Promise<MemberRelationshipsSummaryDTO>;
 }

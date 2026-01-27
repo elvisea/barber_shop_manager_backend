@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Member, MemberRole, Prisma, Token, TokenType } from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
+import { MemberRelationshipsSummaryDTO } from '../dtos/member-summary-response.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -11,6 +12,8 @@ type MemberWithEstablishment = Prisma.MemberGetPayload<{
 
 @Injectable()
 export class MemberRepository implements IMemberRepository {
+  private readonly logger = new Logger(MemberRepository.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async createMember(data: {
@@ -93,6 +96,19 @@ export class MemberRepository implements IMemberRepository {
         id: memberId,
         establishmentId,
       },
+    });
+  }
+
+  async findByEstablishmentAndIdWithEstablishment(
+    establishmentId: string,
+    memberId: string,
+  ): Promise<MemberWithEstablishment | null> {
+    return this.prisma.member.findFirst({
+      where: {
+        id: memberId,
+        establishmentId,
+      },
+      include: { establishment: true },
     });
   }
 
@@ -243,5 +259,59 @@ export class MemberRepository implements IMemberRepository {
       },
     });
     return count > 0;
+  }
+
+  async getMemberSummary(
+    memberId: string,
+    establishmentId: string,
+  ): Promise<MemberRelationshipsSummaryDTO> {
+    this.logger.debug(
+      `Fetching member summary for member ${memberId} in establishment ${establishmentId}`,
+    );
+
+    const [
+      servicesCount,
+      productsCount,
+      workingHoursCount,
+      absencePeriodsCount,
+    ] = await Promise.all([
+      this.prisma.memberService.count({
+        where: {
+          memberId,
+          establishmentId,
+          deletedAt: null,
+        },
+      }),
+      this.prisma.memberProduct.count({
+        where: {
+          memberId,
+          establishmentId,
+          deletedAt: null,
+        },
+      }),
+      this.prisma.memberWorkingHours.count({
+        where: {
+          memberId,
+          deletedAt: null,
+        },
+      }),
+      this.prisma.memberAbsencePeriod.count({
+        where: {
+          memberId,
+          deletedAt: null,
+        },
+      }),
+    ]);
+
+    this.logger.debug(
+      `Summary retrieved: ${servicesCount} services, ${productsCount} products, ${workingHoursCount} working hours, ${absencePeriodsCount} absence periods`,
+    );
+
+    return {
+      services: { total: servicesCount },
+      products: { total: productsCount },
+      workingHours: { total: workingHoursCount },
+      absencePeriods: { total: absencePeriodsCount },
+    };
   }
 }

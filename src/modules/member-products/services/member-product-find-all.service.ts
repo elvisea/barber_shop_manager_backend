@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { MemberServiceFindAllParamDTO } from '../dtos/member-service-find-all-param.dto';
-import { MemberServiceFindAllResponseDTO } from '../dtos/member-service-find-all-response.dto';
-import { MemberServiceMapper } from '../mappers/member-service.mapper';
-import { MemberServiceRepository } from '../repositories/member-service.repository';
+import { MemberProductFindAllParamDTO } from '../dtos/member-product-find-all-param.dto';
+import { MemberProductFindAllResponseDTO } from '../dtos/member-product-find-all-response.dto';
+import { MemberProductMapper } from '../mappers/member-product.mapper';
+import { MemberProductRepository } from '../repositories/member-product.repository';
 
 import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto';
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -12,25 +12,25 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
-export class MemberServiceFindAllService {
-  private readonly logger = new Logger(MemberServiceFindAllService.name);
+export class MemberProductFindAllService {
+  private readonly logger = new Logger(MemberProductFindAllService.name);
 
   constructor(
-    private readonly memberServiceRepository: MemberServiceRepository,
+    private readonly memberProductRepository: MemberProductRepository,
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
   async execute(
-    params: MemberServiceFindAllParamDTO,
+    params: MemberProductFindAllParamDTO,
     query: BasePaginationQueryDTO,
     requesterId: string,
-  ): Promise<MemberServiceFindAllResponseDTO> {
+  ): Promise<MemberProductFindAllResponseDTO> {
     const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     this.logger.log(
-      `Listing member services for member ${params.memberId} in establishment ${params.establishmentId}`,
+      `Listing member products for member ${params.memberId} in establishment ${params.establishmentId}`,
     );
 
     const establishment = await this.establishmentRepository.findById(
@@ -64,7 +64,7 @@ export class MemberServiceFindAllService {
     }
 
     const { data, total } =
-      await this.memberServiceRepository.findAllByMemberPaginated({
+      await this.memberProductRepository.findAllByMemberPaginated({
         establishmentId: params.establishmentId,
         memberId: params.memberId,
         skip,
@@ -72,11 +72,11 @@ export class MemberServiceFindAllService {
       });
 
     this.logger.log(
-      `Found ${total} member services for member ${params.memberId} in establishment ${params.establishmentId}`,
+      `Found ${total} member products for member ${params.memberId}`,
     );
 
-    return new MemberServiceFindAllResponseDTO(
-      data.map(MemberServiceMapper.toFindAllResponse),
+    return new MemberProductFindAllResponseDTO(
+      data.map(MemberProductMapper.toFindAllResponse),
       page,
       limit,
       total,

@@ -8,9 +8,8 @@ import { MemberProductRepository } from '../repositories/member-product.reposito
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 import { EstablishmentProductRepository } from '@/modules/establishment-products/repositories/establishment-product.repository';
-import { MemberRepository } from '@/modules/members/repositories/member.repository';
+import { MemberEstablishmentValidationService } from '@/modules/members/services/member-establishment-validation.service';
 
 @Injectable()
 export class MemberProductCreateService {
@@ -18,10 +17,9 @@ export class MemberProductCreateService {
 
   constructor(
     private readonly memberProductRepository: MemberProductRepository,
-    private readonly memberRepository: MemberRepository,
     private readonly establishmentProductRepository: EstablishmentProductRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly memberEstablishmentValidationService: MemberEstablishmentValidationService,
   ) {}
 
   async execute(
@@ -33,62 +31,14 @@ export class MemberProductCreateService {
       `Creating member product for member ${params.memberId} in establishment ${params.establishmentId} and product ${params.productId}`,
     );
 
-    // 1. Verifica se o requester é dono do estabelecimento
-    const establishment = await this.establishmentRepository.findById(
-      params.establishmentId,
-    );
-
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-        { ESTABLISHMENT_ID: params.establishmentId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-      );
-    }
-
-    if (establishment.ownerId !== requesterId) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-        { ESTABLISHMENT_ID: params.establishmentId, USER_ID: requesterId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-      );
-    }
-
-    // 2. Verifica se o membro existe no estabelecimento
-    const member = await this.memberRepository.findByEstablishmentAndId(
-      params.establishmentId,
+    // Validações de Establishment e Member centralizadas
+    await this.memberEstablishmentValidationService.execute(
       params.memberId,
+      params.establishmentId,
+      requesterId,
     );
 
-    if (!member) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_NOT_FOUND,
-        {
-          MEMBER_ID: params.memberId,
-          ESTABLISHMENT_ID: params.establishmentId,
-        },
-      );
-
-      this.logger.warn(message);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.MEMBER_NOT_FOUND,
-      );
-    }
-
-    // 3. Verifica se o produto existe no estabelecimento
+    // Verifica se o produto existe no estabelecimento
     const product =
       await this.establishmentProductRepository.findByIdAndEstablishment(
         params.productId,

@@ -267,6 +267,26 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS,
     },
   },
+  [ErrorCode.MEMBER_SERVICE_NOT_FOUND]: {
+    description: 'Service not found for member in this establishment',
+    example: {
+      statusCode: 404,
+      message:
+        'Service with SERVICE_ID [SERVICE_ID] not found for member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      error: 'Not Found',
+      errorCode: ErrorCode.MEMBER_SERVICE_NOT_FOUND,
+    },
+  },
+  [ErrorCode.MEMBER_PRODUCT_NOT_FOUND]: {
+    description: 'Product not found for member in this establishment',
+    example: {
+      statusCode: 404,
+      message:
+        'Product with PRODUCT_ID [PRODUCT_ID] not found for member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      error: 'Not Found',
+      errorCode: ErrorCode.MEMBER_PRODUCT_NOT_FOUND,
+    },
+  },
   [ErrorCode.PLAN_NOT_FOUND]: {
     description: 'Plan not found',
     example: {
