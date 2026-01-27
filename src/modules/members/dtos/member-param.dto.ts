@@ -1,9 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { BaseMemberParamDTO } from '@/common/dtos/base-member-param';
 
-export class MemberParamDTO {
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440001' })
-  @IsString()
-  @IsNotEmpty()
-  memberId: string;
-}
+export class MemberParamDTO extends BaseMemberParamDTO {}

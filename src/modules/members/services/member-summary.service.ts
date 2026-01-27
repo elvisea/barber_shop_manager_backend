@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
-import { MemberResponseDTO } from '../dtos';
+import { MemberSummaryResponseDTO } from '../dtos/member-summary-response.dto';
 import { MemberMapper } from '../mappers';
 import { MemberRepository } from '../repositories/member.repository';
 
@@ -9,8 +9,8 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 @Injectable()
-export class MemberFindByIdService {
-  private readonly logger = new Logger(MemberFindByIdService.name);
+export class MemberSummaryService {
+  private readonly logger = new Logger(MemberSummaryService.name);
 
   constructor(
     private readonly memberRepository: MemberRepository,
@@ -20,8 +20,10 @@ export class MemberFindByIdService {
   async execute(
     memberId: string,
     requesterId: string,
-  ): Promise<MemberResponseDTO> {
-    this.logger.log(`Finding member ${memberId} by user ${requesterId}`);
+  ): Promise<MemberSummaryResponseDTO> {
+    this.logger.log(
+      `Getting summary for member ${memberId} by user ${requesterId}`,
+    );
 
     const member =
       await this.memberRepository.findByIdWithEstablishment(memberId);
@@ -54,8 +56,20 @@ export class MemberFindByIdService {
       );
     }
 
-    this.logger.log(`Member found: ${member.id}`);
+    const establishmentId = member.establishmentId;
 
-    return MemberMapper.toResponseDTO(member, true);
+    const relationships = await this.memberRepository.getMemberSummary(
+      memberId,
+      establishmentId,
+    );
+
+    this.logger.log(
+      `Summary retrieved for member ${memberId}: ${relationships.services.total} services, ${relationships.products.total} products, ${relationships.workingHours.total} working hours, ${relationships.absencePeriods.total} absence periods`,
+    );
+
+    return {
+      member: MemberMapper.toResponseDTO(member, false),
+      relationships,
+    };
   }
 }

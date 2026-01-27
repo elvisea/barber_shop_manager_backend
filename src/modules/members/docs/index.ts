@@ -21,3 +21,6 @@ export { DeleteMemberDocs } from './delete-member.docs';
 // Email verification operations
 export { VerifyMemberEmailDocs } from './verify-email.docs';
 export { ResendMemberVerificationDocs } from './resend-verification.docs';
+
+// Summary operations
+export { MemberSummaryDocs } from './member-summary.docs';
