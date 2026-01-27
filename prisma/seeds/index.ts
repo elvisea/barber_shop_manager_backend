@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TokenType } from '@prisma/client';
 import { CustomerSeedData } from './data/customers';
 import { EstablishmentSeedData } from './data/establishments';
 import { MemberSeedData } from './data/members';
@@ -35,14 +35,22 @@ async function main() {
     );
     console.log(`✅ ${users.length} usuários criados`);
 
-    console.log('📧 Criando verificações de email para usuários...');
+    console.log('📧 Criando tokens de verificação de email para usuários...');
     const userEmailVerificationsData = await UserSeedData.generateUserEmailVerifications(users);
     await Promise.all(
       userEmailVerificationsData.map(verificationData =>
-        prisma.userEmailVerification.create({ data: verificationData })
+        prisma.token.create({
+          data: {
+            userId: verificationData.userId,
+            type: TokenType.EMAIL_VERIFICATION,
+            token: verificationData.token,
+            expiresAt: verificationData.expiresAt,
+            used: verificationData.verified,
+          },
+        })
       )
     );
-    console.log(`✅ ${userEmailVerificationsData.length} verificações de email de usuários criadas`);
+    console.log(`✅ ${userEmailVerificationsData.length} tokens de verificação de email de usuários criados`);
 
     console.log('🏢 Criando estabelecimentos...');
     const establishmentsData = EstablishmentSeedData.generateAllEstablishments(users);
@@ -60,14 +68,22 @@ async function main() {
     );
     console.log(`✅ ${members.length} membros criados`);
 
-    console.log('📧 Criando verificações de email para membros...');
+    console.log('📧 Criando tokens de verificação de email para membros...');
     const memberEmailVerificationsData = await MemberSeedData.generateMemberEmailVerifications(members);
     await Promise.all(
       memberEmailVerificationsData.map(verificationData =>
-        prisma.memberEmailVerification.create({ data: verificationData })
+        prisma.token.create({
+          data: {
+            memberId: verificationData.memberId,
+            type: TokenType.EMAIL_VERIFICATION,
+            token: verificationData.token,
+            expiresAt: verificationData.expiresAt,
+            used: verificationData.verified,
+          },
+        })
       )
     );
-    console.log(`✅ ${memberEmailVerificationsData.length} verificações de email de membros criadas`);
+    console.log(`✅ ${memberEmailVerificationsData.length} tokens de verificação de email de membros criados`);
 
     console.log('🛍️ Criando serviços...');
     const servicesData = ServiceSeedData.generateAllServices(establishments);
@@ -165,10 +181,10 @@ async function main() {
     console.log('🎉 Seed concluído com sucesso!');
     console.log('\n📊 Resumo:');
     console.log(`- ${users.length} usuários`);
-    console.log(`- ${userEmailVerificationsData.length} verificações de email de usuários`);
+    console.log(`- ${userEmailVerificationsData.length} tokens de verificação de email de usuários`);
     console.log(`- ${establishments.length} estabelecimentos`);
     console.log(`- ${members.length} membros`);
-    console.log(`- ${memberEmailVerificationsData.length} verificações de email de membros`);
+    console.log(`- ${memberEmailVerificationsData.length} tokens de verificação de email de membros`);
     console.log(`- ${services.length} serviços`);
     console.log(`- ${products.length} produtos`);
     console.log(`- ${customers.length} clientes`);

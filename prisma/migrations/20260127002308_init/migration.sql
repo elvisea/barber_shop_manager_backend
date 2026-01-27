@@ -19,6 +19,9 @@ CREATE TYPE "ItemType" AS ENUM ('PRODUCT', 'SERVICE');
 -- CreateEnum
 CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING');
 
+-- CreateEnum
+CREATE TYPE "TokenType" AS ENUM ('EMAIL_VERIFICATION', 'PASSWORD_RESET', 'WHATSAPP_VERIFICATION', 'OTP');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
@@ -30,6 +33,11 @@ CREATE TABLE "users" (
     "password" TEXT NOT NULL,
     "role" "UserRole" NOT NULL DEFAULT 'OWNER',
     "timezone" VARCHAR(50),
+    "email_verified" BOOLEAN NOT NULL DEFAULT false,
+    "document" VARCHAR(255) NOT NULL,
+    "is_fake" BOOLEAN NOT NULL DEFAULT false,
+    "whatsapp_connected" BOOLEAN NOT NULL DEFAULT false,
+    "whatsapp_phone" TEXT,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
@@ -331,38 +339,6 @@ CREATE TABLE "subscriptions" (
 );
 
 -- CreateTable
-CREATE TABLE "user_email_verifications" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expires_at" TIMESTAMPTZ NOT NULL,
-    "verified" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "deleted_at" TIMESTAMPTZ,
-    "deleted_by" TEXT,
-
-    CONSTRAINT "user_email_verifications_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "member_email_verifications" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expires_at" TIMESTAMPTZ NOT NULL,
-    "verified" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
-    "deleted_at" TIMESTAMPTZ,
-    "deleted_by" TEXT,
-
-    CONSTRAINT "member_email_verifications_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "refresh_tokens" (
     "id" TEXT NOT NULL,
     "token" TEXT NOT NULL,
@@ -377,6 +353,24 @@ CREATE TABLE "refresh_tokens" (
     "deleted_by" TEXT,
 
     CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "tokens" (
+    "id" TEXT NOT NULL,
+    "type" "TokenType" NOT NULL,
+    "token" TEXT NOT NULL,
+    "expires_at" TIMESTAMPTZ NOT NULL,
+    "used" BOOLEAN NOT NULL DEFAULT false,
+    "metadata" JSONB,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "user_id" TEXT,
+    "member_id" TEXT,
+    "deleted_at" TIMESTAMPTZ,
+    "deleted_by" TEXT,
+
+    CONSTRAINT "tokens_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -420,9 +414,6 @@ CREATE INDEX "users_deleted_at_idx" ON "users"("deleted_at");
 
 -- CreateIndex
 CREATE INDEX "establishments_deleted_at_idx" ON "establishments"("deleted_at");
-
--- CreateIndex
-CREATE UNIQUE INDEX "establishments_owner_id_phone_key" ON "establishments"("owner_id", "phone");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "members_email_key" ON "members"("email");
@@ -518,34 +509,22 @@ CREATE INDEX "subscriptions_created_by_id_idx" ON "subscriptions"("created_by_id
 CREATE INDEX "subscriptions_deleted_at_idx" ON "subscriptions"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "user_email_verifications_email_key" ON "user_email_verifications"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "user_email_verifications_user_id_key" ON "user_email_verifications"("user_id");
-
--- CreateIndex
-CREATE INDEX "user_email_verifications_email_idx" ON "user_email_verifications"("email");
-
--- CreateIndex
-CREATE INDEX "user_email_verifications_deleted_at_idx" ON "user_email_verifications"("deleted_at");
-
--- CreateIndex
-CREATE UNIQUE INDEX "member_email_verifications_email_key" ON "member_email_verifications"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "member_email_verifications_member_id_key" ON "member_email_verifications"("member_id");
-
--- CreateIndex
-CREATE INDEX "member_email_verifications_email_idx" ON "member_email_verifications"("email");
-
--- CreateIndex
-CREATE INDEX "member_email_verifications_deleted_at_idx" ON "member_email_verifications"("deleted_at");
-
--- CreateIndex
 CREATE UNIQUE INDEX "refresh_tokens_token_key" ON "refresh_tokens"("token");
 
 -- CreateIndex
 CREATE INDEX "refresh_tokens_deleted_at_idx" ON "refresh_tokens"("deleted_at");
+
+-- CreateIndex
+CREATE INDEX "tokens_type_idx" ON "tokens"("type");
+
+-- CreateIndex
+CREATE INDEX "tokens_token_idx" ON "tokens"("token");
+
+-- CreateIndex
+CREATE INDEX "tokens_member_id_type_idx" ON "tokens"("member_id", "type");
+
+-- CreateIndex
+CREATE INDEX "tokens_deleted_at_idx" ON "tokens"("deleted_at");
 
 -- CreateIndex
 CREATE INDEX "opening_hours_deleted_at_idx" ON "opening_hours"("deleted_at");
@@ -641,13 +620,13 @@ ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_establishment_id_fkey"
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_plan_id_fkey" FOREIGN KEY ("plan_id") REFERENCES "plans"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_email_verifications" ADD CONSTRAINT "user_email_verifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "member_email_verifications" ADD CONSTRAINT "member_email_verifications_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tokens" ADD CONSTRAINT "tokens_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "opening_hours" ADD CONSTRAINT "opening_hours_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;

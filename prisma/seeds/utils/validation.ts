@@ -39,7 +39,7 @@ export class SeedValidation {
     await prisma.closurePeriod.deleteMany();
     await prisma.subscription.deleteMany();
     await prisma.establishment.deleteMany();
-    await prisma.userEmailVerification.deleteMany();
+    await prisma.token.deleteMany();
     await prisma.refreshToken.deleteMany();
     await prisma.user.deleteMany();
 

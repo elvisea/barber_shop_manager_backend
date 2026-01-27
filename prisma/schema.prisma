@@ -100,7 +100,6 @@ model Member {
   deletedBy         String?                  @map("deleted_by")
   appointments      Appointment[]
   absencePeriods    MemberAbsencePeriod[]
-  emailVerification MemberEmailVerification?
   memberProducts    MemberProduct[]
   refreshTokens     MemberRefreshToken[]
   memberServices    MemberService[]
@@ -108,6 +107,7 @@ model Member {
   establishment     Establishment            @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   paymentOrders     PaymentOrder[]
   transactions      Transaction[]
+  tokens             Token[]
 
   @@index([deletedAt])
   @@map("members")
@@ -487,52 +487,6 @@ model Subscription {
   @@map("subscriptions")
 }
 
-// ============================================================================
-// EMAIL VERIFICATION MODELS
-// ============================================================================
-
-/// Verificação de email de usuários.
-model UserEmailVerification {
-  id        String    @id @default(uuid()) @map("id")
-  email     String    @unique @map("email")
-  token     String    @map("token")
-  expiresAt DateTime  @db.Timestamptz @map("expires_at")
-  verified  Boolean   @default(false) @map("verified")
-  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
-  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
-  userId    String    @unique @map("user_id")
-  /// Data de exclusão lógica.
-  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
-  /// ID do usuário que realizou a exclusão.
-  deletedBy String?   @map("deleted_by")
-  /// Nota: Relação removida - modelo deprecado, usando Token genérico agora
-  /// user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([email])
-  @@index([deletedAt])
-  @@map("user_email_verifications")
-}
-
-/// Verificação de email de membros.
-model MemberEmailVerification {
-  id        String    @id @default(uuid()) @map("id")
-  email     String    @unique @map("email")
-  token     String    @map("token")
-  expiresAt DateTime  @db.Timestamptz @map("expires_at")
-  verified  Boolean   @default(false) @map("verified")
-  createdAt DateTime  @default(now()) @db.Timestamptz @map("created_at")
-  updatedAt DateTime  @updatedAt @db.Timestamptz @map("updated_at")
-  memberId  String    @unique @map("member_id")
-  /// Data de exclusão lógica.
-  deletedAt DateTime? @db.Timestamptz @map("deleted_at")
-  /// ID do usuário que realizou a exclusão.
-  deletedBy String?   @map("deleted_by")
-  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@index([email])
-  @@index([deletedAt])
-  @@map("member_email_verifications")
-}
 
 // ============================================================================
 // AUTHENTICATION MODELS
@@ -569,15 +523,18 @@ model Token {
   metadata  Json?     @map("metadata")
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
-  userId    String    @map("user_id")
+  userId    String?   @map("user_id")
+  memberId  String?   @map("member_id")
   /// Data de exclusão lógica.
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
   /// ID do usuário que realizou a exclusão.
   deletedBy String?   @map("deleted_by")
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  member    Member?   @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([type])
   @@index([token])
+  @@index([memberId, type])
   @@index([deletedAt])
   @@map("tokens")
 }
