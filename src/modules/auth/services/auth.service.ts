@@ -24,6 +24,8 @@ export class AuthService {
 
   async execute(
     authRequest: CreateAuthRequestDTO,
+    ipAddress?: string,
+    userAgent?: string,
   ): Promise<CreateAuthResponseDTO> {
     this.logger.log(
       `Starting authentication process for email: ${authRequest.email}`,
@@ -104,8 +106,8 @@ export class AuthService {
       refreshToken,
       expiresAt,
       userId: user.id,
-      ipAddress: authRequest.ipAddress,
-      userAgent: authRequest.userAgent,
+      ipAddress,
+      userAgent,
     });
 
     this.logger.log(`Tokens generated successfully. Sending auth response.`);

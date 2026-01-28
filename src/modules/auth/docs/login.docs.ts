@@ -4,7 +4,6 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
-import { getCurrentDate } from '@/common/utils/date-helpers';
 import { ErrorCode } from '@/enums/error-code';
 
 /**
@@ -24,16 +23,8 @@ export function LoginDocs() {
       description: 'Autenticação realizada com sucesso',
       type: CreateAuthResponseDTO,
       example: {
-        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        user: {
-          id: '550e8400-e29b-41d4-a716-446655440000',
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          phone: '+5511987654321',
-          createdAt: getCurrentDate(),
-          updatedAt: getCurrentDate(),
-        },
+        accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+        refreshToken: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
       },
     }),
     ApiResponse({

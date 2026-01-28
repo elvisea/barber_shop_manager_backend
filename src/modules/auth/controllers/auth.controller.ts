@@ -6,8 +6,13 @@ import { CreateAuthRequestDTO } from '../dtos/create-auth-request.dto';
 import { CreateAuthResponseDTO } from '../dtos/create-auth-response.dto';
 import { AuthService } from '../services/auth.service';
 
-@ApiTags('Authentication')
-@Controller('user-auth')
+import {
+  GetRequestClientInfo,
+  RequestClientInfo,
+} from '@/common/decorators/get-request-client-info.decorator';
+
+@ApiTags('Auth')
+@Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -16,7 +21,12 @@ export class AuthController {
   @LoginDocs()
   async handle(
     @Body() authRequest: CreateAuthRequestDTO,
+    @GetRequestClientInfo() clientInfo: RequestClientInfo,
   ): Promise<CreateAuthResponseDTO> {
-    return this.authService.execute(authRequest);
+    return this.authService.execute(
+      authRequest,
+      clientInfo.ipAddress,
+      clientInfo.userAgent,
+    );
   }
 }
