@@ -21,9 +21,10 @@ import { MemberVerifyEmailService } from './services/member-verify-email.service
 
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { TokensModule } from '@/modules/tokens/tokens.module';
+import { UserEstablishmentsModule } from '@/modules/user-establishments/user-establishments.module';
 
 @Module({
-  imports: [EstablishmentModule, TokensModule],
+  imports: [EstablishmentModule, TokensModule, UserEstablishmentsModule],
   controllers: [
     MemberCreateController,
     MemberFindAllController,

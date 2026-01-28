@@ -56,12 +56,11 @@ export class MemberVerifyEmailService {
     }
 
     // Obter token record e validar
-    const tokenRecord =
-      await this.tokenValidationService.getTokenRecordForMember(
-        request.token,
-        member.id,
-        TokenType.EMAIL_VERIFICATION,
-      );
+    const tokenRecord = await this.tokenValidationService.getTokenRecord(
+      request.token,
+      member.id,
+      TokenType.EMAIL_VERIFICATION,
+    );
 
     if (!tokenRecord) {
       this.logger.warn('Invalid or expired token', {

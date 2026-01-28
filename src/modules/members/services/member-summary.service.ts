@@ -7,6 +7,7 @@ import { MemberRepository } from '../repositories/member.repository';
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
 
 @Injectable()
 export class MemberSummaryService {
@@ -14,6 +15,7 @@ export class MemberSummaryService {
 
   constructor(
     private readonly memberRepository: MemberRepository,
+    private readonly userEstablishmentRepository: UserEstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -25,8 +27,7 @@ export class MemberSummaryService {
       `Getting summary for member ${memberId} by user ${requesterId}`,
     );
 
-    const member =
-      await this.memberRepository.findByIdWithEstablishment(memberId);
+    const member = await this.memberRepository.findById(memberId);
 
     if (!member) {
       const message = this.errorMessageService.getMessage(
@@ -43,10 +44,51 @@ export class MemberSummaryService {
       );
     }
 
-    if (member.establishment.ownerId !== requesterId) {
+    // Buscar UserEstablishments do usuário com estabelecimentos incluídos
+    const userEstablishments =
+      await this.userEstablishmentRepository.findAllByUserWithRelations(
+        memberId,
+      );
+
+    if (userEstablishments.length === 0) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        { USER_ID: memberId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      );
+    }
+
+    // Por enquanto, usar o primeiro estabelecimento ativo (TODO: passar establishmentId como parâmetro)
+    const userEstablishment =
+      userEstablishments.find((ue) => ue.isActive) || userEstablishments[0];
+    if (!userEstablishment) {
+      const message = this.errorMessageService.getMessage(
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        { USER_ID: memberId },
+      );
+      this.logger.warn(message);
+      throw new CustomHttpException(
+        message,
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      );
+    }
+    const establishmentId = userEstablishment.establishmentId;
+
+    // Validar se requester é dono de algum estabelecimento do usuário
+    const hasAccess = userEstablishments.some(
+      (ue) => ue.establishment.ownerId === requesterId,
+    );
+
+    if (!hasAccess) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-        { ESTABLISHMENT_ID: member.establishment.id, USER_ID: requesterId },
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: requesterId },
       );
       this.logger.warn(message);
       throw new CustomHttpException(
@@ -55,8 +97,6 @@ export class MemberSummaryService {
         ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
       );
     }
-
-    const establishmentId = member.establishmentId;
 
     const relationships = await this.memberRepository.getMemberSummary(
       memberId,

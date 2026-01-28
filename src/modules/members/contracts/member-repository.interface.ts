@@ -1,9 +1,9 @@
-import { Member, MemberRole, Prisma, Token } from '@prisma/client';
+import { Prisma, Token, User, UserRole } from '@prisma/client';
 
 import { MemberRelationshipsSummaryDTO } from '../dtos/member-summary-response.dto';
 
-type MemberWithEstablishment = Prisma.MemberGetPayload<{
-  include: { establishment: true };
+type MemberWithEstablishment = Prisma.UserGetPayload<{
+  include: { ownedEstablishments: true };
 }>;
 
 export interface IMemberRepository {
@@ -12,26 +12,26 @@ export interface IMemberRepository {
     email: string;
     phone: string;
     password: string;
-    role: MemberRole;
+    role: UserRole;
     establishmentId: string;
-  }): Promise<Member>;
+  }): Promise<User>;
 
-  findById(id: string): Promise<Member | null>;
+  findById(id: string): Promise<User | null>;
 
   findByIdWithEstablishment(
     id: string,
   ): Promise<MemberWithEstablishment | null>;
 
-  findByEmail(email: string): Promise<Member | null>;
+  findByEmail(email: string): Promise<User | null>;
 
   findByEmailWithVerification(
     email: string,
-  ): Promise<(Member & { verificationToken: Token | null }) | null>;
+  ): Promise<(User & { verificationToken: Token | null }) | null>;
 
   findByEstablishmentAndId(
     establishmentId: string,
     memberId: string,
-  ): Promise<Member | null>;
+  ): Promise<User | null>;
 
   findByEstablishmentAndIdWithEstablishment(
     establishmentId: string,
@@ -41,7 +41,7 @@ export interface IMemberRepository {
   findByEmailAndEstablishment(
     email: string,
     establishmentId: string,
-  ): Promise<Member | null>;
+  ): Promise<User | null>;
 
   findAllByEstablishmentPaginated({
     establishmentId,
@@ -52,7 +52,7 @@ export interface IMemberRepository {
     skip: number;
     take: number;
   }): Promise<{
-    data: Member[];
+    data: User[];
     total: number;
   }>;
 
@@ -62,10 +62,10 @@ export interface IMemberRepository {
       name: string;
       email: string;
       phone: string;
-      role: MemberRole;
+      role: UserRole;
       isActive: boolean;
     }>,
-  ): Promise<Member>;
+  ): Promise<User>;
 
   deleteMember(id: string): Promise<void>;
 

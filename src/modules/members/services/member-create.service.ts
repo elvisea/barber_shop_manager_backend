@@ -139,7 +139,7 @@ export class MemberCreateService {
       try {
         // Criar token de verificação usando EmailVerificationTokenService
         const { token, tokenRecord } =
-          await this.emailVerificationTokenService.createEmailVerificationTokenForMember(
+          await this.emailVerificationTokenService.createEmailVerificationToken(
             member.id,
             MemberCreateService.EMAIL_VERIFICATION_EXPIRATION_MINUTES,
           );

@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Member, MemberRole, Prisma, Token, TokenType } from '@prisma/client';
+import { Prisma, Token, TokenType, User, UserRole } from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
 import { MemberRelationshipsSummaryDTO } from '../dtos/member-summary-response.dto';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
-type MemberWithEstablishment = Prisma.MemberGetPayload<{
-  include: { establishment: true };
+type MemberWithEstablishment = Prisma.UserGetPayload<{
+  include: { ownedEstablishments: true };
 }>;
 
 @Injectable()
@@ -21,23 +21,35 @@ export class MemberRepository implements IMemberRepository {
     email: string;
     phone: string;
     password: string;
-    role: MemberRole;
+    role: UserRole;
     establishmentId: string;
-  }): Promise<Member> {
-    return this.prisma.member.create({
+  }): Promise<User> {
+    // Criar User primeiro
+    const user = await this.prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
         phone: data.phone,
         password: data.password,
         role: data.role,
-        establishmentId: data.establishmentId,
+        document: '', // Campo obrigatório - pode ser preenchido posteriormente
       },
     });
+
+    // Criar UserEstablishment
+    await this.prisma.userEstablishment.create({
+      data: {
+        userId: user.id,
+        establishmentId: data.establishmentId,
+        role: data.role,
+      },
+    });
+
+    return user;
   }
 
-  async findById(id: string): Promise<Member | null> {
-    return this.prisma.member.findUnique({
+  async findById(id: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
       where: { id },
     });
   }
@@ -45,22 +57,22 @@ export class MemberRepository implements IMemberRepository {
   async findByIdWithEstablishment(
     id: string,
   ): Promise<MemberWithEstablishment | null> {
-    return this.prisma.member.findUnique({
+    return this.prisma.user.findUnique({
       where: { id },
-      include: { establishment: true },
+      include: { ownedEstablishments: true },
     });
   }
 
-  async findByEmail(email: string): Promise<Member | null> {
-    return this.prisma.member.findUnique({
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
       where: { email },
     });
   }
 
   async findByEmailWithVerification(
     email: string,
-  ): Promise<(Member & { verificationToken: Token | null }) | null> {
-    const member = await this.prisma.member.findUnique({
+  ): Promise<(User & { verificationToken: Token | null }) | null> {
+    const member = await this.prisma.user.findUnique({
       where: { email },
     });
 
@@ -71,7 +83,7 @@ export class MemberRepository implements IMemberRepository {
     // Buscar token de verificação usado (indicando que email foi verificado)
     const verificationToken = await this.prisma.token.findFirst({
       where: {
-        memberId: member.id,
+        userId: member.id,
         type: TokenType.EMAIL_VERIFICATION,
         used: true,
         deletedAt: null,
@@ -90,38 +102,51 @@ export class MemberRepository implements IMemberRepository {
   async findByEstablishmentAndId(
     establishmentId: string,
     memberId: string,
-  ): Promise<Member | null> {
-    return this.prisma.member.findFirst({
+  ): Promise<User | null> {
+    // Buscar via UserEstablishment
+    const userEstablishment = await this.prisma.userEstablishment.findFirst({
       where: {
-        id: memberId,
+        userId: memberId,
         establishmentId,
+        deletedAt: null,
       },
+      include: { user: true },
     });
+    return userEstablishment?.user || null;
   }
 
   async findByEstablishmentAndIdWithEstablishment(
     establishmentId: string,
     memberId: string,
   ): Promise<MemberWithEstablishment | null> {
-    return this.prisma.member.findFirst({
+    const userEstablishment = await this.prisma.userEstablishment.findFirst({
       where: {
-        id: memberId,
+        userId: memberId,
         establishmentId,
+        deletedAt: null,
       },
-      include: { establishment: true },
+      include: { user: { include: { ownedEstablishments: true } } },
     });
+    return userEstablishment?.user || null;
   }
 
   async findByEmailAndEstablishment(
     email: string,
     establishmentId: string,
-  ): Promise<Member | null> {
-    return this.prisma.member.findFirst({
+  ): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) return null;
+
+    const userEstablishment = await this.prisma.userEstablishment.findFirst({
       where: {
-        email,
+        userId: user.id,
         establishmentId,
+        deletedAt: null,
       },
     });
+    return userEstablishment ? user : null;
   }
 
   async findAllByEstablishmentPaginated({
@@ -133,19 +158,25 @@ export class MemberRepository implements IMemberRepository {
     skip: number;
     take: number;
   }): Promise<{
-    data: Member[];
+    data: User[];
     total: number;
   }> {
-    const [data, total] = await Promise.all([
-      this.prisma.member.findMany({
-        where: { establishmentId },
+    const [userEstablishments, total] = await Promise.all([
+      this.prisma.userEstablishment.findMany({
+        where: { establishmentId, deletedAt: null },
         skip,
         take,
+        include: { user: true },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.member.count({ where: { establishmentId } }),
+      this.prisma.userEstablishment.count({
+        where: { establishmentId, deletedAt: null },
+      }),
     ]);
-    return { data, total };
+    return {
+      data: userEstablishments.map((ue) => ue.user),
+      total,
+    };
   }
 
   async updateMember(
@@ -154,31 +185,31 @@ export class MemberRepository implements IMemberRepository {
       name: string;
       email: string;
       phone: string;
-      role: MemberRole;
+      role: UserRole;
       isActive: boolean;
     }>,
-  ): Promise<Member> {
-    return this.prisma.member.update({
+  ): Promise<User> {
+    return this.prisma.user.update({
       where: { id },
       data,
     });
   }
 
   async deleteMember(id: string): Promise<void> {
-    await this.prisma.member.delete({
+    await this.prisma.user.delete({
       where: { id },
     });
   }
 
   async existsByEmail(email: string): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const count = await this.prisma.user.count({
       where: { email },
     });
     return count > 0;
   }
 
   async existsByPhone(phone: string): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const count = await this.prisma.user.count({
       where: { phone },
     });
     return count > 0;
@@ -188,7 +219,7 @@ export class MemberRepository implements IMemberRepository {
     email: string,
     excludeId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const count = await this.prisma.user.count({
       where: {
         email,
         id: { not: excludeId },
@@ -201,7 +232,7 @@ export class MemberRepository implements IMemberRepository {
     phone: string,
     excludeId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const count = await this.prisma.user.count({
       where: {
         phone,
         id: { not: excludeId },
@@ -215,8 +246,10 @@ export class MemberRepository implements IMemberRepository {
     email: string,
     establishmentId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.member.count({
-      where: { email, establishmentId },
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) return false;
+    const count = await this.prisma.userEstablishment.count({
+      where: { userId: user.id, establishmentId, deletedAt: null },
     });
     return count > 0;
   }
@@ -225,8 +258,10 @@ export class MemberRepository implements IMemberRepository {
     phone: string,
     establishmentId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.member.count({
-      where: { phone, establishmentId },
+    const user = await this.prisma.user.findFirst({ where: { phone } });
+    if (!user) return false;
+    const count = await this.prisma.userEstablishment.count({
+      where: { userId: user.id, establishmentId, deletedAt: null },
     });
     return count > 0;
   }
@@ -236,11 +271,13 @@ export class MemberRepository implements IMemberRepository {
     establishmentId: string,
     excludeId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user || user.id === excludeId) return false;
+    const count = await this.prisma.userEstablishment.count({
       where: {
-        email,
+        userId: user.id,
         establishmentId,
-        id: { not: excludeId },
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -251,11 +288,13 @@ export class MemberRepository implements IMemberRepository {
     establishmentId: string,
     excludeId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const user = await this.prisma.user.findFirst({ where: { phone } });
+    if (!user || user.id === excludeId) return false;
+    const count = await this.prisma.userEstablishment.count({
       where: {
-        phone,
+        userId: user.id,
         establishmentId,
-        id: { not: excludeId },
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -275,29 +314,29 @@ export class MemberRepository implements IMemberRepository {
       workingHoursCount,
       absencePeriodsCount,
     ] = await Promise.all([
-      this.prisma.memberService.count({
+      this.prisma.userService.count({
         where: {
-          memberId,
+          userId: memberId,
           establishmentId,
           deletedAt: null,
         },
       }),
-      this.prisma.memberProduct.count({
+      this.prisma.userProduct.count({
         where: {
-          memberId,
+          userId: memberId,
           establishmentId,
           deletedAt: null,
         },
       }),
-      this.prisma.memberWorkingHours.count({
+      this.prisma.userWorkingHours.count({
         where: {
-          memberId,
+          userId: memberId,
           deletedAt: null,
         },
       }),
-      this.prisma.memberAbsencePeriod.count({
+      this.prisma.userAbsencePeriod.count({
         where: {
-          memberId,
+          userId: memberId,
           deletedAt: null,
         },
       }),

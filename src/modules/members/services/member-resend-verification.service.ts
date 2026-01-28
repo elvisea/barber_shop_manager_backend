@@ -64,7 +64,7 @@ export class MemberResendVerificationService {
 
     // Criar novo token de verificação
     const { token, tokenRecord } =
-      await this.emailVerificationTokenService.createEmailVerificationTokenForMember(
+      await this.emailVerificationTokenService.createEmailVerificationToken(
         member.id,
         MemberResendVerificationService.EXPIRATION_MINUTES,
       );
