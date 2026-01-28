@@ -539,4 +539,15 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.EMAIL_SEND_FAILED,
     },
   },
+
+  // Refresh token
+  [ErrorCode.REFRESH_TOKEN_INVALID]: {
+    description: 'Refresh token is invalid, expired or revoked',
+    example: {
+      statusCode: 401,
+      message: 'Refresh token is invalid, expired or revoked.',
+      error: 'Unauthorized',
+      errorCode: ErrorCode.REFRESH_TOKEN_INVALID,
+    },
+  },
 };

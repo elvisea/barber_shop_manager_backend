@@ -205,4 +205,9 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.EMAIL_SEND_FAILED]: {
     message: 'Failed to send email to [EMAIL]. Please try again later.',
   },
+
+  // Refresh token
+  [ErrorCode.REFRESH_TOKEN_INVALID]: {
+    message: 'Refresh token is invalid, expired or revoked.',
+  },
 } as const;

@@ -64,4 +64,7 @@ export enum ErrorCode {
 
   // Códigos para envio de email
   EMAIL_SEND_FAILED = 'EMAIL_SEND_FAILED',
+
+  // Refresh token
+  REFRESH_TOKEN_INVALID = 'REFRESH_TOKEN_INVALID',
 }

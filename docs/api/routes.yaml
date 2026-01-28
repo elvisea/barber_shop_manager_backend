@@ -1,6 +1,6 @@
 openapi: 3.0.0
 paths:
-  /user-auth/login:
+  /auth/login:
     post:
       description: Autentica um usuário e retorna os tokens de acesso.
       operationId: AuthController_handle
@@ -19,15 +19,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateAuthResponseDTO'
               example:
-                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                user:
-                  id: 550e8400-e29b-41d4-a716-446655440000
-                  name: John Doe
-                  email: john.doe@example.com
-                  phone: '+5511987654321'
-                  createdAt: '2026-01-28T03:40:40.556Z'
-                  updatedAt: '2026-01-28T03:40:40.556Z'
+                accessToken: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+                refreshToken: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
         '400':
           description: Validation error
           content:
@@ -52,7 +45,7 @@ paths:
                   errorCode: INVALID_EMAIL_OR_PASSWORD
       summary: Authenticate user and return tokens
       tags:
-        - Authentication
+        - Auth
   /auth/password-reset:
     post:
       description: >-
@@ -349,8 +342,69 @@ paths:
       summary: Resend verification code
       tags:
         - Users
+  /refresh:
+    post:
+      description: >-
+        Exchange a valid refresh token for new access and refresh tokens. The previous refresh token is revoked
+        (rotation).
+      operationId: RefreshController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestDTO'
+      responses:
+        '200':
+          description: New tokens issued successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+                    description: The access token for the authenticated user.
+                  refreshToken:
+                    type: string
+                    example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+                    description: The refresh token for the authenticated user.
+                required:
+                  - accessToken
+                  - refreshToken
+              example:
+                accessToken: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+                refreshToken: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '401':
+          description: Refresh token is invalid, expired or revoked
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Refresh token is invalid, expired or revoked.
+                  error: Unauthorized
+                  errorCode: REFRESH_TOKEN_INVALID
+      summary: Refresh tokens
+      tags:
+        - Refresh Token
   /establishments/{establishmentId}/members:
     get:
+      description: Lista todos os membros (usuários) vinculados ao estabelecimento com paginação.
       operationId: UserEstablishmentFindAllController_handle
       parameters:
         - name: establishmentId
@@ -403,10 +457,13 @@ paths:
                   errorCode: ESTABLISHMENT_NOT_FOUND
       security:
         - bearer: []
-      summary: Find all members with pagination
+      summary: Find all establishment members with pagination
       tags:
         - Establishment Members
     post:
+      description: >-
+        Cria um novo membro (usuário) para o estabelecimento. Cria um novo User e vincula ao estabelecimento através de
+        UserEstablishment.
       operationId: UserEstablishmentCreateController_handle
       parameters:
         - name: establishmentId
@@ -462,11 +519,12 @@ paths:
                   errorCode: MEMBER_PHONE_ALREADY_EXISTS
       security:
         - bearer: []
-      summary: Create a new member
+      summary: Create a new establishment member
       tags:
         - Establishment Members
   /members/{memberId}:
     get:
+      description: Busca um membro específico do estabelecimento pelo ID.
       operationId: UserEstablishmentFindByIdController_handle
       parameters:
         - name: memberId
@@ -511,10 +569,11 @@ paths:
                   errorCode: MEMBER_NOT_FOUND
       security:
         - bearer: []
-      summary: Find member by ID
+      summary: Find establishment member by ID
       tags:
         - Establishment Members
     patch:
+      description: Atualiza informações de um membro do estabelecimento.
       operationId: UserEstablishmentUpdateController_handle
       parameters:
         - name: memberId
@@ -570,10 +629,11 @@ paths:
                   errorCode: MEMBER_PHONE_ALREADY_EXISTS
       security:
         - bearer: []
-      summary: Update member
+      summary: Update establishment member
       tags:
         - Establishment Members
     delete:
+      description: Remove um membro do estabelecimento (soft delete). A relação UserEstablishment é marcada como deletada.
       operationId: UserEstablishmentDeleteController_handle
       parameters:
         - name: memberId
@@ -609,7 +669,7 @@ paths:
                   errorCode: MEMBER_NOT_FOUND
       security:
         - bearer: []
-      summary: Delete member
+      summary: Delete establishment member
       tags:
         - Establishment Members
   /members/email-verification/verify:
@@ -652,12 +712,12 @@ paths:
                   message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
                   error: Not Found
                   errorCode: MEMBER_NOT_FOUND
-      summary: Verify member email
+      summary: Verify establishment member email
       tags:
         - Members
   /members/email-verification/resend:
     post:
-      description: Reenvia um novo código de verificação para o email do membro.
+      description: Reenvia um novo código de verificação para o email do membro do estabelecimento.
       operationId: UserEstablishmentResendVerificationController_handle
       parameters: []
       requestBody:
@@ -695,7 +755,7 @@ paths:
                   message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
                   error: Not Found
                   errorCode: MEMBER_NOT_FOUND
-      summary: Resend verification code for member
+      summary: Resend verification code for establishment member
       tags:
         - Members
   /members/{memberId}/summary:
@@ -747,7 +807,7 @@ paths:
                   errorCode: MEMBER_NOT_FOUND
       security:
         - bearer: []
-      summary: Get member summary with relationships
+      summary: Get establishment member summary with relationships
       tags:
         - Establishment Members
   /establishments:
@@ -992,8 +1052,8 @@ paths:
                 instanceId: instance_123456789
                 status: active
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T03:40:40.133Z'
-                updatedAt: '2026-01-28T03:40:40.133Z'
+                createdAt: '2026-01-28T18:24:13.560Z'
+                updatedAt: '2026-01-28T18:24:13.560Z'
         '400':
           description: Dados inválidos
           content:
@@ -1435,16 +1495,16 @@ paths:
                     price: 25.5
                     imageUrl: http://example.com/shampoo.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-27T03:40:40.652Z'
-                    updatedAt: '2026-01-27T03:40:40.652Z'
+                    createdAt: '2026-01-27T18:24:13.975Z'
+                    updatedAt: '2026-01-27T18:24:13.975Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Condicionador
                     description: Condicionador para cabelos secos
                     price: 30
                     imageUrl: http://example.com/condicionador.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-28T03:40:40.652Z'
-                    updatedAt: '2026-01-28T03:40:40.652Z'
+                    createdAt: '2026-01-28T18:24:13.975Z'
+                    updatedAt: '2026-01-28T18:24:13.975Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1503,8 +1563,8 @@ paths:
                 price: 25.5
                 imageUrl: http://example.com/shampoo.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T03:40:40.657Z'
-                updatedAt: '2026-01-28T03:40:40.657Z'
+                createdAt: '2026-01-28T18:24:13.980Z'
+                updatedAt: '2026-01-28T18:24:13.980Z'
         '400':
           description: Validation error
           content:
@@ -1624,8 +1684,8 @@ paths:
                 price: 30
                 imageUrl: http://example.com/shampoo-updated.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T03:40:40.666Z'
-                updatedAt: '2026-01-28T03:40:40.666Z'
+                createdAt: '2026-01-27T18:24:13.987Z'
+                updatedAt: '2026-01-28T18:24:13.987Z'
         '400':
           description: Validation error
           content:
@@ -1705,8 +1765,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T03:40:40.417Z'
-                updatedAt: '2026-01-28T03:40:40.417Z'
+                createdAt: '2026-01-28T18:24:13.775Z'
+                updatedAt: '2026-01-28T18:24:13.775Z'
         '400':
           description: Validation error
           content:
@@ -1783,16 +1843,16 @@ paths:
                     price: 50
                     duration: 60
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-27T03:40:40.434Z'
-                    updatedAt: '2026-01-27T03:40:40.434Z'
+                    createdAt: '2026-01-27T18:24:13.786Z'
+                    updatedAt: '2026-01-27T18:24:13.786Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Barba
                     description: Aparar e modelar barba
                     price: 30
                     duration: 30
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-28T03:40:40.434Z'
-                    updatedAt: '2026-01-28T03:40:40.434Z'
+                    createdAt: '2026-01-28T18:24:13.786Z'
+                    updatedAt: '2026-01-28T18:24:13.786Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1861,8 +1921,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T03:40:40.440Z'
-                updatedAt: '2026-01-28T03:40:40.440Z'
+                createdAt: '2026-01-28T18:24:13.790Z'
+                updatedAt: '2026-01-28T18:24:13.790Z'
         '400':
           description: Validation error
           content:
@@ -1982,8 +2042,8 @@ paths:
                 price: 60
                 duration: 75
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T03:40:40.448Z'
-                updatedAt: '2026-01-28T03:40:40.448Z'
+                createdAt: '2026-01-27T18:24:13.798Z'
+                updatedAt: '2026-01-28T18:24:13.798Z'
         '400':
           description: Validation error
           content:
@@ -2201,10 +2261,10 @@ paths:
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
                 planId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 status: ACTIVE
-                startDate: '2025-12-29T03:40:40.734Z'
+                startDate: '2025-12-29T18:24:14.041Z'
                 endDate: '2026-01-28T23:59:59.999Z'
-                createdAt: '2026-01-28T03:40:40.734Z'
-                updatedAt: '2026-01-28T03:40:40.734Z'
+                createdAt: '2026-01-28T18:24:14.041Z'
+                updatedAt: '2026-01-28T18:24:14.041Z'
       security:
         - bearer: []
       summary: Create subscription for establishment
@@ -2278,8 +2338,8 @@ paths:
                 totalDuration: 60
                 status: PENDING
                 notes: Corte de cabelo e barba
-                createdAt: '2026-01-28T03:40:40.064Z'
-                updatedAt: '2026-01-28T03:40:40.064Z'
+                createdAt: '2026-01-28T18:24:13.504Z'
+                updatedAt: '2026-01-28T18:24:13.504Z'
         '400':
           description: Dados inválidos fornecidos ou validação de negócio falhou
           content:
@@ -2432,7 +2492,7 @@ paths:
           in: query
           description: Data de início para filtro (ISO 8601)
           schema:
-            example: '2026-01-21T03:40:40.075Z'
+            example: '2026-01-21T18:24:13.512Z'
             type: string
         - name: endDate
           required: false
@@ -2551,8 +2611,8 @@ paths:
                     name: Corte de Cabelo
                     price: 25
                     duration: 30
-                createdAt: '2026-01-27T03:40:40.077Z'
-                updatedAt: '2026-01-27T03:40:40.077Z'
+                createdAt: '2026-01-27T18:24:13.514Z'
+                updatedAt: '2026-01-27T18:24:13.514Z'
         '400':
           description: ID inválido fornecido
           content:
@@ -2646,8 +2706,8 @@ paths:
                     name: Barba
                     price: 15
                     duration: 20
-                createdAt: '2026-01-27T03:40:40.079Z'
-                updatedAt: '2026-01-28T03:40:40.079Z'
+                createdAt: '2026-01-27T18:24:13.515Z'
+                updatedAt: '2026-01-28T18:24:13.515Z'
         '400':
           description: Dados inválidos fornecidos
           content:
@@ -2820,16 +2880,6 @@ components:
           type: string
           example: Str0ngP@ssw0rd!
           description: The password of the user.
-        ipAddress:
-          type: string
-          example: 127.0.0.1
-          description: The IP address of the user.
-        userAgent:
-          type: string
-          example: >-
-            Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110
-            Safari/537.36
-          description: The user agent of the user.
       required:
         - email
         - password
@@ -2963,12 +3013,12 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.363Z'
+          example: '2026-01-28T18:24:13.732Z'
           description: User creation date
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.363Z'
+          example: '2026-01-28T18:24:13.732Z'
           description: User last update date
       required:
         - id
@@ -3031,6 +3081,15 @@ components:
       required:
         - success
         - message
+    RefreshTokenRequestDTO:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          description: The refresh token obtained from login.
+      required:
+        - refreshToken
     MemberResponseDTO:
       type: object
       properties:
@@ -3064,11 +3123,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.229Z'
+          example: '2026-01-28T18:24:13.629Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.229Z'
+          example: '2026-01-28T18:24:13.629Z'
       required:
         - id
         - name
@@ -3322,12 +3381,12 @@ components:
           format: date-time
           type: string
           description: Creation date
-          example: '2026-01-28T03:40:40.091Z'
+          example: '2026-01-28T18:24:13.527Z'
         updatedAt:
           format: date-time
           type: string
           description: Last update date
-          example: '2026-01-28T03:40:40.091Z'
+          example: '2026-01-28T18:24:13.527Z'
       required:
         - id
         - name
@@ -3469,11 +3528,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.159Z'
+          example: '2026-01-28T18:24:13.580Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.159Z'
+          example: '2026-01-28T18:24:13.580Z'
       required:
         - id
         - establishmentId
@@ -3529,11 +3588,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.168Z'
+          example: '2026-01-28T18:24:13.587Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.168Z'
+          example: '2026-01-28T18:24:13.587Z'
       required:
         - id
         - establishmentId
@@ -3593,11 +3652,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.609Z'
+          example: '2026-01-28T18:24:13.944Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.609Z'
+          example: '2026-01-28T18:24:13.944Z'
       required:
         - id
         - establishmentId
@@ -3699,11 +3758,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.411Z'
+          example: '2026-01-28T18:24:13.769Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.411Z'
+          example: '2026-01-28T18:24:13.769Z'
       required:
         - id
         - name
@@ -3796,11 +3855,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.673Z'
+          example: '2026-01-28T18:24:13.993Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:40.673Z'
+          example: '2026-01-28T18:24:13.993Z'
       required:
         - id
         - name
@@ -3853,7 +3912,7 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-29T03:40:40.725Z'
+          example: '2025-12-29T18:24:14.034Z'
         endDate:
           type: string
           example: '2026-01-28T23:59:59.999Z'
@@ -3885,7 +3944,7 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-29T03:40:40.722Z'
+          example: '2025-12-29T18:24:14.032Z'
         endDate:
           type: string
           example: '2026-01-28T23:59:59.999Z'
@@ -3897,10 +3956,10 @@ components:
           example: '5511999999999'
         createdAt:
           type: string
-          example: '2026-01-28T03:40:40.722Z'
+          example: '2026-01-28T18:24:14.032Z'
         updatedAt:
           type: string
-          example: '2026-01-28T03:40:40.722Z'
+          example: '2026-01-28T18:24:14.032Z'
       required:
         - id
         - establishmentId
@@ -3973,7 +4032,7 @@ components:
           description: Destino do webhook
         date_time:
           type: string
-          example: '2026-01-28T03:40:40.751Z'
+          example: '2026-01-28T18:24:14.052Z'
           description: Data e hora do evento
         sender:
           type: string
@@ -4065,11 +4124,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:39.694Z'
+          example: '2026-01-28T18:24:13.198Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T03:40:39.694Z'
+          example: '2026-01-28T18:24:13.198Z'
       required:
         - id
         - establishmentId

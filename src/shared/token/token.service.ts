@@ -22,6 +22,7 @@ export class TokenService {
       'ACCESS_TOKEN_EXPIRATION',
       '60s',
     );
+
     const refreshTokenExpiration = this.configService.get<string>(
       'REFRESH_TOKEN_EXPIRATION',
       '7d',
@@ -29,13 +30,13 @@ export class TokenService {
 
     const accessTokenOptions: jwt.SignOptions = {
       expiresIn: (environment === 'development'
-        ? '24h'
+        ? '60s'
         : accessTokenExpiration) as jwt.SignOptions['expiresIn'],
     };
 
     const refreshTokenOptions: jwt.SignOptions = {
       expiresIn: (environment === 'development'
-        ? '30d'
+        ? '5m'
         : refreshTokenExpiration) as jwt.SignOptions['expiresIn'],
     };
 
