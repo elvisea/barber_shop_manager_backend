@@ -24,6 +24,11 @@ import { TokensModule } from '@/modules/tokens/tokens.module';
     ResendVerificationService,
     UserRepository,
   ],
-  exports: [UserRepository, CreateUserService],
+  exports: [
+    UserRepository,
+    CreateUserService,
+    VerifyEmailService,
+    ResendVerificationService,
+  ],
 })
 export class UserModule {}
