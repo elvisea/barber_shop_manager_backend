@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   EstablishmentProduct,
-  MemberProduct as MemberProductModel,
+  UserProduct as UserProductModel,
 } from '@prisma/client';
 
 import { IMemberProductRepository } from '../contracts/member-product-repository.interface';
@@ -19,14 +19,14 @@ export class MemberProductRepository implements IMemberProductRepository {
     productId: string;
     price: number;
     commission: number;
-  }): Promise<MemberProductModel> {
-    return this.prisma.memberProduct.create({
+  }): Promise<UserProductModel> {
+    return this.prisma.userProduct.create({
       data: {
         price: data.price,
         commission: data.commission,
         establishmentId: data.establishmentId,
         productId: data.productId,
-        memberId: data.memberId,
+        userId: data.memberId,
       },
     });
   }
@@ -36,19 +36,19 @@ export class MemberProductRepository implements IMemberProductRepository {
     establishmentId: string,
     productId: string,
   ): Promise<MemberProductWithRelations | null> {
-    return this.prisma.memberProduct.findFirst({
+    return this.prisma.userProduct.findFirst({
       where: {
-        memberId,
+        userId: memberId,
         establishmentId,
         productId,
       },
       include: {
-        member: {
+        user: true,
+        product: {
           include: {
             establishment: true,
           },
         },
-        product: true,
       },
     });
   }
@@ -58,9 +58,9 @@ export class MemberProductRepository implements IMemberProductRepository {
     establishmentId: string,
     productId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.memberProduct.count({
+    const count = await this.prisma.userProduct.count({
       where: {
-        memberId,
+        userId: memberId,
         establishmentId,
         productId,
       },
@@ -79,19 +79,19 @@ export class MemberProductRepository implements IMemberProductRepository {
     skip: number;
     take: number;
   }): Promise<{
-    data: (MemberProductModel & { product: EstablishmentProduct })[];
+    data: (UserProductModel & { product: EstablishmentProduct })[];
     total: number;
   }> {
     const [data, total] = await Promise.all([
-      this.prisma.memberProduct.findMany({
-        where: { establishmentId, memberId, deletedAt: null },
+      this.prisma.userProduct.findMany({
+        where: { establishmentId, userId: memberId, deletedAt: null },
         skip,
         take,
         orderBy: { createdAt: 'desc' },
         include: { product: true },
       }),
-      this.prisma.memberProduct.count({
-        where: { establishmentId, memberId, deletedAt: null },
+      this.prisma.userProduct.count({
+        where: { establishmentId, userId: memberId, deletedAt: null },
       }),
     ]);
     return { data, total };
@@ -103,7 +103,7 @@ export class MemberProductRepository implements IMemberProductRepository {
       price?: number;
       commission?: number;
     },
-  ): Promise<MemberProductModel> {
+  ): Promise<UserProductModel> {
     const updateData: {
       price?: number;
       commission?: number;
@@ -116,14 +116,14 @@ export class MemberProductRepository implements IMemberProductRepository {
       updateData.commission = data.commission;
     }
 
-    return this.prisma.memberProduct.update({
+    return this.prisma.userProduct.update({
       where: { id },
       data: updateData,
     });
   }
 
   async deleteMemberProduct(id: string, deletedBy: string): Promise<void> {
-    await this.prisma.memberProduct.update({
+    await this.prisma.userProduct.update({
       where: { id },
       data: {
         deletedAt: new Date(),
@@ -136,10 +136,10 @@ export class MemberProductRepository implements IMemberProductRepository {
     memberId: string,
     establishmentId: string,
     productId: string,
-  ): Promise<(MemberProductModel & { product: EstablishmentProduct }) | null> {
-    return this.prisma.memberProduct.findFirst({
+  ): Promise<(UserProductModel & { product: EstablishmentProduct }) | null> {
+    return this.prisma.userProduct.findFirst({
       where: {
-        memberId,
+        userId: memberId,
         establishmentId,
         productId,
         deletedAt: null,

@@ -1,6 +1,6 @@
 import {
   EstablishmentProduct,
-  MemberProduct as MemberProductModel,
+  UserProduct as UserProductModel,
 } from '@prisma/client';
 
 import { MemberProductWithRelations } from '../types/member-product-with-relations.type';
@@ -12,7 +12,7 @@ export interface IMemberProductRepository {
     productId: string;
     price: number;
     commission: number;
-  }): Promise<MemberProductModel>;
+  }): Promise<UserProductModel>;
 
   /**
    * Busca um MemberProduct com todos os relacionamentos necessários em uma única query.
@@ -85,7 +85,7 @@ export interface IMemberProductRepository {
     skip: number;
     take: number;
   }): Promise<{
-    data: (MemberProductModel & { product: EstablishmentProduct })[];
+    data: (UserProductModel & { product: EstablishmentProduct })[];
     total: number;
   }>;
 
@@ -95,7 +95,7 @@ export interface IMemberProductRepository {
       price?: number;
       commission?: number;
     },
-  ): Promise<MemberProductModel>;
+  ): Promise<UserProductModel>;
 
   deleteMemberProduct(id: string, deletedBy: string): Promise<void>;
 
@@ -103,5 +103,5 @@ export interface IMemberProductRepository {
     memberId: string,
     establishmentId: string,
     productId: string,
-  ): Promise<(MemberProductModel & { product: EstablishmentProduct }) | null>;
+  ): Promise<(UserProductModel & { product: EstablishmentProduct }) | null>;
 }

@@ -15,10 +15,14 @@ import { MemberProductValidationService } from './services/member-product-valida
 
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { EstablishmentProductsModule } from '@/modules/establishment-products/establishment-products.module';
-import { MembersModule } from '@/modules/members/members.module';
+import { UserEstablishmentsModule } from '@/modules/user-establishments/user-establishments.module';
 
 @Module({
-  imports: [EstablishmentModule, EstablishmentProductsModule, MembersModule],
+  imports: [
+    EstablishmentModule,
+    EstablishmentProductsModule,
+    UserEstablishmentsModule,
+  ],
   controllers: [
     MemberProductCreateController,
     MemberProductFindAllController,

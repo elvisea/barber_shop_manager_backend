@@ -9,7 +9,7 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentProductRepository } from '@/modules/establishment-products/repositories/establishment-product.repository';
-import { MemberEstablishmentValidationService } from '@/modules/members/services/member-establishment-validation.service';
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 @Injectable()
 export class MemberProductCreateService {
@@ -19,7 +19,7 @@ export class MemberProductCreateService {
     private readonly memberProductRepository: MemberProductRepository,
     private readonly establishmentProductRepository: EstablishmentProductRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly memberEstablishmentValidationService: MemberEstablishmentValidationService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   async execute(
@@ -31,8 +31,8 @@ export class MemberProductCreateService {
       `Creating member product for member ${params.memberId} in establishment ${params.establishmentId} and product ${params.productId}`,
     );
 
-    // Validações de Establishment e Member centralizadas
-    await this.memberEstablishmentValidationService.execute(
+    // Validações de Establishment e User centralizadas
+    await this.userEstablishmentValidationService.validateUserAndEstablishment(
       params.memberId,
       params.establishmentId,
       requesterId,
@@ -104,7 +104,7 @@ export class MemberProductCreateService {
 
     return {
       id: memberProduct.id,
-      memberId: memberProduct.memberId,
+      memberId: memberProduct.userId,
       establishmentId: memberProduct.establishmentId,
       productId: memberProduct.productId,
       price: memberProduct.price,

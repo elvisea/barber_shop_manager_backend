@@ -62,7 +62,7 @@ export class MemberProductUpdateService {
 
     return {
       id: updatedMemberProduct.id,
-      memberId: updatedMemberProduct.memberId,
+      memberId: updatedMemberProduct.userId,
       establishmentId: updatedMemberProduct.establishmentId,
       productId: updatedMemberProduct.productId,
       price: updatedMemberProduct.price,

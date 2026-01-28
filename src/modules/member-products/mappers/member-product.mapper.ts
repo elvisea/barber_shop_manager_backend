@@ -1,11 +1,11 @@
 import {
   EstablishmentProduct,
-  MemberProduct as MemberProductModel,
+  UserProduct as UserProductModel,
 } from '@prisma/client';
 
 export class MemberProductMapper {
   static toFindAllResponse(
-    memberProduct: MemberProductModel & { product: EstablishmentProduct },
+    memberProduct: UserProductModel & { product: EstablishmentProduct },
   ) {
     return {
       id: memberProduct.product.id,

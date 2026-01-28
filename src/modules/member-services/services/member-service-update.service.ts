@@ -63,7 +63,7 @@ export class MemberServiceUpdateService {
 
     return {
       id: updatedMemberService.id,
-      memberId: updatedMemberService.memberId,
+      memberId: updatedMemberService.userId,
       establishmentId: updatedMemberService.establishmentId,
       serviceId: updatedMemberService.serviceId,
       price: updatedMemberService.price,
