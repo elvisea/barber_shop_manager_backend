@@ -1,7 +1,9 @@
-import { PrismaClient, TokenType } from '@prisma/client';
+import { PrismaClient, TokenType, UserRole } from '@prisma/client';
+import { PasswordHasher } from './utils/hash-password';
 import { CustomerSeedData } from './data/customers';
 import { EstablishmentSeedData } from './data/establishments';
 import { MemberSeedData } from './data/members';
+import { createBarberCustomizations } from './data/member-customizations';
 import { ProductSeedData } from './data/products';
 import { ServiceSeedData } from './data/services';
 import { UserSeedData } from './data/users';
@@ -10,28 +12,36 @@ import { SeedValidation } from './utils/validation';
 const prisma = new PrismaClient();
 
 /**
- * Script principal de seed para popular o banco de dados
+ * Script principal de seed para popular o banco de dados.
+ * Requer SEED_PASSWORD e ENCRYPTION_KEY no ambiente.
  */
 async function main() {
   console.log('🌱 Iniciando processo de seed...');
 
+  const seedPassword = process.env.SEED_PASSWORD;
+  if (!seedPassword || seedPassword.trim() === '') {
+    console.error('❌ SEED_PASSWORD não definida.');
+    console.error('   Defina SEED_PASSWORD no .env para executar o seed.');
+    throw new Error('SEED_PASSWORD environment variable is required for seeds');
+  }
+
   try {
-    // Verificar conexão com banco
     if (!(await SeedValidation.isDatabaseConnected())) {
       throw new Error('Não foi possível conectar com o banco de dados');
     }
 
-    // Verificar se já existem dados
     if (await SeedValidation.hasExistingData()) {
-      console.log('⚠️  Dados já existem no banco. Deseja limpar? (y/N)');
-      // Para automação, vamos limpar automaticamente
+      console.log('⚠️  Dados já existem no banco. Limpando...');
       await SeedValidation.clearDatabase();
     }
 
-    console.log('👥 Criando usuários...');
-    const usersData = await UserSeedData.generateUsers();
+    const hashedPassword = await PasswordHasher.hashPassword(seedPassword);
+    const usedPhones = new Set<string>();
+
+    console.log('👥 Criando usuários (1 root + 2 owners)...');
+    const usersData = await UserSeedData.generateUsers(hashedPassword);
     const users = await Promise.all(
-      usersData.map(userData => prisma.user.create({ data: userData }))
+      usersData.map(userData => prisma.user.create({ data: userData })),
     );
     console.log(`✅ ${users.length} usuários criados`);
 
@@ -47,102 +57,93 @@ async function main() {
             expiresAt: verificationData.expiresAt,
             used: verificationData.verified,
           },
-        })
-      )
+        }),
+      ),
     );
-    console.log(`✅ ${userEmailVerificationsData.length} tokens de verificação de email de usuários criados`);
+    console.log(`✅ ${userEmailVerificationsData.length} tokens de verificação de email criados`);
 
-    console.log('🏢 Criando estabelecimentos...');
-    const establishmentsData = EstablishmentSeedData.generateAllEstablishments(users);
+    const owners = users.filter(u => u.role === UserRole.OWNER);
+    console.log('🏢 Criando estabelecimentos (2 por owner)...');
+    const establishmentsData = EstablishmentSeedData.generateAllEstablishments(owners, usedPhones);
     const establishments = await Promise.all(
       establishmentsData.map(establishmentData =>
-        prisma.establishment.create({ data: establishmentData })
-      )
+        prisma.establishment.create({ data: establishmentData }),
+      ),
     );
     console.log(`✅ ${establishments.length} estabelecimentos criados`);
 
-    // TODO: Implementar criação de UserEstablishments quando necessário
-    // console.log('👨‍💼 Criando membros...');
-    // const membersData = await MemberSeedData.generateAllMembers(establishments);
-    // const members = await Promise.all(
-    //   membersData.map(memberData => prisma.member.create({ data: memberData }))
-    // );
-    // console.log(`✅ ${members.length} membros criados`);
+    console.log('👨‍💼 Criando membros (6 por estabelecimento: 2 RECEPTIONIST, 2 HAIRDRESSER, 2 BARBER)...');
+    const membersData = MemberSeedData.generateAllMembers(
+      establishments,
+      hashedPassword,
+      usedPhones,
+    );
+    const barbers: Array<{ userId: string; establishmentId: string }> = [];
 
-    // console.log('📧 Criando tokens de verificação de email para membros...');
-    // const memberEmailVerificationsData = await MemberSeedData.generateMemberEmailVerifications(members);
-    // await Promise.all(
-    //   memberEmailVerificationsData.map(verificationData =>
-    //     prisma.token.create({
-    //       data: {
-    //         userId: verificationData.memberId,
-    //         type: TokenType.EMAIL_VERIFICATION,
-    //         token: verificationData.token,
-    //         expiresAt: verificationData.expiresAt,
-    //         used: verificationData.verified,
-    //       },
-    //     })
-    //   )
-    // );
-    // console.log(`✅ ${memberEmailVerificationsData.length} tokens de verificação de email de membros criados`);
-    const members: Array<{ id: string }> = [];
-    const memberEmailVerificationsData: Array<unknown> = [];
+    for (const member of membersData) {
+      const createdUser = await prisma.user.create({ data: member.user });
+      await prisma.userEstablishment.create({
+        data: {
+          userId: createdUser.id,
+          establishmentId: member.establishmentId,
+          role: member.role,
+          isActive: true,
+        },
+      });
+      if (member.role === UserRole.BARBER) {
+        barbers.push({ userId: createdUser.id, establishmentId: member.establishmentId });
+      }
+    }
+    console.log(`✅ ${membersData.length} membros criados (${barbers.length} barbeiros)`);
 
-    console.log('🛍️ Criando serviços...');
+    console.log('🛍️ Criando serviços (15 por estabelecimento)...');
     const servicesData = ServiceSeedData.generateAllServices(establishments);
-    const services = await Promise.all(
+    await Promise.all(
       servicesData.map(serviceData =>
-        prisma.establishmentService.create({ data: serviceData })
-      )
+        prisma.establishmentService.create({ data: serviceData }),
+      ),
     );
-    console.log(`✅ ${services.length} serviços criados`);
+    console.log(`✅ ${servicesData.length} serviços criados`);
 
-    console.log('📦 Criando produtos...');
+    console.log('📦 Criando produtos (15 por estabelecimento)...');
     const productsData = ProductSeedData.generateAllProducts(establishments);
-    const products = await Promise.all(
+    await Promise.all(
       productsData.map(productData =>
-        prisma.establishmentProduct.create({ data: productData })
-      )
+        prisma.establishmentProduct.create({ data: productData }),
+      ),
     );
-    console.log(`✅ ${products.length} produtos criados`);
+    console.log(`✅ ${productsData.length} produtos criados`);
 
-    console.log('👤 Criando clientes...');
-    const customersData = CustomerSeedData.generateAllCustomers(establishments);
-    const customers = await Promise.all(
+    console.log('👤 Criando clientes (15 por estabelecimento)...');
+    const customersData = CustomerSeedData.generateAllCustomers(establishments, usedPhones);
+    await Promise.all(
       customersData.map(customerData =>
-        prisma.establishmentCustomer.create({ data: customerData })
-      )
+        prisma.establishmentCustomer.create({ data: customerData }),
+      ),
     );
-    console.log(`✅ ${customers.length} clientes criados`);
+    console.log(`✅ ${customersData.length} clientes criados`);
 
-    // TODO: Implementar criação de UserServices e UserProducts quando necessário
-    // console.log('🔗 Criando associações membro-serviço...');
-    const memberServices: Array<unknown> = [];
-    // await Promise.all(
-    //   memberServices.map(ms => prisma.userService.create({ data: ms }))
-    // );
-    // console.log(`✅ ${memberServices.length} associações membro-serviço criadas`);
+    console.log('🔗 Criando customizações (UserService + UserProduct) para barbeiros...');
+    const { userServicesCount, userProductsCount } = await createBarberCustomizations(
+      prisma,
+      barbers,
+    );
+    console.log(`✅ ${userServicesCount} UserService e ${userProductsCount} UserProduct criados`);
 
-    // console.log('🔗 Criando associações membro-produto...');
-    const memberProducts: Array<unknown> = [];
-    // await Promise.all(
-    //   memberProducts.map(mp => prisma.userProduct.create({ data: mp }))
-    // );
-    // console.log(`✅ ${memberProducts.length} associações membro-produto criadas`);
-
-    console.log('🎉 Seed concluído com sucesso!');
+    console.log('\n🎉 Seed concluído com sucesso!');
     console.log('\n📊 Resumo:');
-    console.log(`- ${users.length} usuários`);
-    console.log(`- ${userEmailVerificationsData.length} tokens de verificação de email de usuários`);
+    console.log(`- ${users.length} usuários (root + owners)`);
     console.log(`- ${establishments.length} estabelecimentos`);
-    console.log(`- ${members.length} membros`);
-    console.log(`- ${memberEmailVerificationsData.length} tokens de verificação de email de membros`);
-    console.log(`- ${services.length} serviços`);
-    console.log(`- ${products.length} produtos`);
-    console.log(`- ${customers.length} clientes`);
-    console.log(`- ${memberServices.length} associações membro-serviço`);
-    console.log(`- ${memberProducts.length} associações membro-produto`);
-
+    console.log(`- ${membersData.length} membros (funcionários)`);
+    console.log(`- ${servicesData.length} serviços`);
+    console.log(`- ${productsData.length} produtos`);
+    console.log(`- ${customersData.length} clientes`);
+    console.log(`- ${userServicesCount} customizações de serviço (barbeiros)`);
+    console.log(`- ${userProductsCount} customizações de produto (barbeiros)`);
+    console.log('\n📝 Credenciais (senha = SEED_PASSWORD do .env):');
+    users.forEach(u => {
+      console.log(`   - ${u.email} (${u.role})`);
+    });
   } catch (error) {
     console.error('❌ Erro durante o seed:', error);
     throw error;
@@ -151,7 +152,6 @@ async function main() {
   }
 }
 
-// Executar se chamado diretamente
 if (require.main === module) {
   main()
     .catch((error) => {

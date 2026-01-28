@@ -1,16 +1,15 @@
 import { UserRole } from '@prisma/client';
 import { hash } from 'bcryptjs';
-import { PasswordHasher } from '../utils/hash-password';
 import { SeedEncryption } from '../utils/encrypt';
 
+const SEED_DOMAIN = 'barbershopmanager.com.br';
+
 /**
- * Dados de usuários para seeds
+ * Dados de usuários para seeds (root + owners)
  */
 export class UserSeedData {
-  private static readonly DEFAULT_PASSWORD = 'Str0ngP@ssw0rd!';
-
   /**
-   * Gera código aleatório
+   * Gera código aleatório para tokens
    */
   private static generateRandomCode(length: number): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -33,35 +32,47 @@ export class UserSeedData {
   }
 
   /**
-   * Gera dados dos usuários
+   * Gera dados dos usuários: 1 ROOT + 2 OWNER.
+   * Emails @barbershopmanager.com.br, telefones E.164 fixos.
+   *
+   * @param hashedPassword Senha já hasheada (usar SEED_PASSWORD do env)
    */
-  static async generateUsers() {
-    const hashedPassword = await PasswordHasher.hashPassword(this.DEFAULT_PASSWORD);
-
-    // CPFs de exemplo para seeds (já limpos, sem formatação)
-    const ownerCpf = '12345678909';
+  static async generateUsers(hashedPassword: string) {
+    const ownerCpf1 = '12345678909';
+    const ownerCpf2 = '11144477735';
     const rootCpf = '98765432100';
 
-    // Criptografar CPFs
-    const encryptedOwnerCpf = SeedEncryption.encrypt(ownerCpf);
+    const encryptedOwnerCpf1 = SeedEncryption.encrypt(ownerCpf1);
+    const encryptedOwnerCpf2 = SeedEncryption.encrypt(ownerCpf2);
     const encryptedRootCpf = SeedEncryption.encrypt(rootCpf);
 
     return [
       {
-        email: 'owner@bytefulcode.tech',
-        name: 'João Silva',
-        phone: '+5511999888777',
-        password: hashedPassword,
-        document: encryptedOwnerCpf,
-        role: UserRole.OWNER,
-      },
-      {
-        email: 'root@bytefulcode.tech',
+        email: `root@${SEED_DOMAIN}`,
         name: 'Admin Sistema',
-        phone: '+5511888777666',
+        phone: '+5511999999001',
         password: hashedPassword,
         document: encryptedRootCpf,
         role: UserRole.ROOT,
+        emailVerified: true,
+      },
+      {
+        email: `owner1@${SEED_DOMAIN}`,
+        name: 'João Silva',
+        phone: '+5511999999002',
+        password: hashedPassword,
+        document: encryptedOwnerCpf1,
+        role: UserRole.OWNER,
+        emailVerified: true,
+      },
+      {
+        email: `owner2@${SEED_DOMAIN}`,
+        name: 'Maria Santos',
+        phone: '+5511999999003',
+        password: hashedPassword,
+        document: encryptedOwnerCpf2,
+        role: UserRole.OWNER,
+        emailVerified: true,
       },
     ];
   }

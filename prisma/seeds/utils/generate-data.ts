@@ -2,29 +2,18 @@
  * Utilitários para geração de dados realistas para seeds
  */
 
+import { FIRST_NAMES, LAST_NAMES } from '../data/templates/brazilian-names';
+import { STREETS, NEIGHBORHOODS } from '../data/templates/brazilian-address';
+import { ESTABLISHMENT_PREFIXES, ESTABLISHMENT_SUFFIXES } from '../data/templates/establishment-names';
+import { DURATIONS } from '../data/templates/durations';
+
 export class DataGenerator {
   /**
    * Gera nome brasileiro realista
    */
   static generateBrazilianName(): string {
-    const firstNames = [
-      'João', 'Maria', 'José', 'Ana', 'Carlos', 'Mariana', 'Pedro', 'Julia',
-      'Lucas', 'Fernanda', 'Rafael', 'Camila', 'Diego', 'Larissa', 'Felipe',
-      'Beatriz', 'Gabriel', 'Isabella', 'Bruno', 'Amanda', 'Rodrigo', 'Carolina',
-      'Thiago', 'Natália', 'André', 'Patrícia', 'Marcos', 'Renata', 'Daniel',
-      'Vanessa', 'Leandro', 'Cristina', 'Paulo', 'Sandra', 'Ricardo', 'Mônica'
-    ];
-
-    const lastNames = [
-      'Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves',
-      'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho',
-      'Almeida', 'Lopes', 'Soares', 'Fernandes', 'Vieira', 'Barbosa', 'Rocha',
-      'Dias', 'Monteiro', 'Cardoso', 'Reis', 'Nascimento', 'Moreira', 'Freitas',
-      'Mendes', 'Nunes', 'Marques', 'Machado', 'Araújo', 'Castro', 'Ramos'
-    ];
-
-    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+    const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
 
     return `${firstName} ${lastName}`;
   }
@@ -57,21 +46,8 @@ export class DataGenerator {
    * Gera endereço brasileiro realista
    */
   static generateBrazilianAddress(): string {
-    const streets = [
-      'Rua das Flores', 'Avenida Paulista', 'Rua da Consolação', 'Avenida Brasil',
-      'Rua Augusta', 'Avenida Ipiranga', 'Rua Oscar Freire', 'Avenida Faria Lima',
-      'Rua Haddock Lobo', 'Avenida Rebouças', 'Rua Bela Cintra', 'Avenida 9 de Julho',
-      'Rua da Liberdade', 'Avenida Sumaré', 'Rua dos Três Irmãos', 'Avenida Pacaembu'
-    ];
-
-    const neighborhoods = [
-      'Centro', 'Vila Madalena', 'Pinheiros', 'Jardins', 'Itaim Bibi', 'Moema',
-      'Vila Olímpia', 'Brooklin', 'Santo André', 'São Bernardo', 'Osasco',
-      'Guarulhos', 'Campinas', 'Santos', 'Ribeirão Preto', 'Belo Horizonte'
-    ];
-
-    const street = streets[Math.floor(Math.random() * streets.length)];
-    const neighborhood = neighborhoods[Math.floor(Math.random() * neighborhoods.length)];
+    const street = STREETS[Math.floor(Math.random() * STREETS.length)];
+    const neighborhood = NEIGHBORHOODS[Math.floor(Math.random() * NEIGHBORHOODS.length)];
     const number = Math.floor(Math.random() * 9999) + 1;
 
     return `${street}, ${number}, ${neighborhood}`;
@@ -81,18 +57,8 @@ export class DataGenerator {
    * Gera nome de estabelecimento realista
    */
   static generateEstablishmentName(): string {
-    const prefixes = [
-      'Barbearia', 'Salão', 'Barbearia e Barbearia', 'Corte & Cia', 'Estilo',
-      'Modern', 'Classic', 'Premium', 'Elite', 'Top', 'Master', 'Pro'
-    ];
-
-    const suffixes = [
-      'do Centro', 'da Vila', 'dos Jardins', 'Premium', 'Express', 'Clássica',
-      'Modern', 'Elite', 'Top', 'Master', 'Pro', 'Style', 'Fashion'
-    ];
-
-    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+    const prefix = ESTABLISHMENT_PREFIXES[Math.floor(Math.random() * ESTABLISHMENT_PREFIXES.length)];
+    const suffix = ESTABLISHMENT_SUFFIXES[Math.floor(Math.random() * ESTABLISHMENT_SUFFIXES.length)];
 
     return `${prefix} ${suffix}`;
   }
@@ -110,8 +76,7 @@ export class DataGenerator {
    * Gera duração realista em minutos (15 a 120 minutos)
    */
   static generateDuration(): number {
-    const durations = [15, 30, 45, 60, 90, 120];
-    return durations[Math.floor(Math.random() * durations.length)];
+    return DURATIONS[Math.floor(Math.random() * DURATIONS.length)];
   }
 
   /**

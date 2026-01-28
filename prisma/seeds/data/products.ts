@@ -1,46 +1,14 @@
+import { PRODUCT_TEMPLATES } from './templates/product-templates';
 
 /**
  * Dados de produtos para seeds
  */
 export class ProductSeedData {
-  private static readonly PRODUCT_TEMPLATES = [
-    {
-      name: 'Pomada para Cabelo',
-      description: 'Pomada fixadora para cabelo masculino',
-      price: 3500, // R$ 35,00
-    },
-    {
-      name: 'Gel Fixador',
-      description: 'Gel com fixação forte para cabelos',
-      price: 2800, // R$ 28,00
-    },
-    {
-      name: 'Shampoo Masculino',
-      description: 'Shampoo específico para homens',
-      price: 2200, // R$ 22,00
-    },
-    {
-      name: 'Condicionador',
-      description: 'Condicionador para hidratação',
-      price: 2500, // R$ 25,00
-    },
-    {
-      name: 'Óleo para Barba',
-      description: 'Óleo hidratante para barba',
-      price: 4000, // R$ 40,00
-    },
-    {
-      name: 'Loção Pós-Barba',
-      description: 'Loção refrescante pós-barba',
-      price: 3200, // R$ 32,00
-    },
-  ];
-
   /**
    * Gera dados dos produtos para um estabelecimento
    */
   static generateProductsForEstablishment(establishmentId: string) {
-    return this.PRODUCT_TEMPLATES.map(product => ({
+    return PRODUCT_TEMPLATES.map(product => ({
       name: product.name,
       description: product.description,
       price: product.price,
