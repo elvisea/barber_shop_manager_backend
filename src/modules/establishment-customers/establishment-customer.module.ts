@@ -16,9 +16,10 @@ import { EstablishmentCustomerFindByIdService } from './services/establishment-c
 import { EstablishmentCustomerUpdateService } from './services/establishment-customer-update.service';
 
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { UserEstablishmentsModule } from '@/modules/user-establishments/user-establishments.module';
 
 @Module({
-  imports: [EstablishmentModule],
+  imports: [EstablishmentModule, UserEstablishmentsModule],
   controllers: [
     EstablishmentCustomerCreateController,
     EstablishmentCustomerFindByIdController,

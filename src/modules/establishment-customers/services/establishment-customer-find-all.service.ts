@@ -1,13 +1,12 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { EstablishmentCustomerFindAllQueryDTO } from '../dtos/establishment-customer-find-all-query.dto';
 import { EstablishmentCustomerFindAllResponseDTO } from '../dtos/establishment-customer-find-all-response.dto';
 import { EstablishmentCustomerRepository } from '../repositories/establishment-customer.repository';
 
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 @Injectable()
 export class EstablishmentCustomerFindAllService {
@@ -19,6 +18,7 @@ export class EstablishmentCustomerFindAllService {
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   async execute(
@@ -33,34 +33,11 @@ export class EstablishmentCustomerFindAllService {
       `Finding all customers for establishment ${establishmentId} by user ${userId} with page ${page}, limit ${limit}`,
     );
 
-    const establishment =
-      await this.establishmentRepository.findById(establishmentId);
-
-    if (!establishment) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-        { ESTABLISHMENT_ID: establishmentId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-      );
-    }
-
-    if (establishment.ownerId !== userId) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-      this.logger.warn(message);
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
-      );
-    }
+    // Validar acesso via UserEstablishment (permite owner ou membro ativo)
+    await this.userEstablishmentValidationService.validateUserAccessToEstablishment(
+      userId,
+      establishmentId,
+    );
 
     const { data, total } =
       await this.establishmentCustomerRepository.findAllByEstablishmentPaginated(

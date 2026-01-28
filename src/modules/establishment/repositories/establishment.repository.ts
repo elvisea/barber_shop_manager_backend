@@ -64,17 +64,18 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     });
   }
 
-  async findByIdWithMembersAdmin(
-    establishmentId: string,
-  ): Promise<
-    (Establishment & { members: Array<{ id: string; role: string }> }) | null
+  async findByIdWithMembersAdmin(establishmentId: string): Promise<
+    | (Establishment & {
+        userEstablishments: Array<{ id: string; role: string }>;
+      })
+    | null
   > {
     return this.prisma.establishment.findFirst({
       where: {
         id: establishmentId,
         deletedAt: null,
       },
-      include: { members: true },
+      include: { userEstablishments: true },
     });
   }
 

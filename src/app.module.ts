@@ -14,14 +14,14 @@ import { EstablishmentModule } from './modules/establishment/establishment.modul
 import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
-import { MemberAuthModule } from './modules/member-auth/member-auth.module';
-import { MemberProductsModule } from './modules/member-products/member-products.module';
-import { MemberServicesModule } from './modules/member-services/member-services.module';
-import { MembersModule } from './modules/members/members.module';
+// TODO: Remover após refatoração completa
+// import { MemberProductsModule } from './modules/member-products/member-products.module';
+// import { MemberServicesModule } from './modules/member-services/member-services.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UserModule } from './modules/user/user.module';
+import { UserEstablishmentsModule } from './modules/user-establishments/user-establishments.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TokenModule } from './shared/token/token.module';
@@ -39,14 +39,15 @@ import { TokenModule } from './shared/token/token.module';
     TokenModule,
     AuthModule,
     UserModule,
+    UserEstablishmentsModule,
     EstablishmentModule,
     EstablishmentCustomerModule,
     EstablishmentProductsModule,
     EstablishmentServicesModule,
-    MembersModule,
-    MemberAuthModule,
-    MemberProductsModule,
-    MemberServicesModule,
+    // TODO: Remover após refatoração completa
+    // MembersModule,
+    // MemberProductsModule,
+    // MemberServicesModule,
     PlansModule,
     SubscriptionsModule,
     RefreshTokenModule,
