@@ -20,6 +20,6 @@ export class AppointmentUpdateController {
     @Body() _dto: AppointmentUpdateRequestDTO,
   ) {
     // TODO: Implementar lógica de atualização de agendamento
-    // params.establishmentId, params.appointmentId, dto.memberId, dto.status, dto.serviceIds, etc.
+    // params.establishmentId, params.appointmentId, dto.userId, dto.status, dto.serviceIds, etc.
   }
 }

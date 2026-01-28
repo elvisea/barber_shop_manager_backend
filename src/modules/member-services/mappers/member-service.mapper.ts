@@ -1,11 +1,11 @@
 import {
   EstablishmentService,
-  MemberService as MemberServiceModel,
+  UserService as UserServiceModel,
 } from '@prisma/client';
 
 export class MemberServiceMapper {
   static toFindAllResponse(
-    memberService: MemberServiceModel & { service: EstablishmentService },
+    memberService: UserServiceModel & { service: EstablishmentService },
   ) {
     return {
       id: memberService.service.id,

@@ -61,29 +61,32 @@ async function main() {
     );
     console.log(`✅ ${establishments.length} estabelecimentos criados`);
 
-    console.log('👨‍💼 Criando membros...');
-    const membersData = await MemberSeedData.generateAllMembers(establishments);
-    const members = await Promise.all(
-      membersData.map(memberData => prisma.member.create({ data: memberData }))
-    );
-    console.log(`✅ ${members.length} membros criados`);
+    // TODO: Implementar criação de UserEstablishments quando necessário
+    // console.log('👨‍💼 Criando membros...');
+    // const membersData = await MemberSeedData.generateAllMembers(establishments);
+    // const members = await Promise.all(
+    //   membersData.map(memberData => prisma.member.create({ data: memberData }))
+    // );
+    // console.log(`✅ ${members.length} membros criados`);
 
-    console.log('📧 Criando tokens de verificação de email para membros...');
-    const memberEmailVerificationsData = await MemberSeedData.generateMemberEmailVerifications(members);
-    await Promise.all(
-      memberEmailVerificationsData.map(verificationData =>
-        prisma.token.create({
-          data: {
-            memberId: verificationData.memberId,
-            type: TokenType.EMAIL_VERIFICATION,
-            token: verificationData.token,
-            expiresAt: verificationData.expiresAt,
-            used: verificationData.verified,
-          },
-        })
-      )
-    );
-    console.log(`✅ ${memberEmailVerificationsData.length} tokens de verificação de email de membros criados`);
+    // console.log('📧 Criando tokens de verificação de email para membros...');
+    // const memberEmailVerificationsData = await MemberSeedData.generateMemberEmailVerifications(members);
+    // await Promise.all(
+    //   memberEmailVerificationsData.map(verificationData =>
+    //     prisma.token.create({
+    //       data: {
+    //         userId: verificationData.memberId,
+    //         type: TokenType.EMAIL_VERIFICATION,
+    //         token: verificationData.token,
+    //         expiresAt: verificationData.expiresAt,
+    //         used: verificationData.verified,
+    //       },
+    //     })
+    //   )
+    // );
+    // console.log(`✅ ${memberEmailVerificationsData.length} tokens de verificação de email de membros criados`);
+    const members: Array<{ id: string }> = [];
+    const memberEmailVerificationsData: Array<unknown> = [];
 
     console.log('🛍️ Criando serviços...');
     const servicesData = ServiceSeedData.generateAllServices(establishments);
@@ -112,71 +115,20 @@ async function main() {
     );
     console.log(`✅ ${customers.length} clientes criados`);
 
-    console.log('🔗 Criando associações membro-serviço...');
-    const memberServices: Array<{
-      memberId: string;
-      establishmentId: string;
-      serviceId: string;
-      price: number;
-      duration: number;
-      commission: number;
-    }> = [];
-    for (const member of members) {
-      // Encontrar serviços do estabelecimento do membro
-      const establishmentServices = services.filter(s => s.establishmentId === member.establishmentId);
-      // Selecionar 2 serviços aleatórios
-      const selectedServices = establishmentServices
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 2);
+    // TODO: Implementar criação de UserServices e UserProducts quando necessário
+    // console.log('🔗 Criando associações membro-serviço...');
+    const memberServices: Array<unknown> = [];
+    // await Promise.all(
+    //   memberServices.map(ms => prisma.userService.create({ data: ms }))
+    // );
+    // console.log(`✅ ${memberServices.length} associações membro-serviço criadas`);
 
-      for (const service of selectedServices) {
-        memberServices.push({
-          memberId: member.id,
-          establishmentId: member.establishmentId,
-          serviceId: service.id,
-          price: service.price,
-          duration: service.duration,
-          commission: 0.15, // 15% de comissão padrão
-        });
-      }
-    }
-
-    await Promise.all(
-      memberServices.map(ms => prisma.memberService.create({ data: ms }))
-    );
-    console.log(`✅ ${memberServices.length} associações membro-serviço criadas`);
-
-    console.log('🔗 Criando associações membro-produto...');
-    const memberProducts: Array<{
-      memberId: string;
-      establishmentId: string;
-      productId: string;
-      price: number;
-      commission: number;
-    }> = [];
-    for (const member of members) {
-      // Encontrar produtos do estabelecimento do membro
-      const establishmentProducts = products.filter(p => p.establishmentId === member.establishmentId);
-      // Selecionar 2 produtos aleatórios
-      const selectedProducts = establishmentProducts
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 2);
-
-      for (const product of selectedProducts) {
-        memberProducts.push({
-          memberId: member.id,
-          establishmentId: member.establishmentId,
-          productId: product.id,
-          price: product.price,
-          commission: 0.10, // 10% de comissão padrão
-        });
-      }
-    }
-
-    await Promise.all(
-      memberProducts.map(mp => prisma.memberProduct.create({ data: mp }))
-    );
-    console.log(`✅ ${memberProducts.length} associações membro-produto criadas`);
+    // console.log('🔗 Criando associações membro-produto...');
+    const memberProducts: Array<unknown> = [];
+    // await Promise.all(
+    //   memberProducts.map(mp => prisma.userProduct.create({ data: mp }))
+    // );
+    // console.log(`✅ ${memberProducts.length} associações membro-produto criadas`);
 
     console.log('🎉 Seed concluído com sucesso!');
     console.log('\n📊 Resumo:');

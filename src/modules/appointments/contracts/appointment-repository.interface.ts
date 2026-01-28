@@ -41,9 +41,9 @@ export interface IAppointmentRepository {
   findByEstablishmentId(establishmentId: string): Promise<Appointment[]>;
 
   /**
-   * Busca agendamentos por membro/funcionário
+   * Busca agendamentos por usuário/funcionário
    */
-  findByMemberId(memberId: string): Promise<Appointment[]>;
+  findByUserId(userId: string): Promise<Appointment[]>;
 
   /**
    * Busca agendamentos por cliente
@@ -51,10 +51,10 @@ export interface IAppointmentRepository {
   findByCustomerId(customerId: string): Promise<Appointment[]>;
 
   /**
-   * Busca agendamentos conflitantes para um membro em um período específico
+   * Busca agendamentos conflitantes para um usuário em um período específico
    */
   findConflictingAppointments(
-    memberId: string,
+    userId: string,
     startTime: Date,
     endTime: Date,
     excludeAppointmentId?: string,

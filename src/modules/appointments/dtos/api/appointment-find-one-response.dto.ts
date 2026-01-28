@@ -22,7 +22,7 @@ export class AppointmentFindOneResponseDTO {
   customerId!: string;
 
   @ApiProperty()
-  memberId!: string;
+  userId!: string;
 
   @ApiProperty()
   startTime!: string;

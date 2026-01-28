@@ -26,22 +26,6 @@ export class TokenValidationService {
     return tokenRecord !== null;
   }
 
-  async validateTokenForMember(
-    token: string,
-    memberId: string,
-    type: TokenType = TokenType.EMAIL_VERIFICATION,
-  ): Promise<boolean> {
-    this.logger.debug('Validating token for member', { memberId, type });
-
-    const tokenRecord = await this.validateAndGetTokenRecordForMember(
-      token,
-      memberId,
-      type,
-    );
-
-    return tokenRecord !== null;
-  }
-
   async getTokenRecord(
     token: string,
     userId: string,
@@ -50,16 +34,6 @@ export class TokenValidationService {
     this.logger.debug('Getting token record', { userId, type });
 
     return this.validateAndGetTokenRecord(token, userId, type);
-  }
-
-  async getTokenRecordForMember(
-    token: string,
-    memberId: string,
-    type: TokenType = TokenType.EMAIL_VERIFICATION,
-  ): Promise<Token | null> {
-    this.logger.debug('Getting token record for member', { memberId, type });
-
-    return this.validateAndGetTokenRecordForMember(token, memberId, type);
   }
 
   async markTokenAsUsed(tokenId: string): Promise<Token> {
@@ -113,58 +87,6 @@ export class TokenValidationService {
     }
 
     this.logger.debug('Token validated successfully', { userId, type });
-    return tokenRecord;
-  }
-
-  /**
-   * Valida um token para member e retorna o registro se válido, ou null se inválido.
-   * Método privado similar ao validateAndGetTokenRecord mas para members.
-   */
-  private async validateAndGetTokenRecordForMember(
-    token: string,
-    memberId: string,
-    type: TokenType,
-  ): Promise<Token | null> {
-    // Buscar token ativo do member
-    const tokenRecord = await this.tokenRepository.findByMemberIdAndType(
-      memberId,
-      type,
-    );
-
-    if (!tokenRecord) {
-      this.logger.warn('Token not found for member', { memberId, type });
-      return null;
-    }
-
-    // Comparar token plain com hash salvo
-    const isValid = await compare(token, tokenRecord.token);
-
-    if (!isValid) {
-      this.logger.warn('Invalid token for member', { memberId, type });
-      return null;
-    }
-
-    // Verificar se não expirou
-    if (new Date() > tokenRecord.expiresAt) {
-      this.logger.warn('Token expired for member', {
-        memberId,
-        type,
-        expiresAt: tokenRecord.expiresAt,
-      });
-      return null;
-    }
-
-    // Verificar se já foi usado
-    if (tokenRecord.used) {
-      this.logger.warn('Token already used for member', { memberId, type });
-      return null;
-    }
-
-    this.logger.debug('Token validated successfully for member', {
-      memberId,
-      type,
-    });
-
     return tokenRecord;
   }
 }

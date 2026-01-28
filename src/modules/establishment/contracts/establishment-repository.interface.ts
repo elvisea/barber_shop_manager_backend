@@ -33,9 +33,10 @@ export interface IEstablishmentRepository {
 
   deleteByIdAndUser(establishmentId: string, userId: string): Promise<void>;
 
-  findByIdWithMembersAdmin(
-    establishmentId: string,
-  ): Promise<
-    (Establishment & { members: Array<{ id: string; role: string }> }) | null
+  findByIdWithMembersAdmin(establishmentId: string): Promise<
+    | (Establishment & {
+        userEstablishments: Array<{ id: string; role: string }>;
+      })
+    | null
   >;
 }

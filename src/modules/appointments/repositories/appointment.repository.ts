@@ -30,7 +30,7 @@ export class AppointmentRepository implements IAppointmentRepository {
       },
       include: {
         customer: true,
-        member: true,
+        user: true,
         establishment: true,
         services: {
           include: {
@@ -53,7 +53,7 @@ export class AppointmentRepository implements IAppointmentRepository {
       where: { id },
       include: {
         customer: true,
-        member: true,
+        user: true,
         establishment: true,
         services: {
           include: {
@@ -93,9 +93,9 @@ export class AppointmentRepository implements IAppointmentRepository {
       this.logger.debug(`Filtro aplicado: customerId = ${query.customerId}`);
     }
 
-    if (query.memberId) {
-      where.memberId = query.memberId;
-      this.logger.debug(`Filtro aplicado: memberId = ${query.memberId}`);
+    if (query.userId) {
+      where.userId = query.userId;
+      this.logger.debug(`Filtro aplicado: userId = ${query.userId}`);
     }
 
     if (query.status) {
@@ -134,7 +134,7 @@ export class AppointmentRepository implements IAppointmentRepository {
             phone: true,
           },
         },
-        member: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -189,8 +189,8 @@ export class AppointmentRepository implements IAppointmentRepository {
       where.customerId = query.customerId;
     }
 
-    if (query.memberId) {
-      where.memberId = query.memberId;
+    if (query.userId) {
+      where.userId = query.userId;
     }
 
     if (query.status) {
@@ -222,8 +222,8 @@ export class AppointmentRepository implements IAppointmentRepository {
 
     const updateData: Prisma.AppointmentUpdateInput = {};
 
-    if (data.memberId) {
-      updateData.member = { connect: { id: data.memberId } };
+    if (data.userId) {
+      updateData.user = { connect: { id: data.userId } };
     }
 
     if (data.startTime) {
@@ -246,7 +246,7 @@ export class AppointmentRepository implements IAppointmentRepository {
       data: updateData,
       include: {
         customer: true,
-        member: true,
+        user: true,
         establishment: true,
         services: {
           include: {
@@ -279,7 +279,7 @@ export class AppointmentRepository implements IAppointmentRepository {
       where: { establishmentId },
       include: {
         customer: true,
-        member: true,
+        user: true,
         establishment: true,
         services: {
           include: {
@@ -298,14 +298,14 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointments;
   }
 
-  async findByMemberId(memberId: string): Promise<Appointment[]> {
-    this.logger.log(`Buscando agendamentos por membro: ${memberId}`);
+  async findByUserId(userId: string): Promise<Appointment[]> {
+    this.logger.log(`Buscando agendamentos por usuário: ${userId}`);
 
     const appointments = await this.prismaService.appointment.findMany({
-      where: { memberId },
+      where: { userId },
       include: {
         customer: true,
-        member: true,
+        user: true,
         establishment: true,
         services: {
           include: {
@@ -319,7 +319,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     });
 
     this.logger.log(
-      `Encontrados ${appointments.length} agendamentos para membro ${memberId}`,
+      `Encontrados ${appointments.length} agendamentos para usuário ${userId}`,
     );
     return appointments;
   }
@@ -331,7 +331,7 @@ export class AppointmentRepository implements IAppointmentRepository {
       where: { customerId },
       include: {
         customer: true,
-        member: true,
+        user: true,
         establishment: true,
         services: {
           include: {
@@ -351,17 +351,17 @@ export class AppointmentRepository implements IAppointmentRepository {
   }
 
   async findConflictingAppointments(
-    memberId: string,
+    userId: string,
     startTime: Date,
     endTime: Date,
     excludeAppointmentId?: string,
   ): Promise<Appointment[]> {
     this.logger.log(
-      `Verificando conflitos de horário para membro ${memberId} entre ${startTime.toISOString()} e ${endTime.toISOString()}`,
+      `Verificando conflitos de horário para usuário ${userId} entre ${startTime.toISOString()} e ${endTime.toISOString()}`,
     );
 
     const whereClause: Prisma.AppointmentWhereInput = {
-      memberId,
+      userId,
       deletedAt: null, // Filtrar apenas agendamentos não deletados
       AND: [
         // Conflito: agendamento existente sobrepõe com o novo
@@ -385,7 +385,7 @@ export class AppointmentRepository implements IAppointmentRepository {
         where: whereClause,
         include: {
           customer: true,
-          member: true,
+          user: true,
           establishment: true,
           services: {
             include: {

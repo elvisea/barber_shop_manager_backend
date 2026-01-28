@@ -132,7 +132,8 @@ export class MemberProductValidationService {
     }
 
     // 3. Valida se o Establishment existe (dados já carregados do relacionamento)
-    const establishment = memberProductWithRelations.member.establishment;
+    const establishment = memberProductWithRelations.product.establishment;
+    const user = memberProductWithRelations.user;
 
     if (!establishment) {
       const message = this.errorMessageService.getMessage(
@@ -161,10 +162,8 @@ export class MemberProductValidationService {
       );
     }
 
-    // 5. Valida se o Member existe no estabelecimento (dados já carregados)
-    const member = memberProductWithRelations.member;
-
-    if (!member || member.establishmentId !== establishmentId) {
+    // 5. Valida se o User existe (dados já carregados)
+    if (!user) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_NOT_FOUND,
         {

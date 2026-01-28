@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, UserRole } from '@prisma/client';
 
 import { IUserRepository } from '../contracts/user-repository.interface';
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
@@ -72,6 +72,81 @@ export class UserRepository implements IUserRepository {
     return this.prismaService.user.update({
       where: { id: userId },
       data: { password: hashedPassword },
+    });
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    const count = await this.prismaService.user.count({
+      where: { email },
+    });
+    return count > 0;
+  }
+
+  async existsByPhone(phone: string): Promise<boolean> {
+    const count = await this.prismaService.user.count({
+      where: { phone },
+    });
+    return count > 0;
+  }
+
+  async existsByEmailExcludingId(
+    email: string,
+    excludeId: string,
+  ): Promise<boolean> {
+    const count = await this.prismaService.user.count({
+      where: {
+        email,
+        id: { not: excludeId },
+      },
+    });
+    return count > 0;
+  }
+
+  async existsByPhoneExcludingId(
+    phone: string,
+    excludeId: string,
+  ): Promise<boolean> {
+    const count = await this.prismaService.user.count({
+      where: {
+        phone,
+        id: { not: excludeId },
+      },
+    });
+    return count > 0;
+  }
+
+  async updateUserFields(
+    id: string,
+    data: Partial<{
+      name: string;
+      email: string;
+      phone: string;
+      role: UserRole;
+    }>,
+  ): Promise<User> {
+    return this.prismaService.user.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async createUserForEstablishment(data: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: UserRole;
+    document?: string;
+  }): Promise<User> {
+    return this.prismaService.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        role: data.role,
+        document: data.document || '',
+      },
     });
   }
 }

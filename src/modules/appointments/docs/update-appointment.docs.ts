@@ -51,7 +51,7 @@ export function UpdateAppointmentDocs() {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         customerId: '550e8400-e29b-41d4-a716-446655440001',
-        memberId: '550e8400-e29b-41d4-a716-446655440002',
+        userId: '550e8400-e29b-41d4-a716-446655440002',
         establishmentId: '550e8400-e29b-41d4-a716-446655440003',
         startTime: getFutureDateTime(1, 14, 0),
         endTime: getFutureDateTime(1, 15, 0),

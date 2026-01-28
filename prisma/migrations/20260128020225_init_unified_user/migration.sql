@@ -1,8 +1,5 @@
 -- CreateEnum
-CREATE TYPE "UserRole" AS ENUM ('OWNER', 'ROOT');
-
--- CreateEnum
-CREATE TYPE "MemberRole" AS ENUM ('RECEPTIONIST', 'HAIRDRESSER', 'BARBER');
+CREATE TYPE "UserRole" AS ENUM ('OWNER', 'ROOT', 'RECEPTIONIST', 'HAIRDRESSER', 'BARBER');
 
 -- CreateEnum
 CREATE TYPE "AppointmentStatus" AS ENUM ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW');
@@ -60,68 +57,48 @@ CREATE TABLE "establishments" (
 );
 
 -- CreateTable
-CREATE TABLE "members" (
+CREATE TABLE "user_establishments" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "role" "MemberRole" NOT NULL,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "user_id" TEXT NOT NULL,
     "establishment_id" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
-    CONSTRAINT "members_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_establishments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "member_refresh_tokens" (
-    "id" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expires_at" TIMESTAMPTZ NOT NULL,
-    "revoked" BOOLEAN NOT NULL DEFAULT false,
-    "user_agent" TEXT,
-    "ip_address" TEXT,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
-    "deleted_at" TIMESTAMPTZ,
-    "deleted_by" TEXT,
-
-    CONSTRAINT "member_refresh_tokens_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "member_working_hours" (
+CREATE TABLE "user_working_hours" (
     "id" TEXT NOT NULL,
     "day_of_week" INTEGER NOT NULL,
     "start_time" TEXT NOT NULL,
     "end_time" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
-    CONSTRAINT "member_working_hours_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_working_hours_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "member_absence_periods" (
+CREATE TABLE "user_absence_periods" (
     "id" TEXT NOT NULL,
     "reason" TEXT,
     "start_date" TIMESTAMPTZ NOT NULL,
     "end_date" TIMESTAMPTZ NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
-    CONSTRAINT "member_absence_periods_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_absence_periods_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -174,7 +151,7 @@ CREATE TABLE "establishment_services" (
 );
 
 -- CreateTable
-CREATE TABLE "member_products" (
+CREATE TABLE "user_products" (
     "id" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
     "commission" DECIMAL(5,4) NOT NULL,
@@ -182,15 +159,15 @@ CREATE TABLE "member_products" (
     "product_id" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
-    CONSTRAINT "member_products_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_products_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "member_services" (
+CREATE TABLE "user_services" (
     "id" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
     "commission" DECIMAL(5,4) NOT NULL,
@@ -199,11 +176,11 @@ CREATE TABLE "member_services" (
     "service_id" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
-    CONSTRAINT "member_services_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_services_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -218,7 +195,7 @@ CREATE TABLE "appointments" (
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
     "customer_id" TEXT NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "establishment_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
@@ -255,7 +232,7 @@ CREATE TABLE "transactions" (
     "updated_at" TIMESTAMPTZ NOT NULL,
     "appointment_id" TEXT,
     "customer_id" TEXT NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "establishment_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
@@ -294,7 +271,7 @@ CREATE TABLE "payment_orders" (
     "notes" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
-    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "establishment_id" TEXT NOT NULL,
     "created_by_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
@@ -365,8 +342,7 @@ CREATE TABLE "tokens" (
     "metadata" JSONB,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
-    "user_id" TEXT,
-    "member_id" TEXT,
+    "user_id" TEXT NOT NULL,
     "deleted_at" TIMESTAMPTZ,
     "deleted_by" TEXT,
 
@@ -416,28 +392,19 @@ CREATE INDEX "users_deleted_at_idx" ON "users"("deleted_at");
 CREATE INDEX "establishments_deleted_at_idx" ON "establishments"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "members_email_key" ON "members"("email");
+CREATE INDEX "user_establishments_deleted_at_idx" ON "user_establishments"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "members_phone_key" ON "members"("phone");
+CREATE UNIQUE INDEX "user_establishments_user_id_establishment_id_key" ON "user_establishments"("user_id", "establishment_id");
 
 -- CreateIndex
-CREATE INDEX "members_deleted_at_idx" ON "members"("deleted_at");
+CREATE INDEX "user_working_hours_deleted_at_idx" ON "user_working_hours"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "member_refresh_tokens_token_key" ON "member_refresh_tokens"("token");
+CREATE UNIQUE INDEX "user_working_hours_user_id_day_of_week_key" ON "user_working_hours"("user_id", "day_of_week");
 
 -- CreateIndex
-CREATE INDEX "member_refresh_tokens_deleted_at_idx" ON "member_refresh_tokens"("deleted_at");
-
--- CreateIndex
-CREATE INDEX "member_working_hours_deleted_at_idx" ON "member_working_hours"("deleted_at");
-
--- CreateIndex
-CREATE UNIQUE INDEX "member_working_hours_member_id_day_of_week_key" ON "member_working_hours"("member_id", "day_of_week");
-
--- CreateIndex
-CREATE INDEX "member_absence_periods_deleted_at_idx" ON "member_absence_periods"("deleted_at");
+CREATE INDEX "user_absence_periods_deleted_at_idx" ON "user_absence_periods"("deleted_at");
 
 -- CreateIndex
 CREATE INDEX "establishment_customers_deleted_at_idx" ON "establishment_customers"("deleted_at");
@@ -461,16 +428,16 @@ CREATE INDEX "establishment_services_deleted_at_idx" ON "establishment_services"
 CREATE UNIQUE INDEX "establishment_services_establishment_id_name_key" ON "establishment_services"("establishment_id", "name");
 
 -- CreateIndex
-CREATE INDEX "member_products_deleted_at_idx" ON "member_products"("deleted_at");
+CREATE INDEX "user_products_deleted_at_idx" ON "user_products"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "member_products_member_id_establishment_id_product_id_key" ON "member_products"("member_id", "establishment_id", "product_id");
+CREATE UNIQUE INDEX "user_products_user_id_establishment_id_product_id_key" ON "user_products"("user_id", "establishment_id", "product_id");
 
 -- CreateIndex
-CREATE INDEX "member_services_deleted_at_idx" ON "member_services"("deleted_at");
+CREATE INDEX "user_services_deleted_at_idx" ON "user_services"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "member_services_member_id_establishment_id_service_id_key" ON "member_services"("member_id", "establishment_id", "service_id");
+CREATE UNIQUE INDEX "user_services_user_id_establishment_id_service_id_key" ON "user_services"("user_id", "establishment_id", "service_id");
 
 -- CreateIndex
 CREATE INDEX "appointments_deleted_at_idx" ON "appointments"("deleted_at");
@@ -521,7 +488,7 @@ CREATE INDEX "tokens_type_idx" ON "tokens"("type");
 CREATE INDEX "tokens_token_idx" ON "tokens"("token");
 
 -- CreateIndex
-CREATE INDEX "tokens_member_id_type_idx" ON "tokens"("member_id", "type");
+CREATE INDEX "tokens_user_id_type_idx" ON "tokens"("user_id", "type");
 
 -- CreateIndex
 CREATE INDEX "tokens_deleted_at_idx" ON "tokens"("deleted_at");
@@ -539,16 +506,16 @@ CREATE INDEX "closure_periods_deleted_at_idx" ON "closure_periods"("deleted_at")
 ALTER TABLE "establishments" ADD CONSTRAINT "establishments_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "members" ADD CONSTRAINT "members_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_establishments" ADD CONSTRAINT "user_establishments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_refresh_tokens" ADD CONSTRAINT "member_refresh_tokens_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_establishments" ADD CONSTRAINT "user_establishments_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_working_hours" ADD CONSTRAINT "member_working_hours_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_working_hours" ADD CONSTRAINT "user_working_hours_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_absence_periods" ADD CONSTRAINT "member_absence_periods_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_absence_periods" ADD CONSTRAINT "user_absence_periods_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "establishment_customers" ADD CONSTRAINT "establishment_customers_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -560,16 +527,16 @@ ALTER TABLE "establishment_products" ADD CONSTRAINT "establishment_products_esta
 ALTER TABLE "establishment_services" ADD CONSTRAINT "establishment_services_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_products" ADD CONSTRAINT "member_products_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_products" ADD CONSTRAINT "user_products_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_products" ADD CONSTRAINT "member_products_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "establishment_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_products" ADD CONSTRAINT "user_products_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "establishment_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_services" ADD CONSTRAINT "member_services_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_services" ADD CONSTRAINT "user_services_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "member_services" ADD CONSTRAINT "member_services_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "establishment_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "user_services" ADD CONSTRAINT "user_services_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "establishment_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "appointments" ADD CONSTRAINT "appointments_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "establishment_customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -578,7 +545,7 @@ ALTER TABLE "appointments" ADD CONSTRAINT "appointments_customer_id_fkey" FOREIG
 ALTER TABLE "appointments" ADD CONSTRAINT "appointments_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "appointments" ADD CONSTRAINT "appointments_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "appointments" ADD CONSTRAINT "appointments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "appointment_services" ADD CONSTRAINT "appointment_services_appointment_id_fkey" FOREIGN KEY ("appointment_id") REFERENCES "appointments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -593,7 +560,7 @@ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_appointment_id_fkey" FOR
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "establishment_customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "transaction_items" ADD CONSTRAINT "transaction_items_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "establishment_products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -608,7 +575,7 @@ ALTER TABLE "transaction_items" ADD CONSTRAINT "transaction_items_transaction_id
 ALTER TABLE "payment_orders" ADD CONSTRAINT "payment_orders_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "payment_orders" ADD CONSTRAINT "payment_orders_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "payment_orders" ADD CONSTRAINT "payment_orders_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -624,9 +591,6 @@ ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "tokens" ADD CONSTRAINT "tokens_member_id_fkey" FOREIGN KEY ("member_id") REFERENCES "members"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "opening_hours" ADD CONSTRAINT "opening_hours_establishment_id_fkey" FOREIGN KEY ("establishment_id") REFERENCES "establishments"("id") ON DELETE CASCADE ON UPDATE CASCADE;

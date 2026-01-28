@@ -1,11 +1,10 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Establishment, Member } from '@prisma/client';
-
-import { MemberRepository } from '../repositories/member.repository';
+import { Establishment, User } from '@prisma/client';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
 
 /**
  * Service responsável por validar Member e Establishment.
@@ -62,7 +61,7 @@ export class MemberEstablishmentValidationService {
   );
 
   constructor(
-    private readonly memberRepository: MemberRepository,
+    private readonly userEstablishmentRepository: UserEstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -90,22 +89,19 @@ export class MemberEstablishmentValidationService {
     memberId: string,
     establishmentId: string,
     requesterId: string,
-  ): Promise<{ establishment: Establishment; member: Member }> {
-    // 1. Busca Member com Establishment incluído em uma única query
-    // Esta query substitui as 2 queries anteriores:
-    // - establishmentRepository.findById()
-    // - memberRepository.findByEstablishmentAndId()
-    const memberWithEstablishment =
-      await this.memberRepository.findByEstablishmentAndIdWithEstablishment(
-        establishmentId,
+  ): Promise<{ establishment: Establishment; member: User }> {
+    // 1. Busca UserEstablishment com User e Establishment incluídos
+    const userEstablishment =
+      await this.userEstablishmentRepository.findByUserAndEstablishmentWithRelations(
         memberId,
+        establishmentId,
       );
 
-    if (!memberWithEstablishment) {
+    if (!userEstablishment || !userEstablishment.isActive) {
       const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         {
-          MEMBER_ID: memberId,
+          USER_ID: memberId,
           ESTABLISHMENT_ID: establishmentId,
         },
       );
@@ -115,12 +111,12 @@ export class MemberEstablishmentValidationService {
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
-        ErrorCode.MEMBER_NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
       );
     }
 
-    // 2. Valida se o Establishment existe (dados já carregados do relacionamento)
-    const establishment = memberWithEstablishment.establishment;
+    // 2. Valida se o Establishment existe
+    const establishment = userEstablishment.establishment;
 
     if (!establishment) {
       const message = this.errorMessageService.getMessage(
@@ -151,7 +147,7 @@ export class MemberEstablishmentValidationService {
 
     return {
       establishment,
-      member: memberWithEstablishment,
+      member: userEstablishment.user,
     };
   }
 }

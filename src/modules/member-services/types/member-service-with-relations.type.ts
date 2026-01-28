@@ -20,13 +20,13 @@ import { Prisma } from '@prisma/client';
  *
  * @see Prisma.MemberServiceGetPayload para mais informações sobre como o tipo é gerado
  */
-export type MemberServiceWithRelations = Prisma.MemberServiceGetPayload<{
+export type MemberServiceWithRelations = Prisma.UserServiceGetPayload<{
   include: {
-    member: {
+    user: true;
+    service: {
       include: {
         establishment: true;
       };
     };
-    service: true;
   };
 }>;

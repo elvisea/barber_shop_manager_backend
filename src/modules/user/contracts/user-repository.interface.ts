@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User, UserRole } from '@prisma/client';
 
 import { CreateUserRequestDTO } from '../dtos/create-user-request.dto';
 
@@ -15,4 +15,25 @@ export interface IUserRepository {
     phoneNumber?: string | null,
   ): Promise<User>;
   updatePassword(userId: string, hashedPassword: string): Promise<User>;
+  existsByEmail(email: string): Promise<boolean>;
+  existsByPhone(phone: string): Promise<boolean>;
+  existsByEmailExcludingId(email: string, excludeId: string): Promise<boolean>;
+  existsByPhoneExcludingId(phone: string, excludeId: string): Promise<boolean>;
+  updateUserFields(
+    id: string,
+    data: Partial<{
+      name: string;
+      email: string;
+      phone: string;
+      role: UserRole;
+    }>,
+  ): Promise<User>;
+  createUserForEstablishment(data: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: UserRole;
+    document?: string;
+  }): Promise<User>;
 }

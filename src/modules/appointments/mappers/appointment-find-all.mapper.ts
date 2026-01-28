@@ -15,7 +15,7 @@ export class AppointmentFindAllMapper {
   ): AppointmentRepositoryFindAllDTO {
     return {
       customerId: query.customerId,
-      memberId: query.memberId,
+      userId: query.userId,
       status: query.status,
       startDate: query.startDate,
       endDate: query.endDate,
@@ -36,7 +36,7 @@ export class AppointmentFindAllMapper {
     const appointmentItems = appointments.map((appointment) => ({
       id: appointment.id,
       customerId: appointment.customerId,
-      memberId: appointment.memberId,
+      userId: appointment.userId,
       startTime: appointment.startTime.toISOString(),
       endTime: appointment.endTime.toISOString(),
     }));

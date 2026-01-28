@@ -15,12 +15,12 @@ import { getFutureDateTime } from '@/common/utils/date-helpers';
 
 export class AppointmentUpdateRequestDTO {
   @ApiPropertyOptional({
-    description: 'ID do funcionário/membro',
+    description: 'ID do usuário',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
   @IsUUID()
-  memberId?: string;
+  userId?: string;
 
   @ApiPropertyOptional({
     description: 'Data e hora de início do agendamento',

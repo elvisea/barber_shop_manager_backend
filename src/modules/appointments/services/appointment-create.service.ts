@@ -38,14 +38,11 @@ export class AppointmentCreateService {
     );
 
     // 1. Validar acesso do usuário (dono OU membro do estabelecimento)
-    const {
-      establishment: _establishment,
-      isOwner: _isOwner,
-      member: _member,
-    } = await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
-      establishmentId,
-      ownerId,
-    );
+    const { establishment: _establishment, isOwner: _isOwner } =
+      await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+        establishmentId,
+        ownerId,
+      );
 
     // 2. Validar cliente existe no estabelecimento
     await this.appointmentAccessValidationService.validateCustomer(
@@ -53,10 +50,10 @@ export class AppointmentCreateService {
       dto.customerId,
     );
 
-    // 3. Validar membro existe no estabelecimento
-    await this.appointmentAccessValidationService.validateMember(
+    // 3. Validar usuário existe no estabelecimento
+    await this.appointmentAccessValidationService.validateUser(
       establishmentId,
-      dto.memberId,
+      dto.userId,
     );
 
     // 4. Validar e buscar serviços do estabelecimento
@@ -66,10 +63,10 @@ export class AppointmentCreateService {
         dto.serviceIds,
       );
 
-    // 5. Validar se os serviços são permitidos ao membro
-    await this.appointmentAccessValidationService.validateMemberAllowedServices(
+    // 5. Validar se os serviços são permitidos ao usuário
+    await this.appointmentAccessValidationService.validateUserAllowedServices(
       establishmentId,
-      dto.memberId,
+      dto.userId,
       dto.serviceIds,
     );
 
@@ -79,7 +76,7 @@ export class AppointmentCreateService {
 
     // 7. Validar conflito de horários
     await this.validateNoTimeConflict(
-      dto.memberId,
+      dto.userId,
       dto.startTime,
       new Date(endTime),
     );
@@ -90,7 +87,7 @@ export class AppointmentCreateService {
     // 9. Criar dados para o repositório
     const repositoryData: AppointmentRepositoryCreateDTO = {
       customerId: dto.customerId,
-      memberId: dto.memberId,
+      userId: dto.userId,
       establishmentId,
       startTime: dto.startTime,
       endTime: new Date(endTime),
@@ -118,7 +115,7 @@ export class AppointmentCreateService {
       id: appointment.id,
       establishmentId: appointment.establishmentId,
       customerId: appointment.customerId,
-      memberId: appointment.memberId,
+      userId: appointment.userId,
       startTime: appointment.startTime.toISOString(),
       endTime: appointment.endTime.toISOString(),
       totalAmount: appointment.totalAmount,
@@ -134,13 +131,13 @@ export class AppointmentCreateService {
    * Valida se não há conflito de horários para o membro
    */
   private async validateNoTimeConflict(
-    memberId: string,
+    userId: string,
     startTime: Date,
     endTime: Date,
   ): Promise<void> {
     const conflictingAppointments =
       await this.appointmentRepository.findConflictingAppointments(
-        memberId,
+        userId,
         startTime,
         endTime,
       );
@@ -152,14 +149,14 @@ export class AppointmentCreateService {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
         {
-          MEMBER_ID: memberId,
+          USER_ID: userId,
           START_TIME: conflictingAppointment.startTime.toISOString(),
           END_TIME: conflictingAppointment.endTime.toISOString(),
         },
       );
 
       this.logger.warn(
-        `Time conflict found for member ${memberId}: ${conflictingAppointments.length} conflicting appointments. Conflicting appointment: ${conflictingAppointment.id} (${conflictingAppointment.startTime.toISOString()} - ${conflictingAppointment.endTime.toISOString()})`,
+        `Time conflict found for user ${userId}: ${conflictingAppointments.length} conflicting appointments. Conflicting appointment: ${conflictingAppointment.id} (${conflictingAppointment.startTime.toISOString()} - ${conflictingAppointment.endTime.toISOString()})`,
       );
 
       throw new CustomHttpException(
@@ -170,7 +167,7 @@ export class AppointmentCreateService {
     }
 
     this.logger.log(
-      `No time conflicts found for member ${memberId} between ${startTime.toISOString()} and ${endTime.toISOString()}`,
+      `No time conflicts found for user ${userId} between ${startTime.toISOString()} and ${endTime.toISOString()}`,
     );
   }
 

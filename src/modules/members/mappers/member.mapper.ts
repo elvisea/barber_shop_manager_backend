@@ -1,48 +1,49 @@
-import { Member } from '@prisma/client';
+import { User } from '@prisma/client';
 
 import { MemberResponseDTO } from '../dtos/member-response.dto';
 
 export class MemberMapper {
   /**
-   * Converte um Member do Prisma para MemberResponseDTO
-   * @param member - Dados do membro vindos do banco
-   * @param includeEstablishmentId - Se deve incluir o establishmentId na resposta
+   * Converte um User do Prisma para MemberResponseDTO
+   * @param user - Dados do usuário vindos do banco
+   * @param _includeEstablishmentId - Reservado para uso futuro (establishmentId vem de UserEstablishment)
    * @returns MemberResponseDTO
    */
   static toResponseDTO(
-    member: Member,
-    includeEstablishmentId = false,
+    user: User,
+    _includeEstablishmentId = false,
   ): MemberResponseDTO {
     const response: MemberResponseDTO = {
-      id: member.id,
-      name: member.name,
-      email: member.email,
-      phone: member.phone,
-      role: member.role,
-      isActive: member.isActive,
-      createdAt: member.createdAt,
-      updatedAt: member.updatedAt,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      isActive: true, // TODO: Verificar se precisa de campo isActive em User
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
 
-    if (includeEstablishmentId) {
-      response.establishmentId = member.establishmentId;
-    }
+    // establishmentId não está mais em User, precisa vir de UserEstablishment
+    // if (includeEstablishmentId) {
+    //   response.establishmentId = user.establishmentId;
+    // }
 
     return response;
   }
 
   /**
-   * Converte um array de Members do Prisma para array de MemberResponseDTO
-   * @param members - Array de dados dos membros vindos do banco
-   * @param includeEstablishmentId - Se deve incluir o establishmentId na resposta
+   * Converte um array de Users do Prisma para array de MemberResponseDTO
+   * @param users - Array de dados dos usuários vindos do banco
+   * @param _includeEstablishmentId - Reservado para uso futuro (establishmentId vem de UserEstablishment)
    * @returns Array de MemberResponseDTO
    */
   static toResponseDTOArray(
-    members: Member[],
-    includeEstablishmentId = false,
+    users: User[],
+    _includeEstablishmentId = false,
   ): MemberResponseDTO[] {
-    return members.map((member) =>
-      this.toResponseDTO(member, includeEstablishmentId),
+    return users.map((user) =>
+      this.toResponseDTO(user, _includeEstablishmentId),
     );
   }
 }

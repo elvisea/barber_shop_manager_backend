@@ -26,8 +26,8 @@ paths:
                   name: John Doe
                   email: john.doe@example.com
                   phone: '+5511987654321'
-                  createdAt: '2026-01-27T00:35:34.908Z'
-                  updatedAt: '2026-01-27T00:35:34.908Z'
+                  createdAt: '2026-01-28T03:40:40.556Z'
+                  updatedAt: '2026-01-28T03:40:40.556Z'
         '400':
           description: Validation error
           content:
@@ -349,6 +349,407 @@ paths:
       summary: Resend verification code
       tags:
         - Users
+  /establishments/{establishmentId}/members:
+    get:
+      operationId: UserEstablishmentFindAllController_handle
+      parameters:
+        - name: establishmentId
+          required: true
+          in: path
+          description: The ID of the establishment
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPaginatedResponseDTO'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - example:
+                      statusCode: 403
+                      message: Establishment not owned by user
+                      error: Forbidden
+                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Find all members with pagination
+      tags:
+        - Establishment Members
+    post:
+      operationId: UserEstablishmentCreateController_handle
+      parameters:
+        - name: establishmentId
+          required: true
+          in: path
+          description: The ID of the establishment
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberCreateRequestDTO'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberResponseDTO'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - example:
+                      statusCode: 403
+                      message: Establishment not owned by user
+                      error: Forbidden
+                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+        '409':
+          description: Member phone already exists in establishment
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: A member with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].
+                  error: Conflict
+                  errorCode: MEMBER_PHONE_ALREADY_EXISTS
+      security:
+        - bearer: []
+      summary: Create a new member
+      tags:
+        - Establishment Members
+  /members/{memberId}:
+    get:
+      operationId: UserEstablishmentFindByIdController_handle
+      parameters:
+        - name: memberId
+          required: true
+          in: path
+          description: The ID of the member
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberResponseDTO'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - example:
+                      statusCode: 403
+                      message: Establishment not owned by user
+                      error: Forbidden
+                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+                  - example:
+                      statusCode: 403
+                      message: User is not admin in establishment
+                      error: Forbidden
+                      errorCode: USER_NOT_ADMIN_IN_ESTABLISHMENT
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
+                  error: Not Found
+                  errorCode: MEMBER_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Find member by ID
+      tags:
+        - Establishment Members
+    patch:
+      operationId: UserEstablishmentUpdateController_handle
+      parameters:
+        - name: memberId
+          required: true
+          in: path
+          description: The ID of the member
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberUpdateRequestDTO'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberResponseDTO'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - example:
+                      statusCode: 403
+                      message: Establishment not owned by user
+                      error: Forbidden
+                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+        '409':
+          description: Member phone already exists in establishment
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: A member with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].
+                  error: Conflict
+                  errorCode: MEMBER_PHONE_ALREADY_EXISTS
+      security:
+        - bearer: []
+      summary: Update member
+      tags:
+        - Establishment Members
+    delete:
+      operationId: UserEstablishmentDeleteController_handle
+      parameters:
+        - name: memberId
+          required: true
+          in: path
+          description: The ID of the member
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '204':
+          description: Member deleted successfully
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - example:
+                      statusCode: 403
+                      message: Establishment not owned by user
+                      error: Forbidden
+                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
+                  error: Not Found
+                  errorCode: MEMBER_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Delete member
+      tags:
+        - Establishment Members
+  /members/email-verification/verify:
+    post:
+      description: Verifica o email do membro usando o código de verificação enviado por email.
+      operationId: UserEstablishmentVerifyEmailController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberVerifyEmailRequestDto'
+      responses:
+        '200':
+          description: Email verificado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberVerifyEmailResponseDto'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
+                  error: Not Found
+                  errorCode: MEMBER_NOT_FOUND
+      summary: Verify member email
+      tags:
+        - Members
+  /members/email-verification/resend:
+    post:
+      description: Reenvia um novo código de verificação para o email do membro.
+      operationId: UserEstablishmentResendVerificationController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberResendVerificationRequestDto'
+      responses:
+        '200':
+          description: Novo código de verificação enviado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberResendVerificationResponseDto'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
+                  error: Not Found
+                  errorCode: MEMBER_NOT_FOUND
+      summary: Resend verification code for member
+      tags:
+        - Members
+  /members/{memberId}/summary:
+    get:
+      description: >-
+        Retorna um resumo completo do membro incluindo informações sobre serviços, produtos, horários de trabalho e
+        períodos de ausência atribuídos.
+      operationId: UserEstablishmentSummaryController_handle
+      parameters:
+        - name: memberId
+          required: true
+          in: path
+          description: The ID of the member
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '200':
+          description: Resumo do membro retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberSummaryResponseDTO'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - example:
+                      statusCode: 403
+                      message: Establishment not owned by user
+                      error: Forbidden
+                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+                  - example:
+                      statusCode: 403
+                      message: User is not admin in establishment
+                      error: Forbidden
+                      errorCode: USER_NOT_ADMIN_IN_ESTABLISHMENT
+        '404':
+          description: Member not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
+                  error: Not Found
+                  errorCode: MEMBER_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Get member summary with relationships
+      tags:
+        - Establishment Members
   /establishments:
     post:
       operationId: EstablishmentCreateController_handle
@@ -591,8 +992,8 @@ paths:
                 instanceId: instance_123456789
                 status: active
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T00:35:34.499Z'
-                updatedAt: '2026-01-27T00:35:34.499Z'
+                createdAt: '2026-01-28T03:40:40.133Z'
+                updatedAt: '2026-01-28T03:40:40.133Z'
         '400':
           description: Dados inválidos
           content:
@@ -1034,16 +1435,16 @@ paths:
                     price: 25.5
                     imageUrl: http://example.com/shampoo.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-26T00:35:34.996Z'
-                    updatedAt: '2026-01-26T00:35:34.996Z'
+                    createdAt: '2026-01-27T03:40:40.652Z'
+                    updatedAt: '2026-01-27T03:40:40.652Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Condicionador
                     description: Condicionador para cabelos secos
                     price: 30
                     imageUrl: http://example.com/condicionador.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-27T00:35:34.996Z'
-                    updatedAt: '2026-01-27T00:35:34.996Z'
+                    createdAt: '2026-01-28T03:40:40.652Z'
+                    updatedAt: '2026-01-28T03:40:40.652Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1102,8 +1503,8 @@ paths:
                 price: 25.5
                 imageUrl: http://example.com/shampoo.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T00:35:35.002Z'
-                updatedAt: '2026-01-27T00:35:35.002Z'
+                createdAt: '2026-01-28T03:40:40.657Z'
+                updatedAt: '2026-01-28T03:40:40.657Z'
         '400':
           description: Validation error
           content:
@@ -1223,8 +1624,8 @@ paths:
                 price: 30
                 imageUrl: http://example.com/shampoo-updated.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-26T00:35:35.011Z'
-                updatedAt: '2026-01-27T00:35:35.011Z'
+                createdAt: '2026-01-27T03:40:40.666Z'
+                updatedAt: '2026-01-28T03:40:40.666Z'
         '400':
           description: Validation error
           content:
@@ -1304,8 +1705,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T00:35:34.580Z'
-                updatedAt: '2026-01-27T00:35:34.580Z'
+                createdAt: '2026-01-28T03:40:40.417Z'
+                updatedAt: '2026-01-28T03:40:40.417Z'
         '400':
           description: Validation error
           content:
@@ -1382,16 +1783,16 @@ paths:
                     price: 50
                     duration: 60
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-26T00:35:34.596Z'
-                    updatedAt: '2026-01-26T00:35:34.596Z'
+                    createdAt: '2026-01-27T03:40:40.434Z'
+                    updatedAt: '2026-01-27T03:40:40.434Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Barba
                     description: Aparar e modelar barba
                     price: 30
                     duration: 30
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-27T00:35:34.596Z'
-                    updatedAt: '2026-01-27T00:35:34.596Z'
+                    createdAt: '2026-01-28T03:40:40.434Z'
+                    updatedAt: '2026-01-28T03:40:40.434Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1460,8 +1861,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T00:35:34.601Z'
-                updatedAt: '2026-01-27T00:35:34.601Z'
+                createdAt: '2026-01-28T03:40:40.440Z'
+                updatedAt: '2026-01-28T03:40:40.440Z'
         '400':
           description: Validation error
           content:
@@ -1581,8 +1982,8 @@ paths:
                 price: 60
                 duration: 75
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-26T00:35:34.613Z'
-                updatedAt: '2026-01-27T00:35:34.613Z'
+                createdAt: '2026-01-27T03:40:40.448Z'
+                updatedAt: '2026-01-28T03:40:40.448Z'
         '400':
           description: Validation error
           content:
@@ -1630,719 +2031,6 @@ paths:
       summary: Update service by ID
       tags:
         - Establishment Services
-  /establishments/{establishmentId}/members:
-    post:
-      operationId: MemberCreateController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: The ID of the establishment
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440000
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberCreateRequestDTO'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberResponseDTO'
-        '403':
-          description: Establishment not owned by user
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: Establishment not owned by user
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
-        '404':
-          description: Establishment not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_NOT_FOUND
-        '409':
-          description: Member phone already exists in establishment
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: A member with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].
-                  error: Conflict
-                  errorCode: MEMBER_PHONE_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Create a new member
-      tags:
-        - Establishment Members
-    get:
-      operationId: MemberFindAllController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: The ID of the establishment
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440000
-            type: string
-        - name: page
-          required: false
-          in: query
-          schema:
-            example: 1
-            type: number
-        - name: limit
-          required: false
-          in: query
-          schema:
-            maximum: 50
-            example: 10
-            type: number
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberPaginatedResponseDTO'
-        '403':
-          description: Establishment not owned by user
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: Establishment not owned by user
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
-        '404':
-          description: Establishment not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Find all members with pagination
-      tags:
-        - Establishment Members
-  /members/{memberId}:
-    get:
-      operationId: MemberFindByIdController_handle
-      parameters:
-        - name: memberId
-          required: true
-          in: path
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440001
-            type: string
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberResponseDTO'
-        '403':
-          description: Establishment not owned by user
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: Establishment not owned by user
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
-                  - example:
-                      statusCode: 403
-                      message: User is not admin in establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_ADMIN_IN_ESTABLISHMENT
-        '404':
-          description: Member not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
-                  error: Not Found
-                  errorCode: MEMBER_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Find member by ID
-      tags:
-        - Establishment Members
-    patch:
-      operationId: MemberUpdateController_handle
-      parameters:
-        - name: memberId
-          required: true
-          in: path
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440001
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberUpdateRequestDTO'
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberResponseDTO'
-        '403':
-          description: Establishment not owned by user
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: Establishment not owned by user
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
-        '404':
-          description: Establishment not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_NOT_FOUND
-        '409':
-          description: Member phone already exists in establishment
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: A member with phone [PHONE] already exists in establishment [ESTABLISHMENT_ID].
-                  error: Conflict
-                  errorCode: MEMBER_PHONE_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Update member
-      tags:
-        - Establishment Members
-    delete:
-      operationId: MemberDeleteController_handle
-      parameters:
-        - name: memberId
-          required: true
-          in: path
-          schema:
-            example: 550e8400-e29b-41d4-a716-446655440001
-            type: string
-      responses:
-        '204':
-          description: Member deleted successfully
-        '403':
-          description: Establishment not owned by user
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: Establishment not owned by user
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
-        '404':
-          description: Member not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
-                  error: Not Found
-                  errorCode: MEMBER_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Delete member
-      tags:
-        - Establishment Members
-  /members/email-verification/verify:
-    post:
-      description: Verifica o email do membro usando o código de verificação enviado por email.
-      operationId: MemberVerifyEmailController_handle
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberVerifyEmailRequestDto'
-      responses:
-        '200':
-          description: Email verificado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberVerifyEmailResponseDto'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '404':
-          description: Member not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
-                  error: Not Found
-                  errorCode: MEMBER_NOT_FOUND
-      summary: Verify member email
-      tags:
-        - Members
-  /members/email-verification/resend:
-    post:
-      description: Reenvia um novo código de verificação para o email do membro.
-      operationId: MemberResendVerificationController_handle
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberResendVerificationRequestDto'
-      responses:
-        '200':
-          description: Novo código de verificação enviado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberResendVerificationResponseDto'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '404':
-          description: Member not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
-                  error: Not Found
-                  errorCode: MEMBER_NOT_FOUND
-      summary: Resend verification code for member
-      tags:
-        - Members
-  /member-auth/login:
-    post:
-      description: Autentica um membro e retorna os tokens de acesso.
-      operationId: MemberAuthController_handle
-      parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberAuthRequestDTO'
-      responses:
-        '200':
-          description: Autenticação de membro realizada com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberAuthResponseDTO'
-              example:
-                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                member:
-                  id: 550e8400-e29b-41d4-a716-446655440000
-                  name: João Silva
-                  email: joao.silva@barbearia.com
-                  phone: '+5511987654321'
-                  role: BARBER
-                  establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                  createdAt: '2026-01-27T00:35:35.033Z'
-                  updatedAt: '2026-01-27T00:35:35.033Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '401':
-          description: Invalid email or password
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 401
-                  message: Invalid email or password
-                  error: Unauthorized
-                  errorCode: INVALID_EMAIL_OR_PASSWORD
-        '404':
-          description: Member not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Member with ID [MEMBER_ID] not found in establishment [ESTABLISHMENT_ID].
-                  error: Not Found
-                  errorCode: MEMBER_NOT_FOUND
-      summary: Authenticate member and return tokens
-      tags:
-        - Authentication
-  /establishments/{establishmentId}/members/{memberId}/products/{productId}:
-    post:
-      description: Associa um produto a um membro em um estabelecimento específico.
-      operationId: MemberProductCreateController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: ID of the establishment
-          schema:
-            example: uuid-establishment
-            type: string
-        - name: memberId
-          required: true
-          in: path
-          description: ID of the member
-          schema:
-            example: uuid-member
-            type: string
-        - name: productId
-          required: true
-          in: path
-          description: ID of the product
-          schema:
-            example: product-uuid
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberProductCreateRequestDTO'
-      responses:
-        '201':
-          description: Produto associado ao membro com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberProductCreateResponseDTO'
-              example:
-                id: 550e8400-e29b-41d4-a716-446655440000
-                memberId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                productId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
-                price: 25.5
-                commission: 2.55
-                createdAt: '2026-01-27T00:35:35.055Z'
-                updatedAt: '2026-01-27T00:35:35.055Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: User is not admin in establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_ADMIN_IN_ESTABLISHMENT
-                  - example:
-                      statusCode: 403
-                      message: User is not a member of the establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_MEMBER_OF_ESTABLISHMENT
-                  - example:
-                      statusCode: 403
-                      message: Establishment not found or access denied
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 404
-                      message: Establishment member not found
-                      error: Not Found
-                      errorCode: ESTABLISHMENT_MEMBER_NOT_FOUND
-                  - example:
-                      statusCode: 404
-                      message: Establishment product not found
-                      error: Not Found
-                      errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
-        '409':
-          description: Product already assigned to member in this establishment
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: >-
-                    Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [USER_ID] in establishment
-                    [ESTABLISHMENT_ID].
-                  error: Conflict
-                  errorCode: MEMBER_PRODUCT_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Assign a product to a member in an establishment
-      tags:
-        - Member Products
-  /establishments/{establishmentId}/members/{memberId}/services/{serviceId}:
-    post:
-      operationId: MemberServiceCreateController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: ID of the establishment
-          schema:
-            example: uuid-establishment
-            type: string
-        - name: memberId
-          required: true
-          in: path
-          description: ID of the member
-          schema:
-            example: uuid-member
-            type: string
-        - name: serviceId
-          required: true
-          in: path
-          description: ID of the service
-          schema:
-            example: service-uuid
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberServiceCreateRequestDTO'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberServiceCreateResponseDTO'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: User is not admin in establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_ADMIN_IN_ESTABLISHMENT
-                  - example:
-                      statusCode: 403
-                      message: User is not a member of the establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_MEMBER_OF_ESTABLISHMENT
-                  - example:
-                      statusCode: 403
-                      message: Establishment not found or access denied
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 404
-                      message: Establishment member not found
-                      error: Not Found
-                      errorCode: ESTABLISHMENT_MEMBER_NOT_FOUND
-                  - example:
-                      statusCode: 404
-                      message: Establishment service not found
-                      error: Not Found
-                      errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
-        '409':
-          description: Service already assigned to member in this establishment
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: >-
-                    Service with SERVICE_ID [SERVICE_ID] is already assigned to member [USER_ID] in establishment
-                    [ESTABLISHMENT_ID].
-                  error: Conflict
-                  errorCode: MEMBER_SERVICE_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Assign a service to a member in an establishment
-      tags:
-        - Member Services
-  /establishments/{establishmentId}/members/{memberId}/services:
-    get:
-      operationId: MemberServiceFindAllController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          schema:
-            example: uuid-establishment
-            type: string
-        - name: memberId
-          required: true
-          in: path
-          schema:
-            example: uuid-member
-            type: string
-        - name: page
-          required: false
-          in: query
-          schema:
-            example: 1
-            type: number
-        - name: limit
-          required: false
-          in: query
-          schema:
-            maximum: 50
-            example: 10
-            type: number
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasePaginatedResponseDTO'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 403
-                      message: User is not admin in establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_ADMIN_IN_ESTABLISHMENT
-                  - example:
-                      statusCode: 403
-                      message: User is not a member of the establishment
-                      error: Forbidden
-                      errorCode: USER_NOT_MEMBER_OF_ESTABLISHMENT
-                  - example:
-                      statusCode: 403
-                      message: Establishment not found or access denied
-                      error: Forbidden
-                      errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - example:
-                      statusCode: 404
-                      message: Establishment member not found
-                      error: Not Found
-                      errorCode: ESTABLISHMENT_MEMBER_NOT_FOUND
-      security:
-        - bearer: []
-      summary: List all services assigned to a member in an establishment
-      tags:
-        - Member Services
   /plans:
     post:
       operationId: PlanCreateController_handle
@@ -2513,10 +2201,10 @@ paths:
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
                 planId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 status: ACTIVE
-                startDate: '2025-12-28T00:35:35.116Z'
-                endDate: '2026-01-27T23:59:59.999Z'
-                createdAt: '2026-01-27T00:35:35.116Z'
-                updatedAt: '2026-01-27T00:35:35.116Z'
+                startDate: '2025-12-29T03:40:40.734Z'
+                endDate: '2026-01-28T23:59:59.999Z'
+                createdAt: '2026-01-28T03:40:40.734Z'
+                updatedAt: '2026-01-28T03:40:40.734Z'
       security:
         - bearer: []
       summary: Create subscription for establishment
@@ -2582,16 +2270,16 @@ paths:
               example:
                 id: 550e8400-e29b-41d4-a716-446655440000
                 customerId: 550e8400-e29b-41d4-a716-446655440001
-                memberId: 550e8400-e29b-41d4-a716-446655440002
+                userId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-28T10:00:00.000Z'
-                endTime: '2026-01-28T11:00:00.000Z'
+                startTime: '2026-01-29T10:00:00.000Z'
+                endTime: '2026-01-29T11:00:00.000Z'
                 totalAmount: 5000
                 totalDuration: 60
                 status: PENDING
                 notes: Corte de cabelo e barba
-                createdAt: '2026-01-27T00:35:34.425Z'
-                updatedAt: '2026-01-27T00:35:34.425Z'
+                createdAt: '2026-01-28T03:40:40.064Z'
+                updatedAt: '2026-01-28T03:40:40.064Z'
         '400':
           description: Dados inválidos fornecidos ou validação de negócio falhou
           content:
@@ -2720,10 +2408,10 @@ paths:
           schema:
             example: 550e8400-e29b-41d4-a716-446655440001
             type: string
-        - name: memberId
+        - name: userId
           required: false
           in: query
-          description: Filtrar por ID do funcionário
+          description: Filtrar por ID do usuário/funcionário
           schema:
             example: 550e8400-e29b-41d4-a716-446655440002
             type: string
@@ -2744,14 +2432,14 @@ paths:
           in: query
           description: Data de início para filtro (ISO 8601)
           schema:
-            example: '2026-01-20T00:35:34.436Z'
+            example: '2026-01-21T03:40:40.075Z'
             type: string
         - name: endDate
           required: false
           in: query
           description: Data de fim para filtro (ISO 8601)
           schema:
-            example: '2026-02-03T00:00:00.000Z'
+            example: '2026-02-04T00:00:00.000Z'
             type: string
         - name: includeDeleted
           required: false
@@ -2771,9 +2459,9 @@ paths:
                 data:
                   - id: 550e8400-e29b-41d4-a716-446655440000
                     customerId: 550e8400-e29b-41d4-a716-446655440001
-                    memberId: 550e8400-e29b-41d4-a716-446655440002
-                    startTime: '2026-01-28T10:00:00.000Z'
-                    endTime: '2026-01-28T11:00:00.000Z'
+                    userId: 550e8400-e29b-41d4-a716-446655440002
+                    startTime: '2026-01-29T10:00:00.000Z'
+                    endTime: '2026-01-29T11:00:00.000Z'
                 meta:
                   page: 1
                   limit: 10
@@ -2852,10 +2540,10 @@ paths:
               example:
                 id: 550e8400-e29b-41d4-a716-446655440000
                 customerId: 550e8400-e29b-41d4-a716-446655440001
-                memberId: 550e8400-e29b-41d4-a716-446655440002
+                userId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-28T10:00:00.000Z'
-                endTime: '2026-01-28T11:00:00.000Z'
+                startTime: '2026-01-29T10:00:00.000Z'
+                endTime: '2026-01-29T11:00:00.000Z'
                 notes: Corte de cabelo e barba
                 status: SCHEDULED
                 services:
@@ -2863,8 +2551,8 @@ paths:
                     name: Corte de Cabelo
                     price: 25
                     duration: 30
-                createdAt: '2026-01-26T00:35:34.438Z'
-                updatedAt: '2026-01-26T00:35:34.438Z'
+                createdAt: '2026-01-27T03:40:40.077Z'
+                updatedAt: '2026-01-27T03:40:40.077Z'
         '400':
           description: ID inválido fornecido
           content:
@@ -2943,10 +2631,10 @@ paths:
               example:
                 id: 550e8400-e29b-41d4-a716-446655440000
                 customerId: 550e8400-e29b-41d4-a716-446655440001
-                memberId: 550e8400-e29b-41d4-a716-446655440002
+                userId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-28T14:00:00.000Z'
-                endTime: '2026-01-28T15:00:00.000Z'
+                startTime: '2026-01-29T14:00:00.000Z'
+                endTime: '2026-01-29T15:00:00.000Z'
                 notes: Corte de cabelo, barba e sobrancelha
                 status: CONFIRMED
                 services:
@@ -2958,8 +2646,8 @@ paths:
                     name: Barba
                     price: 15
                     duration: 20
-                createdAt: '2026-01-26T00:35:34.440Z'
-                updatedAt: '2026-01-27T00:35:34.440Z'
+                createdAt: '2026-01-27T03:40:40.079Z'
+                updatedAt: '2026-01-28T03:40:40.079Z'
         '400':
           description: Dados inválidos fornecidos
           content:
@@ -3260,6 +2948,9 @@ components:
           enum:
             - OWNER
             - ROOT
+            - RECEPTIONIST
+            - HAIRDRESSER
+            - BARBER
           description: User role
         emailVerified:
           type: boolean
@@ -3272,12 +2963,12 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.810Z'
+          example: '2026-01-28T03:40:40.363Z'
           description: User creation date
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.810Z'
+          example: '2026-01-28T03:40:40.363Z'
           description: User last update date
       required:
         - id
@@ -3340,61 +3031,51 @@ components:
       required:
         - success
         - message
-    EstablishmentCreateRequestDTO:
-      type: object
-      properties:
-        address:
-          type: string
-          description: Full address of the establishment
-          example: 123 Main St, Downtown, São Paulo - SP
-          minLength: 1
-        name:
-          type: string
-          description: Name of the establishment
-          example: João's Barbershop
-          minLength: 1
-        phone:
-          type: string
-          description: Phone number of the establishment in E.164 format
-          example: '+5511999999999'
-      required:
-        - address
-        - name
-        - phone
-    EstablishmentFindOneResponseDTO:
+    MemberResponseDTO:
       type: object
       properties:
         id:
           type: string
-          description: Establishment ID
-          example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+          example: 550e8400-e29b-41d4-a716-446655440001
+        establishmentId:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
         name:
           type: string
-          description: Name of the establishment
-          example: João's Barbershop
-        address:
+          example: João da Silva
+        email:
           type: string
-          description: Full address of the establishment
-          example: 123 Main St, Downtown, São Paulo - SP
+          example: joao@barbearia.com
         phone:
           type: string
-          description: Phone number of the establishment
           example: '+5511999999999'
+        role:
+          type: string
+          enum:
+            - OWNER
+            - ROOT
+            - RECEPTIONIST
+            - HAIRDRESSER
+            - BARBER
+          example: BARBER
+        isActive:
+          type: boolean
+          example: true
         createdAt:
           format: date-time
           type: string
-          description: Creation date
-          example: '2026-01-27T00:35:34.453Z'
+          example: '2026-01-28T03:40:40.229Z'
         updatedAt:
           format: date-time
           type: string
-          description: Last update date
-          example: '2026-01-27T00:35:34.453Z'
+          example: '2026-01-28T03:40:40.229Z'
       required:
         - id
         - name
-        - address
+        - email
         - phone
+        - role
+        - isActive
         - createdAt
         - updatedAt
     PaginationMetadataUtil:
@@ -3446,6 +3127,214 @@ components:
       required:
         - data
         - meta
+    MemberPaginatedResponseDTO:
+      type: object
+      properties:
+        data:
+          description: Array of items
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberResponseDTO'
+        meta:
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
+      required:
+        - data
+        - meta
+    MemberCreateRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: João da Silva
+        email:
+          type: string
+          example: joao@barbearia.com
+        phone:
+          type: string
+          example: '+5511999999999'
+        role:
+          type: string
+          enum:
+            - OWNER
+            - ROOT
+            - RECEPTIONIST
+            - HAIRDRESSER
+            - BARBER
+          example: BARBER
+          description: Role of the member
+      required:
+        - name
+        - email
+        - phone
+        - role
+    MemberUpdateRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: João da Silva
+        email:
+          type: string
+          example: joao@barbearia.com
+        phone:
+          type: string
+          example: '+5511999999999'
+        role:
+          type: string
+          enum:
+            - OWNER
+            - ROOT
+            - RECEPTIONIST
+            - HAIRDRESSER
+            - BARBER
+          example: BARBER
+        isActive:
+          type: boolean
+          example: true
+    MemberVerifyEmailRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: membro@example.com
+          description: Email do membro que está verificando
+        token:
+          type: string
+          example: '123456'
+          description: Código de verificação enviado por email (6 dígitos numéricos)
+      required:
+        - email
+        - token
+    MemberVerifyEmailResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Indica se a verificação foi bem-sucedida
+        message:
+          type: string
+          example: Email verificado com sucesso!
+          description: Mensagem de resposta
+      required:
+        - success
+        - message
+    MemberResendVerificationRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: membro@example.com
+          description: Email do membro para reenviar o código de verificação
+      required:
+        - email
+    MemberResendVerificationResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Indica se o reenvio foi bem-sucedido
+        message:
+          type: string
+          example: Novo código de verificação enviado com sucesso!
+          description: Mensagem de resposta
+      required:
+        - success
+        - message
+    MemberRelationshipsSummaryDTO:
+      type: object
+      properties:
+        services:
+          type: object
+          example: 5
+          description: Total de serviços atribuídos ao membro
+        products:
+          type: object
+          example: 3
+          description: Total de produtos atribuídos ao membro
+        workingHours:
+          type: object
+          example: 5
+          description: Total de horários de trabalho configurados
+        absencePeriods:
+          type: object
+          example: 2
+          description: Total de períodos de ausência registrados
+      required:
+        - services
+        - products
+        - workingHours
+        - absencePeriods
+    MemberSummaryResponseDTO:
+      type: object
+      properties:
+        member:
+          $ref: '#/components/schemas/MemberResponseDTO'
+        relationships:
+          $ref: '#/components/schemas/MemberRelationshipsSummaryDTO'
+      required:
+        - member
+        - relationships
+    EstablishmentCreateRequestDTO:
+      type: object
+      properties:
+        address:
+          type: string
+          description: Full address of the establishment
+          example: 123 Main St, Downtown, São Paulo - SP
+          minLength: 1
+        name:
+          type: string
+          description: Name of the establishment
+          example: João's Barbershop
+          minLength: 1
+        phone:
+          type: string
+          description: Phone number of the establishment in E.164 format
+          example: '+5511999999999'
+      required:
+        - address
+        - name
+        - phone
+    EstablishmentFindOneResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Establishment ID
+          example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+        name:
+          type: string
+          description: Name of the establishment
+          example: João's Barbershop
+        address:
+          type: string
+          description: Full address of the establishment
+          example: 123 Main St, Downtown, São Paulo - SP
+        phone:
+          type: string
+          description: Phone number of the establishment
+          example: '+5511999999999'
+        createdAt:
+          format: date-time
+          type: string
+          description: Creation date
+          example: '2026-01-28T03:40:40.091Z'
+        updatedAt:
+          format: date-time
+          type: string
+          description: Last update date
+          example: '2026-01-28T03:40:40.091Z'
+      required:
+        - id
+        - name
+        - address
+        - phone
+        - createdAt
+        - updatedAt
     EstablishmentFindAllResponseDTO:
       type: object
       properties:
@@ -3580,11 +3469,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.524Z'
+          example: '2026-01-28T03:40:40.159Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.524Z'
+          example: '2026-01-28T03:40:40.159Z'
       required:
         - id
         - establishmentId
@@ -3640,11 +3529,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.533Z'
+          example: '2026-01-28T03:40:40.168Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.533Z'
+          example: '2026-01-28T03:40:40.168Z'
       required:
         - id
         - establishmentId
@@ -3704,11 +3593,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.959Z'
+          example: '2026-01-28T03:40:40.609Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.959Z'
+          example: '2026-01-28T03:40:40.609Z'
       required:
         - id
         - establishmentId
@@ -3810,11 +3699,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.575Z'
+          example: '2026-01-28T03:40:40.411Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.575Z'
+          example: '2026-01-28T03:40:40.411Z'
       required:
         - id
         - name
@@ -3861,335 +3750,6 @@ components:
           type: number
           example: 0.1
           description: 'Comissão (decimal, ex: 0.1 = 10%)'
-    MemberCreateRequestDTO:
-      type: object
-      properties:
-        name:
-          type: string
-          example: João da Silva
-        email:
-          type: string
-          example: joao@barbearia.com
-        phone:
-          type: string
-          example: '+5511999999999'
-        role:
-          type: string
-          enum:
-            - RECEPTIONIST
-            - HAIRDRESSER
-            - BARBER
-          example: BARBER
-          description: Role of the member
-      required:
-        - name
-        - email
-        - phone
-        - role
-    MemberResponseDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440001
-        establishmentId:
-          type: string
-          example: 550e8400-e29b-41d4-a716-446655440000
-        name:
-          type: string
-          example: João da Silva
-        email:
-          type: string
-          example: joao@barbearia.com
-        phone:
-          type: string
-          example: '+5511999999999'
-        role:
-          type: string
-          enum:
-            - RECEPTIONIST
-            - HAIRDRESSER
-            - BARBER
-          example: BARBER
-        isActive:
-          type: boolean
-          example: true
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-27T00:35:34.653Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-27T00:35:34.653Z'
-      required:
-        - id
-        - name
-        - email
-        - phone
-        - role
-        - isActive
-        - createdAt
-        - updatedAt
-    MemberPaginatedResponseDTO:
-      type: object
-      properties:
-        data:
-          description: Array of items
-          type: array
-          items:
-            $ref: '#/components/schemas/MemberResponseDTO'
-        meta:
-          description: Pagination metadata
-          allOf:
-            - $ref: '#/components/schemas/PaginatedResultUtil'
-      required:
-        - data
-        - meta
-    MemberUpdateRequestDTO:
-      type: object
-      properties:
-        name:
-          type: string
-          example: João da Silva
-        email:
-          type: string
-          example: joao@barbearia.com
-        phone:
-          type: string
-          example: '+5511999999999'
-        role:
-          type: string
-          enum:
-            - RECEPTIONIST
-            - HAIRDRESSER
-            - BARBER
-          example: BARBER
-        isActive:
-          type: boolean
-          example: true
-    MemberVerifyEmailRequestDto:
-      type: object
-      properties:
-        email:
-          type: string
-          example: membro@example.com
-          description: Email do membro que está verificando
-        token:
-          type: string
-          example: '123456'
-          description: Código de verificação enviado por email (6 dígitos numéricos)
-      required:
-        - email
-        - token
-    MemberVerifyEmailResponseDto:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-          description: Indica se a verificação foi bem-sucedida
-        message:
-          type: string
-          example: Email verificado com sucesso!
-          description: Mensagem de resposta
-      required:
-        - success
-        - message
-    MemberResendVerificationRequestDto:
-      type: object
-      properties:
-        email:
-          type: string
-          example: membro@example.com
-          description: Email do membro para reenviar o código de verificação
-      required:
-        - email
-    MemberResendVerificationResponseDto:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-          description: Indica se o reenvio foi bem-sucedido
-        message:
-          type: string
-          example: Novo código de verificação enviado com sucesso!
-          description: Mensagem de resposta
-      required:
-        - success
-        - message
-    MemberAuthRequestDTO:
-      type: object
-      properties:
-        email:
-          type: string
-          example: admin@bytefulcode.tech
-          description: The email of the user.
-        password:
-          type: string
-          example: Str0ngP@ssw0rd!
-          description: The password of the user.
-        ipAddress:
-          type: string
-          example: 127.0.0.1
-          description: The IP address of the user.
-        userAgent:
-          type: string
-          example: >-
-            Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110
-            Safari/537.36
-          description: The user agent of the user.
-      required:
-        - email
-        - password
-    MemberAuthResponseDTO:
-      type: object
-      properties:
-        accessToken:
-          type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-          description: The access token for the authenticated user.
-        refreshToken:
-          type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-          description: The refresh token for the authenticated user.
-      required:
-        - accessToken
-        - refreshToken
-    MemberProductCreateRequestDTO:
-      type: object
-      properties:
-        price:
-          type: number
-          example: 5000
-          description: Price in cents
-        commission:
-          type: number
-          example: 0.15
-          description: Commission as decimal (e.g., 0.15 = 15%)
-      required:
-        - price
-        - commission
-    MemberProductCreateResponseDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          example: member-product-uuid
-        memberId:
-          type: string
-          example: member-uuid
-        establishmentId:
-          type: string
-          example: establishment-uuid
-        productId:
-          type: string
-          example: product-uuid
-        price:
-          type: number
-          example: 5000
-          description: Price in cents
-        commission:
-          type: number
-          example: 0.15
-          description: Commission as decimal (e.g., 0.15 = 15%)
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-27T00:35:35.041Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-27T00:35:35.041Z'
-      required:
-        - id
-        - memberId
-        - establishmentId
-        - productId
-        - price
-        - commission
-        - createdAt
-        - updatedAt
-    MemberServiceCreateRequestDTO:
-      type: object
-      properties:
-        price:
-          type: number
-          example: 5000
-          description: Price in cents
-        commission:
-          type: number
-          example: 0.15
-          description: Commission as decimal (e.g., 0.15 = 15%)
-        duration:
-          type: number
-          example: 30
-          description: Duration in minutes
-      required:
-        - price
-        - commission
-        - duration
-    MemberServiceCreateResponseDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          example: member-service-uuid
-        memberId:
-          type: string
-          example: member-uuid
-        establishmentId:
-          type: string
-          example: establishment-uuid
-        serviceId:
-          type: string
-          example: service-uuid
-        price:
-          type: number
-          example: 5000
-          description: Price in cents
-        commission:
-          type: number
-          example: 0.15
-          description: Commission as decimal (e.g., 0.15 = 15%)
-        duration:
-          type: number
-          example: 120
-          description: Duration in minutes
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-27T00:35:34.621Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-27T00:35:34.621Z'
-      required:
-        - id
-        - memberId
-        - establishmentId
-        - serviceId
-        - price
-        - commission
-        - duration
-        - createdAt
-        - updatedAt
-    BasePaginatedResponseDTO:
-      type: object
-      properties:
-        data:
-          description: Array of items
-          type: array
-          items:
-            type: array
-        meta:
-          description: Pagination metadata
-          allOf:
-            - $ref: '#/components/schemas/PaginatedResultUtil'
-      required:
-        - data
-        - meta
     PlanCreateRequestDTO:
       type: object
       properties:
@@ -4236,11 +3796,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:35.062Z'
+          example: '2026-01-28T03:40:40.673Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:35.062Z'
+          example: '2026-01-28T03:40:40.673Z'
       required:
         - id
         - name
@@ -4293,10 +3853,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-28T00:35:35.108Z'
+          example: '2025-12-29T03:40:40.725Z'
         endDate:
           type: string
-          example: '2026-01-27T23:59:59.999Z'
+          example: '2026-01-28T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -4325,10 +3885,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-28T00:35:35.105Z'
+          example: '2025-12-29T03:40:40.722Z'
         endDate:
           type: string
-          example: '2026-01-27T23:59:59.999Z'
+          example: '2026-01-28T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -4337,10 +3897,10 @@ components:
           example: '5511999999999'
         createdAt:
           type: string
-          example: '2026-01-27T00:35:35.105Z'
+          example: '2026-01-28T03:40:40.722Z'
         updatedAt:
           type: string
-          example: '2026-01-27T00:35:35.105Z'
+          example: '2026-01-28T03:40:40.722Z'
       required:
         - id
         - establishmentId
@@ -4413,7 +3973,7 @@ components:
           description: Destino do webhook
         date_time:
           type: string
-          example: '2026-01-27T00:35:35.130Z'
+          example: '2026-01-28T03:40:40.751Z'
           description: Data e hora do evento
         sender:
           type: string
@@ -4443,15 +4003,15 @@ components:
           type: string
           description: ID do cliente
           example: 550e8400-e29b-41d4-a716-446655440000
-        memberId:
+        userId:
           type: string
-          description: ID do funcionário/membro
+          description: ID do usuário/funcionário
           example: 550e8400-e29b-41d4-a716-446655440000
         startTime:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-28T10:00:00.000Z'
+          example: '2026-01-29T10:00:00.000Z'
         notes:
           type: string
           description: Observações do agendamento
@@ -4466,7 +4026,7 @@ components:
             type: string
       required:
         - customerId
-        - memberId
+        - userId
         - startTime
         - serviceIds
     AppointmentCreateResponseDTO:
@@ -4481,15 +4041,15 @@ components:
         customerId:
           type: string
           example: b3a8c7d6-89ab-4cde-9123-456789abcdef
-        memberId:
+        userId:
           type: string
           example: c4d5e6f7-0123-4567-89ab-cdef01234567
         startTime:
           type: string
-          example: '2026-01-28T14:00:00.000Z'
+          example: '2026-01-29T14:00:00.000Z'
         endTime:
           type: string
-          example: '2026-01-28T14:30:00.000Z'
+          example: '2026-01-29T14:30:00.000Z'
         totalAmount:
           type: number
           example: 5000
@@ -4505,16 +4065,16 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.044Z'
+          example: '2026-01-28T03:40:39.694Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-27T00:35:34.044Z'
+          example: '2026-01-28T03:40:39.694Z'
       required:
         - id
         - establishmentId
         - customerId
-        - memberId
+        - userId
         - startTime
         - endTime
         - totalAmount
@@ -4529,7 +4089,7 @@ components:
           type: string
         customerId:
           type: string
-        memberId:
+        userId:
           type: string
         startTime:
           type: string
@@ -4538,7 +4098,7 @@ components:
       required:
         - id
         - customerId
-        - memberId
+        - userId
         - startTime
         - endTime
     AppointmentFindAllResponseDTO:
@@ -4579,7 +4139,7 @@ components:
           type: string
         customerId:
           type: string
-        memberId:
+        userId:
           type: string
         startTime:
           type: string
@@ -4592,22 +4152,22 @@ components:
       required:
         - id
         - customerId
-        - memberId
+        - userId
         - startTime
         - endTime
         - services
     AppointmentUpdateRequestDTO:
       type: object
       properties:
-        memberId:
+        userId:
           type: string
-          description: ID do funcionário/membro
+          description: ID do usuário
           example: 550e8400-e29b-41d4-a716-446655440000
         startTime:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-28T10:00:00.000Z'
+          example: '2026-01-29T10:00:00.000Z'
         status:
           type: string
           description: Status do agendamento

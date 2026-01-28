@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   EstablishmentService,
-  MemberService as MemberServiceModel,
+  UserService as UserServiceModel,
 } from '@prisma/client';
 
 import { IMemberServiceRepository } from '../contracts/member-service-repository.interface';
@@ -22,15 +22,15 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     price: number;
     commission: number;
     duration: number;
-  }): Promise<MemberServiceModel> {
-    return this.prisma.memberService.create({
+  }): Promise<UserServiceModel> {
+    return this.prisma.userService.create({
       data: {
         price: data.price,
         commission: data.commission,
         duration: data.duration,
         establishmentId: data.establishmentId,
         serviceId: data.serviceId,
-        memberId: data.memberId,
+        userId: data.memberId,
       },
     });
   }
@@ -40,19 +40,19 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     establishmentId: string,
     serviceId: string,
   ): Promise<MemberServiceWithRelations | null> {
-    return this.prisma.memberService.findFirst({
+    return this.prisma.userService.findFirst({
       where: {
-        memberId,
+        userId: memberId,
         establishmentId,
         serviceId,
       },
       include: {
-        member: {
+        user: true,
+        service: {
           include: {
             establishment: true,
           },
         },
-        service: true,
       },
     });
   }
@@ -62,9 +62,9 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     establishmentId: string,
     serviceId: string,
   ): Promise<boolean> {
-    const count = await this.prisma.memberService.count({
+    const count = await this.prisma.userService.count({
       where: {
-        memberId,
+        userId: memberId,
         establishmentId,
         serviceId,
       },
@@ -83,12 +83,12 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     skip: number;
     take: number;
   }): Promise<{
-    data: (MemberServiceModel & { service: EstablishmentService })[];
+    data: (UserServiceModel & { service: EstablishmentService })[];
     total: number;
   }> {
     const where = {
       establishmentId,
-      memberId,
+      userId: memberId,
       deletedAt: null,
     };
 
@@ -97,7 +97,7 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     );
 
     const [data, total] = await Promise.all([
-      this.prisma.memberService.findMany({
+      this.prisma.userService.findMany({
         where,
         skip,
         take,
@@ -105,7 +105,7 @@ export class MemberServiceRepository implements IMemberServiceRepository {
         include: { service: true },
       }),
 
-      this.prisma.memberService.count({ where }),
+      this.prisma.userService.count({ where }),
     ]);
 
     this.logger.debug(
@@ -122,7 +122,7 @@ export class MemberServiceRepository implements IMemberServiceRepository {
       commission?: number;
       duration?: number;
     },
-  ): Promise<MemberServiceModel> {
+  ): Promise<UserServiceModel> {
     const updateData: {
       price?: number;
       commission?: number;
@@ -139,14 +139,14 @@ export class MemberServiceRepository implements IMemberServiceRepository {
       updateData.duration = data.duration;
     }
 
-    return this.prisma.memberService.update({
+    return this.prisma.userService.update({
       where: { id },
       data: updateData,
     });
   }
 
   async deleteMemberService(id: string, deletedBy: string): Promise<void> {
-    await this.prisma.memberService.update({
+    await this.prisma.userService.update({
       where: { id },
       data: {
         deletedAt: new Date(),
@@ -159,10 +159,10 @@ export class MemberServiceRepository implements IMemberServiceRepository {
     memberId: string,
     establishmentId: string,
     serviceId: string,
-  ): Promise<(MemberServiceModel & { service: EstablishmentService }) | null> {
-    return this.prisma.memberService.findFirst({
+  ): Promise<(UserServiceModel & { service: EstablishmentService }) | null> {
+    return this.prisma.userService.findFirst({
       where: {
-        memberId,
+        userId: memberId,
         establishmentId,
         serviceId,
         deletedAt: null,

@@ -76,7 +76,7 @@ export class MemberServiceFindAllService {
     );
 
     return new MemberServiceFindAllResponseDTO(
-      data.map(MemberServiceMapper.toFindAllResponse),
+      data.map((item) => MemberServiceMapper.toFindAllResponse(item)),
       page,
       limit,
       total,

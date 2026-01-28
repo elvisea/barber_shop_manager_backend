@@ -1,4 +1,4 @@
-import { EstablishmentService, MemberService } from '@prisma/client';
+import { EstablishmentService, UserService } from '@prisma/client';
 
 import { MemberServiceWithRelations } from '../types/member-service-with-relations.type';
 
@@ -10,7 +10,7 @@ export interface IMemberServiceRepository {
     price: number;
     commission: number;
     duration: number;
-  }): Promise<MemberService>;
+  }): Promise<UserService>;
 
   /**
    * Busca um MemberService com todos os relacionamentos necessários em uma única query.
@@ -83,7 +83,7 @@ export interface IMemberServiceRepository {
     skip: number;
     take: number;
   }): Promise<{
-    data: (MemberService & { service: EstablishmentService })[];
+    data: (UserService & { service: EstablishmentService })[];
     total: number;
   }>;
 
@@ -94,7 +94,7 @@ export interface IMemberServiceRepository {
       commission?: number;
       duration?: number;
     },
-  ): Promise<MemberService>;
+  ): Promise<UserService>;
 
   deleteMemberService(id: string, deletedBy: string): Promise<void>;
 
@@ -102,5 +102,5 @@ export interface IMemberServiceRepository {
     memberId: string,
     establishmentId: string,
     serviceId: string,
-  ): Promise<(MemberService & { service: EstablishmentService }) | null>;
+  ): Promise<(UserService & { service: EstablishmentService }) | null>;
 }

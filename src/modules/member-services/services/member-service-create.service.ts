@@ -9,7 +9,7 @@ import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
-import { MemberEstablishmentValidationService } from '@/modules/members/services/member-establishment-validation.service';
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 @Injectable()
 export class MemberServiceCreateService {
@@ -19,7 +19,7 @@ export class MemberServiceCreateService {
     private readonly memberServiceRepository: MemberServiceRepository,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
     private readonly errorMessageService: ErrorMessageService,
-    private readonly memberEstablishmentValidationService: MemberEstablishmentValidationService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   async execute(
@@ -31,8 +31,8 @@ export class MemberServiceCreateService {
       `Creating member service for member ${params.memberId} in establishment ${params.establishmentId} and service ${params.serviceId}`,
     );
 
-    // Validações de Establishment e Member centralizadas
-    await this.memberEstablishmentValidationService.execute(
+    // Validações de Establishment e User centralizadas
+    await this.userEstablishmentValidationService.validateUserAndEstablishment(
       params.memberId,
       params.establishmentId,
       requesterId,
@@ -104,7 +104,7 @@ export class MemberServiceCreateService {
 
     return {
       id: memberService.id,
-      memberId: memberService.memberId,
+      memberId: memberService.userId,
       establishmentId: memberService.establishmentId,
       serviceId: memberService.serviceId,
       price: memberService.price,

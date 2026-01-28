@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MemberRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { BasePaginatedResponseDTO } from '@/common/dtos/base-paginated-response.dto';
 import { getCurrentDate } from '@/common/utils/date-helpers';
@@ -23,8 +23,8 @@ export class MemberResponseDTO {
   @ApiProperty({ example: '+5511999999999' })
   phone: string;
 
-  @ApiProperty({ enum: MemberRole, example: MemberRole.BARBER })
-  role: MemberRole;
+  @ApiProperty({ enum: UserRole, example: UserRole.BARBER })
+  role: UserRole;
 
   @ApiProperty({ example: true })
   isActive: boolean;
