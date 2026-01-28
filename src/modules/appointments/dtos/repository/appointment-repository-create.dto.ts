@@ -8,7 +8,7 @@ import { AppointmentServiceRepositoryCreateDTO } from './appointment-service-cre
  */
 export class AppointmentRepositoryCreateDTO {
   customerId: string;
-  memberId: string;
+  userId: string;
   establishmentId: string;
   startTime: Date;
   endTime: Date;

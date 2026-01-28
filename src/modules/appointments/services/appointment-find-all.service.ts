@@ -34,9 +34,9 @@ export class AppointmentFindAllService {
       await this.validateCustomer(establishmentId, query.customerId);
     }
 
-    // 3. Validar membro se fornecido
-    if (query.memberId) {
-      await this.validateMember(establishmentId, query.memberId);
+    // 3. Validar usuário se fornecido
+    if (query.userId) {
+      await this.validateUser(establishmentId, query.userId);
     }
 
     // 4. Calcular paginação
@@ -97,16 +97,16 @@ export class AppointmentFindAllService {
     );
   }
 
-  private async validateMember(
+  private async validateUser(
     establishmentId: string,
-    memberId: string,
+    userId: string,
   ): Promise<void> {
-    await this.appointmentAccessValidationService.validateMember(
+    await this.appointmentAccessValidationService.validateUser(
       establishmentId,
-      memberId,
+      userId,
     );
     this.logger.log(
-      `Membro ${memberId} validado para estabelecimento ${establishmentId}`,
+      `Usuário ${userId} validado para estabelecimento ${establishmentId}`,
     );
   }
 }

@@ -10,7 +10,7 @@ class AppointmentListItemDTO {
   customerId!: string;
 
   @ApiProperty()
-  memberId!: string;
+  userId!: string;
 
   @ApiProperty()
   startTime!: string;

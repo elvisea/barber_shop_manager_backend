@@ -16,16 +16,14 @@ import { AppointmentUpdateService } from './services/appointment-update.service'
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from '@/modules/establishment-customers/establishment-customer.module';
 import { EstablishmentServicesModule } from '@/modules/establishment-services/establishment-services.module';
-import { MemberServicesModule } from '@/modules/member-services/member-services.module';
-import { MembersModule } from '@/modules/members/members.module';
+import { UserEstablishmentsModule } from '@/modules/user-establishments/user-establishments.module';
 
 @Module({
   imports: [
     EstablishmentModule,
     EstablishmentCustomerModule,
     EstablishmentServicesModule,
-    MemberServicesModule,
-    MembersModule,
+    UserEstablishmentsModule,
   ],
   controllers: [
     AppointmentCreateController,

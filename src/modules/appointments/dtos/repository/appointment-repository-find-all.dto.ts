@@ -2,7 +2,7 @@ import { AppointmentStatus } from '@prisma/client';
 
 export class AppointmentRepositoryFindAllDTO {
   customerId?: string;
-  memberId?: string;
+  userId?: string;
   status?: AppointmentStatus;
   startDate?: Date;
   endDate?: Date;

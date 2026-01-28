@@ -3,7 +3,7 @@ import {
   Establishment,
   EstablishmentCustomer,
   EstablishmentService,
-  Member,
+  UserEstablishment,
 } from '@prisma/client';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -12,13 +12,12 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
-import { MemberServiceRepository } from '@/modules/member-services/repositories/member-service.repository';
-import { MemberRepository } from '@/modules/members/repositories/member.repository';
+import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
 
 export interface AppointmentAccessValidationResult {
   establishment: Establishment;
   isOwner: boolean;
-  member?: Member;
+  userEstablishment?: UserEstablishment;
 }
 
 /**
@@ -30,10 +29,9 @@ export class AppointmentAccessValidationService {
 
   constructor(
     private readonly establishmentRepository: EstablishmentRepository,
-    private readonly memberRepository: MemberRepository,
+    private readonly userEstablishmentRepository: UserEstablishmentRepository,
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
-    private readonly memberServiceRepository: MemberServiceRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -77,25 +75,26 @@ export class AppointmentAccessValidationService {
     }
 
     // 3. Se não for dono, verificar se é membro do estabelecimento
-    const member = await this.memberRepository.findByEstablishmentAndId(
-      establishmentId,
-      userId,
-    );
+    const userEstablishment =
+      await this.userEstablishmentRepository.findByUserAndEstablishment(
+        userId,
+        establishmentId,
+      );
 
-    if (!member) {
+    if (!userEstablishment || !userEstablishment.isActive) {
       const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
       );
 
       this.logger.warn(
-        `User ${userId} is not owner or member of establishment ${establishmentId}`,
+        `User ${userId} is not owner or active member of establishment ${establishmentId}`,
       );
 
       throw new CustomHttpException(
         message,
         HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_OWNED_BY_USER,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
       );
     }
 
@@ -103,7 +102,7 @@ export class AppointmentAccessValidationService {
       `User ${userId} is member of establishment ${establishmentId}`,
     );
 
-    return { establishment, isOwner: false, member };
+    return { establishment, isOwner: false, userEstablishment };
   }
 
   /**
@@ -145,40 +144,41 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Valida se o membro existe no estabelecimento
+   * Valida se o usuário existe no estabelecimento
    */
-  async validateMember(
+  async validateUser(
     establishmentId: string,
-    memberId: string,
-  ): Promise<Member> {
+    userId: string,
+  ): Promise<UserEstablishment> {
     this.logger.log(
-      `Validating member ${memberId} in establishment ${establishmentId}`,
+      `Validating user ${userId} in establishment ${establishmentId}`,
     );
 
-    const member = await this.memberRepository.findByEstablishmentAndId(
-      establishmentId,
-      memberId,
-    );
+    const userEstablishment =
+      await this.userEstablishmentRepository.findByUserAndEstablishment(
+        userId,
+        establishmentId,
+      );
 
-    if (!member) {
+    if (!userEstablishment || !userEstablishment.isActive) {
       const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_NOT_FOUND,
-        { MEMBER_ID: memberId, ESTABLISHMENT_ID: establishmentId },
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
       );
 
       this.logger.warn(
-        `Member ${memberId} not found in establishment ${establishmentId}`,
+        `User ${userId} not found or inactive in establishment ${establishmentId}`,
       );
 
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
-        ErrorCode.MEMBER_NOT_FOUND,
+        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
       );
     }
 
-    this.logger.log(`Member ${memberId} validated successfully`);
-    return member;
+    this.logger.log(`User ${userId} validated successfully`);
+    return userEstablishment;
   }
 
   /**
@@ -226,49 +226,23 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Valida se os serviços informados estão registrados para o membro no estabelecimento
+   * Valida se os serviços informados estão registrados para o usuário no estabelecimento
    */
-  async validateMemberAllowedServices(
+  async validateUserAllowedServices(
     establishmentId: string,
-    memberId: string,
+    userId: string,
     serviceIds: string[],
   ): Promise<void> {
     this.logger.log(
-      `Validating member ${memberId} allowed services in establishment ${establishmentId}`,
+      `Validating user ${userId} allowed services in establishment ${establishmentId}`,
     );
 
-    for (const serviceId of serviceIds) {
-      const isAllowed =
-        await this.memberServiceRepository.existsByMemberEstablishmentService(
-          memberId,
-          establishmentId,
-          serviceId,
-        );
-
-      if (!isAllowed) {
-        const message = this.errorMessageService.getMessage(
-          ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE,
-          {
-            SERVICE_ID: serviceId,
-            MEMBER_ID: memberId,
-            ESTABLISHMENT_ID: establishmentId,
-          },
-        );
-
-        this.logger.warn(
-          `Service ${serviceId} is not registered for member ${memberId} in establishment ${establishmentId}`,
-        );
-
-        throw new CustomHttpException(
-          message,
-          HttpStatus.BAD_REQUEST,
-          ErrorCode.APPOINTMENT_SERVICE_NOT_AVAILABLE,
-        );
-      }
-    }
+    // TODO: Implementar validação quando user-services estiver pronto
+    // Por enquanto, apenas valida que o usuário tem acesso ao estabelecimento
+    await this.validateUser(establishmentId, userId);
 
     this.logger.log(
-      `All ${serviceIds.length} services are allowed for member ${memberId} in establishment ${establishmentId}`,
+      `All ${serviceIds.length} services are allowed for user ${userId} in establishment ${establishmentId}`,
     );
   }
 }

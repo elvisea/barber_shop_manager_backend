@@ -13,7 +13,7 @@ export class AppointmentCreateResponseDTO {
   customerId!: string;
 
   @ApiProperty({ example: 'c4d5e6f7-0123-4567-89ab-cdef01234567' })
-  memberId!: string;
+  userId!: string;
 
   @ApiProperty({ example: getFutureDateTime(1, 14, 0) })
   startTime!: string;

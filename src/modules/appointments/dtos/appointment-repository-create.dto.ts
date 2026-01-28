@@ -6,7 +6,7 @@ import { AppointmentStatus } from '@prisma/client';
  */
 export class AppointmentRepositoryCreateDTO {
   customerId: string;
-  memberId: string;
+  userId: string;
   establishmentId: string;
   startTime: Date;
   endTime: Date;
