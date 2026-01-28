@@ -1,4 +1,4 @@
-import { MemberRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import { hash } from 'bcryptjs';
 import { DataGenerator } from '../utils/generate-data';
 import { PasswordHasher } from '../utils/hash-password';
@@ -38,13 +38,13 @@ export class MemberSeedData {
   static async generateMembersForEstablishment(establishmentId: string) {
     const hashedPassword = await PasswordHasher.hashPassword(this.DEFAULT_PASSWORD);
 
-    const roles = [MemberRole.RECEPTIONIST, MemberRole.HAIRDRESSER, MemberRole.BARBER];
+    const roles = [UserRole.RECEPTIONIST, UserRole.HAIRDRESSER, UserRole.BARBER];
     const members: Array<{
       name: string;
       email: string;
       phone: string;
       password: string;
-      role: MemberRole;
+      role: UserRole;
       establishmentId: string;
       isActive: boolean;
     }> = [];
@@ -76,7 +76,7 @@ export class MemberSeedData {
       email: string;
       phone: string;
       password: string;
-      role: MemberRole;
+      role: UserRole;
       establishmentId: string;
       isActive: boolean;
     }> = [];

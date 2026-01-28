@@ -28,11 +28,11 @@ export class SeedValidation {
     await prisma.transaction.deleteMany();
     await prisma.appointmentService.deleteMany();
     await prisma.appointment.deleteMany();
-    await prisma.memberService.deleteMany();
-    await prisma.memberProduct.deleteMany();
-    await prisma.memberWorkingHours.deleteMany();
-    await prisma.memberAbsencePeriod.deleteMany();
-    await prisma.member.deleteMany();
+    await prisma.userService.deleteMany();
+    await prisma.userProduct.deleteMany();
+    await prisma.userWorkingHours.deleteMany();
+    await prisma.userAbsencePeriod.deleteMany();
+    await prisma.userEstablishment.deleteMany();
     await prisma.establishmentCustomer.deleteMany();
     await prisma.establishmentService.deleteMany();
     await prisma.establishmentProduct.deleteMany();
