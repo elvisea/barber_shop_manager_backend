@@ -1052,8 +1052,8 @@ paths:
                 instanceId: instance_123456789
                 status: active
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T18:24:13.560Z'
-                updatedAt: '2026-01-28T18:24:13.560Z'
+                createdAt: '2026-01-30T01:29:59.757Z'
+                updatedAt: '2026-01-30T01:29:59.757Z'
         '400':
           description: Dados inválidos
           content:
@@ -1099,6 +1099,895 @@ paths:
       summary: Criar nova instância na Evolution API para o estabelecimento
       tags:
         - Establishments
+  /me/establishments:
+    get:
+      description: >-
+        Lista estabelecimentos dos quais o usuário faz parte (owner ou member). Retorna apenas id e name para uso em
+        seletores.
+      operationId: MeController_getEstablishments
+      parameters: []
+      responses:
+        '200':
+          description: Lista de estabelecimentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeIdNameDto'
+      security: &ref_0
+        - bearer: []
+      summary: List my establishments (id + name)
+      tags: &ref_1
+        - Me
+  /me/products:
+    get:
+      description: Lista produtos do estabelecimento. Requer query establishmentId. Retorna apenas id e name para seletores.
+      operationId: MeController_getProducts
+      parameters:
+        - name: establishmentId
+          required: true
+          in: query
+          description: The ID of the establishment
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '200':
+          description: Lista de produtos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeIdNameDto'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not owned by user
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+      security: *ref_0
+      summary: List my products (id + name)
+      tags: *ref_1
+  /me/services:
+    get:
+      description: Lista serviços do estabelecimento. Requer query establishmentId. Retorna apenas id e name para seletores.
+      operationId: MeController_getServices
+      parameters:
+        - name: establishmentId
+          required: true
+          in: query
+          description: The ID of the establishment
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '200':
+          description: Lista de serviços
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeIdNameDto'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not owned by user
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+      security: *ref_0
+      summary: List my services (id + name)
+      tags: *ref_1
+  /me/customers:
+    get:
+      description: Lista clientes do estabelecimento. Requer query establishmentId. Retorna apenas id e name para seletores.
+      operationId: MeController_getCustomers
+      parameters:
+        - name: establishmentId
+          required: true
+          in: query
+          description: The ID of the establishment
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeIdNameDto'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not owned by user
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+      security: *ref_0
+      summary: List my customers (id + name)
+      tags: *ref_1
+  /me/members:
+    get:
+      description: Lista membros do estabelecimento. Requer query establishmentId. Retorna apenas id e name para seletores.
+      operationId: MeController_getMembers
+      parameters:
+        - name: establishmentId
+          required: true
+          in: query
+          description: The ID of the establishment
+          schema:
+            example: 550e8400-e29b-41d4-a716-446655440000
+            type: string
+      responses:
+        '200':
+          description: Lista de membros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeIdNameDto'
+        '403':
+          description: Establishment not owned by user
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not owned by user
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_OWNED_BY_USER
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+      security: *ref_0
+      summary: List my members (id + name)
+      tags: *ref_1
+  /establishments/{establishmentId}/products:
+    post:
+      operationId: EstablishmentProductCreateController_handle
+      parameters:
+        - name: establishmentId
+          required: true
+          in: path
+          schema:
+            example: uuid-estabelecimento
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstablishmentProductCreateRequestDTO'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '409':
+          description: Establishment product name already exists
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: Establishment product name already exists
+                  error: Conflict
+                  errorCode: ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS
+      summary: Create product for establishment
+      tags:
+        - Establishment Products
+    get:
+      description: Busca todos os produtos de um estabelecimento com paginação.
+      operationId: EstablishmentProductFindAllController_handle
+      parameters:
+        - name: establishmentId
+          required: true
+          in: path
+          schema:
+            example: uuid-estabelecimento
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: Lista de produtos encontrada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentProductFindAllResponseDTO'
+              example:
+                data:
+                  - id: 550e8400-e29b-41d4-a716-446655440000
+                    name: Shampoo
+                    description: Shampoo para cabelos oleosos
+                    price: 25.5
+                    imageUrl: http://example.com/shampoo.jpg
+                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                    createdAt: '2026-01-29T01:30:00.233Z'
+                    updatedAt: '2026-01-29T01:30:00.233Z'
+                  - id: 660f9511-f3ac-52e5-b841-678901bcdefg
+                    name: Condicionador
+                    description: Condicionador para cabelos secos
+                    price: 30
+                    imageUrl: http://example.com/condicionador.jpg
+                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                    createdAt: '2026-01-30T01:30:00.233Z'
+                    updatedAt: '2026-01-30T01:30:00.233Z'
+                meta:
+                  page: 1
+                  limit: 10
+                  total: 2
+                  totalPages: 1
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+      security:
+        - bearer: []
+      summary: Find all products (paginated)
+      tags:
+        - Establishment Products
+  /products/{productId}:
+    get:
+      description: Busca um produto específico de um estabelecimento pelo ID.
+      operationId: EstablishmentProductFindByIdController_handle
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          description: Product ID
+          schema:
+            example: uuid-produto
+            type: string
+      responses:
+        '200':
+          description: Produto encontrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                name: Shampoo
+                description: Shampoo para cabelos oleosos
+                price: 25.5
+                imageUrl: http://example.com/shampoo.jpg
+                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                createdAt: '2026-01-30T01:30:00.238Z'
+                updatedAt: '2026-01-30T01:30:00.238Z'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment product not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment product not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Find product by ID
+      tags:
+        - Establishment Products
+    delete:
+      description: Exclui um produto específico de um estabelecimento pelo ID.
+      operationId: EstablishmentProductDeleteController_handle
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          description: Product ID
+          schema:
+            example: uuid-produto
+            type: string
+      responses:
+        '204':
+          description: Produto excluído com sucesso
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment product not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment product not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Delete product by ID
+      tags:
+        - Establishment Products
+    patch:
+      description: Atualiza um produto específico de um estabelecimento pelo ID.
+      operationId: EstablishmentProductUpdateController_handle
+      parameters:
+        - name: productId
+          required: true
+          in: path
+          description: Product ID
+          schema:
+            example: uuid-produto
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstablishmentProductUpdateRequestDTO'
+      responses:
+        '200':
+          description: Produto atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                name: Shampoo Atualizado
+                description: Shampoo para cabelos oleosos - versão melhorada
+                price: 30
+                imageUrl: http://example.com/shampoo-updated.jpg
+                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                createdAt: '2026-01-29T01:30:00.247Z'
+                updatedAt: '2026-01-30T01:30:00.247Z'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment product not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment product not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
+        '409':
+          description: Establishment product name already exists
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: Establishment product name already exists
+                  error: Conflict
+                  errorCode: ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS
+      security:
+        - bearer: []
+      summary: Update product by ID
+      tags:
+        - Establishment Products
+  /establishments/{establishmentId}/services:
+    post:
+      description: Cria um novo serviço para um estabelecimento específico.
+      operationId: EstablishmentServiceCreateController_handle
+      parameters:
+        - name: establishmentId
+          required: true
+          in: path
+          description: Establishment ID
+          schema:
+            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstablishmentServiceCreateRequestDTO'
+      responses:
+        '201':
+          description: Serviço criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                name: Corte de Cabelo
+                description: Corte de cabelo masculino
+                price: 50
+                duration: 60
+                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                createdAt: '2026-01-30T01:30:00.020Z'
+                updatedAt: '2026-01-30T01:30:00.020Z'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '409':
+          description: Establishment service name already exists
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: Establishment service name already exists
+                  error: Conflict
+                  errorCode: ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS
+      security:
+        - bearer: []
+      summary: Create a new establishment service
+      tags:
+        - Establishment Services
+    get:
+      description: Busca todos os serviços de um estabelecimento com paginação.
+      operationId: EstablishmentServiceFindAllController_handle
+      parameters:
+        - name: establishmentId
+          required: true
+          in: path
+          description: Establishment ID
+          schema:
+            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: Lista de serviços encontrada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentServiceFindAllResponseDTO'
+              example:
+                data:
+                  - id: 550e8400-e29b-41d4-a716-446655440000
+                    name: Corte de Cabelo
+                    description: Corte de cabelo masculino
+                    price: 50
+                    duration: 60
+                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                    createdAt: '2026-01-29T01:30:00.035Z'
+                    updatedAt: '2026-01-29T01:30:00.035Z'
+                  - id: 660f9511-f3ac-52e5-b841-678901bcdefg
+                    name: Barba
+                    description: Aparar e modelar barba
+                    price: 30
+                    duration: 30
+                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                    createdAt: '2026-01-30T01:30:00.035Z'
+                    updatedAt: '2026-01-30T01:30:00.035Z'
+                meta:
+                  page: 1
+                  limit: 10
+                  total: 2
+                  totalPages: 1
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Find all services (paginated)
+      tags:
+        - Establishment Services
+  /services/{serviceId}:
+    get:
+      description: Busca um serviço específico de um estabelecimento pelo ID.
+      operationId: EstablishmentServiceFindByIdController_handle
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: Service ID
+          schema:
+            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+            type: string
+      responses:
+        '200':
+          description: Serviço encontrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                name: Corte de Cabelo
+                description: Corte de cabelo masculino
+                price: 50
+                duration: 60
+                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                createdAt: '2026-01-30T01:30:00.041Z'
+                updatedAt: '2026-01-30T01:30:00.041Z'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment service not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment service not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Find service by ID
+      tags:
+        - Establishment Services
+    delete:
+      description: Exclui um serviço específico de um estabelecimento pelo ID.
+      operationId: EstablishmentServiceDeleteController_handle
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: Service ID
+          schema:
+            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+            type: string
+      responses:
+        '204':
+          description: Serviço excluído com sucesso
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment service not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment service not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
+      security:
+        - bearer: []
+      summary: Delete service by ID
+      tags:
+        - Establishment Services
+    patch:
+      description: Atualiza um serviço específico de um estabelecimento pelo ID.
+      operationId: EstablishmentServiceUpdateController_handle
+      parameters:
+        - name: serviceId
+          required: true
+          in: path
+          description: Service ID
+          schema:
+            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstablishmentServiceUpdateRequestDTO'
+      responses:
+        '200':
+          description: Serviço atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
+              example:
+                id: 550e8400-e29b-41d4-a716-446655440000
+                name: Corte de Cabelo Atualizado
+                description: Corte de cabelo masculino - versão melhorada
+                price: 60
+                duration: 75
+                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                createdAt: '2026-01-29T01:30:00.048Z'
+                updatedAt: '2026-01-30T01:30:00.048Z'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Field X is required
+                    - Field Y must be a valid email
+                  error: Bad Request
+                  errorCode: VALIDATION_ERROR
+        '403':
+          description: Establishment not found or access denied
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Establishment not found or access denied
+                  error: Forbidden
+                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
+        '404':
+          description: Establishment service not found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Establishment service not found
+                  error: Not Found
+                  errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
+        '409':
+          description: Establishment service name already exists
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 409
+                  message: Establishment service name already exists
+                  error: Conflict
+                  errorCode: ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS
+      security:
+        - bearer: []
+      summary: Update service by ID
+      tags:
+        - Establishment Services
   /establishments/{establishmentId}/customers:
     post:
       operationId: EstablishmentCustomerCreateController_handle
@@ -1399,698 +2288,6 @@ paths:
       summary: Update customer by ID
       tags:
         - Establishment Customers
-  /establishments/{establishmentId}/products:
-    post:
-      operationId: EstablishmentProductCreateController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          schema:
-            example: uuid-estabelecimento
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EstablishmentProductCreateRequestDTO'
-      responses:
-        '201':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '409':
-          description: Establishment product name already exists
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: Establishment product name already exists
-                  error: Conflict
-                  errorCode: ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS
-      summary: Create product for establishment
-      tags:
-        - Establishment Products
-    get:
-      description: Busca todos os produtos de um estabelecimento com paginação.
-      operationId: EstablishmentProductFindAllController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          schema:
-            example: uuid-estabelecimento
-            type: string
-        - name: page
-          required: false
-          in: query
-          schema:
-            example: 1
-            type: number
-        - name: limit
-          required: false
-          in: query
-          schema:
-            maximum: 50
-            example: 10
-            type: number
-      responses:
-        '200':
-          description: Lista de produtos encontrada com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentProductFindAllResponseDTO'
-              example:
-                data:
-                  - id: 550e8400-e29b-41d4-a716-446655440000
-                    name: Shampoo
-                    description: Shampoo para cabelos oleosos
-                    price: 25.5
-                    imageUrl: http://example.com/shampoo.jpg
-                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-27T18:24:13.975Z'
-                    updatedAt: '2026-01-27T18:24:13.975Z'
-                  - id: 660f9511-f3ac-52e5-b841-678901bcdefg
-                    name: Condicionador
-                    description: Condicionador para cabelos secos
-                    price: 30
-                    imageUrl: http://example.com/condicionador.jpg
-                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-28T18:24:13.975Z'
-                    updatedAt: '2026-01-28T18:24:13.975Z'
-                meta:
-                  page: 1
-                  limit: 10
-                  total: 2
-                  totalPages: 1
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-      security:
-        - bearer: []
-      summary: Find all products (paginated)
-      tags:
-        - Establishment Products
-  /products/{productId}:
-    get:
-      description: Busca um produto específico de um estabelecimento pelo ID.
-      operationId: EstablishmentProductFindByIdController_handle
-      parameters:
-        - name: productId
-          required: true
-          in: path
-          description: Product ID
-          schema:
-            example: uuid-produto
-            type: string
-      responses:
-        '200':
-          description: Produto encontrado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
-              example:
-                id: 550e8400-e29b-41d4-a716-446655440000
-                name: Shampoo
-                description: Shampoo para cabelos oleosos
-                price: 25.5
-                imageUrl: http://example.com/shampoo.jpg
-                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T18:24:13.980Z'
-                updatedAt: '2026-01-28T18:24:13.980Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment product not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment product not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Find product by ID
-      tags:
-        - Establishment Products
-    delete:
-      description: Exclui um produto específico de um estabelecimento pelo ID.
-      operationId: EstablishmentProductDeleteController_handle
-      parameters:
-        - name: productId
-          required: true
-          in: path
-          description: Product ID
-          schema:
-            example: uuid-produto
-            type: string
-      responses:
-        '204':
-          description: Produto excluído com sucesso
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment product not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment product not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Delete product by ID
-      tags:
-        - Establishment Products
-    patch:
-      description: Atualiza um produto específico de um estabelecimento pelo ID.
-      operationId: EstablishmentProductUpdateController_handle
-      parameters:
-        - name: productId
-          required: true
-          in: path
-          description: Product ID
-          schema:
-            example: uuid-produto
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EstablishmentProductUpdateRequestDTO'
-      responses:
-        '200':
-          description: Produto atualizado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentProductCreateResponseDTO'
-              example:
-                id: 550e8400-e29b-41d4-a716-446655440000
-                name: Shampoo Atualizado
-                description: Shampoo para cabelos oleosos - versão melhorada
-                price: 30
-                imageUrl: http://example.com/shampoo-updated.jpg
-                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T18:24:13.987Z'
-                updatedAt: '2026-01-28T18:24:13.987Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment product not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment product not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_PRODUCT_NOT_FOUND
-        '409':
-          description: Establishment product name already exists
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: Establishment product name already exists
-                  error: Conflict
-                  errorCode: ESTABLISHMENT_PRODUCT_NAME_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Update product by ID
-      tags:
-        - Establishment Products
-  /establishments/{establishmentId}/services:
-    post:
-      description: Cria um novo serviço para um estabelecimento específico.
-      operationId: EstablishmentServiceCreateController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EstablishmentServiceCreateRequestDTO'
-      responses:
-        '201':
-          description: Serviço criado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
-              example:
-                id: 550e8400-e29b-41d4-a716-446655440000
-                name: Corte de Cabelo
-                description: Corte de cabelo masculino
-                price: 50
-                duration: 60
-                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T18:24:13.775Z'
-                updatedAt: '2026-01-28T18:24:13.775Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '409':
-          description: Establishment service name already exists
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: Establishment service name already exists
-                  error: Conflict
-                  errorCode: ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Create a new establishment service
-      tags:
-        - Establishment Services
-    get:
-      description: Busca todos os serviços de um estabelecimento com paginação.
-      operationId: EstablishmentServiceFindAllController_handle
-      parameters:
-        - name: establishmentId
-          required: true
-          in: path
-          description: Establishment ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
-        - name: page
-          required: false
-          in: query
-          schema:
-            example: 1
-            type: number
-        - name: limit
-          required: false
-          in: query
-          schema:
-            maximum: 50
-            example: 10
-            type: number
-      responses:
-        '200':
-          description: Lista de serviços encontrada com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentServiceFindAllResponseDTO'
-              example:
-                data:
-                  - id: 550e8400-e29b-41d4-a716-446655440000
-                    name: Corte de Cabelo
-                    description: Corte de cabelo masculino
-                    price: 50
-                    duration: 60
-                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-27T18:24:13.786Z'
-                    updatedAt: '2026-01-27T18:24:13.786Z'
-                  - id: 660f9511-f3ac-52e5-b841-678901bcdefg
-                    name: Barba
-                    description: Aparar e modelar barba
-                    price: 30
-                    duration: 30
-                    establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-28T18:24:13.786Z'
-                    updatedAt: '2026-01-28T18:24:13.786Z'
-                meta:
-                  page: 1
-                  limit: 10
-                  total: 2
-                  totalPages: 1
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Find all services (paginated)
-      tags:
-        - Establishment Services
-  /services/{serviceId}:
-    get:
-      description: Busca um serviço específico de um estabelecimento pelo ID.
-      operationId: EstablishmentServiceFindByIdController_handle
-      parameters:
-        - name: serviceId
-          required: true
-          in: path
-          description: Service ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
-      responses:
-        '200':
-          description: Serviço encontrado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
-              example:
-                id: 550e8400-e29b-41d4-a716-446655440000
-                name: Corte de Cabelo
-                description: Corte de cabelo masculino
-                price: 50
-                duration: 60
-                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-28T18:24:13.790Z'
-                updatedAt: '2026-01-28T18:24:13.790Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment service not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment service not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Find service by ID
-      tags:
-        - Establishment Services
-    delete:
-      description: Exclui um serviço específico de um estabelecimento pelo ID.
-      operationId: EstablishmentServiceDeleteController_handle
-      parameters:
-        - name: serviceId
-          required: true
-          in: path
-          description: Service ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
-      responses:
-        '204':
-          description: Serviço excluído com sucesso
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment service not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment service not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
-      security:
-        - bearer: []
-      summary: Delete service by ID
-      tags:
-        - Establishment Services
-    patch:
-      description: Atualiza um serviço específico de um estabelecimento pelo ID.
-      operationId: EstablishmentServiceUpdateController_handle
-      parameters:
-        - name: serviceId
-          required: true
-          in: path
-          description: Service ID
-          schema:
-            example: a1b2c3d4-5678-90ab-cdef-1234567890ab
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EstablishmentServiceUpdateRequestDTO'
-      responses:
-        '200':
-          description: Serviço atualizado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EstablishmentServiceCreateResponseDTO'
-              example:
-                id: 550e8400-e29b-41d4-a716-446655440000
-                name: Corte de Cabelo Atualizado
-                description: Corte de cabelo masculino - versão melhorada
-                price: 60
-                duration: 75
-                establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-27T18:24:13.798Z'
-                updatedAt: '2026-01-28T18:24:13.798Z'
-        '400':
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - Field X is required
-                    - Field Y must be a valid email
-                  error: Bad Request
-                  errorCode: VALIDATION_ERROR
-        '403':
-          description: Establishment not found or access denied
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Establishment not found or access denied
-                  error: Forbidden
-                  errorCode: ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED
-        '404':
-          description: Establishment service not found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Establishment service not found
-                  error: Not Found
-                  errorCode: ESTABLISHMENT_SERVICE_NOT_FOUND
-        '409':
-          description: Establishment service name already exists
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 409
-                  message: Establishment service name already exists
-                  error: Conflict
-                  errorCode: ESTABLISHMENT_SERVICE_NAME_ALREADY_EXISTS
-      security:
-        - bearer: []
-      summary: Update service by ID
-      tags:
-        - Establishment Services
   /plans:
     post:
       operationId: PlanCreateController_handle
@@ -2261,10 +2458,10 @@ paths:
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
                 planId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 status: ACTIVE
-                startDate: '2025-12-29T18:24:14.041Z'
-                endDate: '2026-01-28T23:59:59.999Z'
-                createdAt: '2026-01-28T18:24:14.041Z'
-                updatedAt: '2026-01-28T18:24:14.041Z'
+                startDate: '2025-12-31T01:30:00.316Z'
+                endDate: '2026-01-30T23:59:59.999Z'
+                createdAt: '2026-01-30T01:30:00.316Z'
+                updatedAt: '2026-01-30T01:30:00.316Z'
       security:
         - bearer: []
       summary: Create subscription for establishment
@@ -2332,14 +2529,14 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 userId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-29T10:00:00.000Z'
-                endTime: '2026-01-29T11:00:00.000Z'
+                startTime: '2026-01-31T10:00:00.000Z'
+                endTime: '2026-01-31T11:00:00.000Z'
                 totalAmount: 5000
                 totalDuration: 60
                 status: PENDING
                 notes: Corte de cabelo e barba
-                createdAt: '2026-01-28T18:24:13.504Z'
-                updatedAt: '2026-01-28T18:24:13.504Z'
+                createdAt: '2026-01-30T01:29:59.689Z'
+                updatedAt: '2026-01-30T01:29:59.689Z'
         '400':
           description: Dados inválidos fornecidos ou validação de negócio falhou
           content:
@@ -2492,14 +2689,14 @@ paths:
           in: query
           description: Data de início para filtro (ISO 8601)
           schema:
-            example: '2026-01-21T18:24:13.512Z'
+            example: '2026-01-23T01:29:59.700Z'
             type: string
         - name: endDate
           required: false
           in: query
           description: Data de fim para filtro (ISO 8601)
           schema:
-            example: '2026-02-04T00:00:00.000Z'
+            example: '2026-02-06T00:00:00.000Z'
             type: string
         - name: includeDeleted
           required: false
@@ -2520,8 +2717,8 @@ paths:
                   - id: 550e8400-e29b-41d4-a716-446655440000
                     customerId: 550e8400-e29b-41d4-a716-446655440001
                     userId: 550e8400-e29b-41d4-a716-446655440002
-                    startTime: '2026-01-29T10:00:00.000Z'
-                    endTime: '2026-01-29T11:00:00.000Z'
+                    startTime: '2026-01-31T10:00:00.000Z'
+                    endTime: '2026-01-31T11:00:00.000Z'
                 meta:
                   page: 1
                   limit: 10
@@ -2602,8 +2799,8 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 userId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-29T10:00:00.000Z'
-                endTime: '2026-01-29T11:00:00.000Z'
+                startTime: '2026-01-31T10:00:00.000Z'
+                endTime: '2026-01-31T11:00:00.000Z'
                 notes: Corte de cabelo e barba
                 status: SCHEDULED
                 services:
@@ -2611,8 +2808,8 @@ paths:
                     name: Corte de Cabelo
                     price: 25
                     duration: 30
-                createdAt: '2026-01-27T18:24:13.514Z'
-                updatedAt: '2026-01-27T18:24:13.514Z'
+                createdAt: '2026-01-29T01:29:59.702Z'
+                updatedAt: '2026-01-29T01:29:59.702Z'
         '400':
           description: ID inválido fornecido
           content:
@@ -2693,8 +2890,8 @@ paths:
                 customerId: 550e8400-e29b-41d4-a716-446655440001
                 userId: 550e8400-e29b-41d4-a716-446655440002
                 establishmentId: 550e8400-e29b-41d4-a716-446655440003
-                startTime: '2026-01-29T14:00:00.000Z'
-                endTime: '2026-01-29T15:00:00.000Z'
+                startTime: '2026-01-31T14:00:00.000Z'
+                endTime: '2026-01-31T15:00:00.000Z'
                 notes: Corte de cabelo, barba e sobrancelha
                 status: CONFIRMED
                 services:
@@ -2706,8 +2903,8 @@ paths:
                     name: Barba
                     price: 15
                     duration: 20
-                createdAt: '2026-01-27T18:24:13.515Z'
-                updatedAt: '2026-01-28T18:24:13.515Z'
+                createdAt: '2026-01-29T01:29:59.704Z'
+                updatedAt: '2026-01-30T01:29:59.704Z'
         '400':
           description: Dados inválidos fornecidos
           content:
@@ -3013,12 +3210,12 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.732Z'
+          example: '2026-01-30T01:29:59.963Z'
           description: User creation date
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.732Z'
+          example: '2026-01-30T01:29:59.963Z'
           description: User last update date
       required:
         - id
@@ -3123,11 +3320,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.629Z'
+          example: '2026-01-30T01:29:59.838Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.629Z'
+          example: '2026-01-30T01:29:59.838Z'
       required:
         - id
         - name
@@ -3381,12 +3578,12 @@ components:
           format: date-time
           type: string
           description: Creation date
-          example: '2026-01-28T18:24:13.527Z'
+          example: '2026-01-30T01:29:59.715Z'
         updatedAt:
           format: date-time
           type: string
           description: Last update date
-          example: '2026-01-28T18:24:13.527Z'
+          example: '2026-01-30T01:29:59.715Z'
       required:
         - id
         - name
@@ -3492,113 +3689,18 @@ components:
         - sqs
         - settings
         - qrcode
-    EstablishmentCustomerCreateRequestDTO:
-      type: object
-      properties:
-        name:
-          type: string
-          example: João da Silva
-        email:
-          type: string
-          example: joao@email.com
-        phone:
-          type: string
-          example: '+5511999999999'
-          description: Phone number in E.164 format
-      required:
-        - name
-    EstablishmentCustomerCreateResponseDTO:
+    MeIdNameDto:
       type: object
       properties:
         id:
           type: string
-          example: uuid-cliente
-        establishmentId:
-          type: string
-          example: uuid-estabelecimento
+          example: 550e8400-e29b-41d4-a716-446655440000
         name:
           type: string
-          example: João da Silva
-        email:
-          type: string
-          example: joao@email.com
-        phone:
-          type: string
-          example: '+5511999999999'
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-28T18:24:13.580Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-28T18:24:13.580Z'
+          example: Barbearia do João
       required:
         - id
-        - establishmentId
         - name
-        - createdAt
-        - updatedAt
-    EstablishmentCustomerFindAllResponseDTO:
-      type: object
-      properties:
-        data:
-          description: Array of items
-          type: array
-          items:
-            $ref: '#/components/schemas/EstablishmentCustomerCreateResponseDTO'
-        meta:
-          description: Pagination metadata
-          allOf:
-            - $ref: '#/components/schemas/PaginatedResultUtil'
-      required:
-        - data
-        - meta
-    EstablishmentCustomerUpdateRequestDTO:
-      type: object
-      properties:
-        name:
-          type: string
-          example: João da Silva
-        email:
-          type: string
-          example: joao@email.com
-        phone:
-          type: string
-          example: '+5511999999999'
-          description: Phone number in E.164 format
-    EstablishmentCustomerUpdateResponseDTO:
-      type: object
-      properties:
-        id:
-          type: string
-          example: uuid-cliente
-        establishmentId:
-          type: string
-          example: uuid-estabelecimento
-        name:
-          type: string
-          example: João da Silva
-        email:
-          type: object
-          example: joao@email.com
-        phone:
-          type: object
-          example: '+5511999999999'
-        createdAt:
-          format: date-time
-          type: string
-          example: '2026-01-28T18:24:13.587Z'
-        updatedAt:
-          format: date-time
-          type: string
-          example: '2026-01-28T18:24:13.587Z'
-      required:
-        - id
-        - establishmentId
-        - name
-        - createdAt
-        - updatedAt
     EstablishmentProductCreateRequestDTO:
       type: object
       properties:
@@ -3652,11 +3754,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.944Z'
+          example: '2026-01-30T01:30:00.195Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.944Z'
+          example: '2026-01-30T01:30:00.195Z'
       required:
         - id
         - establishmentId
@@ -3758,11 +3860,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.769Z'
+          example: '2026-01-30T01:30:00.015Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.769Z'
+          example: '2026-01-30T01:30:00.015Z'
       required:
         - id
         - name
@@ -3809,6 +3911,113 @@ components:
           type: number
           example: 0.1
           description: 'Comissão (decimal, ex: 0.1 = 10%)'
+    EstablishmentCustomerCreateRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: João da Silva
+        email:
+          type: string
+          example: joao@email.com
+        phone:
+          type: string
+          example: '+5511999999999'
+          description: Phone number in E.164 format
+      required:
+        - name
+    EstablishmentCustomerCreateResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid-cliente
+        establishmentId:
+          type: string
+          example: uuid-estabelecimento
+        name:
+          type: string
+          example: João da Silva
+        email:
+          type: string
+          example: joao@email.com
+        phone:
+          type: string
+          example: '+5511999999999'
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-01-30T01:29:59.780Z'
+        updatedAt:
+          format: date-time
+          type: string
+          example: '2026-01-30T01:29:59.780Z'
+      required:
+        - id
+        - establishmentId
+        - name
+        - createdAt
+        - updatedAt
+    EstablishmentCustomerFindAllResponseDTO:
+      type: object
+      properties:
+        data:
+          description: Array of items
+          type: array
+          items:
+            $ref: '#/components/schemas/EstablishmentCustomerCreateResponseDTO'
+        meta:
+          description: Pagination metadata
+          allOf:
+            - $ref: '#/components/schemas/PaginatedResultUtil'
+      required:
+        - data
+        - meta
+    EstablishmentCustomerUpdateRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: João da Silva
+        email:
+          type: string
+          example: joao@email.com
+        phone:
+          type: string
+          example: '+5511999999999'
+          description: Phone number in E.164 format
+    EstablishmentCustomerUpdateResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid-cliente
+        establishmentId:
+          type: string
+          example: uuid-estabelecimento
+        name:
+          type: string
+          example: João da Silva
+        email:
+          type: object
+          example: joao@email.com
+        phone:
+          type: object
+          example: '+5511999999999'
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-01-30T01:29:59.788Z'
+        updatedAt:
+          format: date-time
+          type: string
+          example: '2026-01-30T01:29:59.788Z'
+      required:
+        - id
+        - establishmentId
+        - name
+        - createdAt
+        - updatedAt
     PlanCreateRequestDTO:
       type: object
       properties:
@@ -3855,11 +4064,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.993Z'
+          example: '2026-01-30T01:30:00.254Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.993Z'
+          example: '2026-01-30T01:30:00.254Z'
       required:
         - id
         - name
@@ -3912,10 +4121,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-29T18:24:14.034Z'
+          example: '2025-12-31T01:30:00.307Z'
         endDate:
           type: string
-          example: '2026-01-28T23:59:59.999Z'
+          example: '2026-01-30T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -3944,10 +4153,10 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-29T18:24:14.032Z'
+          example: '2025-12-31T01:30:00.304Z'
         endDate:
           type: string
-          example: '2026-01-28T23:59:59.999Z'
+          example: '2026-01-30T23:59:59.999Z'
         paid:
           type: boolean
           example: true
@@ -3956,10 +4165,10 @@ components:
           example: '5511999999999'
         createdAt:
           type: string
-          example: '2026-01-28T18:24:14.032Z'
+          example: '2026-01-30T01:30:00.304Z'
         updatedAt:
           type: string
-          example: '2026-01-28T18:24:14.032Z'
+          example: '2026-01-30T01:30:00.304Z'
       required:
         - id
         - establishmentId
@@ -4032,7 +4241,7 @@ components:
           description: Destino do webhook
         date_time:
           type: string
-          example: '2026-01-28T18:24:14.052Z'
+          example: '2026-01-30T01:30:00.359Z'
           description: Data e hora do evento
         sender:
           type: string
@@ -4070,7 +4279,7 @@ components:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-29T10:00:00.000Z'
+          example: '2026-01-31T10:00:00.000Z'
         notes:
           type: string
           description: Observações do agendamento
@@ -4105,10 +4314,10 @@ components:
           example: c4d5e6f7-0123-4567-89ab-cdef01234567
         startTime:
           type: string
-          example: '2026-01-29T14:00:00.000Z'
+          example: '2026-01-31T14:00:00.000Z'
         endTime:
           type: string
-          example: '2026-01-29T14:30:00.000Z'
+          example: '2026-01-31T14:30:00.000Z'
         totalAmount:
           type: number
           example: 5000
@@ -4124,11 +4333,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.198Z'
+          example: '2026-01-30T01:29:59.405Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-28T18:24:13.198Z'
+          example: '2026-01-30T01:29:59.405Z'
       required:
         - id
         - establishmentId
@@ -4226,7 +4435,7 @@ components:
           format: date-time
           type: string
           description: Data e hora de início do agendamento
-          example: '2026-01-29T10:00:00.000Z'
+          example: '2026-01-31T10:00:00.000Z'
         status:
           type: string
           description: Status do agendamento
