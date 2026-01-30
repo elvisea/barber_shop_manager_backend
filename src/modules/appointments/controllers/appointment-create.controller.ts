@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserRole } from '@prisma/client';
 
+import { APPOINTMENT_ALLOWED_ROLES } from '../constants/roles';
 import { CreateAppointmentDocs } from '../docs';
 import {
   AppointmentCreateParamDTO,
@@ -25,7 +25,7 @@ export class AppointmentCreateController {
   ) {}
 
   @Post()
-  @Roles(UserRole.OWNER, UserRole.ROOT)
+  @Roles(...APPOINTMENT_ALLOWED_ROLES)
   @CreateAppointmentDocs()
   async handle(
     @Param() params: AppointmentCreateParamDTO,

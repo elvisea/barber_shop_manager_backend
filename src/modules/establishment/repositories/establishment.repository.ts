@@ -3,6 +3,7 @@ import { Establishment } from '@prisma/client';
 
 import { IEstablishmentRepository } from '../contracts/establishment-repository.interface';
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
+import { EstablishmentWithUserAccess } from '../types/establishment-with-user-access.type';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -22,12 +23,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
   async findByIdWithUserAccess(
     establishmentId: string,
     userId: string,
-  ): Promise<
-    | (Establishment & {
-        userEstablishments: Array<{ id: string; isActive: boolean }>;
-      })
-    | null
-  > {
+  ): Promise<EstablishmentWithUserAccess | null> {
     return this.prisma.establishment.findFirst({
       where: {
         id: establishmentId,
@@ -40,7 +36,7 @@ export class EstablishmentRepository implements IEstablishmentRepository {
             deletedAt: null,
           },
           take: 1,
-          select: { id: true, isActive: true },
+          select: { id: true, isActive: true, role: true },
         },
       },
     });

@@ -1,12 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Appointment, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { IAppointmentRepository } from '../contracts/appointment-repository.interface';
 import { AppointmentRepositoryFindAllDTO } from '../dtos';
-import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-request.dto';
 import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
+import { AppointmentRepositoryUpdateDTO } from '../dtos/repository/appointment-repository-update.dto';
+import { AppointmentWithRelations } from '../types/appointment-with-relations.type';
 
 import { PrismaService } from '@/prisma/prisma.service';
+
+const appointmentInclude = {
+  customer: true,
+  user: true,
+  establishment: true,
+  services: {
+    include: {
+      service: true,
+    },
+  },
+} as const;
 
 @Injectable()
 export class AppointmentRepository implements IAppointmentRepository {
@@ -14,7 +26,9 @@ export class AppointmentRepository implements IAppointmentRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(data: AppointmentRepositoryCreateDTO): Promise<Appointment> {
+  async create(
+    data: AppointmentRepositoryCreateDTO,
+  ): Promise<AppointmentWithRelations> {
     this.logger.log(
       `Criando agendamento para cliente ${data.customerId} no estabelecimento ${data.establishmentId}`,
     );
@@ -28,16 +42,7 @@ export class AppointmentRepository implements IAppointmentRepository {
           create: [...services],
         },
       },
-      include: {
-        customer: true,
-        user: true,
-        establishment: true,
-        services: {
-          include: {
-            service: true,
-          },
-        },
-      },
+      include: appointmentInclude,
     });
 
     this.logger.log(
@@ -46,21 +51,12 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointment;
   }
 
-  async findById(id: string): Promise<Appointment | null> {
+  async findById(id: string): Promise<AppointmentWithRelations | null> {
     this.logger.log(`Buscando agendamento por ID: ${id}`);
 
     const appointment = await this.prismaService.appointment.findUnique({
       where: { id },
-      include: {
-        customer: true,
-        user: true,
-        establishment: true,
-        services: {
-          include: {
-            service: true,
-          },
-        },
-      },
+      include: appointmentInclude,
     });
 
     if (appointment) {
@@ -74,12 +70,14 @@ export class AppointmentRepository implements IAppointmentRepository {
 
   async findAll(
     query: AppointmentRepositoryFindAllDTO,
-  ): Promise<Appointment[]> {
+  ): Promise<AppointmentWithRelations[]> {
     this.logger.log(
       `Buscando agendamentos com filtros: ${JSON.stringify(query)}`,
     );
 
-    const where: Prisma.AppointmentWhereInput = {};
+    const where: Prisma.AppointmentWhereInput = {
+      establishmentId: query.establishmentId,
+    };
 
     // Filtrar por status de exclusão lógica
     // Se includeDeleted for false (padrão), retorna apenas registros não deletados (deletedAt IS NULL)
@@ -122,44 +120,13 @@ export class AppointmentRepository implements IAppointmentRepository {
 
     this.logger.debug(`Paginação: skip=${query.skip}, take=${query.take}`);
 
-    // Executar consulta otimizada
+    this.logger.log(
+      `[Repository findAll] Effective where: establishmentId=${query.establishmentId}, userId=${query.userId ?? 'none'}, status=${query.status ?? 'none'}, startDate=${query.startDate?.toISOString() ?? 'none'}, endDate=${query.endDate?.toISOString() ?? 'none'}, includeDeleted=${query.includeDeleted}`,
+    );
+
     const appointments = await this.prismaService.appointment.findMany({
       where,
-      include: {
-        customer: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-          },
-        },
-        establishment: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        services: {
-          include: {
-            service: {
-              select: {
-                id: true,
-                name: true,
-                description: true,
-              },
-            },
-          },
-        },
-      },
+      include: appointmentInclude,
       orderBy: {
         startTime: 'asc',
       },
@@ -177,7 +144,9 @@ export class AppointmentRepository implements IAppointmentRepository {
       `Contando agendamentos com filtros: ${JSON.stringify(query)}`,
     );
 
-    const where: Prisma.AppointmentWhereInput = {};
+    const where: Prisma.AppointmentWhereInput = {
+      establishmentId: query.establishmentId,
+    };
 
     // Filtrar por status de exclusão lógica
     if (!query.includeDeleted) {
@@ -208,6 +177,10 @@ export class AppointmentRepository implements IAppointmentRepository {
       }
     }
 
+    this.logger.log(
+      `[Repository count] Effective where: establishmentId=${query.establishmentId}, userId=${query.userId ?? 'none'}, status=${query.status ?? 'none'}, includeDeleted=${query.includeDeleted}`,
+    );
+
     const total = await this.prismaService.appointment.count({ where });
 
     this.logger.log(`Total de agendamentos: ${total}`);
@@ -216,21 +189,33 @@ export class AppointmentRepository implements IAppointmentRepository {
 
   async update(
     id: string,
-    data: AppointmentUpdateRequestDTO,
-  ): Promise<Appointment> {
+    data: AppointmentRepositoryUpdateDTO,
+  ): Promise<AppointmentWithRelations> {
     this.logger.log(`Atualizando agendamento ${id}`);
 
     const updateData: Prisma.AppointmentUpdateInput = {};
 
-    if (data.userId) {
+    if (data.userId !== undefined) {
       updateData.user = { connect: { id: data.userId } };
     }
 
-    if (data.startTime) {
+    if (data.startTime !== undefined) {
       updateData.startTime = new Date(data.startTime);
     }
 
-    if (data.status) {
+    if (data.endTime !== undefined) {
+      updateData.endTime = new Date(data.endTime);
+    }
+
+    if (data.totalAmount !== undefined) {
+      updateData.totalAmount = data.totalAmount;
+    }
+
+    if (data.totalDuration !== undefined) {
+      updateData.totalDuration = data.totalDuration;
+    }
+
+    if (data.status !== undefined) {
       updateData.status = data.status;
     }
 
@@ -238,22 +223,25 @@ export class AppointmentRepository implements IAppointmentRepository {
       updateData.notes = data.notes;
     }
 
-    // Note: Atualização de services será feita separadamente no service layer
-    // pois precisa dos dados de price, duration e commission do EstablishmentService
+    if (data.services !== undefined) {
+      updateData.services =
+        data.services.length > 0
+          ? {
+              deleteMany: {},
+              create: data.services.map((s) => ({
+                serviceId: s.serviceId,
+                price: s.price,
+                duration: s.duration,
+                commission: s.commission,
+              })),
+            }
+          : { deleteMany: {} };
+    }
 
     const appointment = await this.prismaService.appointment.update({
       where: { id },
       data: updateData,
-      include: {
-        customer: true,
-        user: true,
-        establishment: true,
-        services: {
-          include: {
-            service: true,
-          },
-        },
-      },
+      include: appointmentInclude,
     });
 
     this.logger.log(`Agendamento atualizado: ${id}`);
@@ -270,23 +258,16 @@ export class AppointmentRepository implements IAppointmentRepository {
     this.logger.log(`Agendamento removido: ${id}`);
   }
 
-  async findByEstablishmentId(establishmentId: string): Promise<Appointment[]> {
+  async findByEstablishmentId(
+    establishmentId: string,
+  ): Promise<AppointmentWithRelations[]> {
     this.logger.log(
       `Buscando agendamentos por estabelecimento: ${establishmentId}`,
     );
 
     const appointments = await this.prismaService.appointment.findMany({
       where: { establishmentId },
-      include: {
-        customer: true,
-        user: true,
-        establishment: true,
-        services: {
-          include: {
-            service: true,
-          },
-        },
-      },
+      include: appointmentInclude,
       orderBy: {
         startTime: 'asc',
       },
@@ -298,21 +279,12 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointments;
   }
 
-  async findByUserId(userId: string): Promise<Appointment[]> {
+  async findByUserId(userId: string): Promise<AppointmentWithRelations[]> {
     this.logger.log(`Buscando agendamentos por usuário: ${userId}`);
 
     const appointments = await this.prismaService.appointment.findMany({
       where: { userId },
-      include: {
-        customer: true,
-        user: true,
-        establishment: true,
-        services: {
-          include: {
-            service: true,
-          },
-        },
-      },
+      include: appointmentInclude,
       orderBy: {
         startTime: 'asc',
       },
@@ -324,21 +296,14 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointments;
   }
 
-  async findByCustomerId(customerId: string): Promise<Appointment[]> {
+  async findByCustomerId(
+    customerId: string,
+  ): Promise<AppointmentWithRelations[]> {
     this.logger.log(`Buscando agendamentos por cliente: ${customerId}`);
 
     const appointments = await this.prismaService.appointment.findMany({
       where: { customerId },
-      include: {
-        customer: true,
-        user: true,
-        establishment: true,
-        services: {
-          include: {
-            service: true,
-          },
-        },
-      },
+      include: appointmentInclude,
       orderBy: {
         startTime: 'asc',
       },
@@ -355,7 +320,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     startTime: Date,
     endTime: Date,
     excludeAppointmentId?: string,
-  ): Promise<Appointment[]> {
+  ): Promise<AppointmentWithRelations[]> {
     this.logger.log(
       `Verificando conflitos de horário para usuário ${userId} entre ${startTime.toISOString()} e ${endTime.toISOString()}`,
     );
@@ -383,16 +348,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     const conflictingAppointments =
       await this.prismaService.appointment.findMany({
         where: whereClause,
-        include: {
-          customer: true,
-          user: true,
-          establishment: true,
-          services: {
-            include: {
-              service: true,
-            },
-          },
-        },
+        include: appointmentInclude,
         orderBy: { startTime: 'asc' },
       });
 

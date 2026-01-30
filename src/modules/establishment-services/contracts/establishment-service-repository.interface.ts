@@ -18,6 +18,14 @@ export interface IEstablishmentServiceRepository {
     establishmentId: string,
   ): Promise<EstablishmentService | null>;
 
+  /**
+   * Busca vários serviços por IDs no mesmo estabelecimento em uma única query.
+   */
+  findManyByIdsAndEstablishment(
+    establishmentId: string,
+    serviceIds: string[],
+  ): Promise<EstablishmentService[]>;
+
   findByIdWithEstablishment(
     serviceId: string,
   ): Promise<EstablishmentServiceWithEstablishment | null>;

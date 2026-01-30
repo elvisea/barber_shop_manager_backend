@@ -1,24 +1,27 @@
-import { Appointment } from '@prisma/client';
-
-import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-request.dto';
 import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
 import { AppointmentRepositoryFindAllDTO } from '../dtos/repository/appointment-repository-find-all.dto';
+import { AppointmentRepositoryUpdateDTO } from '../dtos/repository/appointment-repository-update.dto';
+import { AppointmentWithRelations } from '../types/appointment-with-relations.type';
 
 export interface IAppointmentRepository {
   /**
    * Cria um novo agendamento
    */
-  create(data: AppointmentRepositoryCreateDTO): Promise<Appointment>;
+  create(
+    data: AppointmentRepositoryCreateDTO,
+  ): Promise<AppointmentWithRelations>;
 
   /**
    * Busca um agendamento por ID
    */
-  findById(id: string): Promise<Appointment | null>;
+  findById(id: string): Promise<AppointmentWithRelations | null>;
 
   /**
    * Busca todos os agendamentos com filtros opcionais
    */
-  findAll(query: AppointmentRepositoryFindAllDTO): Promise<Appointment[]>;
+  findAll(
+    query: AppointmentRepositoryFindAllDTO,
+  ): Promise<AppointmentWithRelations[]>;
 
   /**
    * Conta o total de agendamentos com os mesmos filtros de findAll
@@ -28,7 +31,10 @@ export interface IAppointmentRepository {
   /**
    * Atualiza um agendamento existente
    */
-  update(id: string, data: AppointmentUpdateRequestDTO): Promise<Appointment>;
+  update(
+    id: string,
+    data: AppointmentRepositoryUpdateDTO,
+  ): Promise<AppointmentWithRelations>;
 
   /**
    * Remove um agendamento
@@ -38,17 +44,19 @@ export interface IAppointmentRepository {
   /**
    * Busca agendamentos por estabelecimento
    */
-  findByEstablishmentId(establishmentId: string): Promise<Appointment[]>;
+  findByEstablishmentId(
+    establishmentId: string,
+  ): Promise<AppointmentWithRelations[]>;
 
   /**
    * Busca agendamentos por usuário/funcionário
    */
-  findByUserId(userId: string): Promise<Appointment[]>;
+  findByUserId(userId: string): Promise<AppointmentWithRelations[]>;
 
   /**
    * Busca agendamentos por cliente
    */
-  findByCustomerId(customerId: string): Promise<Appointment[]>;
+  findByCustomerId(customerId: string): Promise<AppointmentWithRelations[]>;
 
   /**
    * Busca agendamentos conflitantes para um usuário em um período específico
@@ -58,5 +66,5 @@ export interface IAppointmentRepository {
     startTime: Date,
     endTime: Date,
     excludeAppointmentId?: string,
-  ): Promise<Appointment[]>;
+  ): Promise<AppointmentWithRelations[]>;
 }

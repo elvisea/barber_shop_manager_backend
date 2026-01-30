@@ -12,8 +12,20 @@ export class AppointmentCreateResponseDTO {
   @ApiProperty({ example: 'b3a8c7d6-89ab-4cde-9123-456789abcdef' })
   customerId!: string;
 
+  @ApiProperty({
+    example: 'João Silva',
+    description: 'Nome do cliente para exibição',
+  })
+  customerName!: string;
+
   @ApiProperty({ example: 'c4d5e6f7-0123-4567-89ab-cdef01234567' })
   userId!: string;
+
+  @ApiProperty({
+    example: 'Maria Santos',
+    description: 'Nome do profissional para exibição',
+  })
+  memberName!: string;
 
   @ApiProperty({ example: getFutureDateTime(1, 14, 0) })
   startTime!: string;

@@ -417,6 +417,16 @@ export const SwaggerErrors: SwaggerErrorsType = {
       errorCode: ErrorCode.APPOINTMENT_NOT_FOUND,
     },
   },
+  [ErrorCode.APPOINTMENT_ACCESS_DENIED]: {
+    description: 'Access denied to appointment',
+    example: {
+      statusCode: 403,
+      message:
+        'You can only create, edit, remove, list and view your own appointments.',
+      error: 'Forbidden',
+      errorCode: ErrorCode.APPOINTMENT_ACCESS_DENIED,
+    },
+  },
   [ErrorCode.APPOINTMENT_CONFLICT]: {
     description: 'Appointment time conflict',
     example: {

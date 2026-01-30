@@ -56,7 +56,10 @@ export class AppointmentServiceUpdateDTO {
   /**
    * Validação customizada: pelo menos um campo deve ser informado
    */
-  @ValidateIf((o) => !o.price && !o.duration && !o.commission)
+  @ValidateIf(
+    (o: AppointmentServiceUpdateDTO) =>
+      !o.price && !o.duration && !o.commission,
+  )
   @IsOptional()
   @Type(() => Boolean)
   @IsNumber(

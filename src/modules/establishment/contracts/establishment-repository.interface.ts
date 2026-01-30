@@ -1,6 +1,7 @@
 import { Establishment } from '@prisma/client';
 
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
+import { EstablishmentWithUserAccess } from '../types/establishment-with-user-access.type';
 
 export interface IEstablishmentRepository {
   create(
@@ -12,17 +13,12 @@ export interface IEstablishmentRepository {
 
   /**
    * Busca estabelecimento por ID com vínculo do usuário (se houver) em uma única query.
-   * Usado para validar acesso: owner (ownerId) ou member (userEstablishments ativo).
+   * Usado para validar acesso: owner (ownerId) ou member (userEstablishments ativo com role).
    */
   findByIdWithUserAccess(
     establishmentId: string,
     userId: string,
-  ): Promise<
-    | (Establishment & {
-        userEstablishments: Array<{ id: string; isActive: boolean }>;
-      })
-    | null
-  >;
+  ): Promise<EstablishmentWithUserAccess | null>;
 
   findByPhoneAndUser(
     phone: string,

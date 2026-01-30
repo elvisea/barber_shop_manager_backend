@@ -1052,8 +1052,8 @@ paths:
                 instanceId: instance_123456789
                 status: active
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-30T01:29:59.757Z'
-                updatedAt: '2026-01-30T01:29:59.757Z'
+                createdAt: '2026-01-30T05:52:13.545Z'
+                updatedAt: '2026-01-30T05:52:13.545Z'
         '400':
           description: Dados inválidos
           content:
@@ -1392,16 +1392,16 @@ paths:
                     price: 25.5
                     imageUrl: http://example.com/shampoo.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-29T01:30:00.233Z'
-                    updatedAt: '2026-01-29T01:30:00.233Z'
+                    createdAt: '2026-01-29T05:52:14.053Z'
+                    updatedAt: '2026-01-29T05:52:14.053Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Condicionador
                     description: Condicionador para cabelos secos
                     price: 30
                     imageUrl: http://example.com/condicionador.jpg
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-30T01:30:00.233Z'
-                    updatedAt: '2026-01-30T01:30:00.233Z'
+                    createdAt: '2026-01-30T05:52:14.053Z'
+                    updatedAt: '2026-01-30T05:52:14.053Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1460,8 +1460,8 @@ paths:
                 price: 25.5
                 imageUrl: http://example.com/shampoo.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-30T01:30:00.238Z'
-                updatedAt: '2026-01-30T01:30:00.238Z'
+                createdAt: '2026-01-30T05:52:14.058Z'
+                updatedAt: '2026-01-30T05:52:14.058Z'
         '400':
           description: Validation error
           content:
@@ -1581,8 +1581,8 @@ paths:
                 price: 30
                 imageUrl: http://example.com/shampoo-updated.jpg
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-29T01:30:00.247Z'
-                updatedAt: '2026-01-30T01:30:00.247Z'
+                createdAt: '2026-01-29T05:52:14.072Z'
+                updatedAt: '2026-01-30T05:52:14.072Z'
         '400':
           description: Validation error
           content:
@@ -1662,8 +1662,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-30T01:30:00.020Z'
-                updatedAt: '2026-01-30T01:30:00.020Z'
+                createdAt: '2026-01-30T05:52:13.832Z'
+                updatedAt: '2026-01-30T05:52:13.832Z'
         '400':
           description: Validation error
           content:
@@ -1740,16 +1740,16 @@ paths:
                     price: 50
                     duration: 60
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-29T01:30:00.035Z'
-                    updatedAt: '2026-01-29T01:30:00.035Z'
+                    createdAt: '2026-01-29T05:52:13.848Z'
+                    updatedAt: '2026-01-29T05:52:13.848Z'
                   - id: 660f9511-f3ac-52e5-b841-678901bcdefg
                     name: Barba
                     description: Aparar e modelar barba
                     price: 30
                     duration: 30
                     establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                    createdAt: '2026-01-30T01:30:00.035Z'
-                    updatedAt: '2026-01-30T01:30:00.035Z'
+                    createdAt: '2026-01-30T05:52:13.848Z'
+                    updatedAt: '2026-01-30T05:52:13.848Z'
                 meta:
                   page: 1
                   limit: 10
@@ -1818,8 +1818,8 @@ paths:
                 price: 50
                 duration: 60
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-30T01:30:00.041Z'
-                updatedAt: '2026-01-30T01:30:00.041Z'
+                createdAt: '2026-01-30T05:52:13.853Z'
+                updatedAt: '2026-01-30T05:52:13.853Z'
         '400':
           description: Validation error
           content:
@@ -1939,8 +1939,8 @@ paths:
                 price: 60
                 duration: 75
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
-                createdAt: '2026-01-29T01:30:00.048Z'
-                updatedAt: '2026-01-30T01:30:00.048Z'
+                createdAt: '2026-01-29T05:52:13.861Z'
+                updatedAt: '2026-01-30T05:52:13.861Z'
         '400':
           description: Validation error
           content:
@@ -2458,10 +2458,10 @@ paths:
                 establishmentId: a1b2c3d4-e5f6-7890-1234-567890abcdef
                 planId: b2c3d4e5-f6g7-8901-2345-678901bcdefg
                 status: ACTIVE
-                startDate: '2025-12-31T01:30:00.316Z'
+                startDate: '2025-12-31T05:52:14.168Z'
                 endDate: '2026-01-30T23:59:59.999Z'
-                createdAt: '2026-01-30T01:30:00.316Z'
-                updatedAt: '2026-01-30T01:30:00.316Z'
+                createdAt: '2026-01-30T05:52:14.168Z'
+                updatedAt: '2026-01-30T05:52:14.168Z'
       security:
         - bearer: []
       summary: Create subscription for establishment
@@ -2535,8 +2535,8 @@ paths:
                 totalDuration: 60
                 status: PENDING
                 notes: Corte de cabelo e barba
-                createdAt: '2026-01-30T01:29:59.689Z'
-                updatedAt: '2026-01-30T01:29:59.689Z'
+                createdAt: '2026-01-30T05:52:13.457Z'
+                updatedAt: '2026-01-30T05:52:13.457Z'
         '400':
           description: Dados inválidos fornecidos ou validação de negócio falhou
           content:
@@ -2689,7 +2689,7 @@ paths:
           in: query
           description: Data de início para filtro (ISO 8601)
           schema:
-            example: '2026-01-23T01:29:59.700Z'
+            example: '2026-01-23T05:52:13.475Z'
             type: string
         - name: endDate
           required: false
@@ -2765,6 +2765,7 @@ paths:
                   errorCode: ESTABLISHMENT_NOT_FOUND
       security:
         - bearer: []
+        - bearer: []
       summary: Listar agendamentos
       tags:
         - Appointments
@@ -2808,8 +2809,8 @@ paths:
                     name: Corte de Cabelo
                     price: 25
                     duration: 30
-                createdAt: '2026-01-29T01:29:59.702Z'
-                updatedAt: '2026-01-29T01:29:59.702Z'
+                createdAt: '2026-01-29T05:52:13.481Z'
+                updatedAt: '2026-01-29T05:52:13.481Z'
         '400':
           description: ID inválido fornecido
           content:
@@ -2851,12 +2852,13 @@ paths:
                   errorCode: APPOINTMENT_NOT_FOUND
       security:
         - bearer: []
+        - bearer: []
       summary: Buscar agendamento por ID
       tags:
         - Appointments
-    put:
+    patch:
       description: Atualiza os dados de um agendamento existente.
-      operationId: AppointmentUpdateController_handler
+      operationId: AppointmentUpdateController_handle
       parameters:
         - name: establishmentId
           required: true
@@ -2903,8 +2905,8 @@ paths:
                     name: Barba
                     price: 15
                     duration: 20
-                createdAt: '2026-01-29T01:29:59.704Z'
-                updatedAt: '2026-01-30T01:29:59.704Z'
+                createdAt: '2026-01-29T05:52:13.490Z'
+                updatedAt: '2026-01-30T05:52:13.490Z'
         '400':
           description: Dados inválidos fornecidos
           content:
@@ -2984,6 +2986,7 @@ paths:
                       errorCode: APPOINTMENT_MEMBER_UNAVAILABLE
       security:
         - bearer: []
+        - bearer: []
       summary: Atualizar agendamento
       tags:
         - Appointments
@@ -3048,6 +3051,7 @@ paths:
                   error: Not Found
                   errorCode: APPOINTMENT_NOT_FOUND
       security:
+        - bearer: []
         - bearer: []
       summary: Excluir agendamento
       tags:
@@ -3210,12 +3214,12 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.963Z'
+          example: '2026-01-30T05:52:13.771Z'
           description: User creation date
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.963Z'
+          example: '2026-01-30T05:52:13.771Z'
           description: User last update date
       required:
         - id
@@ -3320,11 +3324,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.838Z'
+          example: '2026-01-30T05:52:13.636Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.838Z'
+          example: '2026-01-30T05:52:13.636Z'
       required:
         - id
         - name
@@ -3578,12 +3582,12 @@ components:
           format: date-time
           type: string
           description: Creation date
-          example: '2026-01-30T01:29:59.715Z'
+          example: '2026-01-30T05:52:13.500Z'
         updatedAt:
           format: date-time
           type: string
           description: Last update date
-          example: '2026-01-30T01:29:59.715Z'
+          example: '2026-01-30T05:52:13.500Z'
       required:
         - id
         - name
@@ -3754,11 +3758,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:30:00.195Z'
+          example: '2026-01-30T05:52:14.014Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:30:00.195Z'
+          example: '2026-01-30T05:52:14.014Z'
       required:
         - id
         - establishmentId
@@ -3860,11 +3864,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:30:00.015Z'
+          example: '2026-01-30T05:52:13.826Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:30:00.015Z'
+          example: '2026-01-30T05:52:13.826Z'
       required:
         - id
         - name
@@ -3947,11 +3951,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.780Z'
+          example: '2026-01-30T05:52:13.571Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.780Z'
+          example: '2026-01-30T05:52:13.571Z'
       required:
         - id
         - establishmentId
@@ -4007,11 +4011,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.788Z'
+          example: '2026-01-30T05:52:13.580Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.788Z'
+          example: '2026-01-30T05:52:13.580Z'
       required:
         - id
         - establishmentId
@@ -4064,11 +4068,11 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:30:00.254Z'
+          example: '2026-01-30T05:52:14.108Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:30:00.254Z'
+          example: '2026-01-30T05:52:14.108Z'
       required:
         - id
         - name
@@ -4121,7 +4125,7 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-31T01:30:00.307Z'
+          example: '2025-12-31T05:52:14.158Z'
         endDate:
           type: string
           example: '2026-01-30T23:59:59.999Z'
@@ -4153,7 +4157,7 @@ components:
           example: uuid-do-plano
         startDate:
           type: string
-          example: '2025-12-31T01:30:00.304Z'
+          example: '2025-12-31T05:52:14.154Z'
         endDate:
           type: string
           example: '2026-01-30T23:59:59.999Z'
@@ -4165,10 +4169,10 @@ components:
           example: '5511999999999'
         createdAt:
           type: string
-          example: '2026-01-30T01:30:00.304Z'
+          example: '2026-01-30T05:52:14.154Z'
         updatedAt:
           type: string
-          example: '2026-01-30T01:30:00.304Z'
+          example: '2026-01-30T05:52:14.154Z'
       required:
         - id
         - establishmentId
@@ -4241,7 +4245,7 @@ components:
           description: Destino do webhook
         date_time:
           type: string
-          example: '2026-01-30T01:30:00.359Z'
+          example: '2026-01-30T05:52:14.183Z'
           description: Data e hora do evento
         sender:
           type: string
@@ -4309,9 +4313,17 @@ components:
         customerId:
           type: string
           example: b3a8c7d6-89ab-4cde-9123-456789abcdef
+        customerName:
+          type: string
+          example: João Silva
+          description: Nome do cliente para exibição
         userId:
           type: string
           example: c4d5e6f7-0123-4567-89ab-cdef01234567
+        memberName:
+          type: string
+          example: Maria Santos
+          description: Nome do profissional para exibição
         startTime:
           type: string
           example: '2026-01-31T14:00:00.000Z'
@@ -4333,16 +4345,18 @@ components:
         createdAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.405Z'
+          example: '2026-01-30T05:52:13.152Z'
         updatedAt:
           format: date-time
           type: string
-          example: '2026-01-30T01:29:59.405Z'
+          example: '2026-01-30T05:52:13.152Z'
       required:
         - id
         - establishmentId
         - customerId
+        - customerName
         - userId
+        - memberName
         - startTime
         - endTime
         - totalAmount
@@ -4357,18 +4371,47 @@ components:
           type: string
         customerId:
           type: string
+        customerName:
+          type: string
+          example: João Silva
+          description: Nome do cliente
         userId:
           type: string
+        memberName:
+          type: string
+          example: Maria Santos
+          description: Nome do profissional
         startTime:
           type: string
         endTime:
           type: string
+        totalAmount:
+          type: number
+          example: 5000
+          description: Valor total em centavos
+        totalDuration:
+          type: number
+          example: 30
+          description: Duração total em minutos
+        status:
+          type: string
+          example: PENDING
+          description: Status do agendamento
+        notes:
+          type: string
+          example: Cliente prefere corte mais curto
+          description: Observações do agendamento
       required:
         - id
         - customerId
+        - customerName
         - userId
+        - memberName
         - startTime
         - endTime
+        - totalAmount
+        - totalDuration
+        - status
     AppointmentFindAllResponseDTO:
       type: object
       properties:

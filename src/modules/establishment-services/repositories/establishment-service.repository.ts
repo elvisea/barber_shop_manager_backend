@@ -44,6 +44,21 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
     });
   }
 
+  async findManyByIdsAndEstablishment(
+    establishmentId: string,
+    serviceIds: string[],
+  ): Promise<EstablishmentService[]> {
+    if (serviceIds.length === 0) {
+      return [];
+    }
+    return this.prisma.establishmentService.findMany({
+      where: {
+        id: { in: serviceIds },
+        establishmentId,
+      },
+    });
+  }
+
   async findByIdWithEstablishment(
     serviceId: string,
   ): Promise<EstablishmentServiceWithEstablishment | null> {

@@ -189,6 +189,10 @@ export const messages: Record<ErrorCode, { message: string }> = {
   [ErrorCode.APPOINTMENT_DELETE_FAILED]: {
     message: 'Failed to delete appointment [APPOINTMENT_ID].',
   },
+  [ErrorCode.APPOINTMENT_ACCESS_DENIED]: {
+    message:
+      'You can only create, edit, remove, list and view your own appointments.',
+  },
   [ErrorCode.INVALID_TIME_RANGE]: {
     message:
       'Invalid time range: start time [START_TIME] must be before end time [END_TIME].',

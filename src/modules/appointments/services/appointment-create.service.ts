@@ -1,16 +1,13 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { AppointmentStatus, EstablishmentService } from '@prisma/client';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { AppointmentCreateRequestDTO } from '../dtos/api/appointment-create-request.dto';
 import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
-import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
+import { AppointmentRepositoryMapper } from '../mappers/appointment-repository.mapper';
+import { AppointmentToResponseMapper } from '../mappers/appointment-to-response.mapper';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-
-import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
-import { ErrorCode } from '@/enums/error-code';
-import { ErrorMessageService } from '@/error-message/error-message.service';
+import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
 
 /**
  * Service responsável pela criação de agendamentos
@@ -22,7 +19,7 @@ export class AppointmentCreateService {
   constructor(
     private readonly appointmentRepository: AppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
-    private readonly errorMessageService: ErrorMessageService,
+    private readonly appointmentBusinessRulesService: AppointmentBusinessRulesService,
   ) {}
 
   /**
@@ -38,196 +35,86 @@ export class AppointmentCreateService {
     );
 
     // 1. Validar acesso do usuário (dono OU membro do estabelecimento)
-    const { establishment: _establishment, isOwner: _isOwner } =
+    const accessResult =
       await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
         establishmentId,
         ownerId,
       );
 
-    // 2. Validar cliente existe no estabelecimento
+    // 2. Validar se o requisitante pode atuar para o membro do agendamento (OWNER/RECEPTIONIST = qualquer; HAIRDRESSER/BARBER = só si mesmo)
+    this.appointmentAccessValidationService.validateRequesterCanActForMember(
+      accessResult,
+      ownerId,
+      dto.userId,
+    );
+
+    // 3. Validar cliente existe no estabelecimento
     await this.appointmentAccessValidationService.validateCustomer(
       establishmentId,
       dto.customerId,
     );
 
-    // 3. Validar usuário existe no estabelecimento
+    // 4. Validar usuário existe no estabelecimento
     await this.appointmentAccessValidationService.validateUser(
       establishmentId,
       dto.userId,
     );
 
-    // 4. Validar e buscar serviços do estabelecimento
+    // 5. Validar e buscar serviços do estabelecimento
     const establishmentServices =
       await this.appointmentAccessValidationService.validateServices(
         establishmentId,
         dto.serviceIds,
       );
 
-    // 5. Validar se os serviços são permitidos ao usuário
+    // 6. Validar se os serviços são permitidos ao usuário
     await this.appointmentAccessValidationService.validateUserAllowedServices(
       establishmentId,
       dto.userId,
       dto.serviceIds,
     );
 
-    // 6. Calcular totais e endTime baseado nos serviços
+    // 7. Calcular totais e endTime baseado nos serviços
     const { totalAmount, totalDuration, endTime } =
-      this.calculateTotalsAndEndTime(dto.startTime, establishmentServices);
+      this.appointmentBusinessRulesService.calculateTotalsAndEndTime(
+        dto.startTime,
+        establishmentServices,
+      );
 
-    // 7. Validar conflito de horários
-    await this.validateNoTimeConflict(
+    // 8. Validar conflito de horários
+    await this.appointmentBusinessRulesService.validateNoTimeConflict(
       dto.userId,
       dto.startTime,
       new Date(endTime),
     );
 
-    // 8. Validar horários
-    this.validateTimeRange(dto.startTime, endTime);
+    // 9. Validar horários
+    this.appointmentBusinessRulesService.validateTimeRange(
+      dto.startTime,
+      endTime,
+    );
 
-    // 9. Criar dados para o repositório
-    const repositoryData: AppointmentRepositoryCreateDTO = {
+    // 10. Criar dados para o repositório
+    const repositoryData = AppointmentRepositoryMapper.toRepositoryCreateDTO({
       customerId: dto.customerId,
       userId: dto.userId,
       establishmentId,
       startTime: dto.startTime,
-      endTime: new Date(endTime),
+      endTime,
       totalAmount,
       totalDuration,
-      status: AppointmentStatus.PENDING,
       notes: dto.notes,
-      services: establishmentServices.map((service) => ({
-        serviceId: service.id,
-        price: service.price,
-        duration: service.duration,
-        commission: Number(service.commission),
-      })),
-    };
+      establishmentServices,
+    });
 
-    // 10. Criar agendamento no banco
+    // 11. Criar agendamento no banco
     const appointment = await this.appointmentRepository.create(repositoryData);
 
     this.logger.log(
       `Appointment created successfully with ID: ${appointment.id}`,
     );
 
-    // 11. Retornar resposta
-    return {
-      id: appointment.id,
-      establishmentId: appointment.establishmentId,
-      customerId: appointment.customerId,
-      userId: appointment.userId,
-      startTime: appointment.startTime.toISOString(),
-      endTime: appointment.endTime.toISOString(),
-      totalAmount: appointment.totalAmount,
-      totalDuration: appointment.totalDuration,
-      status: appointment.status,
-      notes: appointment.notes || undefined,
-      createdAt: appointment.createdAt,
-      updatedAt: appointment.updatedAt,
-    };
-  }
-
-  /**
-   * Valida se não há conflito de horários para o membro
-   */
-  private async validateNoTimeConflict(
-    userId: string,
-    startTime: Date,
-    endTime: Date,
-  ): Promise<void> {
-    const conflictingAppointments =
-      await this.appointmentRepository.findConflictingAppointments(
-        userId,
-        startTime,
-        endTime,
-      );
-
-    if (conflictingAppointments.length > 0) {
-      // Pegar o primeiro agendamento conflitante para mostrar na mensagem
-      const conflictingAppointment = conflictingAppointments[0];
-
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
-        {
-          USER_ID: userId,
-          START_TIME: conflictingAppointment.startTime.toISOString(),
-          END_TIME: conflictingAppointment.endTime.toISOString(),
-        },
-      );
-
-      this.logger.warn(
-        `Time conflict found for user ${userId}: ${conflictingAppointments.length} conflicting appointments. Conflicting appointment: ${conflictingAppointment.id} (${conflictingAppointment.startTime.toISOString()} - ${conflictingAppointment.endTime.toISOString()})`,
-      );
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.CONFLICT,
-        ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
-      );
-    }
-
-    this.logger.log(
-      `No time conflicts found for user ${userId} between ${startTime.toISOString()} and ${endTime.toISOString()}`,
-    );
-  }
-
-  /**
-   * Valida se o horário de início é anterior ao horário de fim
-   */
-  private validateTimeRange(startTime: Date, endTime: string): void {
-    const start = startTime;
-    const end = new Date(endTime);
-
-    if (start >= end) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.INVALID_TIME_RANGE,
-        { START_TIME: startTime.toISOString(), END_TIME: endTime },
-      );
-
-      this.logger.warn(
-        `Invalid time range: ${startTime.toISOString()} >= ${endTime}`,
-      );
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.BAD_REQUEST,
-        ErrorCode.INVALID_TIME_RANGE,
-      );
-    }
-
-    this.logger.log(
-      `Time range validated: ${startTime.toISOString()} < ${endTime}`,
-    );
-  }
-
-  /**
-   * Calcula o valor total, duração total e horário de fim baseado nos serviços
-   */
-  private calculateTotalsAndEndTime(
-    startTime: Date,
-    services: EstablishmentService[],
-  ): {
-    totalAmount: number;
-    totalDuration: number;
-    endTime: string;
-  } {
-    const totalAmount = services.reduce(
-      (sum, service) => sum + service.price,
-      0,
-    );
-    const totalDuration = services.reduce(
-      (sum, service) => sum + service.duration,
-      0,
-    );
-
-    // Calcular endTime baseado no startTime + totalDuration
-    const end = new Date(startTime.getTime() + totalDuration * 60000); // 60000ms = 1 minuto
-    const endTime = end.toISOString();
-
-    this.logger.log(
-      `Calculated totals: amount=${totalAmount}, duration=${totalDuration} minutes, endTime=${endTime}`,
-    );
-
-    return { totalAmount, totalDuration, endTime };
+    // 12. Retornar resposta com nomes para exibição no card
+    return AppointmentToResponseMapper.toResponseDTO(appointment);
   }
 }

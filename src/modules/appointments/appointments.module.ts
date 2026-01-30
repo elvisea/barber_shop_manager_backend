@@ -7,6 +7,7 @@ import { AppointmentFindByIdController } from './controllers/appointment-find-by
 import { AppointmentUpdateController } from './controllers/appointment-update.controller';
 import { AppointmentRepository } from './repositories/appointment.repository';
 import { AppointmentAccessValidationService } from './services/appointment-access-validation.service';
+import { AppointmentBusinessRulesService } from './services/appointment-business-rules.service';
 import { AppointmentCreateService } from './services/appointment-create.service';
 import { AppointmentDeleteService } from './services/appointment-delete.service';
 import { AppointmentFindAllService } from './services/appointment-find-all.service';
@@ -34,6 +35,7 @@ import { UserEstablishmentsModule } from '@/modules/user-establishments/user-est
   ],
   providers: [
     AppointmentAccessValidationService,
+    AppointmentBusinessRulesService,
     AppointmentCreateService,
     AppointmentFindAllService,
     AppointmentFindByIdService,
