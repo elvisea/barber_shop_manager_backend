@@ -16,14 +16,12 @@ import { ResetPasswordService } from './services/reset-password.service';
 import { ValidatePasswordResetTokenService } from './services/validate-password-reset-token.service';
 
 import { CommonAuthModule } from '@/common/auth/auth.module';
-import { ErrorMessageModule } from '@/error-message/error-message.module';
 import { TokenModule } from '@/shared/token/token.module';
 
 @Module({
   imports: [
     UserModule,
     RefreshTokenModule,
-    ErrorMessageModule,
     TokenModule,
     CommonAuthModule,
     TokensModule,

@@ -6,13 +6,10 @@ import * as nodemailer from 'nodemailer';
 import { EmailService } from './services/email.service';
 import { logEtherealAccountCreated } from './utils/ethereal-logger.util';
 
-import { ErrorMessageModule } from '@/error-message/error-message.module';
-
 @Module({
   imports: [
-    ErrorMessageModule,
     MailerModule.forRootAsync({
-      imports: [ConfigModule, ErrorMessageModule],
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const logger = new Logger('EmailServiceModule');

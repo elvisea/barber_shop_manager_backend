@@ -19,21 +19,12 @@ import { UserEstablishmentSummaryService } from './services/user-establishment-s
 import { UserEstablishmentUpdateService } from './services/user-establishment-update.service';
 import { UserEstablishmentValidationService } from './services/user-establishment-validation.service';
 
-import { ErrorMessageModule } from '@/error-message/error-message.module';
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { TokensModule } from '@/modules/tokens/tokens.module';
 import { UserModule } from '@/modules/user/user.module';
-import { PrismaModule } from '@/prisma/prisma.module';
 
 @Module({
-  imports: [
-    ErrorMessageModule,
-    EventEmitterModule,
-    EstablishmentModule,
-    TokensModule,
-    UserModule,
-    PrismaModule,
-  ],
+  imports: [EventEmitterModule, EstablishmentModule, TokensModule, UserModule],
   controllers: [
     UserEstablishmentFindAllController,
     UserEstablishmentCreateController,
