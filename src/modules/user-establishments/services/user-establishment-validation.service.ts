@@ -6,6 +6,7 @@ import { UserEstablishmentRepository } from '../repositories/user-establishment.
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
+import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
 
 @Injectable()
 export class UserEstablishmentValidationService {
@@ -13,9 +14,14 @@ export class UserEstablishmentValidationService {
 
   constructor(
     private readonly userEstablishmentRepository: UserEstablishmentRepository,
+    private readonly establishmentRepository: EstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
+  /**
+   * Valida se o usuário tem acesso ao estabelecimento (owner ou member ativo).
+   * Permite: dono do estabelecimento (Establishment.ownerId) ou membro ativo (UserEstablishment).
+   */
   async validateUserAccessToEstablishment(
     userId: string,
     establishmentId: string,
@@ -24,31 +30,37 @@ export class UserEstablishmentValidationService {
       `Validating user ${userId} access to establishment ${establishmentId}`,
     );
 
-    const userEstablishment =
-      await this.userEstablishmentRepository.findByUserAndEstablishment(
+    const [userEstablishment, establishment] = await Promise.all([
+      this.userEstablishmentRepository.findByUserAndEstablishment(
         userId,
         establishmentId,
-      );
+      ),
+      this.establishmentRepository.findById(establishmentId),
+    ]);
 
-    if (!userEstablishment || !userEstablishment.isActive) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        {
-          ESTABLISHMENT_ID: establishmentId,
-          USER_ID: userId,
-        },
-      );
-
-      this.logger.warn(message);
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
+    if (establishment && establishment.ownerId === userId) {
+      return;
     }
 
-    return userEstablishment;
+    if (userEstablishment && userEstablishment.isActive) {
+      return;
+    }
+
+    const message = this.errorMessageService.getMessage(
+      ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+      {
+        ESTABLISHMENT_ID: establishmentId,
+        USER_ID: userId,
+      },
+    );
+
+    this.logger.warn(message);
+
+    throw new CustomHttpException(
+      message,
+      HttpStatus.FORBIDDEN,
+      ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+    );
   }
 
   /**
