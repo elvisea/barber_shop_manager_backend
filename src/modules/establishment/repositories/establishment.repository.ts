@@ -19,6 +19,33 @@ export class EstablishmentRepository implements IEstablishmentRepository {
     });
   }
 
+  async findByIdWithUserAccess(
+    establishmentId: string,
+    userId: string,
+  ): Promise<
+    | (Establishment & {
+        userEstablishments: Array<{ id: string; isActive: boolean }>;
+      })
+    | null
+  > {
+    return this.prisma.establishment.findFirst({
+      where: {
+        id: establishmentId,
+        deletedAt: null,
+      },
+      include: {
+        userEstablishments: {
+          where: {
+            userId,
+            deletedAt: null,
+          },
+          take: 1,
+          select: { id: true, isActive: true },
+        },
+      },
+    });
+  }
+
   async create(
     data: EstablishmentCreateRequestDTO,
     userId: string,

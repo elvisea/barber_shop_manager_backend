@@ -17,6 +17,7 @@ import { EstablishmentServicesModule } from './modules/establishment-services/es
 // TODO: Remover após refatoração completa
 // import { MemberProductsModule } from './modules/member-products/member-products.module';
 // import { MemberServicesModule } from './modules/member-services/member-services.module';
+import { MeModule } from './modules/me/me.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
@@ -40,6 +41,7 @@ import { TokenModule } from './shared/token/token.module';
     AuthModule,
     UserModule,
     UserEstablishmentsModule,
+    MeModule,
     EstablishmentModule,
     EstablishmentCustomerModule,
     EstablishmentProductsModule,

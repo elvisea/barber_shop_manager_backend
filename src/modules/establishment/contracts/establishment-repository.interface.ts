@@ -10,6 +10,20 @@ export interface IEstablishmentRepository {
 
   findById(establishmentId: string): Promise<Establishment | null>;
 
+  /**
+   * Busca estabelecimento por ID com vínculo do usuário (se houver) em uma única query.
+   * Usado para validar acesso: owner (ownerId) ou member (userEstablishments ativo).
+   */
+  findByIdWithUserAccess(
+    establishmentId: string,
+    userId: string,
+  ): Promise<
+    | (Establishment & {
+        userEstablishments: Array<{ id: string; isActive: boolean }>;
+      })
+    | null
+  >;
+
   findByPhoneAndUser(
     phone: string,
     userId: string,
