@@ -3,6 +3,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentStatus } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
+import {
+  createMockAppointment,
+  createMockAppointmentAccessResult,
+  createMockAppointmentAccessValidationService,
+  createMockAppointmentBusinessRulesService,
+  createMockAppointmentRepository,
+  createMockErrorMessageService,
+  DEFAULT_APPOINTMENT_ID,
+  DEFAULT_ESTABLISHMENT_ID,
+  DEFAULT_REQUESTER_ID,
+} from '../__tests__/test-utils';
 import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-request.dto';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
@@ -17,58 +28,33 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 describe('AppointmentUpdateService', () => {
   let service: AppointmentUpdateService;
 
-  const mockAppointmentRepository = {
-    findById: jest.fn(),
-    update: jest.fn(),
-  };
+  const mockAppointmentRepository = createMockAppointmentRepository();
+  const mockAppointmentAccessValidationService =
+    createMockAppointmentAccessValidationService();
+  const mockAppointmentBusinessRulesService =
+    createMockAppointmentBusinessRulesService();
+  const mockErrorMessageService = createMockErrorMessageService();
 
-  const mockAppointmentAccessValidationService = {
-    validateUserCanCreateAppointments: jest.fn(),
-    validateRequesterCanActForMember: jest.fn(),
-    validateServices: jest.fn(),
-    validateUserAllowedServices: jest.fn(),
-    validateUser: jest.fn(),
-  };
-
-  const mockAppointmentBusinessRulesService = {
-    calculateTotalsAndEndTime: jest.fn(),
-    validateTimeRange: jest.fn(),
-    validateNoTimeConflict: jest.fn(),
-  };
-
-  const mockErrorMessageService = {
-    getMessage: jest.fn(),
-  };
-
-  const establishmentId = 'est-123';
-  const appointmentId = 'apt-123';
-  const ownerId = 'owner-123';
+  const establishmentId = DEFAULT_ESTABLISHMENT_ID;
+  const appointmentId = DEFAULT_APPOINTMENT_ID;
+  const ownerId = DEFAULT_REQUESTER_ID;
 
   const startTime = new Date('2025-06-01T10:00:00.000Z');
   const endTime = new Date('2025-06-01T11:00:00.000Z');
 
-  const mockAppointment = {
+  const mockAppointment = createMockAppointment({
     id: appointmentId,
     establishmentId,
-    customerId: 'cust-123',
-    customer: { name: 'Cliente' },
-    userId: 'user-barber',
-    user: { name: 'Barbeiro' },
     startTime,
     endTime,
-    totalAmount: 3000,
-    totalDuration: 60,
     status: AppointmentStatus.PENDING,
-    notes: null,
-    services: [{ serviceId: 'svc-1' }],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+    services: [{ serviceId: 'svc-1' }] as never,
+  });
 
-  const mockAccessResult = {
-    establishment: { id: establishmentId },
+  const mockAccessResult = createMockAppointmentAccessResult({
+    establishmentId,
     isOwner: true,
-  };
+  });
 
   const mockEstablishmentServices = [
     {

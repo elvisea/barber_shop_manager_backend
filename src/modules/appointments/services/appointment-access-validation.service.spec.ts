@@ -4,6 +4,12 @@ import { UserRole } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 import {
+  createMockErrorMessageService,
+  DEFAULT_ESTABLISHMENT_ID,
+  DEFAULT_REQUESTER_ID,
+} from '../__tests__/test-utils';
+
+import {
   AppointmentAccessValidationService,
   AppointmentAccessValidationResult,
 } from './appointment-access-validation.service';
@@ -35,12 +41,10 @@ describe('AppointmentAccessValidationService', () => {
     findManyByIdsAndEstablishment: jest.fn(),
   };
 
-  const mockErrorMessageService = {
-    getMessage: jest.fn(),
-  };
+  const mockErrorMessageService = createMockErrorMessageService();
 
-  const establishmentId = 'est-123';
-  const userId = 'user-123';
+  const establishmentId = DEFAULT_ESTABLISHMENT_ID;
+  const userId = DEFAULT_REQUESTER_ID;
   const ownerId = 'owner-123';
 
   const mockEstablishment = {

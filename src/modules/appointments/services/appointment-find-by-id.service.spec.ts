@@ -1,6 +1,16 @@
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import {
+  createMockAppointment,
+  createMockAppointmentAccessResult,
+  createMockAppointmentAccessValidationService,
+  createMockAppointmentRepository,
+  createMockErrorMessageService,
+  DEFAULT_APPOINTMENT_ID,
+  DEFAULT_ESTABLISHMENT_ID,
+  DEFAULT_REQUESTER_ID,
+} from '../__tests__/test-utils';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
@@ -13,44 +23,24 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 describe('AppointmentFindByIdService', () => {
   let service: AppointmentFindByIdService;
 
-  const mockAppointmentRepository = {
-    findById: jest.fn(),
-  };
+  const mockAppointmentRepository = createMockAppointmentRepository();
+  const mockAppointmentAccessValidationService =
+    createMockAppointmentAccessValidationService();
+  const mockErrorMessageService = createMockErrorMessageService();
 
-  const mockAppointmentAccessValidationService = {
-    validateUserCanCreateAppointments: jest.fn(),
-    validateRequesterCanActForMember: jest.fn(),
-  };
+  const establishmentId = DEFAULT_ESTABLISHMENT_ID;
+  const appointmentId = DEFAULT_APPOINTMENT_ID;
+  const requesterId = DEFAULT_REQUESTER_ID;
 
-  const mockErrorMessageService = {
-    getMessage: jest.fn(),
-  };
-
-  const establishmentId = 'est-123';
-  const appointmentId = 'apt-123';
-  const requesterId = 'user-123';
-
-  const mockAppointment = {
+  const mockAppointment = createMockAppointment({
     id: appointmentId,
     establishmentId,
-    customerId: 'cust-123',
-    customer: { name: 'Cliente' },
-    userId: 'user-barber',
-    user: { name: 'Barbeiro' },
-    startTime: new Date('2025-02-01T10:00:00.000Z'),
-    endTime: new Date('2025-02-01T11:00:00.000Z'),
-    totalAmount: 3000,
-    totalDuration: 60,
-    status: 'PENDING',
-    notes: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  });
 
-  const mockAccessResult = {
-    establishment: { id: establishmentId },
+  const mockAccessResult = createMockAppointmentAccessResult({
+    establishmentId,
     isOwner: true,
-  };
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

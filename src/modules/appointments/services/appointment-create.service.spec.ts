@@ -2,6 +2,15 @@ import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Decimal } from '@prisma/client/runtime/library';
 
+import {
+  createMockAppointment,
+  createMockAppointmentAccessResult,
+  createMockAppointmentAccessValidationService,
+  createMockAppointmentBusinessRulesService,
+  createMockAppointmentRepository,
+  DEFAULT_ESTABLISHMENT_ID,
+  DEFAULT_REQUESTER_ID,
+} from '../__tests__/test-utils';
 import { AppointmentCreateRequestDTO } from '../dtos/api/appointment-create-request.dto';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
@@ -15,27 +24,14 @@ import { ErrorCode } from '@/enums/error-code';
 describe('AppointmentCreateService', () => {
   let service: AppointmentCreateService;
 
-  const mockAppointmentRepository = {
-    create: jest.fn(),
-  };
+  const mockAppointmentRepository = createMockAppointmentRepository();
+  const mockAppointmentAccessValidationService =
+    createMockAppointmentAccessValidationService();
+  const mockAppointmentBusinessRulesService =
+    createMockAppointmentBusinessRulesService();
 
-  const mockAppointmentAccessValidationService = {
-    validateUserCanCreateAppointments: jest.fn(),
-    validateRequesterCanActForMember: jest.fn(),
-    validateCustomer: jest.fn(),
-    validateUser: jest.fn(),
-    validateServices: jest.fn(),
-    validateUserAllowedServices: jest.fn(),
-  };
-
-  const mockAppointmentBusinessRulesService = {
-    calculateTotalsAndEndTime: jest.fn(),
-    validateNoTimeConflict: jest.fn(),
-    validateTimeRange: jest.fn(),
-  };
-
-  const establishmentId = 'est-123';
-  const ownerId = 'owner-123';
+  const establishmentId = DEFAULT_ESTABLISHMENT_ID;
+  const ownerId = DEFAULT_REQUESTER_ID;
 
   const startTime = new Date('2025-06-01T10:00:00.000Z');
   const createDto: AppointmentCreateRequestDTO = {
@@ -62,27 +58,22 @@ describe('AppointmentCreateService', () => {
     },
   ];
 
-  const mockAccessResult = {
-    establishment: { id: establishmentId },
+  const mockAccessResult = createMockAppointmentAccessResult({
+    establishmentId,
     isOwner: true,
-  };
+  });
 
-  const mockCreatedAppointment = {
+  const mockCreatedAppointment = createMockAppointment({
     id: 'apt-123',
     establishmentId,
     customerId: createDto.customerId,
-    customer: { name: 'Cliente' },
     userId: createDto.userId,
-    user: { name: 'Barbeiro' },
     startTime,
     endTime: new Date('2025-06-01T10:30:00.000Z'),
     totalAmount: 3000,
     totalDuration: 30,
-    status: 'PENDING',
     notes: createDto.notes,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

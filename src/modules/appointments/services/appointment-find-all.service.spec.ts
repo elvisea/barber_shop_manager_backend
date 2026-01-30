@@ -2,13 +2,19 @@ import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserRole } from '@prisma/client';
 
+import {
+  createMockAccessResultBarber,
+  createMockAccessResultOwner,
+  createMockAppointmentAccessResult,
+  createMockAppointmentAccessValidationService,
+  createMockAppointmentRepository,
+  DEFAULT_ESTABLISHMENT_ID,
+  DEFAULT_REQUESTER_ID,
+} from '../__tests__/test-utils';
 import { AppointmentFindAllQueryDTO } from '../dtos/api/appointment-find-all-query.dto';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
-import {
-  AppointmentAccessValidationService,
-  AppointmentAccessValidationResult,
-} from './appointment-access-validation.service';
+import { AppointmentAccessValidationService } from './appointment-access-validation.service';
 import { AppointmentFindAllService } from './appointment-find-all.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -17,34 +23,15 @@ import { ErrorCode } from '@/enums/error-code';
 describe('AppointmentFindAllService', () => {
   let service: AppointmentFindAllService;
 
-  const mockAppointmentRepository = {
-    findAll: jest.fn(),
-    count: jest.fn(),
-  };
+  const mockAppointmentRepository = createMockAppointmentRepository();
+  const mockAppointmentAccessValidationService =
+    createMockAppointmentAccessValidationService();
 
-  const mockAppointmentAccessValidationService = {
-    validateUserCanCreateAppointments: jest.fn(),
-    validateCustomer: jest.fn(),
-    validateUser: jest.fn(),
-  };
+  const establishmentId = DEFAULT_ESTABLISHMENT_ID;
+  const requesterId = DEFAULT_REQUESTER_ID;
 
-  const establishmentId = 'est-123';
-  const requesterId = 'user-123';
-
-  const mockAccessResultOwner: AppointmentAccessValidationResult = {
-    establishment: { id: establishmentId } as never,
-    isOwner: true,
-  };
-
-  const mockAccessResultBarber: AppointmentAccessValidationResult = {
-    establishment: { id: establishmentId } as never,
-    isOwner: false,
-    userEstablishment: {
-      id: 'ue-1',
-      isActive: true,
-      role: UserRole.BARBER,
-    },
-  };
+  const mockAccessResultOwner = createMockAccessResultOwner(establishmentId);
+  const mockAccessResultBarber = createMockAccessResultBarber(establishmentId);
 
   const mockAppointments = [
     {
@@ -141,15 +128,15 @@ describe('AppointmentFindAllService', () => {
     });
 
     it('deve forçar userId ao requesterId quando role é HAIRDRESSER', async () => {
-      const accessResultHairdresser: AppointmentAccessValidationResult = {
-        establishment: { id: establishmentId } as never,
+      const accessResultHairdresser = createMockAppointmentAccessResult({
+        establishmentId,
         isOwner: false,
         userEstablishment: {
           id: 'ue-1',
           isActive: true,
           role: UserRole.HAIRDRESSER,
         },
-      };
+      });
       mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
         accessResultHairdresser,
       );

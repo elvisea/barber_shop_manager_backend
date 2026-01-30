@@ -3,6 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EstablishmentService } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
+import {
+  createMockAppointmentRepository,
+  createMockErrorMessageService,
+} from '../__tests__/test-utils';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
@@ -14,13 +18,8 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 describe('AppointmentBusinessRulesService', () => {
   let service: AppointmentBusinessRulesService;
 
-  const mockAppointmentRepository = {
-    findConflictingAppointments: jest.fn(),
-  };
-
-  const mockErrorMessageService = {
-    getMessage: jest.fn(),
-  };
+  const mockAppointmentRepository = createMockAppointmentRepository();
+  const mockErrorMessageService = createMockErrorMessageService();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
