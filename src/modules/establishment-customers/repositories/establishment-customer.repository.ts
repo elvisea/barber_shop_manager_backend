@@ -21,7 +21,7 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
     email: string,
   ): Promise<boolean> {
     const count = await this.prisma.establishmentCustomer.count({
-      where: { establishmentId, email },
+      where: { establishmentId, email, deletedAt: null },
     });
     return count > 0;
   }
@@ -31,7 +31,7 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
     phone: string,
   ): Promise<boolean> {
     const count = await this.prisma.establishmentCustomer.count({
-      where: { establishmentId, phone },
+      where: { establishmentId, phone, deletedAt: null },
     });
     return count > 0;
   }
@@ -60,15 +60,15 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
     establishmentId: string,
   ): Promise<EstablishmentCustomer | null> {
     return this.prisma.establishmentCustomer.findFirst({
-      where: { id: customerId, establishmentId },
+      where: { id: customerId, establishmentId, deletedAt: null },
     });
   }
 
   async findByIdWithEstablishment(
     customerId: string,
   ): Promise<EstablishmentCustomerWithEstablishment | null> {
-    return this.prisma.establishmentCustomer.findUnique({
-      where: { id: customerId },
+    return this.prisma.establishmentCustomer.findFirst({
+      where: { id: customerId, deletedAt: null },
       include: { establishment: true },
     });
   }
@@ -78,7 +78,7 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
     email: string,
   ): Promise<EstablishmentCustomer | null> {
     return this.prisma.establishmentCustomer.findFirst({
-      where: { establishmentId, email },
+      where: { establishmentId, email, deletedAt: null },
     });
   }
 
@@ -87,7 +87,7 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
     phone: string,
   ): Promise<EstablishmentCustomer | null> {
     return this.prisma.establishmentCustomer.findFirst({
-      where: { establishmentId, phone },
+      where: { establishmentId, phone, deletedAt: null },
     });
   }
 
@@ -102,12 +102,14 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
   }) {
     const [data, total] = await Promise.all([
       this.prisma.establishmentCustomer.findMany({
-        where: { establishmentId },
+        where: { establishmentId, deletedAt: null },
         skip,
         take,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.establishmentCustomer.count({ where: { establishmentId } }),
+      this.prisma.establishmentCustomer.count({
+        where: { establishmentId, deletedAt: null },
+      }),
     ]);
     return { data, total };
   }
@@ -115,11 +117,16 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
   async deleteByIdAndEstablishment(
     customerId: string,
     establishmentId: string,
+    deletedByUserId: string,
   ): Promise<void> {
-    await this.prisma.establishmentCustomer.delete({
+    await this.prisma.establishmentCustomer.update({
       where: {
         id: customerId,
         establishmentId,
+      },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
       },
     });
   }
@@ -156,9 +163,13 @@ export class EstablishmentCustomerRepository implements IEstablishmentCustomerRe
     });
   }
 
-  async deleteById(customerId: string): Promise<void> {
-    await this.prisma.establishmentCustomer.delete({
+  async deleteById(customerId: string, deletedByUserId: string): Promise<void> {
+    await this.prisma.establishmentCustomer.update({
       where: { id: customerId },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
+      },
     });
   }
 

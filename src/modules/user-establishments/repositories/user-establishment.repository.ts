@@ -34,8 +34,8 @@ export class UserEstablishmentRepository implements IUserEstablishmentRepository
   }
 
   async findById(id: string): Promise<UserEstablishment | null> {
-    return this.prisma.userEstablishment.findUnique({
-      where: { id },
+    return this.prisma.userEstablishment.findFirst({
+      where: { id, deletedAt: null },
     });
   }
 
@@ -167,9 +167,13 @@ export class UserEstablishmentRepository implements IUserEstablishmentRepository
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.userEstablishment.delete({
+  async delete(id: string, deletedByUserId?: string): Promise<void> {
+    await this.prisma.userEstablishment.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId ?? undefined,
+      },
     });
   }
 

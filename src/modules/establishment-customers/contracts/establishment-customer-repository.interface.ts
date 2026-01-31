@@ -44,8 +44,10 @@ export interface IEstablishmentCustomerRepository {
       phone?: string | null;
     }>,
   ): Promise<EstablishmentCustomer>;
+  deleteById(customerId: string, deletedByUserId: string): Promise<void>;
   deleteByIdAndEstablishment(
     customerId: string,
     establishmentId: string,
+    deletedByUserId: string,
   ): Promise<void>;
 }

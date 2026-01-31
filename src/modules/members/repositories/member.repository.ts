@@ -49,31 +49,31 @@ export class MemberRepository implements IMemberRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { id },
+    return this.prisma.user.findFirst({
+      where: { id, deletedAt: null },
     });
   }
 
   async findByIdWithEstablishment(
     id: string,
   ): Promise<MemberWithEstablishment | null> {
-    return this.prisma.user.findUnique({
-      where: { id },
+    return this.prisma.user.findFirst({
+      where: { id, deletedAt: null },
       include: { ownedEstablishments: true },
     });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { email },
+    return this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
     });
   }
 
   async findByEmailWithVerification(
     email: string,
   ): Promise<(User & { verificationToken: Token | null }) | null> {
-    const member = await this.prisma.user.findUnique({
-      where: { email },
+    const member = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
     });
 
     if (!member) {
@@ -195,22 +195,26 @@ export class MemberRepository implements IMemberRepository {
     });
   }
 
-  async deleteMember(id: string): Promise<void> {
-    await this.prisma.user.delete({
+  async deleteMember(id: string, deletedByUserId: string): Promise<void> {
+    await this.prisma.user.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
+      },
     });
   }
 
   async existsByEmail(email: string): Promise<boolean> {
     const count = await this.prisma.user.count({
-      where: { email },
+      where: { email, deletedAt: null },
     });
     return count > 0;
   }
 
   async existsByPhone(phone: string): Promise<boolean> {
     const count = await this.prisma.user.count({
-      where: { phone },
+      where: { phone, deletedAt: null },
     });
     return count > 0;
   }
@@ -223,6 +227,7 @@ export class MemberRepository implements IMemberRepository {
       where: {
         email,
         id: { not: excludeId },
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -236,6 +241,7 @@ export class MemberRepository implements IMemberRepository {
       where: {
         phone,
         id: { not: excludeId },
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -246,7 +252,9 @@ export class MemberRepository implements IMemberRepository {
     email: string,
     establishmentId: string,
   ): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
+    });
     if (!user) return false;
     const count = await this.prisma.userEstablishment.count({
       where: { userId: user.id, establishmentId, deletedAt: null },
@@ -258,7 +266,9 @@ export class MemberRepository implements IMemberRepository {
     phone: string,
     establishmentId: string,
   ): Promise<boolean> {
-    const user = await this.prisma.user.findFirst({ where: { phone } });
+    const user = await this.prisma.user.findFirst({
+      where: { phone, deletedAt: null },
+    });
     if (!user) return false;
     const count = await this.prisma.userEstablishment.count({
       where: { userId: user.id, establishmentId, deletedAt: null },
@@ -271,7 +281,9 @@ export class MemberRepository implements IMemberRepository {
     establishmentId: string,
     excludeId: string,
   ): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
+    });
     if (!user || user.id === excludeId) return false;
     const count = await this.prisma.userEstablishment.count({
       where: {
@@ -288,7 +300,9 @@ export class MemberRepository implements IMemberRepository {
     establishmentId: string,
     excludeId: string,
   ): Promise<boolean> {
-    const user = await this.prisma.user.findFirst({ where: { phone } });
+    const user = await this.prisma.user.findFirst({
+      where: { phone, deletedAt: null },
+    });
     if (!user || user.id === excludeId) return false;
     const count = await this.prisma.userEstablishment.count({
       where: {

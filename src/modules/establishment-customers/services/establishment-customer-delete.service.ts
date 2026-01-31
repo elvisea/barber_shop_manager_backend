@@ -51,7 +51,7 @@ export class EstablishmentCustomerDeleteService {
       );
     }
 
-    await this.establishmentCustomerRepository.deleteById(customerId);
+    await this.establishmentCustomerRepository.deleteById(customerId, userId);
 
     this.logger.log(`Customer ${customerId} deleted successfully.`);
   }

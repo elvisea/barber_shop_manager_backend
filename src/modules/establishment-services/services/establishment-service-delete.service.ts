@@ -51,7 +51,7 @@ export class EstablishmentServiceDeleteService {
       );
     }
 
-    await this.establishmentServiceRepository.deleteById(serviceId);
+    await this.establishmentServiceRepository.deleteById(serviceId, userId);
 
     this.logger.log(`Service ${serviceId} deleted successfully.`);
   }

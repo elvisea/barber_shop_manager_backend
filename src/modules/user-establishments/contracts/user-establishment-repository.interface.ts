@@ -39,7 +39,7 @@ export interface IUserEstablishmentRepository {
     }>,
   ): Promise<UserEstablishment>;
 
-  delete(id: string): Promise<void>;
+  delete(id: string, deletedByUserId?: string): Promise<void>;
 
   existsByUserAndEstablishment(
     userId: string,

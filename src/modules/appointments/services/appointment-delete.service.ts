@@ -59,7 +59,7 @@ export class AppointmentDeleteService {
       appointment.userId,
     );
 
-    await this.appointmentRepository.delete(appointmentId);
+    await this.appointmentRepository.delete(appointmentId, requesterId);
 
     this.logger.log(`Appointment ${appointmentId} deleted successfully`);
   }

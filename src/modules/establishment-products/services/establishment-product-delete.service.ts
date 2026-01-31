@@ -49,7 +49,7 @@ export class EstablishmentProductDeleteService {
       );
     }
 
-    await this.establishmentProductRepository.deleteById(productId);
+    await this.establishmentProductRepository.deleteById(productId, userId);
 
     this.logger.log(`Product ${productId} deleted successfully.`);
   }

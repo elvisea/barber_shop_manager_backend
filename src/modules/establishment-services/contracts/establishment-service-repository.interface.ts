@@ -42,7 +42,13 @@ export interface IEstablishmentServiceRepository {
     data: Partial<EstablishmentServiceCreateRequestDTO>,
   ): Promise<EstablishmentService>;
 
-  deleteService(serviceId: string, establishmentId: string): Promise<void>;
+  deleteService(
+    serviceId: string,
+    establishmentId: string,
+    deletedByUserId: string,
+  ): Promise<void>;
+
+  deleteById(serviceId: string, deletedByUserId: string): Promise<void>;
 
   existsByName(establishmentId: string, name: string): Promise<boolean>;
 }

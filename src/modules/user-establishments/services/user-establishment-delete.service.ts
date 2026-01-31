@@ -79,7 +79,7 @@ export class UserEstablishmentDeleteService {
     }
 
     try {
-      await this.userRepository.deleteUser(userId);
+      await this.userRepository.deleteUser(userId, requesterId);
 
       this.logger.log(`User deleted: ${userId}`);
     } catch (error: unknown) {

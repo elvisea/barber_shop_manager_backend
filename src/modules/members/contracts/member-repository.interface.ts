@@ -67,7 +67,7 @@ export interface IMemberRepository {
     }>,
   ): Promise<User>;
 
-  deleteMember(id: string): Promise<void>;
+  deleteMember(id: string, deletedByUserId: string): Promise<void>;
 
   existsByEmail(email: string): Promise<boolean>;
 

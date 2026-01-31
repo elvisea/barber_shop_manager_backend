@@ -40,6 +40,7 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
       where: {
         id: serviceId,
         establishmentId,
+        deletedAt: null,
       },
     });
   }
@@ -55,6 +56,7 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
       where: {
         id: { in: serviceIds },
         establishmentId,
+        deletedAt: null,
       },
     });
   }
@@ -62,8 +64,8 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
   async findByIdWithEstablishment(
     serviceId: string,
   ): Promise<EstablishmentServiceWithEstablishment | null> {
-    return this.prisma.establishmentService.findUnique({
-      where: { id: serviceId },
+    return this.prisma.establishmentService.findFirst({
+      where: { id: serviceId, deletedAt: null },
       include: { establishment: true },
     });
   }
@@ -75,13 +77,19 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
   }): Promise<{ data: EstablishmentService[]; total: number }> {
     const [data, total] = await Promise.all([
       this.prisma.establishmentService.findMany({
-        where: { establishmentId: params.establishmentId },
+        where: {
+          establishmentId: params.establishmentId,
+          deletedAt: null,
+        },
         skip: params.skip,
         take: params.take,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.establishmentService.count({
-        where: { establishmentId: params.establishmentId },
+        where: {
+          establishmentId: params.establishmentId,
+          deletedAt: null,
+        },
       }),
     ]);
 
@@ -113,11 +121,16 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
   async deleteService(
     serviceId: string,
     establishmentId: string,
+    deletedByUserId: string,
   ): Promise<void> {
-    await this.prisma.establishmentService.delete({
+    await this.prisma.establishmentService.update({
       where: {
         id: serviceId,
         establishmentId,
+      },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
       },
     });
   }
@@ -127,14 +140,19 @@ export class EstablishmentServiceRepository implements IEstablishmentServiceRepo
       where: {
         establishmentId,
         name: { equals: name, mode: 'insensitive' },
+        deletedAt: null,
       },
     });
     return count > 0;
   }
 
-  async deleteById(serviceId: string): Promise<void> {
-    await this.prisma.establishmentService.delete({
+  async deleteById(serviceId: string, deletedByUserId: string): Promise<void> {
+    await this.prisma.establishmentService.update({
       where: { id: serviceId },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
+      },
     });
   }
 

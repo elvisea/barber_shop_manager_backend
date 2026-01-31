@@ -37,9 +37,9 @@ export interface IAppointmentRepository {
   ): Promise<AppointmentWithRelations>;
 
   /**
-   * Remove um agendamento
+   * Remove um agendamento (soft delete: marca deletedAt e deletedBy).
    */
-  delete(id: string): Promise<void>;
+  delete(id: string, deletedByUserId: string): Promise<void>;
 
   /**
    * Busca agendamentos por estabelecimento

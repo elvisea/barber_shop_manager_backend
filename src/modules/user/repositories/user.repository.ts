@@ -23,14 +23,14 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.prismaService.user.findUnique({
-      where: { email },
+    return this.prismaService.user.findFirst({
+      where: { email, deletedAt: null },
     });
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.prismaService.user.findUnique({
-      where: { id },
+    return this.prismaService.user.findFirst({
+      where: { id, deletedAt: null },
     });
   }
 
@@ -41,9 +41,13 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async deleteUser(id: string): Promise<User> {
-    return this.prismaService.user.delete({
+  async deleteUser(id: string, deletedByUserId: string): Promise<User> {
+    return this.prismaService.user.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
+      },
     });
   }
 
@@ -77,14 +81,14 @@ export class UserRepository implements IUserRepository {
 
   async existsByEmail(email: string): Promise<boolean> {
     const count = await this.prismaService.user.count({
-      where: { email },
+      where: { email, deletedAt: null },
     });
     return count > 0;
   }
 
   async existsByPhone(phone: string): Promise<boolean> {
     const count = await this.prismaService.user.count({
-      where: { phone },
+      where: { phone, deletedAt: null },
     });
     return count > 0;
   }
@@ -97,6 +101,7 @@ export class UserRepository implements IUserRepository {
       where: {
         email,
         id: { not: excludeId },
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -110,6 +115,7 @@ export class UserRepository implements IUserRepository {
       where: {
         phone,
         id: { not: excludeId },
+        deletedAt: null,
       },
     });
     return count > 0;

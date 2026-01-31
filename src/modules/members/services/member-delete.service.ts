@@ -84,7 +84,7 @@ export class MemberDeleteService {
     }
 
     try {
-      await this.memberRepository.deleteMember(memberId);
+      await this.memberRepository.deleteMember(memberId, requesterId);
 
       this.logger.log(`Member deleted: ${memberId}`);
     } catch (error: unknown) {

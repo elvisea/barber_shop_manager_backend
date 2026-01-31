@@ -16,7 +16,7 @@ export class EstablishmentProductRepository {
 
   async existsByName(establishmentId: string, name: string): Promise<boolean> {
     const count = await this.prisma.establishmentProduct.count({
-      where: { establishmentId, name },
+      where: { establishmentId, name, deletedAt: null },
     });
     return count > 0;
   }
@@ -38,6 +38,7 @@ export class EstablishmentProductRepository {
       where: {
         id: productId,
         establishmentId,
+        deletedAt: null,
       },
     });
   }
@@ -45,8 +46,8 @@ export class EstablishmentProductRepository {
   async findByIdWithEstablishment(
     productId: string,
   ): Promise<EstablishmentProductWithEstablishment | null> {
-    return this.prisma.establishmentProduct.findUnique({
-      where: { id: productId },
+    return this.prisma.establishmentProduct.findFirst({
+      where: { id: productId, deletedAt: null },
       include: { establishment: true },
     });
   }
@@ -60,13 +61,15 @@ export class EstablishmentProductRepository {
 
     const [data, total] = await Promise.all([
       this.prisma.establishmentProduct.findMany({
-        where: { establishmentId },
+        where: { establishmentId, deletedAt: null },
         skip,
         take,
         orderBy: { createdAt: 'desc' },
       }),
 
-      this.prisma.establishmentProduct.count({ where: { establishmentId } }),
+      this.prisma.establishmentProduct.count({
+        where: { establishmentId, deletedAt: null },
+      }),
     ]);
 
     return { data, total };
@@ -75,11 +78,16 @@ export class EstablishmentProductRepository {
   async deleteByIdAndEstablishment(
     productId: string,
     establishmentId: string,
+    deletedByUserId: string,
   ): Promise<void> {
-    await this.prisma.establishmentProduct.delete({
+    await this.prisma.establishmentProduct.update({
       where: {
         id: productId,
         establishmentId,
+      },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
       },
     });
   }
@@ -120,9 +128,13 @@ export class EstablishmentProductRepository {
     });
   }
 
-  async deleteById(productId: string): Promise<void> {
-    await this.prisma.establishmentProduct.delete({
+  async deleteById(productId: string, deletedByUserId: string): Promise<void> {
+    await this.prisma.establishmentProduct.update({
       where: { id: productId },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
+      },
     });
   }
 }

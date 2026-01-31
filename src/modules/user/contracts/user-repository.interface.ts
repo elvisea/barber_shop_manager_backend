@@ -7,7 +7,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
-  deleteUser(id: string): Promise<User>;
+  deleteUser(id: string, deletedByUserId: string): Promise<User>;
   updateEmailVerified(userId: string, verified: boolean): Promise<User>;
   updateWhatsappConnection(
     userId: string,
