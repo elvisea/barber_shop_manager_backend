@@ -183,6 +183,10 @@ PostgreSQL converte automaticamente os valores existentes ao alterar o tipo, ent
 - [NestJS Serialization](https://docs.nestjs.com/techniques/serialization)
 - [ISO 8601 Standard](https://en.wikipedia.org/wiki/ISO_8601)
 
+## Filtro de listagem (appointments)
+
+Para a listagem de agendamentos, o frontend envia `startDate` e `endDate` na query. Quando o usuário escolhe "até dia X", o frontend envia `endDate` como **fim daquele dia em UTC** (ex.: `2025-01-31T23:59:59.999Z`) para que todos os agendamentos do dia X sejam incluídos. O backend recebe ISO em UTC e aplica `startTime.lte = endDate` no repositório.
+
 ## Notas Importantes
 
 1. **Não há risco de perda de dados** - PostgreSQL converte automaticamente valores existentes ao alterar o tipo
