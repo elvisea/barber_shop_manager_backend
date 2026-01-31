@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { MeController } from './controllers/me.controller';
+import { MeCustomersController } from './controllers/me-customers.controller';
+import { MeEstablishmentsController } from './controllers/me-establishments.controller';
+import { MeMembersController } from './controllers/me-members.controller';
+import { MeProductsController } from './controllers/me-products.controller';
+import { MeServicesController } from './controllers/me-services.controller';
 import { MeCustomersService } from './services/me-customers.service';
 import { MeEstablishmentAccessService } from './services/me-establishment-access.service';
 import { MeEstablishmentsService } from './services/me-establishments.service';
@@ -22,7 +26,13 @@ import { UserEstablishmentsModule } from '@/modules/user-establishments/user-est
     EstablishmentServicesModule,
     EstablishmentCustomerModule,
   ],
-  controllers: [MeController],
+  controllers: [
+    MeEstablishmentsController,
+    MeProductsController,
+    MeServicesController,
+    MeCustomersController,
+    MeMembersController,
+  ],
   providers: [
     MeEstablishmentAccessService,
     MeEstablishmentsService,
