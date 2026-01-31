@@ -64,9 +64,11 @@ export class AppointmentFindAllQueryDTO extends BasePaginationQueryDTO {
     example: false,
   })
   @IsOptional()
-  @Transform(({ value }: { value: string }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === true || value === 'true' || value === '1') return true;
+    if (value === false || value === 'false' || value === '0') return false;
+    if (Array.isArray(value) && value[0] !== undefined)
+      return value[0] === 'true' || value[0] === true;
     return value;
   })
   @IsBoolean()

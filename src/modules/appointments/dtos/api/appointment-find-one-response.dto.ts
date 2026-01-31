@@ -1,18 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-class AppointmentServiceItemDTO {
-  @ApiProperty()
-  serviceId!: string;
-
-  @ApiProperty()
-  price!: number;
-
-  @ApiProperty()
-  duration!: number;
-
-  @ApiProperty()
-  commission!: number;
-}
+import { AppointmentServiceItemDTO } from './appointment-create-response.dto';
 
 export class AppointmentFindOneResponseDTO {
   @ApiProperty()

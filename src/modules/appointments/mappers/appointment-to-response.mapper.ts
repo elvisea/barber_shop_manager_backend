@@ -1,4 +1,7 @@
-import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
+import {
+  AppointmentCreateResponseDTO,
+  AppointmentServiceItemDTO,
+} from '../dtos/api/appointment-create-response.dto';
 import { AppointmentWithRelations } from '../types/appointment-with-relations.type';
 
 /**
@@ -9,6 +12,17 @@ export class AppointmentToResponseMapper {
   static toResponseDTO(
     appointment: AppointmentWithRelations,
   ): AppointmentCreateResponseDTO {
+    const services = appointment.services
+      ?.filter((s) => s.deletedAt == null)
+      .map(
+        (s): AppointmentServiceItemDTO => ({
+          serviceId: s.serviceId,
+          price: s.price,
+          duration: s.duration,
+          commission: Number(s.commission),
+        }),
+      );
+
     return {
       id: appointment.id,
       establishmentId: appointment.establishmentId,
@@ -24,6 +38,7 @@ export class AppointmentToResponseMapper {
       notes: appointment.notes ?? undefined,
       createdAt: appointment.createdAt,
       updatedAt: appointment.updatedAt,
+      ...(services != null && services.length > 0 && { services }),
     };
   }
 }

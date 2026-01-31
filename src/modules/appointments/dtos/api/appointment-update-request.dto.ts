@@ -8,10 +8,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  MinDate,
 } from 'class-validator';
-
-import { getFutureDateTime } from '@/common/utils/date-helpers';
 
 export class AppointmentUpdateRequestDTO {
   @ApiPropertyOptional({
@@ -23,15 +20,13 @@ export class AppointmentUpdateRequestDTO {
   userId?: string;
 
   @ApiPropertyOptional({
-    description: 'Data e hora de início do agendamento',
-    example: getFutureDateTime(1, 10, 0),
+    description:
+      'Data e hora de início do agendamento (ISO 8601 UTC). Em update não exige data futura.',
+    example: '2024-01-21T10:00:00.000Z',
   })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @MinDate(() => new Date(), {
-    message: 'startTime must not be in the past',
-  })
   startTime?: Date;
 
   @ApiPropertyOptional({

@@ -11,7 +11,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { AppointmentFindOneResponseDTO } from '../dtos/api/appointment-find-one-response.dto';
+import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
 
 import { SwaggerErrors } from '@/common/swagger-errors';
 import {
@@ -47,32 +47,36 @@ export function UpdateAppointmentDocs() {
     }),
     ApiOkResponse({
       description: 'Agendamento atualizado com sucesso',
-      type: AppointmentFindOneResponseDTO,
+      type: AppointmentCreateResponseDTO,
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
-        customerId: '550e8400-e29b-41d4-a716-446655440001',
-        userId: '550e8400-e29b-41d4-a716-446655440002',
         establishmentId: '550e8400-e29b-41d4-a716-446655440003',
+        customerId: '550e8400-e29b-41d4-a716-446655440001',
+        customerName: 'João Silva',
+        userId: '550e8400-e29b-41d4-a716-446655440002',
+        memberName: 'Maria Santos',
         startTime: getFutureDateTime(1, 14, 0),
         endTime: getFutureDateTime(1, 15, 0),
-        notes: 'Corte de cabelo, barba e sobrancelha',
+        totalAmount: 6500,
+        totalDuration: 50,
         status: 'CONFIRMED',
+        notes: 'Corte de cabelo, barba e sobrancelha',
+        createdAt: getPastDate(1),
+        updatedAt: getCurrentDate(),
         services: [
           {
             serviceId: '550e8400-e29b-41d4-a716-446655440004',
-            name: 'Corte de Cabelo',
-            price: 25.0,
+            price: 5000,
             duration: 30,
+            commission: 0.5,
           },
           {
             serviceId: '550e8400-e29b-41d4-a716-446655440005',
-            name: 'Barba',
-            price: 15.0,
+            price: 1500,
             duration: 20,
+            commission: 0.5,
           },
         ],
-        createdAt: getPastDate(1),
-        updatedAt: getCurrentDate(),
       },
     }),
     ApiBadRequestResponse({

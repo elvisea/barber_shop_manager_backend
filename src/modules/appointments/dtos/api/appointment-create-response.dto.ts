@@ -2,6 +2,20 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { getCurrentDate, getFutureDateTime } from '@/common/utils/date-helpers';
 
+export class AppointmentServiceItemDTO {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  serviceId!: string;
+
+  @ApiProperty({ example: 5000 })
+  price!: number;
+
+  @ApiProperty({ example: 30 })
+  duration!: number;
+
+  @ApiProperty({ example: 0.5 })
+  commission!: number;
+}
+
 export class AppointmentCreateResponseDTO {
   @ApiProperty({ example: '6c2a0e2c-8f39-4c39-9a41-6a8b8a0f6b1e' })
   id!: string;
@@ -50,4 +64,11 @@ export class AppointmentCreateResponseDTO {
 
   @ApiProperty({ example: getCurrentDate() })
   updatedAt!: Date;
+
+  @ApiProperty({
+    type: [AppointmentServiceItemDTO],
+    required: false,
+    description: 'Serviços do agendamento (retornado em GET por id)',
+  })
+  services?: AppointmentServiceItemDTO[];
 }
