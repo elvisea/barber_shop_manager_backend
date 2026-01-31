@@ -7,10 +7,8 @@ import { AppointmentFindAllMapper } from '../mappers/appointment-find-all.mapper
 import { AppointmentRepository } from '../repositories/appointment.repository';
 import { calculatePagination } from '../utils/pagination.util';
 
-import {
-  AppointmentAccessValidationService,
-  AppointmentAccessValidationResult,
-} from './appointment-access-validation.service';
+import { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
+import { AppointmentAccessValidationService } from './appointment-access-validation.service';
 
 const RESTRICT_TO_OWN_APPOINTMENTS_ROLES: UserRole[] = [
   UserRole.BARBER,
@@ -102,9 +100,7 @@ export class AppointmentFindAllService {
     return response;
   }
 
-  private getRequesterRole(
-    accessResult: AppointmentAccessValidationResult,
-  ): UserRole {
+  private getRequesterRole(accessResult: EstablishmentAccessResult): UserRole {
     if (accessResult.isOwner) {
       return UserRole.OWNER;
     }
@@ -114,9 +110,9 @@ export class AppointmentFindAllService {
   private async validateRequesterAccess(
     establishmentId: string,
     requesterId: string,
-  ): Promise<AppointmentAccessValidationResult> {
+  ): Promise<EstablishmentAccessResult> {
     const result =
-      await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+      await this.appointmentAccessValidationService.validateCanCreate(
         establishmentId,
         requesterId,
       );

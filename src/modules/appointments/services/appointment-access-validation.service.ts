@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
-  Establishment,
   EstablishmentCustomer,
   EstablishmentService,
   UserEstablishment,
@@ -10,33 +9,32 @@ import {
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
+import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
+import { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
 import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
 
-/** Dados do vínculo usuário-estabelecimento retornados em uma única query com o estabelecimento. */
-export interface AppointmentAccessValidationUserEstablishment {
-  id: string;
-  isActive: boolean;
-  role: UserRole;
-}
+/** Re-export for consumers that need the access result type (e.g. appointment permission checks). */
+export type { EstablishmentAccessResult };
 
-export interface AppointmentAccessValidationResult {
-  establishment: Establishment;
-  isOwner: boolean;
-  userEstablishment?: AppointmentAccessValidationUserEstablishment;
-}
+const RESTRICT_TO_OWN_APPOINTMENTS_ROLES: UserRole[] = [
+  UserRole.HAIRDRESSER,
+  UserRole.BARBER,
+];
 
 /**
- * Service responsável por validar acessos e permissões para operações de agendamento
+ * Handles appointment-specific permissions and entity validations.
+ * Does not contain "can user access establishment" logic; that is delegated to EstablishmentAccessService.
+ * This service handles: (1) appointment permissions (who can act for which member), and
+ * (2) entity validations (customer, member, services exist in the establishment).
  */
 @Injectable()
 export class AppointmentAccessValidationService {
   private readonly logger = new Logger(AppointmentAccessValidationService.name);
 
   constructor(
-    private readonly establishmentRepository: EstablishmentRepository,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly userEstablishmentRepository: UserEstablishmentRepository,
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
@@ -44,96 +42,29 @@ export class AppointmentAccessValidationService {
   ) {}
 
   /**
-   * Valida se o usuário pode criar agendamentos no estabelecimento
-   * (dono OU membro do estabelecimento). Uma única query com join.
+   * Delegates to the centralized EstablishmentAccessService and returns the access result.
+   * Use the returned result in assertRequesterCanActForMember for appointment permission checks.
    */
-  async validateUserCanCreateAppointments(
+  async validateCanCreate(
     establishmentId: string,
     userId: string,
-  ): Promise<AppointmentAccessValidationResult> {
+  ): Promise<EstablishmentAccessResult> {
     this.logger.log(
-      `[AccessValidation] Validating user ${userId} access to create appointments in establishment ${establishmentId}`,
+      `Validating user ${userId} can create appointments in establishment ${establishmentId}`,
     );
-
-    const result = await this.establishmentRepository.findByIdWithUserAccess(
-      establishmentId,
+    return this.establishmentAccessService.getEstablishmentAccess(
       userId,
+      establishmentId,
     );
-
-    if (!result) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-        { ESTABLISHMENT_ID: establishmentId },
-      );
-
-      this.logger.warn(
-        `[AccessValidation] Establishment not found: ${establishmentId}`,
-      );
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.NOT_FOUND,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-      );
-    }
-
-    const establishment = result;
-    const userEstablishments = result.userEstablishments;
-
-    // Dono do estabelecimento
-    if (establishment.ownerId === userId) {
-      this.logger.log(
-        `[AccessValidation] User ${userId} is owner of establishment ${establishmentId}`,
-      );
-      return { establishment, isOwner: true };
-    }
-
-    // Membro ativo
-    const member = userEstablishments[0];
-    if (!member || !member.isActive) {
-      const message = this.errorMessageService.getMessage(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
-
-      this.logger.warn(
-        `[AccessValidation] User ${userId} is not owner or active member of establishment ${establishmentId}`,
-      );
-
-      throw new CustomHttpException(
-        message,
-        HttpStatus.FORBIDDEN,
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-      );
-    }
-
-    this.logger.log(
-      `[AccessValidation] User ${userId} is member of establishment ${establishmentId}, role=${member.role}, isActive=${member.isActive}`,
-    );
-
-    return {
-      establishment,
-      isOwner: false,
-      userEstablishment: {
-        id: member.id,
-        isActive: member.isActive,
-        role: member.role,
-      },
-    };
   }
 
-  private static readonly RESTRICT_TO_OWN_APPOINTMENTS_ROLES: UserRole[] = [
-    UserRole.HAIRDRESSER,
-    UserRole.BARBER,
-  ];
-
   /**
-   * Validates that the requester is allowed to act on appointments for the given target member.
-   * OWNER and RECEPTIONIST can act for any member in the establishment.
-   * HAIRDRESSER and BARBER can only act for themselves (targetMemberId must equal requesterId).
+   * Uses the centralized access result (isOwner, role) to apply the appointment permission rule:
+   * OWNER and RECEPTIONIST can act for any member; BARBER and HAIRDRESSER only for themselves.
+   * @throws CustomHttpException when the requester cannot act for the target member
    */
-  validateRequesterCanActForMember(
-    accessResult: AppointmentAccessValidationResult,
+  assertRequesterCanActForMember(
+    accessResult: EstablishmentAccessResult,
     requesterId: string,
     targetMemberId: string,
   ): void {
@@ -148,19 +79,15 @@ export class AppointmentAccessValidationService {
 
     if (
       role &&
-      AppointmentAccessValidationService.RESTRICT_TO_OWN_APPOINTMENTS_ROLES.includes(
-        role,
-      ) &&
+      RESTRICT_TO_OWN_APPOINTMENTS_ROLES.includes(role) &&
       targetMemberId !== requesterId
     ) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.APPOINTMENT_ACCESS_DENIED,
       );
-
       this.logger.warn(
-        `[AccessValidation] User ${requesterId} (role=${role}) cannot act for member ${targetMemberId}`,
+        `User ${requesterId} (role=${role}) cannot act for member ${targetMemberId}`,
       );
-
       throw new CustomHttpException(
         message,
         HttpStatus.FORBIDDEN,
@@ -170,7 +97,7 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Valida se o cliente existe no estabelecimento
+   * Validates that the customer exists in the establishment.
    */
   async validateCustomer(
     establishmentId: string,
@@ -191,11 +118,9 @@ export class AppointmentAccessValidationService {
         ErrorCode.ESTABLISHMENT_CUSTOMER_NOT_FOUND,
         { CUSTOMER_ID: customerId, ESTABLISHMENT_ID: establishmentId },
       );
-
       this.logger.warn(
         `Customer ${customerId} not found in establishment ${establishmentId}`,
       );
-
       throw new CustomHttpException(
         message,
         HttpStatus.NOT_FOUND,
@@ -208,7 +133,7 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Valida se o usuário existe no estabelecimento
+   * Validates that the user (member) exists and is active in the establishment.
    */
   async validateUser(
     establishmentId: string,
@@ -229,14 +154,12 @@ export class AppointmentAccessValidationService {
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
         { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
       );
-
       this.logger.warn(
         `User ${userId} not found or inactive in establishment ${establishmentId}`,
       );
-
       throw new CustomHttpException(
         message,
-        HttpStatus.NOT_FOUND,
+        HttpStatus.FORBIDDEN,
         ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
       );
     }
@@ -246,7 +169,7 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Valida se os serviços existem no estabelecimento. Uma única query com ids.
+   * Validates that all given services exist in the establishment.
    */
   async validateServices(
     establishmentId: string,
@@ -272,11 +195,9 @@ export class AppointmentAccessValidationService {
           ErrorCode.ESTABLISHMENT_SERVICE_NOT_FOUND,
           { SERVICE_ID: serviceId, ESTABLISHMENT_ID: establishmentId },
         );
-
         this.logger.warn(
           `Service ${serviceId} not found in establishment ${establishmentId}`,
         );
-
         throw new CustomHttpException(
           message,
           HttpStatus.NOT_FOUND,
@@ -291,7 +212,8 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Valida se os serviços informados estão registrados para o usuário no estabelecimento
+   * Validates that the given services are allowed for the user (member) in the establishment.
+   * TODO: Implement when member-services is ready; currently only validates user exists.
    */
   async validateUserAllowedServices(
     establishmentId: string,
@@ -301,13 +223,9 @@ export class AppointmentAccessValidationService {
     this.logger.log(
       `Validating user ${userId} allowed services in establishment ${establishmentId}`,
     );
-
-    // TODO: Implementar validação quando user-services estiver pronto
-    // Por enquanto, apenas valida que o usuário tem acesso ao estabelecimento
     await this.validateUser(establishmentId, userId);
-
     this.logger.log(
-      `All ${serviceIds.length} services are allowed for user ${userId} in establishment ${establishmentId}`,
+      `All ${serviceIds.length} services allowed for user ${userId} in establishment ${establishmentId}`,
     );
   }
 }

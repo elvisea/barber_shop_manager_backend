@@ -1,5 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
+import { APPOINTMENT_CREATE_BUSINESS_RULES } from '../constants/appointment-create-rules.token';
+import type { IAppointmentCreateBusinessRule } from '../contracts/appointment-create-business-rule.interface';
 import { AppointmentCreateRequestDTO } from '../dtos/api/appointment-create-request.dto';
 import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
 import { AppointmentRepositoryMapper } from '../mappers/appointment-repository.mapper';
@@ -7,10 +9,15 @@ import { AppointmentToResponseMapper } from '../mappers/appointment-to-response.
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
+import { AppointmentCreateBusinessRulesService } from './appointment-create-business-rules.service';
 
 /**
- * Service responsável pela criação de agendamentos
+ * Orchestrates appointment creation in order: (1) establishment access and appointment permission
+ * (via AppointmentAccessValidationService, which uses the centralized EstablishmentAccessService),
+ * (2) entity validations (customer, member, services exist), (3) extensible business rules
+ * (injected list APPOINTMENT_CREATE_BUSINESS_RULES), (4) calculations and conflict checks
+ * (AppointmentCreateBusinessRulesService), (5) persistence.
+ * Adding new create rules does not require changes here; register the new rule in the module.
  */
 @Injectable()
 export class AppointmentCreateService {
@@ -19,11 +26,14 @@ export class AppointmentCreateService {
   constructor(
     private readonly appointmentRepository: AppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
-    private readonly appointmentBusinessRulesService: AppointmentBusinessRulesService,
+    private readonly appointmentCreateBusinessRulesService: AppointmentCreateBusinessRulesService,
+    @Inject(APPOINTMENT_CREATE_BUSINESS_RULES)
+    private readonly createBusinessRules: IAppointmentCreateBusinessRule[],
   ) {}
 
   /**
-   * Cria um novo agendamento com validações de negócio
+   * Creates an appointment. Flow: (1) access + permission, (2) entity validations,
+   * (3) extensible rules, (4) totals and conflicts, (5) persist and map response.
    */
   async execute(
     dto: AppointmentCreateRequestDTO,
@@ -34,15 +44,15 @@ export class AppointmentCreateService {
       `Creating appointment for customer ${dto.customerId} in establishment ${establishmentId}`,
     );
 
-    // 1. Validar acesso do usuário (dono OU membro do estabelecimento)
+    // 1. Establishment access + appointment permission (centralized access + who can act for whom)
     const accessResult =
-      await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+      await this.appointmentAccessValidationService.validateCanCreate(
         establishmentId,
         ownerId,
       );
 
-    // 2. Validar se o requisitante pode atuar para o membro do agendamento (OWNER/RECEPTIONIST = qualquer; HAIRDRESSER/BARBER = só si mesmo)
-    this.appointmentAccessValidationService.validateRequesterCanActForMember(
+    // 2. Requester can act for target member (OWNER/RECEPTIONIST = any; BARBER/HAIRDRESSER = self only)
+    this.appointmentAccessValidationService.assertRequesterCanActForMember(
       accessResult,
       ownerId,
       dto.userId,
@@ -67,29 +77,32 @@ export class AppointmentCreateService {
         dto.serviceIds,
       );
 
-    // 6. Validar se os serviços são permitidos ao usuário
-    await this.appointmentAccessValidationService.validateUserAllowedServices(
+    // 6. Extensible business rules (e.g. member services allowed)
+    const ruleContext = {
       establishmentId,
-      dto.userId,
-      dto.serviceIds,
-    );
+      userId: dto.userId,
+      serviceIds: dto.serviceIds,
+    };
+    for (const rule of this.createBusinessRules) {
+      await rule.validate(ruleContext);
+    }
 
     // 7. Calcular totais e endTime baseado nos serviços
     const { totalAmount, totalDuration, endTime } =
-      this.appointmentBusinessRulesService.calculateTotalsAndEndTime(
+      this.appointmentCreateBusinessRulesService.calculateTotalsAndEndTime(
         dto.startTime,
         establishmentServices,
       );
 
     // 8. Validar conflito de horários
-    await this.appointmentBusinessRulesService.validateNoTimeConflict(
+    await this.appointmentCreateBusinessRulesService.validateNoTimeConflict(
       dto.userId,
       dto.startTime,
       new Date(endTime),
     );
 
     // 9. Validar horários
-    this.appointmentBusinessRulesService.validateTimeRange(
+    this.appointmentCreateBusinessRulesService.validateTimeRange(
       dto.startTime,
       endTime,
     );

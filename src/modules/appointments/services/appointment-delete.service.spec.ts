@@ -76,7 +76,7 @@ describe('AppointmentDeleteService', () => {
   describe('execute', () => {
     it('deve deletar appointment quando encontrado e requester tem acesso', async () => {
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
       mockAppointmentRepository.delete.mockResolvedValue(undefined);
@@ -87,10 +87,10 @@ describe('AppointmentDeleteService', () => {
         appointmentId,
       );
       expect(
-        mockAppointmentAccessValidationService.validateUserCanCreateAppointments,
+        mockAppointmentAccessValidationService.validateCanCreate,
       ).toHaveBeenCalledWith(establishmentId, requesterId);
       expect(
-        mockAppointmentAccessValidationService.validateRequesterCanActForMember,
+        mockAppointmentAccessValidationService.assertRequesterCanActForMember,
       ).toHaveBeenCalledWith(
         mockAccessResult,
         requesterId,
@@ -98,6 +98,7 @@ describe('AppointmentDeleteService', () => {
       );
       expect(mockAppointmentRepository.delete).toHaveBeenCalledWith(
         appointmentId,
+        requesterId,
       );
     });
 
@@ -156,9 +157,9 @@ describe('AppointmentDeleteService', () => {
       }
     });
 
-    it('deve propagar exceção quando validateUserCanCreateAppointments falha', async () => {
+    it('deve propagar exceção quando validateCanCreate falha', async () => {
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockRejectedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockRejectedValue(
         new CustomHttpException(
           'Acesso negado',
           HttpStatus.FORBIDDEN,
@@ -173,12 +174,12 @@ describe('AppointmentDeleteService', () => {
       expect(mockAppointmentRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('deve propagar exceção quando validateRequesterCanActForMember lança', async () => {
+    it('deve propagar exceção quando assertRequesterCanActForMember lança', async () => {
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentAccessValidationService.validateRequesterCanActForMember.mockImplementation(
+      mockAppointmentAccessValidationService.assertRequesterCanActForMember.mockImplementation(
         () => {
           throw new CustomHttpException(
             'Sem permissão',

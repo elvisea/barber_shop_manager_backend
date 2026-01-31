@@ -1,5 +1,4 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { EstablishmentService } from '@prisma/client';
 
 import { AppointmentCreateResponseDTO } from '../dtos/api/appointment-create-response.dto';
 import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-request.dto';
@@ -8,7 +7,7 @@ import { AppointmentToResponseMapper } from '../mappers/appointment-to-response.
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
+import { AppointmentUpdateBusinessRulesService } from './appointment-update-business-rules.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
@@ -16,7 +15,8 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 
 /**
  * Service responsável pela atualização de agendamentos.
- * Reutiliza as mesmas regras de negócio do create (via AppointmentBusinessRulesService).
+ * Delega regras de negócio (effective values e validações condicionais)
+ * ao AppointmentUpdateBusinessRulesService.
  */
 @Injectable()
 export class AppointmentUpdateService {
@@ -25,7 +25,7 @@ export class AppointmentUpdateService {
   constructor(
     private readonly appointmentRepository: AppointmentRepository,
     private readonly appointmentAccessValidationService: AppointmentAccessValidationService,
-    private readonly appointmentBusinessRulesService: AppointmentBusinessRulesService,
+    private readonly appointmentUpdateBusinessRulesService: AppointmentUpdateBusinessRulesService,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -42,7 +42,6 @@ export class AppointmentUpdateService {
       `Updating appointment ${appointmentId} in establishment ${establishmentId}`,
     );
 
-    // 1. Buscar agendamento e validar que pertence ao estabelecimento
     const appointment =
       await this.appointmentRepository.findById(appointmentId);
 
@@ -61,101 +60,34 @@ export class AppointmentUpdateService {
       );
     }
 
-    // 2. Validar acesso do usuário (dono OU membro do estabelecimento)
     const accessResult =
-      await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+      await this.appointmentAccessValidationService.validateCanCreate(
         establishmentId,
         ownerId,
       );
 
-    // 3. Validar se o requisitante pode atuar sobre o agendamento (OWNER/RECEPTIONIST = qualquer; HAIRDRESSER/BARBER = só o próprio)
-    this.appointmentAccessValidationService.validateRequesterCanActForMember(
+    this.appointmentAccessValidationService.assertRequesterCanActForMember(
       accessResult,
       ownerId,
       appointment.userId,
     );
 
-    // 4. Montar payload efetivo mesclando agendamento existente com o DTO
-    const effectiveUserId = dto.userId ?? appointment.userId;
-
-    if (effectiveUserId !== appointment.userId) {
-      this.appointmentAccessValidationService.validateRequesterCanActForMember(
-        accessResult,
-        ownerId,
-        effectiveUserId,
+    const resolved =
+      await this.appointmentUpdateBusinessRulesService.resolveAndValidateUpdate(
+        dto,
+        appointment,
+        { establishmentId, ownerId, accessResult },
       );
-    }
-
-    const effectiveStartTime = dto.startTime ?? appointment.startTime;
-    const currentServiceIds: string[] = appointment.services
-      .map((s) => s.serviceId)
-      .sort();
-    const effectiveServiceIds: string[] = (dto.serviceIds ?? currentServiceIds)
-      .slice()
-      .sort();
-    const effectiveStatus = dto.status ?? appointment.status;
-    const effectiveNotes =
-      dto.notes !== undefined ? dto.notes : appointment.notes;
-
-    const servicesChanged =
-      dto.serviceIds !== undefined &&
-      (currentServiceIds.length !== effectiveServiceIds.length ||
-        currentServiceIds.some((id, i) => id !== effectiveServiceIds[i]));
-
-    let totalAmount = appointment.totalAmount;
-    let totalDuration = appointment.totalDuration;
-    let endTime = appointment.endTime.toISOString();
-    let establishmentServicesForUpdate: EstablishmentService[] | undefined;
-
-    if (servicesChanged) {
-      establishmentServicesForUpdate =
-        await this.appointmentAccessValidationService.validateServices(
-          establishmentId,
-          effectiveServiceIds,
-        );
-      await this.appointmentAccessValidationService.validateUserAllowedServices(
-        establishmentId,
-        effectiveUserId,
-        effectiveServiceIds,
-      );
-      const calculated =
-        this.appointmentBusinessRulesService.calculateTotalsAndEndTime(
-          effectiveStartTime,
-          establishmentServicesForUpdate,
-        );
-      totalAmount = calculated.totalAmount;
-      totalDuration = calculated.totalDuration;
-      endTime = calculated.endTime;
-    }
-
-    if (effectiveUserId !== appointment.userId) {
-      await this.appointmentAccessValidationService.validateUser(
-        establishmentId,
-        effectiveUserId,
-      );
-    }
-
-    this.appointmentBusinessRulesService.validateTimeRange(
-      effectiveStartTime,
-      endTime,
-    );
-
-    await this.appointmentBusinessRulesService.validateNoTimeConflict(
-      effectiveUserId,
-      effectiveStartTime,
-      new Date(endTime),
-      appointment.id,
-    );
 
     const repositoryUpdate = AppointmentRepositoryMapper.toRepositoryUpdateDTO({
-      userId: effectiveUserId,
-      startTime: effectiveStartTime,
-      endTime,
-      totalAmount,
-      totalDuration,
-      status: effectiveStatus,
-      notes: effectiveNotes ?? undefined,
-      establishmentServices: establishmentServicesForUpdate,
+      userId: resolved.effectiveUserId,
+      startTime: resolved.effectiveStartTime,
+      endTime: resolved.endTime,
+      totalAmount: resolved.totalAmount,
+      totalDuration: resolved.totalDuration,
+      status: resolved.effectiveStatus,
+      notes: resolved.effectiveNotes,
+      establishmentServices: resolved.establishmentServicesForUpdate,
     });
 
     const updated = await this.appointmentRepository.update(

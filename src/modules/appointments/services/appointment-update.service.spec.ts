@@ -7,8 +7,8 @@ import {
   createMockAppointment,
   createMockAppointmentAccessResult,
   createMockAppointmentAccessValidationService,
-  createMockAppointmentBusinessRulesService,
   createMockAppointmentRepository,
+  createMockAppointmentUpdateBusinessRulesService,
   createMockErrorMessageService,
   DEFAULT_APPOINTMENT_ID,
   DEFAULT_ESTABLISHMENT_ID,
@@ -18,7 +18,7 @@ import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-requ
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
+import { AppointmentUpdateBusinessRulesService } from './appointment-update-business-rules.service';
 import { AppointmentUpdateService } from './appointment-update.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -31,8 +31,8 @@ describe('AppointmentUpdateService', () => {
   const mockAppointmentRepository = createMockAppointmentRepository();
   const mockAppointmentAccessValidationService =
     createMockAppointmentAccessValidationService();
-  const mockAppointmentBusinessRulesService =
-    createMockAppointmentBusinessRulesService();
+  const mockAppointmentUpdateBusinessRulesService =
+    createMockAppointmentUpdateBusinessRulesService();
   const mockErrorMessageService = createMockErrorMessageService();
 
   const establishmentId = DEFAULT_ESTABLISHMENT_ID;
@@ -72,6 +72,19 @@ describe('AppointmentUpdateService', () => {
     },
   ];
 
+  const mockResolvedPayload = {
+    effectiveUserId: mockAppointment.userId,
+    effectiveStartTime: startTime,
+    endTime: endTime.toISOString(),
+    totalAmount: mockAppointment.totalAmount,
+    totalDuration: mockAppointment.totalDuration,
+    effectiveStatus: AppointmentStatus.PENDING,
+    effectiveNotes: undefined as string | undefined,
+    establishmentServicesForUpdate: undefined as
+      | typeof mockEstablishmentServices
+      | undefined,
+  };
+
   const mockUpdatedAppointment = {
     ...mockAppointment,
     notes: 'Updated notes',
@@ -91,8 +104,8 @@ describe('AppointmentUpdateService', () => {
           useValue: mockAppointmentAccessValidationService,
         },
         {
-          provide: AppointmentBusinessRulesService,
-          useValue: mockAppointmentBusinessRulesService,
+          provide: AppointmentUpdateBusinessRulesService,
+          useValue: mockAppointmentUpdateBusinessRulesService,
         },
         {
           provide: ErrorMessageService,
@@ -119,8 +132,14 @@ describe('AppointmentUpdateService', () => {
       };
 
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
+      );
+      mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate.mockResolvedValue(
+        {
+          ...mockResolvedPayload,
+          effectiveNotes: 'Updated notes',
+        },
       );
       mockAppointmentRepository.update.mockResolvedValue(
         mockUpdatedAppointment,
@@ -136,22 +155,12 @@ describe('AppointmentUpdateService', () => {
       expect(result).toBeInstanceOf(Object);
       expect(result.id).toBe(appointmentId);
       expect(
-        mockAppointmentAccessValidationService.validateServices,
-      ).not.toHaveBeenCalled();
-      expect(
-        mockAppointmentBusinessRulesService.calculateTotalsAndEndTime,
-      ).not.toHaveBeenCalled();
-      expect(
-        mockAppointmentBusinessRulesService.validateTimeRange,
-      ).toHaveBeenCalledWith(startTime, endTime.toISOString());
-      expect(
-        mockAppointmentBusinessRulesService.validateNoTimeConflict,
-      ).toHaveBeenCalledWith(
-        mockAppointment.userId,
-        startTime,
-        endTime,
-        appointmentId,
-      );
+        mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate,
+      ).toHaveBeenCalledWith(updateDto, mockAppointment, {
+        establishmentId,
+        ownerId,
+        accessResult: mockAccessResult,
+      });
       expect(mockAppointmentRepository.update).toHaveBeenCalledWith(
         appointmentId,
         expect.any(Object),
@@ -164,17 +173,16 @@ describe('AppointmentUpdateService', () => {
       };
 
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
-        mockEstablishmentServices,
-      );
-      mockAppointmentBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate.mockResolvedValue(
         {
+          ...mockResolvedPayload,
           totalAmount: 5000,
           totalDuration: 45,
           endTime: '2025-06-01T10:45:00.000Z',
+          establishmentServicesForUpdate: mockEstablishmentServices,
         },
       );
       mockAppointmentRepository.update.mockResolvedValue({
@@ -187,11 +195,12 @@ describe('AppointmentUpdateService', () => {
       await service.execute(establishmentId, appointmentId, updateDto, ownerId);
 
       expect(
-        mockAppointmentAccessValidationService.validateServices,
-      ).toHaveBeenCalledWith(establishmentId, ['svc-1', 'svc-2']);
-      expect(
-        mockAppointmentBusinessRulesService.calculateTotalsAndEndTime,
-      ).toHaveBeenCalled();
+        mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate,
+      ).toHaveBeenCalledWith(updateDto, mockAppointment, {
+        establishmentId,
+        ownerId,
+        accessResult: mockAccessResult,
+      });
       expect(mockAppointmentRepository.update).toHaveBeenCalledWith(
         appointmentId,
         expect.objectContaining({
@@ -215,6 +224,9 @@ describe('AppointmentUpdateService', () => {
         ErrorCode.APPOINTMENT_NOT_FOUND,
         { APPOINTMENT_ID: appointmentId },
       );
+      expect(
+        mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate,
+      ).not.toHaveBeenCalled();
       expect(mockAppointmentRepository.update).not.toHaveBeenCalled();
     });
 
@@ -231,6 +243,9 @@ describe('AppointmentUpdateService', () => {
         service.execute(establishmentId, appointmentId, {}, ownerId),
       ).rejects.toThrow(CustomHttpException);
 
+      expect(
+        mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate,
+      ).not.toHaveBeenCalled();
       expect(mockAppointmentRepository.update).not.toHaveBeenCalled();
     });
 
@@ -252,9 +267,9 @@ describe('AppointmentUpdateService', () => {
       }
     });
 
-    it('deve propagar exceção quando validateUserCanCreateAppointments falha', async () => {
+    it('deve propagar exceção quando validateCanCreate falha', async () => {
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockRejectedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockRejectedValue(
         new CustomHttpException(
           'Acesso negado',
           HttpStatus.FORBIDDEN,
@@ -266,15 +281,18 @@ describe('AppointmentUpdateService', () => {
         service.execute(establishmentId, appointmentId, {}, ownerId),
       ).rejects.toThrow(CustomHttpException);
 
+      expect(
+        mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate,
+      ).not.toHaveBeenCalled();
       expect(mockAppointmentRepository.update).not.toHaveBeenCalled();
     });
 
     it('deve propagar exceção quando validateNoTimeConflict detecta conflito', async () => {
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentBusinessRulesService.validateNoTimeConflict.mockRejectedValue(
+      mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate.mockRejectedValue(
         new CustomHttpException(
           'Conflito de horário',
           HttpStatus.CONFLICT,
@@ -291,14 +309,11 @@ describe('AppointmentUpdateService', () => {
 
     it('deve propagar exceção quando repositório update falha', async () => {
       mockAppointmentRepository.findById.mockResolvedValue(mockAppointment);
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentBusinessRulesService.validateTimeRange.mockReturnValue(
-        undefined,
-      );
-      mockAppointmentBusinessRulesService.validateNoTimeConflict.mockResolvedValue(
-        undefined,
+      mockAppointmentUpdateBusinessRulesService.resolveAndValidateUpdate.mockResolvedValue(
+        mockResolvedPayload,
       );
       mockAppointmentRepository.update.mockRejectedValue(
         new Error('Database error'),

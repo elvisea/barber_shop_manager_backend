@@ -6,12 +6,11 @@ import { MeMembersController } from './controllers/me-members.controller';
 import { MeProductsController } from './controllers/me-products.controller';
 import { MeServicesController } from './controllers/me-services.controller';
 import { MeCustomersService } from './services/me-customers.service';
-import { MeEstablishmentAccessService } from './services/me-establishment-access.service';
 import { MeEstablishmentsService } from './services/me-establishments.service';
 import { MeMembersService } from './services/me-members.service';
 import { MeProductsService } from './services/me-products.service';
 import { MeServicesService } from './services/me-services.service';
-
+import { EstablishmentAccessModule } from '@/shared/establishment-access/establishment-access.module';
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from '@/modules/establishment-customers/establishment-customer.module';
 import { EstablishmentProductsModule } from '@/modules/establishment-products/establishment-products.module';
@@ -20,6 +19,7 @@ import { UserEstablishmentsModule } from '@/modules/user-establishments/user-est
 
 @Module({
   imports: [
+    EstablishmentAccessModule,
     EstablishmentModule,
     UserEstablishmentsModule,
     EstablishmentProductsModule,
@@ -34,7 +34,6 @@ import { UserEstablishmentsModule } from '@/modules/user-establishments/user-est
     MeMembersController,
   ],
   providers: [
-    MeEstablishmentAccessService,
     MeEstablishmentsService,
     MeProductsService,
     MeServicesService,

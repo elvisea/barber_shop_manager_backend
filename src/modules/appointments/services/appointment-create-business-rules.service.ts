@@ -8,13 +8,15 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
 /**
- * Service compartilhado com regras de negócio de agendamento
- * (conflito de horário, intervalo de tempo, cálculo de totais/endTime).
- * Usado por AppointmentCreateService e AppointmentUpdateService.
+ * Regras atômicas de agendamento (conflito de horário, intervalo de tempo,
+ * cálculo de totais/endTime). Usado pelo AppointmentCreateService e pelo
+ * AppointmentUpdateBusinessRulesService.
  */
 @Injectable()
-export class AppointmentBusinessRulesService {
-  private readonly logger = new Logger(AppointmentBusinessRulesService.name);
+export class AppointmentCreateBusinessRulesService {
+  private readonly logger = new Logger(
+    AppointmentCreateBusinessRulesService.name,
+  );
 
   constructor(
     private readonly appointmentRepository: AppointmentRepository,

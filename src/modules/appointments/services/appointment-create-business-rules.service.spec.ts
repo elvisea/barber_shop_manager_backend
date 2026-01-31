@@ -9,14 +9,14 @@ import {
 } from '../__tests__/test-utils';
 import { AppointmentRepository } from '../repositories/appointment.repository';
 
-import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
+import { AppointmentCreateBusinessRulesService } from './appointment-create-business-rules.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 
-describe('AppointmentBusinessRulesService', () => {
-  let service: AppointmentBusinessRulesService;
+describe('AppointmentCreateBusinessRulesService', () => {
+  let service: AppointmentCreateBusinessRulesService;
 
   const mockAppointmentRepository = createMockAppointmentRepository();
   const mockErrorMessageService = createMockErrorMessageService();
@@ -24,7 +24,7 @@ describe('AppointmentBusinessRulesService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AppointmentBusinessRulesService,
+        AppointmentCreateBusinessRulesService,
         {
           provide: AppointmentRepository,
           useValue: mockAppointmentRepository,
@@ -36,8 +36,8 @@ describe('AppointmentBusinessRulesService', () => {
       ],
     }).compile();
 
-    service = module.get<AppointmentBusinessRulesService>(
-      AppointmentBusinessRulesService,
+    service = module.get<AppointmentCreateBusinessRulesService>(
+      AppointmentCreateBusinessRulesService,
     );
   });
 

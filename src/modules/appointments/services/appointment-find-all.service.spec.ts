@@ -83,7 +83,7 @@ describe('AppointmentFindAllService', () => {
 
   describe('execute', () => {
     it('deve retornar lista de appointments quando owner e sem filtros', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResultOwner,
       );
       mockAppointmentRepository.findAll.mockResolvedValue(mockAppointments);
@@ -102,14 +102,14 @@ describe('AppointmentFindAllService', () => {
       expect(result.meta.currentPage).toBe(1);
       expect(result.meta.itemsPerPage).toBe(10);
       expect(
-        mockAppointmentAccessValidationService.validateUserCanCreateAppointments,
+        mockAppointmentAccessValidationService.validateCanCreate,
       ).toHaveBeenCalledWith(establishmentId, requesterId);
       expect(mockAppointmentRepository.findAll).toHaveBeenCalled();
       expect(mockAppointmentRepository.count).toHaveBeenCalled();
     });
 
     it('deve forçar userId ao requesterId quando role é BARBER', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResultBarber,
       );
       mockAppointmentRepository.findAll.mockResolvedValue(mockAppointments);
@@ -137,7 +137,7 @@ describe('AppointmentFindAllService', () => {
           role: UserRole.HAIRDRESSER,
         },
       });
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         accessResultHairdresser,
       );
       mockAppointmentRepository.findAll.mockResolvedValue([]);
@@ -151,7 +151,7 @@ describe('AppointmentFindAllService', () => {
     });
 
     it('deve validar customer quando customerId é fornecido', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResultOwner,
       );
       mockAppointmentRepository.findAll.mockResolvedValue(mockAppointments);
@@ -169,7 +169,7 @@ describe('AppointmentFindAllService', () => {
     });
 
     it('deve validar user quando userId é fornecido (owner)', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResultOwner,
       );
       mockAppointmentRepository.findAll.mockResolvedValue(mockAppointments);
@@ -187,7 +187,7 @@ describe('AppointmentFindAllService', () => {
     });
 
     it('deve lançar exceção quando estabelecimento não encontrado', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockRejectedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockRejectedValue(
         new CustomHttpException(
           'Estabelecimento não encontrado',
           HttpStatus.NOT_FOUND,
@@ -204,7 +204,7 @@ describe('AppointmentFindAllService', () => {
     });
 
     it('deve lançar exceção quando validateCustomer falha', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResultOwner,
       );
       mockAppointmentAccessValidationService.validateCustomer.mockRejectedValue(
@@ -227,7 +227,7 @@ describe('AppointmentFindAllService', () => {
     });
 
     it('deve lançar exceção quando validateUser falha', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResultOwner,
       );
       mockAppointmentAccessValidationService.validateUser.mockRejectedValue(

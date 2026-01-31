@@ -48,12 +48,12 @@ export class AppointmentDeleteService {
     }
 
     const accessResult =
-      await this.appointmentAccessValidationService.validateUserCanCreateAppointments(
+      await this.appointmentAccessValidationService.validateCanCreate(
         establishmentId,
         requesterId,
       );
 
-    this.appointmentAccessValidationService.validateRequesterCanActForMember(
+    this.appointmentAccessValidationService.assertRequesterCanActForMember(
       accessResult,
       requesterId,
       appointment.userId,

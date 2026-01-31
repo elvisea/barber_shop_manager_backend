@@ -2,8 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { MeIdNameDto } from '../dtos/me-id-name.dto';
 
-import { MeEstablishmentAccessService } from './me-establishment-access.service';
-
+import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
 
 const MAX_ITEMS = 5000;
@@ -13,7 +12,7 @@ export class MeServicesService {
   private readonly logger = new Logger(MeServicesService.name);
 
   constructor(
-    private readonly meEstablishmentAccessService: MeEstablishmentAccessService,
+    private readonly establishmentAccessService: EstablishmentAccessService,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
   ) {}
 
@@ -25,7 +24,7 @@ export class MeServicesService {
       `Listing services for user ${userId}, establishment ${establishmentId}`,
     );
 
-    await this.meEstablishmentAccessService.assertUserHasAccessToEstablishment(
+    await this.establishmentAccessService.assertUserCanAccessEstablishment(
       userId,
       establishmentId,
     );

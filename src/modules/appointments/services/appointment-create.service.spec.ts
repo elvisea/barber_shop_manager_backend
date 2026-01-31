@@ -6,16 +6,18 @@ import {
   createMockAppointment,
   createMockAppointmentAccessResult,
   createMockAppointmentAccessValidationService,
-  createMockAppointmentBusinessRulesService,
+  createMockAppointmentCreateBusinessRulesService,
   createMockAppointmentRepository,
   DEFAULT_ESTABLISHMENT_ID,
   DEFAULT_REQUESTER_ID,
 } from '../__tests__/test-utils';
+import { APPOINTMENT_CREATE_BUSINESS_RULES } from '../constants/appointment-create-rules.token';
 import { AppointmentCreateRequestDTO } from '../dtos/api/appointment-create-request.dto';
 import { AppointmentRepository } from '../repositories/appointment.repository';
+import { ValidateMemberServicesRule } from '../rules/validate-member-services.rule';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-import { AppointmentBusinessRulesService } from './appointment-business-rules.service';
+import { AppointmentCreateBusinessRulesService } from './appointment-create-business-rules.service';
 import { AppointmentCreateService } from './appointment-create.service';
 
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
@@ -27,8 +29,8 @@ describe('AppointmentCreateService', () => {
   const mockAppointmentRepository = createMockAppointmentRepository();
   const mockAppointmentAccessValidationService =
     createMockAppointmentAccessValidationService();
-  const mockAppointmentBusinessRulesService =
-    createMockAppointmentBusinessRulesService();
+  const mockAppointmentCreateBusinessRulesService =
+    createMockAppointmentCreateBusinessRulesService();
 
   const establishmentId = DEFAULT_ESTABLISHMENT_ID;
   const ownerId = DEFAULT_REQUESTER_ID;
@@ -88,8 +90,14 @@ describe('AppointmentCreateService', () => {
           useValue: mockAppointmentAccessValidationService,
         },
         {
-          provide: AppointmentBusinessRulesService,
-          useValue: mockAppointmentBusinessRulesService,
+          provide: AppointmentCreateBusinessRulesService,
+          useValue: mockAppointmentCreateBusinessRulesService,
+        },
+        ValidateMemberServicesRule,
+        {
+          provide: APPOINTMENT_CREATE_BUSINESS_RULES,
+          useFactory: (rule: ValidateMemberServicesRule) => [rule],
+          inject: [ValidateMemberServicesRule],
         },
       ],
     }).compile();
@@ -99,7 +107,7 @@ describe('AppointmentCreateService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    mockAppointmentAccessValidationService.validateRequesterCanActForMember.mockImplementation(
+    mockAppointmentAccessValidationService.assertRequesterCanActForMember.mockImplementation(
       () => undefined,
     );
   });
@@ -110,13 +118,13 @@ describe('AppointmentCreateService', () => {
 
   describe('execute', () => {
     it('deve criar appointment com sucesso quando todas validações passam', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
       mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
         mockEstablishmentServices,
       );
-      mockAppointmentBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
@@ -135,10 +143,10 @@ describe('AppointmentCreateService', () => {
       expect(result.customerName).toBe('Cliente');
       expect(result.memberName).toBe('Barbeiro');
       expect(
-        mockAppointmentAccessValidationService.validateUserCanCreateAppointments,
+        mockAppointmentAccessValidationService.validateCanCreate,
       ).toHaveBeenCalledWith(establishmentId, ownerId);
       expect(
-        mockAppointmentAccessValidationService.validateRequesterCanActForMember,
+        mockAppointmentAccessValidationService.assertRequesterCanActForMember,
       ).toHaveBeenCalledWith(mockAccessResult, ownerId, createDto.userId);
       expect(
         mockAppointmentAccessValidationService.validateCustomer,
@@ -150,19 +158,19 @@ describe('AppointmentCreateService', () => {
         mockAppointmentAccessValidationService.validateServices,
       ).toHaveBeenCalledWith(establishmentId, createDto.serviceIds);
       expect(
-        mockAppointmentBusinessRulesService.calculateTotalsAndEndTime,
+        mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime,
       ).toHaveBeenCalledWith(startTime, mockEstablishmentServices);
       expect(
-        mockAppointmentBusinessRulesService.validateNoTimeConflict,
+        mockAppointmentCreateBusinessRulesService.validateNoTimeConflict,
       ).toHaveBeenCalledWith(createDto.userId, startTime, expect.any(Date));
       expect(
-        mockAppointmentBusinessRulesService.validateTimeRange,
+        mockAppointmentCreateBusinessRulesService.validateTimeRange,
       ).toHaveBeenCalledWith(startTime, '2025-06-01T10:30:00.000Z');
       expect(mockAppointmentRepository.create).toHaveBeenCalled();
     });
 
-    it('deve lançar exceção quando validateUserCanCreateAppointments falha', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockRejectedValue(
+    it('deve lançar exceção quando validateCanCreate falha', async () => {
+      mockAppointmentAccessValidationService.validateCanCreate.mockRejectedValue(
         new CustomHttpException(
           'Estabelecimento não encontrado',
           HttpStatus.NOT_FOUND,
@@ -177,11 +185,11 @@ describe('AppointmentCreateService', () => {
       expect(mockAppointmentRepository.create).not.toHaveBeenCalled();
     });
 
-    it('deve lançar exceção quando validateRequesterCanActForMember lança', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+    it('deve lançar exceção quando assertRequesterCanActForMember lança', async () => {
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentAccessValidationService.validateRequesterCanActForMember.mockImplementation(
+      mockAppointmentAccessValidationService.assertRequesterCanActForMember.mockImplementation(
         () => {
           throw new CustomHttpException(
             'Sem permissão',
@@ -199,20 +207,20 @@ describe('AppointmentCreateService', () => {
     });
 
     it('deve lançar exceção quando validateNoTimeConflict detecta conflito', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
       mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
         mockEstablishmentServices,
       );
-      mockAppointmentBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
           endTime: '2025-06-01T10:30:00.000Z',
         },
       );
-      mockAppointmentBusinessRulesService.validateNoTimeConflict.mockRejectedValue(
+      mockAppointmentCreateBusinessRulesService.validateNoTimeConflict.mockRejectedValue(
         new CustomHttpException(
           'Conflito de horário',
           HttpStatus.CONFLICT,
@@ -228,23 +236,23 @@ describe('AppointmentCreateService', () => {
     });
 
     it('deve lançar exceção quando validateTimeRange lança', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
       mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
         mockEstablishmentServices,
       );
-      mockAppointmentBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
           endTime: '2025-06-01T09:00:00.000Z',
         },
       );
-      mockAppointmentBusinessRulesService.validateNoTimeConflict.mockResolvedValue(
+      mockAppointmentCreateBusinessRulesService.validateNoTimeConflict.mockResolvedValue(
         undefined,
       );
-      mockAppointmentBusinessRulesService.validateTimeRange.mockImplementation(
+      mockAppointmentCreateBusinessRulesService.validateTimeRange.mockImplementation(
         () => {
           throw new CustomHttpException(
             'Intervalo inválido',
@@ -262,7 +270,7 @@ describe('AppointmentCreateService', () => {
     });
 
     it('deve lançar exceção quando repositório falha', async () => {
-      mockAppointmentAccessValidationService.validateUserCanCreateAppointments.mockResolvedValue(
+      mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
       mockAppointmentAccessValidationService.validateCustomer.mockResolvedValue(
@@ -277,17 +285,17 @@ describe('AppointmentCreateService', () => {
       mockAppointmentAccessValidationService.validateUserAllowedServices.mockResolvedValue(
         undefined,
       );
-      mockAppointmentBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
           endTime: '2025-06-01T10:30:00.000Z',
         },
       );
-      mockAppointmentBusinessRulesService.validateNoTimeConflict.mockResolvedValue(
+      mockAppointmentCreateBusinessRulesService.validateNoTimeConflict.mockResolvedValue(
         undefined,
       );
-      mockAppointmentBusinessRulesService.validateTimeRange.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.validateTimeRange.mockReturnValue(
         undefined,
       );
       mockAppointmentRepository.create.mockRejectedValue(

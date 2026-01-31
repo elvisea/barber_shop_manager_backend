@@ -54,8 +54,8 @@ export class AppointmentRepository implements IAppointmentRepository {
   async findById(id: string): Promise<AppointmentWithRelations | null> {
     this.logger.log(`Buscando agendamento por ID: ${id}`);
 
-    const appointment = await this.prismaService.appointment.findUnique({
-      where: { id },
+    const appointment = await this.prismaService.appointment.findFirst({
+      where: { id, deletedAt: null },
       include: appointmentInclude,
     });
 
@@ -248,11 +248,15 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointment;
   }
 
-  async delete(id: string): Promise<void> {
-    this.logger.log(`Removendo agendamento ${id}`);
+  async delete(id: string, deletedByUserId: string): Promise<void> {
+    this.logger.log(`Removendo agendamento ${id} (soft delete)`);
 
-    await this.prismaService.appointment.delete({
+    await this.prismaService.appointment.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: deletedByUserId,
+      },
     });
 
     this.logger.log(`Agendamento removido: ${id}`);
@@ -266,7 +270,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     );
 
     const appointments = await this.prismaService.appointment.findMany({
-      where: { establishmentId },
+      where: { establishmentId, deletedAt: null },
       include: appointmentInclude,
       orderBy: {
         startTime: 'asc',
@@ -283,7 +287,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     this.logger.log(`Buscando agendamentos por usuário: ${userId}`);
 
     const appointments = await this.prismaService.appointment.findMany({
-      where: { userId },
+      where: { userId, deletedAt: null },
       include: appointmentInclude,
       orderBy: {
         startTime: 'asc',
@@ -302,7 +306,7 @@ export class AppointmentRepository implements IAppointmentRepository {
     this.logger.log(`Buscando agendamentos por cliente: ${customerId}`);
 
     const appointments = await this.prismaService.appointment.findMany({
-      where: { customerId },
+      where: { customerId, deletedAt: null },
       include: appointmentInclude,
       orderBy: {
         startTime: 'asc',

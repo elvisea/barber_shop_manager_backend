@@ -9,15 +9,12 @@ import {
   DEFAULT_REQUESTER_ID,
 } from '../__tests__/test-utils';
 
-import {
-  AppointmentAccessValidationService,
-  AppointmentAccessValidationResult,
-} from './appointment-access-validation.service';
-
+import { AppointmentAccessValidationService } from './appointment-access-validation.service';
+import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
+import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
 import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
@@ -25,8 +22,9 @@ import { UserEstablishmentRepository } from '@/modules/user-establishments/repos
 describe('AppointmentAccessValidationService', () => {
   let service: AppointmentAccessValidationService;
 
-  const mockEstablishmentRepository = {
-    findByIdWithUserAccess: jest.fn(),
+  const mockEstablishmentAccessService = {
+    getEstablishmentAccess: jest.fn(),
+    assertUserCanAccessEstablishment: jest.fn(),
   };
 
   const mockUserEstablishmentRepository = {
@@ -78,8 +76,8 @@ describe('AppointmentAccessValidationService', () => {
       providers: [
         AppointmentAccessValidationService,
         {
-          provide: EstablishmentRepository,
-          useValue: mockEstablishmentRepository,
+          provide: EstablishmentAccessService,
+          useValue: mockEstablishmentAccessService,
         },
         {
           provide: UserEstablishmentRepository,
@@ -114,35 +112,42 @@ describe('AppointmentAccessValidationService', () => {
   });
 
   describe('validateUserCanCreateAppointments', () => {
-    it('deve retornar acesso quando usuário é dono do estabelecimento', async () => {
-      mockEstablishmentRepository.findByIdWithUserAccess.mockResolvedValue(
-        mockEstablishmentWithOwner,
+    it('deve retornar acesso quando getEstablishmentAccess retorna owner', async () => {
+      const ownerResult: EstablishmentAccessResult = {
+        establishment: mockEstablishmentWithOwner as never,
+        isOwner: true,
+      };
+      mockEstablishmentAccessService.getEstablishmentAccess.mockResolvedValue(
+        ownerResult,
       );
 
-      const result = await service.validateUserCanCreateAppointments(
-        establishmentId,
-        userId,
-      );
+      const result = await service.validateCanCreate(establishmentId, userId);
 
-      expect(result.establishment).toEqual(mockEstablishmentWithOwner);
+      expect(result).toEqual(ownerResult);
       expect(result.isOwner).toBe(true);
       expect(result.userEstablishment).toBeUndefined();
       expect(
-        mockEstablishmentRepository.findByIdWithUserAccess,
-      ).toHaveBeenCalledWith(establishmentId, userId);
+        mockEstablishmentAccessService.getEstablishmentAccess,
+      ).toHaveBeenCalledWith(userId, establishmentId);
     });
 
-    it('deve retornar acesso quando usuário é membro ativo', async () => {
-      mockEstablishmentRepository.findByIdWithUserAccess.mockResolvedValue(
-        mockEstablishmentWithMember,
+    it('deve retornar acesso quando getEstablishmentAccess retorna member', async () => {
+      const memberResult: EstablishmentAccessResult = {
+        establishment: mockEstablishmentWithMember as never,
+        isOwner: false,
+        userEstablishment: {
+          id: 'ue-id-1',
+          isActive: true,
+          role: UserRole.BARBER,
+        },
+      };
+      mockEstablishmentAccessService.getEstablishmentAccess.mockResolvedValue(
+        memberResult,
       );
 
-      const result = await service.validateUserCanCreateAppointments(
-        establishmentId,
-        userId,
-      );
+      const result = await service.validateCanCreate(establishmentId, userId);
 
-      expect(result.establishment).toEqual(mockEstablishmentWithMember);
+      expect(result).toEqual(memberResult);
       expect(result.isOwner).toBe(false);
       expect(result.userEstablishment).toEqual({
         id: 'ue-id-1',
@@ -151,35 +156,35 @@ describe('AppointmentAccessValidationService', () => {
       });
     });
 
-    it('deve lançar exceção quando estabelecimento não é encontrado', async () => {
-      mockEstablishmentRepository.findByIdWithUserAccess.mockResolvedValue(
-        null,
-      );
-      mockErrorMessageService.getMessage.mockReturnValue(
-        'Estabelecimento não encontrado',
+    it('deve lançar exceção quando getEstablishmentAccess lança (estabelecimento não encontrado)', async () => {
+      mockEstablishmentAccessService.getEstablishmentAccess.mockRejectedValue(
+        new CustomHttpException(
+          'Estabelecimento não encontrado',
+          HttpStatus.NOT_FOUND,
+          ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        ),
       );
 
       await expect(
-        service.validateUserCanCreateAppointments(establishmentId, userId),
+        service.validateCanCreate(establishmentId, userId),
       ).rejects.toThrow(CustomHttpException);
 
-      expect(mockErrorMessageService.getMessage).toHaveBeenCalledWith(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND,
-        { ESTABLISHMENT_ID: establishmentId },
-      );
+      expect(
+        mockEstablishmentAccessService.getEstablishmentAccess,
+      ).toHaveBeenCalledWith(userId, establishmentId);
     });
 
     it('deve lançar exceção com status NOT_FOUND quando estabelecimento não existe', async () => {
-      mockEstablishmentRepository.findByIdWithUserAccess.mockResolvedValue(
-        null,
+      mockEstablishmentAccessService.getEstablishmentAccess.mockRejectedValue(
+        new CustomHttpException(
+          'Not found',
+          HttpStatus.NOT_FOUND,
+          ErrorCode.ESTABLISHMENT_NOT_FOUND,
+        ),
       );
-      mockErrorMessageService.getMessage.mockReturnValue('Not found');
 
       try {
-        await service.validateUserCanCreateAppointments(
-          establishmentId,
-          userId,
-        );
+        await service.validateCanCreate(establishmentId, userId);
         fail('Deveria ter lançado exceção');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomHttpException);
@@ -192,37 +197,33 @@ describe('AppointmentAccessValidationService', () => {
       }
     });
 
-    it('deve lançar exceção quando usuário não é dono nem membro ativo', async () => {
-      mockEstablishmentRepository.findByIdWithUserAccess.mockResolvedValue({
-        ...mockEstablishment,
-        userEstablishments: [],
-      });
-      mockErrorMessageService.getMessage.mockReturnValue('Acesso negado');
+    it('deve lançar exceção quando getEstablishmentAccess lança (acesso negado)', async () => {
+      mockEstablishmentAccessService.getEstablishmentAccess.mockRejectedValue(
+        new CustomHttpException(
+          'Acesso negado',
+          HttpStatus.FORBIDDEN,
+          ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        ),
+      );
 
       await expect(
-        service.validateUserCanCreateAppointments(establishmentId, userId),
+        service.validateCanCreate(establishmentId, userId),
       ).rejects.toThrow(CustomHttpException);
 
-      expect(mockErrorMessageService.getMessage).toHaveBeenCalledWith(
-        ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
-        { ESTABLISHMENT_ID: establishmentId, USER_ID: userId },
-      );
+      expect(mockErrorMessageService.getMessage).not.toHaveBeenCalled();
     });
 
-    it('deve lançar exceção quando membro existe mas está inativo', async () => {
-      mockEstablishmentRepository.findByIdWithUserAccess.mockResolvedValue({
-        ...mockEstablishment,
-        userEstablishments: [
-          { id: 'ue-1', isActive: false, role: UserRole.BARBER },
-        ],
-      });
-      mockErrorMessageService.getMessage.mockReturnValue('Acesso negado');
+    it('deve lançar exceção quando membro existe mas está inativo (getEstablishmentAccess lança)', async () => {
+      mockEstablishmentAccessService.getEstablishmentAccess.mockRejectedValue(
+        new CustomHttpException(
+          'Acesso negado',
+          HttpStatus.FORBIDDEN,
+          ErrorCode.ESTABLISHMENT_NOT_FOUND_OR_ACCESS_DENIED,
+        ),
+      );
 
       try {
-        await service.validateUserCanCreateAppointments(
-          establishmentId,
-          userId,
-        );
+        await service.validateCanCreate(establishmentId, userId);
         fail('Deveria ter lançado exceção');
       } catch (error) {
         expect(error).toBeInstanceOf(CustomHttpException);
@@ -238,13 +239,13 @@ describe('AppointmentAccessValidationService', () => {
 
   describe('validateRequesterCanActForMember', () => {
     it('não deve lançar quando accessResult é owner', () => {
-      const accessResult: AppointmentAccessValidationResult = {
+      const accessResult: EstablishmentAccessResult = {
         establishment: mockEstablishment as never,
         isOwner: true,
       };
 
       expect(() =>
-        service.validateRequesterCanActForMember(
+        service.assertRequesterCanActForMember(
           accessResult,
           userId,
           'other-member-id',
@@ -253,7 +254,7 @@ describe('AppointmentAccessValidationService', () => {
     });
 
     it('não deve lançar quando role é RECEPTIONIST', () => {
-      const accessResult: AppointmentAccessValidationResult = {
+      const accessResult: EstablishmentAccessResult = {
         establishment: mockEstablishment as never,
         isOwner: false,
         userEstablishment: {
@@ -264,7 +265,7 @@ describe('AppointmentAccessValidationService', () => {
       };
 
       expect(() =>
-        service.validateRequesterCanActForMember(
+        service.assertRequesterCanActForMember(
           accessResult,
           userId,
           'other-member-id',
@@ -273,7 +274,7 @@ describe('AppointmentAccessValidationService', () => {
     });
 
     it('não deve lançar quando BARBER/HAIRDRESSER atua para si mesmo', () => {
-      const accessResult: AppointmentAccessValidationResult = {
+      const accessResult: EstablishmentAccessResult = {
         establishment: mockEstablishment as never,
         isOwner: false,
         userEstablishment: {
@@ -284,12 +285,12 @@ describe('AppointmentAccessValidationService', () => {
       };
 
       expect(() =>
-        service.validateRequesterCanActForMember(accessResult, userId, userId),
+        service.assertRequesterCanActForMember(accessResult, userId, userId),
       ).not.toThrow();
     });
 
     it('deve lançar quando BARBER tenta atuar por outro membro', () => {
-      const accessResult: AppointmentAccessValidationResult = {
+      const accessResult: EstablishmentAccessResult = {
         establishment: mockEstablishment as never,
         isOwner: false,
         userEstablishment: {
@@ -303,7 +304,7 @@ describe('AppointmentAccessValidationService', () => {
       );
 
       expect(() =>
-        service.validateRequesterCanActForMember(
+        service.assertRequesterCanActForMember(
           accessResult,
           userId,
           'other-member-id',
@@ -316,7 +317,7 @@ describe('AppointmentAccessValidationService', () => {
     });
 
     it('deve lançar exceção com status FORBIDDEN e errorCode APPOINTMENT_ACCESS_DENIED', () => {
-      const accessResult: AppointmentAccessValidationResult = {
+      const accessResult: EstablishmentAccessResult = {
         establishment: mockEstablishment as never,
         isOwner: false,
         userEstablishment: {
@@ -328,7 +329,7 @@ describe('AppointmentAccessValidationService', () => {
       mockErrorMessageService.getMessage.mockReturnValue('Access denied');
 
       try {
-        service.validateRequesterCanActForMember(
+        service.assertRequesterCanActForMember(
           accessResult,
           userId,
           'other-member-id',

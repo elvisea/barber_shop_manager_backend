@@ -1,6 +1,6 @@
 import { AppointmentStatus, UserRole } from '@prisma/client';
 
-import type { AppointmentAccessValidationResult } from '../services/appointment-access-validation.service';
+import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 import type { AppointmentWithRelations } from '../types/appointment-with-relations.type';
 
 import type { ErrorCode } from '@/enums/error-code';
@@ -103,30 +103,34 @@ export function createMockAppointment(
   };
 }
 
-export type MockAppointmentAccessResultOverrides = Partial<{
+export type MockEstablishmentAccessResultOverrides = Partial<{
   establishmentId: string;
   isOwner: boolean;
-  userEstablishment: AppointmentAccessValidationResult['userEstablishment'];
+  userEstablishment: EstablishmentAccessResult['userEstablishment'];
 }>;
 
 /**
- * Creates a mock AppointmentAccessValidationResult. Supports owner and barber (userEstablishment) scenarios.
+ * Creates a mock EstablishmentAccessResult. Supports owner and barber (userEstablishment) scenarios.
  */
-export function createMockAppointmentAccessResult(
-  overrides: MockAppointmentAccessResultOverrides = {},
-): AppointmentAccessValidationResult {
+export function createMockEstablishmentAccessResult(
+  overrides: MockEstablishmentAccessResultOverrides = {},
+): EstablishmentAccessResult {
   const establishmentId = overrides.establishmentId ?? DEFAULT_ESTABLISHMENT_ID;
 
   return {
     establishment: {
       id: establishmentId,
-    } as AppointmentAccessValidationResult['establishment'],
+    } as EstablishmentAccessResult['establishment'],
     isOwner: overrides.isOwner ?? true,
     ...(overrides.userEstablishment && {
       userEstablishment: overrides.userEstablishment,
     }),
   };
 }
+
+/** @deprecated Use createMockEstablishmentAccessResult. Kept for backward compatibility in specs. */
+export const createMockAppointmentAccessResult =
+  createMockEstablishmentAccessResult;
 
 /**
  * Creates a mock AppointmentRepository with all methods as jest.fn().
@@ -162,16 +166,16 @@ export function createMockAppointmentRepository(): {
  * Creates a mock AppointmentAccessValidationService with all methods as jest.fn().
  */
 export function createMockAppointmentAccessValidationService(): {
-  validateUserCanCreateAppointments: jest.Mock;
-  validateRequesterCanActForMember: jest.Mock;
+  validateCanCreate: jest.Mock;
+  assertRequesterCanActForMember: jest.Mock;
   validateCustomer: jest.Mock;
   validateUser: jest.Mock;
   validateServices: jest.Mock;
   validateUserAllowedServices: jest.Mock;
 } {
   return {
-    validateUserCanCreateAppointments: jest.fn(),
-    validateRequesterCanActForMember: jest.fn(),
+    validateCanCreate: jest.fn(),
+    assertRequesterCanActForMember: jest.fn(),
     validateCustomer: jest.fn(),
     validateUser: jest.fn(),
     validateServices: jest.fn(),
@@ -180,9 +184,9 @@ export function createMockAppointmentAccessValidationService(): {
 }
 
 /**
- * Creates a mock AppointmentBusinessRulesService with all methods as jest.fn().
+ * Creates a mock AppointmentCreateBusinessRulesService with all methods as jest.fn().
  */
-export function createMockAppointmentBusinessRulesService(): {
+export function createMockAppointmentCreateBusinessRulesService(): {
   calculateTotalsAndEndTime: jest.Mock;
   validateNoTimeConflict: jest.Mock;
   validateTimeRange: jest.Mock;
@@ -195,12 +199,26 @@ export function createMockAppointmentBusinessRulesService(): {
 }
 
 /**
+ * Creates a mock AppointmentUpdateBusinessRulesService with resolveAndValidateUpdate as jest.fn().
+ */
+export function createMockAppointmentUpdateBusinessRulesService(): {
+  resolveAndValidateUpdate: jest.Mock;
+} {
+  return {
+    resolveAndValidateUpdate: jest.fn(),
+  };
+}
+
+/**
  * Helper: mock access result for owner scenario (isOwner: true).
  */
 export function createMockAccessResultOwner(
   establishmentId: string = DEFAULT_ESTABLISHMENT_ID,
-): AppointmentAccessValidationResult {
-  return createMockAppointmentAccessResult({ establishmentId, isOwner: true });
+): EstablishmentAccessResult {
+  return createMockEstablishmentAccessResult({
+    establishmentId,
+    isOwner: true,
+  });
 }
 
 /**
@@ -209,8 +227,8 @@ export function createMockAccessResultOwner(
 export function createMockAccessResultBarber(
   establishmentId: string = DEFAULT_ESTABLISHMENT_ID,
   userEstablishmentId: string = 'ue-1',
-): AppointmentAccessValidationResult {
-  return createMockAppointmentAccessResult({
+): EstablishmentAccessResult {
+  return createMockEstablishmentAccessResult({
     establishmentId,
     isOwner: false,
     userEstablishment: {
