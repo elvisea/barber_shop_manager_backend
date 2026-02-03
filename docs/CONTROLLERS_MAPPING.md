@@ -69,18 +69,18 @@
 5. `DELETE /services/:serviceId` - Deletar serviço
 
 ### Member Products (5 controllers)
-1. `POST /establishments/:establishmentId/members/:memberId/products/:productId` - Criar produto personalizado
-2. `GET /establishments/:establishmentId/members/:memberId/products` - Listar produtos personalizados
-3. `GET /establishments/:establishmentId/members/:memberId/products/:productId` - Buscar produto personalizado
-4. `PATCH /establishments/:establishmentId/members/:memberId/products/:productId` - Atualizar produto personalizado
-5. `DELETE /establishments/:establishmentId/members/:memberId/products/:productId` - Deletar produto personalizado
+1. `POST /members/:memberId/products/:productId` - Criar produto personalizado
+2. `GET /members/:memberId/products` - Listar produtos personalizados
+3. `GET /members/:memberId/products/:productId` - Buscar produto personalizado
+4. `PATCH /members/:memberId/products/:productId` - Atualizar produto personalizado
+5. `DELETE /members/:memberId/products/:productId` - Deletar produto personalizado
 
 ### Member Services (5 controllers)
-1. `POST /establishments/:establishmentId/members/:memberId/services/:serviceId` - Criar serviço personalizado
-2. `GET /establishments/:establishmentId/members/:memberId/services` - Listar serviços personalizados
-3. `GET /establishments/:establishmentId/members/:memberId/services/:serviceId` - Buscar serviço personalizado
-4. `PATCH /establishments/:establishmentId/members/:memberId/services/:serviceId` - Atualizar serviço personalizado
-5. `DELETE /establishments/:establishmentId/members/:memberId/services/:serviceId` - Deletar serviço personalizado
+1. `POST /members/:memberId/services/:serviceId` - Criar serviço personalizado
+2. `GET /members/:memberId/services` - Listar serviços personalizados
+3. `GET /members/:memberId/services/:serviceId` - Buscar serviço personalizado
+4. `PATCH /members/:memberId/services/:serviceId` - Atualizar serviço personalizado
+5. `DELETE /members/:memberId/services/:serviceId` - Deletar serviço personalizado
 
 ### Appointments (5 controllers)
 1. `POST /establishments/:establishmentId/appointments` - Criar agendamento

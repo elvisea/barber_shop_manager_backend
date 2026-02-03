@@ -117,13 +117,13 @@
 ### 7. Personalização por Usuário
 
 **Produtos Personalizados**:
-- `POST /establishments/:establishmentId/members/:memberId/products/:productId`
+- `POST /members/:memberId/products/:productId`
 - Usuário pode ter preço e comissão personalizados
 - Herda do produto base do estabelecimento
 - Unique: (userId, establishmentId, productId)
 
 **Serviços Personalizados**:
-- `POST /establishments/:establishmentId/members/:memberId/services/:serviceId`
+- `POST /members/:memberId/services/:serviceId`
 - Usuário pode ter preço, comissão e duração personalizados
 - Herda do serviço base do estabelecimento
 - Unique: (userId, establishmentId, serviceId)
@@ -254,7 +254,7 @@
 4. **Cria estabelecimento** → `POST /establishments`
 5. **Adiciona membros** → `POST /establishments/:id/members`
 6. **Cria produtos/serviços** → `POST /establishments/:id/products` e `/services`
-7. **Personaliza produtos/serviços** (opcional) → `POST /establishments/:id/members/:id/products/:id`
+7. **Personaliza produtos/serviços** (opcional) → `POST /members/:memberId/products/:productId` ou `POST /members/:memberId/services/:serviceId`
 8. **Cadastra clientes** → `POST /establishments/:id/customers`
 9. **Cria agendamentos** → `POST /establishments/:id/appointments`
 10. **Finaliza agendamento** → Atualiza status para `COMPLETED`

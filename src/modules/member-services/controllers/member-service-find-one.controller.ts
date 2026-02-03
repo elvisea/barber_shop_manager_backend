@@ -11,9 +11,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Member Services')
 @ApiBearerAuth()
-@Controller(
-  'establishments/:establishmentId/members/:memberId/services/:serviceId',
-)
+@Controller('members/:memberId/services/:serviceId')
 @UseGuards(JwtAuthGuard)
 export class MemberServiceFindOneController {
   constructor(

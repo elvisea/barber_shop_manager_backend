@@ -12,7 +12,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Member Products')
 @ApiBearerAuth()
-@Controller('establishments/:establishmentId/members/:memberId/products')
+@Controller('members/:memberId/products')
 @UseGuards(JwtAuthGuard)
 export class MemberProductFindAllController {
   constructor(

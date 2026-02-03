@@ -11,9 +11,7 @@ import { GetRequestId } from '@/common/decorators/get-request-id.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('Member Products')
-@Controller(
-  'establishments/:establishmentId/members/:memberId/products/:productId',
-)
+@Controller('members/:memberId/products/:productId')
 @UseGuards(JwtAuthGuard)
 export class MemberProductCreateController {
   constructor(
