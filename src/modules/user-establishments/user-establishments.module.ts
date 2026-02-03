@@ -17,6 +17,9 @@ import { UserEstablishmentFindAllService } from './services/user-establishment-f
 import { UserEstablishmentFindByIdService } from './services/user-establishment-find-by-id.service';
 import { UserEstablishmentSummaryService } from './services/user-establishment-summary.service';
 import { UserEstablishmentUpdateService } from './services/user-establishment-update.service';
+import { UserEstablishmentGetEstablishmentIdForMemberService } from './services/user-establishment-get-establishment-id-for-member.service';
+import { UserEstablishmentValidateAccessService } from './services/user-establishment-validate-access.service';
+import { UserEstablishmentValidateOwnerAndMemberService } from './services/user-establishment-validate-owner-and-member.service';
 import { UserEstablishmentValidationService } from './services/user-establishment-validation.service';
 
 import { EstablishmentModule } from '@/modules/establishment/establishment.module';
@@ -43,6 +46,9 @@ import { UserModule } from '@/modules/user/user.module';
     UserEstablishmentUpdateService,
     UserEstablishmentDeleteService,
     UserEstablishmentSummaryService,
+    UserEstablishmentGetEstablishmentIdForMemberService,
+    UserEstablishmentValidateAccessService,
+    UserEstablishmentValidateOwnerAndMemberService,
     UserEstablishmentValidationService,
     UserEstablishmentRepository,
   ],
