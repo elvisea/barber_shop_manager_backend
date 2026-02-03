@@ -5,6 +5,11 @@ import * as jwt from 'jsonwebtoken';
 
 import { JwtPayload } from '@/modules/auth/interfaces/jwt-payload.interface';
 
+/**
+ * Serviço responsável por gerar tokens JWT (acesso e refresh).
+ * Utiliza ConfigService para obter tempos de expiração e JwtService para assinar os tokens.
+ * Resolve a necessidade de centralizar a geração de tokens de autenticação da aplicação.
+ */
 @Injectable()
 export class TokenService {
   constructor(
@@ -12,12 +17,16 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateTokens(payload: JwtPayload) {
-    const environment = this.configService.get<string>(
-      'NODE_ENV',
-      'development',
-    );
-
+  /**
+   * Gera o par de tokens (access e refresh) a partir do payload JWT.
+   *
+   * @param payload - Dados do usuário a serem incluídos no token (ex.: sub, email)
+   * @returns Promessa que resolve com objeto contendo accessToken e refreshToken (strings JWT)
+   */
+  async generateTokens(payload: JwtPayload): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const accessTokenExpiration = this.configService.get<string>(
       'ACCESS_TOKEN_EXPIRATION',
       '60s',
@@ -29,15 +38,11 @@ export class TokenService {
     );
 
     const accessTokenOptions: jwt.SignOptions = {
-      expiresIn: (environment === 'development'
-        ? '60s'
-        : accessTokenExpiration) as jwt.SignOptions['expiresIn'],
+      expiresIn: accessTokenExpiration as jwt.SignOptions['expiresIn'],
     };
 
     const refreshTokenOptions: jwt.SignOptions = {
-      expiresIn: (environment === 'development'
-        ? '5m'
-        : refreshTokenExpiration) as jwt.SignOptions['expiresIn'],
+      expiresIn: refreshTokenExpiration as jwt.SignOptions['expiresIn'],
     };
 
     const accessToken = await this.jwtService.signAsync(

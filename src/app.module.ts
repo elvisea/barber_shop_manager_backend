@@ -14,10 +14,9 @@ import { EstablishmentModule } from './modules/establishment/establishment.modul
 import { EstablishmentCustomerModule } from './modules/establishment-customers/establishment-customer.module';
 import { EstablishmentProductsModule } from './modules/establishment-products/establishment-products.module';
 import { EstablishmentServicesModule } from './modules/establishment-services/establishment-services.module';
-// TODO: Remover após refatoração completa
-// import { MemberProductsModule } from './modules/member-products/member-products.module';
-// import { MemberServicesModule } from './modules/member-services/member-services.module';
 import { MeModule } from './modules/me/me.module';
+import { MemberProductsModule } from './modules/member-products/member-products.module';
+import { MemberServicesModule } from './modules/member-services/member-services.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
@@ -27,6 +26,10 @@ import { WebhookModule } from './modules/webhook/webhook.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TokenModule } from './shared/token/token.module';
 
+/**
+ * Módulo raiz da aplicação. Configura imports globais (Config, Prisma, Token, Auth, etc.),
+ * registra o filtro global de exceções e agrega todos os módulos de domínio.
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -46,10 +49,8 @@ import { TokenModule } from './shared/token/token.module';
     EstablishmentCustomerModule,
     EstablishmentProductsModule,
     EstablishmentServicesModule,
-    // TODO: Remover após refatoração completa
-    // MembersModule,
-    // MemberProductsModule,
-    // MemberServicesModule,
+    MemberProductsModule,
+    MemberServicesModule,
     PlansModule,
     SubscriptionsModule,
     RefreshTokenModule,
