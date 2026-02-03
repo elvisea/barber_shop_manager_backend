@@ -5,8 +5,11 @@ import { MemberServiceRepository } from '../repositories/member-service.reposito
 
 import { MemberServiceValidationService } from './member-service-validation.service';
 
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
+
 /**
- * Service responsável por deletar um MemberService.
+ * Soft-deletes a member-service association. Only the establishment owner can delete.
+ * Resolves the need to remove a service assignment from a member without losing history.
  */
 @Injectable()
 export class MemberServiceDeleteService {
@@ -15,33 +18,41 @@ export class MemberServiceDeleteService {
   constructor(
     private readonly memberServiceRepository: MemberServiceRepository,
     private readonly memberServiceValidationService: MemberServiceValidationService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   /**
-   * Deleta um MemberService existente (soft delete).
+   * Soft-deletes the member-service. No-op if already deleted.
    *
-   * @param params - Parâmetros da rota (memberId, establishmentId, serviceId)
-   * @param requesterId - ID do usuário que está fazendo a requisição
-   * @throws CustomHttpException se alguma validação falhar
+   * @param params - Route params (memberId, serviceId)
+   * @param requesterId - ID of the user performing the request (must be establishment owner)
+   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
    */
   async execute(
     params: MemberServiceDeleteParamDTO,
     requesterId: string,
   ): Promise<void> {
+    // 1. Obtém establishmentId (valida que o requester é dono e que o member pertence ao estabelecimento)
+    const establishmentId =
+      await this.userEstablishmentValidationService.getEstablishmentIdOwnedByRequesterForMember(
+        params.memberId,
+        requesterId,
+      );
+
     this.logger.log(
-      `Deleting member service for member ${params.memberId} in establishment ${params.establishmentId} and service ${params.serviceId}`,
+      `Deleting member service for member ${params.memberId} in establishment ${establishmentId} and service ${params.serviceId}`,
     );
 
-    // Validações centralizadas em uma única chamada
+    // 2. Valida e busca o MemberService existente com relacionamentos
     const memberServiceWithRelations =
       await this.memberServiceValidationService.execute(
         params.memberId,
-        params.establishmentId,
+        establishmentId,
         params.serviceId,
         requesterId,
       );
 
-    // Faz soft delete do MemberService
+    // 3. Faz soft delete do MemberService
     await this.memberServiceRepository.deleteMemberService(
       memberServiceWithRelations.id,
       requesterId,

@@ -7,8 +7,11 @@ import { MemberServiceRepository } from '../repositories/member-service.reposito
 
 import { MemberServiceValidationService } from './member-service-validation.service';
 
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
+
 /**
- * Service responsável por atualizar um MemberService.
+ * Updates price, duration and commission of an existing member-service. Only establishment owner can update.
+ * Resolves the need to change per-member service pricing and commission without removing the association.
  */
 @Injectable()
 export class MemberServiceUpdateService {
@@ -17,36 +20,44 @@ export class MemberServiceUpdateService {
   constructor(
     private readonly memberServiceRepository: MemberServiceRepository,
     private readonly memberServiceValidationService: MemberServiceValidationService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   /**
-   * Atualiza um MemberService existente.
+   * Updates the member-service with new price, duration and commission.
    *
-   * @param dto - Dados para atualização (price, commission, duration)
-   * @param params - Parâmetros da rota (memberId, establishmentId, serviceId)
-   * @param requesterId - ID do usuário que está fazendo a requisição
-   * @returns DTO com os dados atualizados do MemberService
-   * @throws CustomHttpException se alguma validação falhar
+   * @param dto - New price, duration and commission
+   * @param params - Route params (memberId, serviceId)
+   * @param requesterId - ID of the user performing the request (must be establishment owner)
+   * @returns Updated member-service as {@link MemberServiceCreateResponseDTO}
+   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
    */
   async execute(
     dto: MemberServiceUpdateRequestDTO,
     params: MemberServiceUpdateParamDTO,
     requesterId: string,
   ): Promise<MemberServiceCreateResponseDTO> {
+    // 1. Obtém establishmentId (valida que o requester é dono e que o member pertence ao estabelecimento)
+    const establishmentId =
+      await this.userEstablishmentValidationService.getEstablishmentIdOwnedByRequesterForMember(
+        params.memberId,
+        requesterId,
+      );
+
     this.logger.log(
-      `Updating member service for member ${params.memberId} in establishment ${params.establishmentId} and service ${params.serviceId}`,
+      `Updating member service for member ${params.memberId} in establishment ${establishmentId} and service ${params.serviceId}`,
     );
 
-    // Validações centralizadas em uma única chamada
+    // 2. Valida e busca o MemberService existente com relacionamentos
     const memberServiceWithRelations =
       await this.memberServiceValidationService.execute(
         params.memberId,
-        params.establishmentId,
+        establishmentId,
         params.serviceId,
         requesterId,
       );
 
-    // Atualiza o MemberService
+    // 3. Atualiza o MemberService
     const updatedMemberService =
       await this.memberServiceRepository.updateMemberService(
         memberServiceWithRelations.id,
@@ -61,6 +72,7 @@ export class MemberServiceUpdateService {
       `MemberService updated with ID: ${updatedMemberService.id}`,
     );
 
+    // 4. Retorna o DTO de resposta
     return {
       id: updatedMemberService.id,
       memberId: updatedMemberService.userId,

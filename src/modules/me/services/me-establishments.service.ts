@@ -7,6 +7,11 @@ import { UserEstablishmentRepository } from '@/modules/user-establishments/repos
 
 const MAX_ESTABLISHMENTS = 500;
 
+/**
+ * Lists establishments where the user is owner or member.
+ * Intended for the "me" context so the user can choose which establishment to work with.
+ * Resolves the need to show a single list of all establishments the user can access.
+ */
 @Injectable()
 export class MeEstablishmentsService {
   private readonly logger = new Logger(MeEstablishmentsService.name);
@@ -16,6 +21,12 @@ export class MeEstablishmentsService {
     private readonly userEstablishmentRepository: UserEstablishmentRepository,
   ) {}
 
+  /**
+   * Returns establishments (id, name) the user owns or is a member of, merged and sorted by name.
+   *
+   * @param userId - ID of the user
+   * @returns List of {@link MeIdNameDto} sorted by name, without duplicates
+   */
   async execute(userId: string): Promise<MeIdNameDto[]> {
     this.logger.log(`Listing establishments for user ${userId}`);
 

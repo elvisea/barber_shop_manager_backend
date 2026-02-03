@@ -11,6 +11,12 @@ import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentProductRepository } from '@/modules/establishment-products/repositories/establishment-product.repository';
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
+/**
+ * Associates an establishment product with a member, defining price and commission for that member.
+ * Only the establishment owner can create this association. If a soft-deleted record exists for
+ * the same member/product/establishment, it is restored instead of creating a new one.
+ * Resolves the need to assign products to staff with custom pricing and commission per member.
+ */
 @Injectable()
 export class MemberProductCreateService {
   private readonly logger = new Logger(MemberProductCreateService.name);
@@ -22,36 +28,31 @@ export class MemberProductCreateService {
     private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
+  /**
+   * Creates or restores a member-product association.
+   *
+   * @param dto - Price and commission for the member-product
+   * @param params - Route params (memberId, productId)
+   * @param requesterId - ID of the user performing the request (must be establishment owner)
+   * @returns The created or restored member-product as {@link MemberProductCreateResponseDTO}
+   * @throws CustomHttpException NOT_FOUND when product does not exist or owner/member validation fails
+   * @throws CustomHttpException CONFLICT when an active association already exists
+   */
   async execute(
     dto: MemberProductCreateRequestDTO,
     params: MemberProductCreateParamDTO,
     requesterId: string,
   ): Promise<MemberProductCreateResponseDTO> {
-    this.logger.log(
-      `Creating member product for member ${params.memberId} in establishment ${params.establishmentId} and product ${params.productId}`,
-    );
-
-    // Validações de Establishment e User centralizadas
-    await this.userEstablishmentValidationService.validateUserAndEstablishment(
-      params.memberId,
-      params.establishmentId,
-      requesterId,
-    );
-
-    // Verifica se o produto existe no estabelecimento
+    // 1. Busca o produto do estabelecimento
     const product =
-      await this.establishmentProductRepository.findByIdAndEstablishment(
+      await this.establishmentProductRepository.findByIdWithEstablishment(
         params.productId,
-        params.establishmentId,
       );
 
     if (!product) {
       const message = this.errorMessageService.getMessage(
         ErrorCode.ESTABLISHMENT_PRODUCT_NOT_FOUND,
-        {
-          PRODUCT_ID: params.productId,
-          ESTABLISHMENT_ID: params.establishmentId,
-        },
+        { PRODUCT_ID: params.productId },
       );
 
       this.logger.warn(message);
@@ -63,11 +64,25 @@ export class MemberProductCreateService {
       );
     }
 
-    // 4. Verifica se já existe associação desse produto para o membro
+    // 2. Obtém establishmentId do produto
+    const establishmentId = product.establishmentId;
+
+    // 3. Valida que o requester é dono do estabelecimento e que o member pertence a ele (apenas dono pode atribuir)
+    await this.userEstablishmentValidationService.validateUserAndEstablishment(
+      params.memberId,
+      establishmentId,
+      requesterId,
+    );
+
+    this.logger.log(
+      `Creating member product for member ${params.memberId} in establishment ${establishmentId} and product ${params.productId}`,
+    );
+
+    // 4. Verifica se já existe associação ativa desse produto para o membro
     const alreadyExists =
       await this.memberProductRepository.existsByMemberEstablishmentProduct(
         params.memberId,
-        params.establishmentId,
+        establishmentId,
         params.productId,
       );
 
@@ -76,7 +91,7 @@ export class MemberProductCreateService {
         ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS,
         {
           MEMBER_ID: params.memberId,
-          ESTABLISHMENT_ID: params.establishmentId,
+          ESTABLISHMENT_ID: establishmentId,
           PRODUCT_ID: params.productId,
         },
       );
@@ -90,18 +105,33 @@ export class MemberProductCreateService {
       );
     }
 
-    // 5. Cria o MemberProduct
-    const memberProduct =
-      await this.memberProductRepository.createMemberProduct({
-        memberId: params.memberId,
-        establishmentId: params.establishmentId,
-        productId: params.productId,
-        price: dto.price,
-        commission: dto.commission,
-      });
+    // 5. Verifica se existir registro soft-deleted com a mesma tripla (para restaurar em vez de criar)
+    const softDeleted =
+      await this.memberProductRepository.findOneByMemberEstablishmentProductIncludingDeleted(
+        params.memberId,
+        establishmentId,
+        params.productId,
+      );
 
-    this.logger.log(`MemberProduct created with ID: ${memberProduct.id}`);
+    // 6. Cria o MemberProduct ou restaura o registro soft-deleted
+    const memberProduct = softDeleted?.deletedAt
+      ? await this.memberProductRepository.restoreMemberProduct(
+          softDeleted.id,
+          { price: dto.price, commission: dto.commission },
+        )
+      : await this.memberProductRepository.createMemberProduct({
+          memberId: params.memberId,
+          establishmentId,
+          productId: params.productId,
+          price: dto.price,
+          commission: dto.commission,
+        });
 
+    this.logger.log(
+      `MemberProduct ${softDeleted?.deletedAt ? 'restored' : 'created'} with ID: ${memberProduct.id}`,
+    );
+
+    // 7. Retorna o DTO de resposta
     return {
       id: memberProduct.id,
       memberId: memberProduct.userId,

@@ -7,8 +7,11 @@ import { MemberProductRepository } from '../repositories/member-product.reposito
 
 import { MemberProductValidationService } from './member-product-validation.service';
 
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
+
 /**
- * Service responsável por atualizar um MemberProduct.
+ * Updates price and commission of an existing member-product. Only establishment owner can update.
+ * Resolves the need to change per-member product pricing and commission without removing the association.
  */
 @Injectable()
 export class MemberProductUpdateService {
@@ -17,36 +20,44 @@ export class MemberProductUpdateService {
   constructor(
     private readonly memberProductRepository: MemberProductRepository,
     private readonly memberProductValidationService: MemberProductValidationService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   /**
-   * Atualiza um MemberProduct existente.
+   * Updates the member-product with new price and commission.
    *
-   * @param dto - Dados para atualização (price, commission)
-   * @param params - Parâmetros da rota (memberId, establishmentId, productId)
-   * @param requesterId - ID do usuário que está fazendo a requisição
-   * @returns DTO com os dados atualizados do MemberProduct
-   * @throws CustomHttpException se alguma validação falhar
+   * @param dto - New price and commission
+   * @param params - Route params (memberId, productId)
+   * @param requesterId - ID of the user performing the request (must be establishment owner)
+   * @returns Updated member-product as {@link MemberProductCreateResponseDTO}
+   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
    */
   async execute(
     dto: MemberProductUpdateRequestDTO,
     params: MemberProductUpdateParamDTO,
     requesterId: string,
   ): Promise<MemberProductCreateResponseDTO> {
+    // 1. Obtém establishmentId (valida que o requester é dono e que o member pertence ao estabelecimento)
+    const establishmentId =
+      await this.userEstablishmentValidationService.getEstablishmentIdOwnedByRequesterForMember(
+        params.memberId,
+        requesterId,
+      );
+
     this.logger.log(
-      `Updating member product for member ${params.memberId} in establishment ${params.establishmentId} and product ${params.productId}`,
+      `Updating member product for member ${params.memberId} in establishment ${establishmentId} and product ${params.productId}`,
     );
 
-    // Validações centralizadas em uma única chamada
+    // 2. Valida e busca o MemberProduct existente com relacionamentos
     const memberProductWithRelations =
       await this.memberProductValidationService.execute(
         params.memberId,
-        params.establishmentId,
+        establishmentId,
         params.productId,
         requesterId,
       );
 
-    // Atualiza o MemberProduct
+    // 3. Atualiza o MemberProduct
     const updatedMemberProduct =
       await this.memberProductRepository.updateMemberProduct(
         memberProductWithRelations.id,
@@ -60,6 +71,7 @@ export class MemberProductUpdateService {
       `MemberProduct updated with ID: ${updatedMemberProduct.id}`,
     );
 
+    // 4. Retorna o DTO de resposta
     return {
       id: updatedMemberProduct.id,
       memberId: updatedMemberProduct.userId,

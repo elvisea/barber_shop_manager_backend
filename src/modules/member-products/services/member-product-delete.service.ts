@@ -5,8 +5,11 @@ import { MemberProductRepository } from '../repositories/member-product.reposito
 
 import { MemberProductValidationService } from './member-product-validation.service';
 
+import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
+
 /**
- * Service responsável por deletar um MemberProduct.
+ * Soft-deletes a member-product association. Only the establishment owner can delete.
+ * Resolves the need to remove a product assignment from a member without losing history.
  */
 @Injectable()
 export class MemberProductDeleteService {
@@ -15,33 +18,41 @@ export class MemberProductDeleteService {
   constructor(
     private readonly memberProductRepository: MemberProductRepository,
     private readonly memberProductValidationService: MemberProductValidationService,
+    private readonly userEstablishmentValidationService: UserEstablishmentValidationService,
   ) {}
 
   /**
-   * Deleta um MemberProduct existente (soft delete).
+   * Soft-deletes the member-product. No-op if already deleted.
    *
-   * @param params - Parâmetros da rota (memberId, establishmentId, productId)
-   * @param requesterId - ID do usuário que está fazendo a requisição
-   * @throws CustomHttpException se alguma validação falhar
+   * @param params - Route params (memberId, productId)
+   * @param requesterId - ID of the user performing the request (must be establishment owner)
+   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
    */
   async execute(
     params: MemberProductDeleteParamDTO,
     requesterId: string,
   ): Promise<void> {
+    // 1. Obtém establishmentId (valida que o requester é dono e que o member pertence ao estabelecimento)
+    const establishmentId =
+      await this.userEstablishmentValidationService.getEstablishmentIdOwnedByRequesterForMember(
+        params.memberId,
+        requesterId,
+      );
+
     this.logger.log(
-      `Deleting member product for member ${params.memberId} in establishment ${params.establishmentId} and product ${params.productId}`,
+      `Deleting member product for member ${params.memberId} in establishment ${establishmentId} and product ${params.productId}`,
     );
 
-    // Validações centralizadas em uma única chamada
+    // 2. Valida e busca o MemberProduct existente com relacionamentos
     const memberProductWithRelations =
       await this.memberProductValidationService.execute(
         params.memberId,
-        params.establishmentId,
+        establishmentId,
         params.productId,
         requesterId,
       );
 
-    // Faz soft delete do MemberProduct
+    // 3. Faz soft delete do MemberProduct
     await this.memberProductRepository.deleteMemberProduct(
       memberProductWithRelations.id,
       requesterId,
