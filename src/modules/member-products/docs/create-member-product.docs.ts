@@ -19,7 +19,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de associação de produto a membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint POST /establishments/:establishmentId/members/:memberId/products/:productId
+ * para o endpoint POST /members/:memberId/products/:productId
  */
 export function CreateMemberProductDocs() {
   return applyDecorators(

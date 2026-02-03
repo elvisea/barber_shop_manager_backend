@@ -16,7 +16,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de listagem de serviços de membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint GET /establishments/:establishmentId/members/:memberId/services
+ * para o endpoint GET /members/:memberId/services
  */
 export function FindAllMemberServicesDocs() {
   return applyDecorators(

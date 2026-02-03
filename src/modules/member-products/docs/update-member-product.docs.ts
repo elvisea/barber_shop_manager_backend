@@ -17,7 +17,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de atualização de produto de membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint PATCH /establishments/:establishmentId/members/:memberId/products/:productId
+ * para o endpoint PATCH /members/:memberId/products/:productId
  */
 export function UpdateMemberProductDocs() {
   return applyDecorators(

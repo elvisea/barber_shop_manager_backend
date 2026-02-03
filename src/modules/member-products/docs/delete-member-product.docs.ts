@@ -14,7 +14,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de exclusão de produto de membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint DELETE /establishments/:establishmentId/members/:memberId/products/:productId
+ * para o endpoint DELETE /members/:memberId/products/:productId
  */
 export function DeleteMemberProductDocs() {
   return applyDecorators(

@@ -17,7 +17,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de atribuição de serviço a membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint POST /establishments/:establishmentId/members/:memberId/services/:serviceId
+ * para o endpoint POST /members/:memberId/services/:serviceId
  */
 export function CreateMemberServiceDocs() {
   return applyDecorators(

@@ -17,7 +17,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de listagem de produtos de membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint GET /establishments/:establishmentId/members/:memberId/products
+ * para o endpoint GET /members/:memberId/products
  */
 export function FindAllMemberProductsDocs() {
   return applyDecorators(

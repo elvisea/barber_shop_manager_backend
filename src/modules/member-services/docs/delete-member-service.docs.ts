@@ -14,7 +14,7 @@ import { ErrorCode } from '@/enums/error-code';
  * Documentação completa do endpoint de exclusão de serviço de membro
  *
  * Este decorator composto aplica toda a documentação Swagger necessária
- * para o endpoint DELETE /establishments/:establishmentId/members/:memberId/services/:serviceId
+ * para o endpoint DELETE /members/:memberId/services/:serviceId
  */
 export function DeleteMemberServiceDocs() {
   return applyDecorators(
