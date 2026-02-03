@@ -8,9 +8,9 @@ import { EstablishmentAccessService } from '@/shared/establishment-access/servic
 const MAX_ITEMS = 5000;
 
 /**
- * Lists products (id, name) of an establishment that the user can access.
- * Intended for feeding selects/combos in the "me" context (e.g. choice of product in forms).
- * Resolves the need to show only products of the current establishment with access validated.
+ * Lista produtos (id, name) de um estabelecimento que o usuário pode acessar.
+ * Destinado a alimentar selects/combos no contexto "me" (ex.: escolha de produto em formulários).
+ * Resolve a necessidade de mostrar apenas produtos do estabelecimento atual com acesso validado.
  */
 @Injectable()
 export class MeProductsService {
@@ -22,12 +22,12 @@ export class MeProductsService {
   ) {}
 
   /**
-   * Returns products of the establishment as id/name, sorted by name.
+   * Retorna os produtos do estabelecimento como id/name, ordenados por name.
    *
-   * @param userId - ID of the user performing the request
-   * @param establishmentId - ID of the establishment
-   * @returns List of {@link MeIdNameDto} sorted by name
-   * @throws CustomHttpException when user has no access to the establishment
+   * @param userId - ID do usuário que faz a requisição
+   * @param establishmentId - ID do estabelecimento
+   * @returns Lista de {@link MeIdNameDto} ordenada por name
+   * @throws CustomHttpException quando o usuário não tem acesso ao estabelecimento
    */
   async execute(
     userId: string,

@@ -8,8 +8,8 @@ import { MemberServiceValidationService } from './member-service-validation.serv
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Soft-deletes a member-service association. Only the establishment owner can delete.
- * Resolves the need to remove a service assignment from a member without losing history.
+ * Faz soft delete de uma associação member-service. Apenas o dono do estabelecimento pode deletar.
+ * Resolve a necessidade de remover a atribuição de um serviço a um membro sem perder o histórico.
  */
 @Injectable()
 export class MemberServiceDeleteService {
@@ -22,11 +22,11 @@ export class MemberServiceDeleteService {
   ) {}
 
   /**
-   * Soft-deletes the member-service. No-op if already deleted.
+   * Faz soft delete do member-service. Não faz nada se já estiver deletado.
    *
-   * @param params - Route params (memberId, serviceId)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
+   * @param params - Parâmetros da rota (memberId, serviceId)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @throws CustomHttpException quando a validação falha (não encontrado, não é dono, etc.)
    */
   async execute(
     params: MemberServiceDeleteParamDTO,

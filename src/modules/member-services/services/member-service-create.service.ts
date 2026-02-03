@@ -12,10 +12,10 @@ import { EstablishmentServiceRepository } from '@/modules/establishment-services
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Associates an establishment service with a member, defining price, duration and commission for that member.
- * Only the establishment owner can create this association. If a soft-deleted record exists for
- * the same member/service/establishment, it is restored instead of creating a new one.
- * Resolves the need to assign services to staff with custom pricing, duration and commission per member.
+ * Associa um serviço do estabelecimento a um membro, definindo preço, duração e comissão para esse membro.
+ * Apenas o dono do estabelecimento pode criar essa associação. Se existir registro soft-deleted
+ * para a mesma tripla membro/serviço/estabelecimento, ele é restaurado em vez de criar um novo.
+ * Resolve a necessidade de atribuir serviços à equipe com preço, duração e comissão customizados por membro.
  */
 @Injectable()
 export class MemberServiceCreateService {
@@ -29,14 +29,14 @@ export class MemberServiceCreateService {
   ) {}
 
   /**
-   * Creates or restores a member-service association.
+   * Cria ou restaura uma associação member-service.
    *
-   * @param dto - Price, duration and commission for the member-service
-   * @param params - Route params (memberId, serviceId)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @returns The created or restored member-service as {@link MemberServiceCreateResponseDTO}
-   * @throws CustomHttpException NOT_FOUND when service does not exist or owner/member validation fails
-   * @throws CustomHttpException CONFLICT when an active association already exists
+   * @param dto - Preço, duração e comissão do member-service
+   * @param params - Parâmetros da rota (memberId, serviceId)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @returns O member-service criado ou restaurado como {@link MemberServiceCreateResponseDTO}
+   * @throws CustomHttpException NOT_FOUND quando o serviço não existe ou a validação dono/membro falha
+   * @throws CustomHttpException CONFLICT quando já existe uma associação ativa
    */
   async execute(
     dto: MemberServiceCreateRequestDTO,

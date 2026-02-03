@@ -8,8 +8,8 @@ import { MemberProductValidationService } from './member-product-validation.serv
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Fetches a single member-product by member and product. Requester must be establishment owner.
- * Resolves the need to display or edit one product assignment (price, commission) for a member.
+ * Busca um member-product por membro e produto. O requester deve ser o dono do estabelecimento.
+ * Resolve a necessidade de exibir ou editar uma atribuição de produto (preço, comissão) para um membro.
  */
 @Injectable()
 export class MemberProductFindOneService {
@@ -21,12 +21,12 @@ export class MemberProductFindOneService {
   ) {}
 
   /**
-   * Returns the member-product with full details (product name, description, price, commission).
+   * Retorna o member-product com todos os detalhes (nome do produto, descrição, preço, comissão).
    *
-   * @param params - Route params (memberId, productId)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @returns {@link MemberProductFindOneResponseDTO} with member-product data
-   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
+   * @param params - Parâmetros da rota (memberId, productId)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @returns {@link MemberProductFindOneResponseDTO} com os dados do member-product
+   * @throws CustomHttpException quando a validação falha (não encontrado, não é dono, etc.)
    */
   async execute(
     params: MemberProductFindOneParamDTO,

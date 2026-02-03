@@ -8,9 +8,9 @@ import { UserEstablishmentRepository } from '@/modules/user-establishments/repos
 const MAX_ESTABLISHMENTS = 500;
 
 /**
- * Lists establishments where the user is owner or member.
- * Intended for the "me" context so the user can choose which establishment to work with.
- * Resolves the need to show a single list of all establishments the user can access.
+ * Lista estabelecimentos em que o usuário é dono ou membro.
+ * Destinado ao contexto "me" para o usuário escolher com qual estabelecimento trabalhar.
+ * Resolve a necessidade de mostrar uma única lista de todos os estabelecimentos que o usuário pode acessar.
  */
 @Injectable()
 export class MeEstablishmentsService {
@@ -22,10 +22,10 @@ export class MeEstablishmentsService {
   ) {}
 
   /**
-   * Returns establishments (id, name) the user owns or is a member of, merged and sorted by name.
+   * Retorna estabelecimentos (id, name) que o usuário possui ou dos quais é membro, mesclados e ordenados por name.
    *
-   * @param userId - ID of the user
-   * @returns List of {@link MeIdNameDto} sorted by name, without duplicates
+   * @param userId - ID do usuário
+   * @returns Lista de {@link MeIdNameDto} ordenada por name, sem duplicatas
    */
   async execute(userId: string): Promise<MeIdNameDto[]> {
     this.logger.log(`Listing establishments for user ${userId}`);

@@ -9,9 +9,9 @@ import { BasePaginationQueryDTO } from '@/common/dtos/base-pagination-query.dto'
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Lists services associated with a member in an establishment, with pagination.
- * The requester must be the establishment owner. Resolves the need to show which services
- * (and their price, duration, commission) are assigned to a given member.
+ * Lista serviços associados a um membro em um estabelecimento, com paginação.
+ * O requester deve ser o dono do estabelecimento. Resolve a necessidade de mostrar quais serviços
+ * (e seu preço, duração, comissão) estão atribuídos a um determinado membro.
  */
 @Injectable()
 export class MemberServiceFindAllService {
@@ -23,13 +23,13 @@ export class MemberServiceFindAllService {
   ) {}
 
   /**
-   * Returns a paginated list of member-services for the given member.
+   * Retorna uma lista paginada de member-services para o membro informado.
    *
-   * @param params - Route params (memberId)
-   * @param query - Pagination (page, limit)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @returns Paginated {@link MemberServiceFindAllResponseDTO}
-   * @throws CustomHttpException when requester is not owner or member does not belong to establishment
+   * @param params - Parâmetros da rota (memberId)
+   * @param query - Paginação (page, limit)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @returns {@link MemberServiceFindAllResponseDTO} paginado
+   * @throws CustomHttpException quando o requester não é dono ou o membro não pertence ao estabelecimento
    */
   async execute(
     params: MemberServiceFindAllParamDTO,

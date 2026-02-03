@@ -10,8 +10,8 @@ import { MemberProductValidationService } from './member-product-validation.serv
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Updates price and commission of an existing member-product. Only establishment owner can update.
- * Resolves the need to change per-member product pricing and commission without removing the association.
+ * Atualiza preço e comissão de um member-product existente. Apenas o dono do estabelecimento pode atualizar.
+ * Resolve a necessidade de alterar preço e comissão do produto por membro sem remover a associação.
  */
 @Injectable()
 export class MemberProductUpdateService {
@@ -24,13 +24,13 @@ export class MemberProductUpdateService {
   ) {}
 
   /**
-   * Updates the member-product with new price and commission.
+   * Atualiza o member-product com novo preço e comissão.
    *
-   * @param dto - New price and commission
-   * @param params - Route params (memberId, productId)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @returns Updated member-product as {@link MemberProductCreateResponseDTO}
-   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
+   * @param dto - Novo preço e comissão
+   * @param params - Parâmetros da rota (memberId, productId)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @returns Member-product atualizado como {@link MemberProductCreateResponseDTO}
+   * @throws CustomHttpException quando a validação falha (não encontrado, não é dono, etc.)
    */
   async execute(
     dto: MemberProductUpdateRequestDTO,

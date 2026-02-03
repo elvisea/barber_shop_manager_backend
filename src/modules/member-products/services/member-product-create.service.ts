@@ -12,10 +12,10 @@ import { EstablishmentProductRepository } from '@/modules/establishment-products
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Associates an establishment product with a member, defining price and commission for that member.
- * Only the establishment owner can create this association. If a soft-deleted record exists for
- * the same member/product/establishment, it is restored instead of creating a new one.
- * Resolves the need to assign products to staff with custom pricing and commission per member.
+ * Associa um produto do estabelecimento a um membro, definindo preço e comissão para esse membro.
+ * Apenas o dono do estabelecimento pode criar essa associação. Se existir registro soft-deleted
+ * para a mesma tripla membro/produto/estabelecimento, ele é restaurado em vez de criar um novo.
+ * Resolve a necessidade de atribuir produtos à equipe com preço e comissão customizados por membro.
  */
 @Injectable()
 export class MemberProductCreateService {
@@ -29,14 +29,14 @@ export class MemberProductCreateService {
   ) {}
 
   /**
-   * Creates or restores a member-product association.
+   * Cria ou restaura uma associação member-product.
    *
-   * @param dto - Price and commission for the member-product
-   * @param params - Route params (memberId, productId)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @returns The created or restored member-product as {@link MemberProductCreateResponseDTO}
-   * @throws CustomHttpException NOT_FOUND when product does not exist or owner/member validation fails
-   * @throws CustomHttpException CONFLICT when an active association already exists
+   * @param dto - Preço e comissão do member-product
+   * @param params - Parâmetros da rota (memberId, productId)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @returns O member-product criado ou restaurado como {@link MemberProductCreateResponseDTO}
+   * @throws CustomHttpException NOT_FOUND quando o produto não existe ou a validação dono/membro falha
+   * @throws CustomHttpException CONFLICT quando já existe uma associação ativa
    */
   async execute(
     dto: MemberProductCreateRequestDTO,

@@ -8,8 +8,8 @@ import { MemberServiceValidationService } from './member-service-validation.serv
 import { UserEstablishmentValidationService } from '@/modules/user-establishments/services/user-establishment-validation.service';
 
 /**
- * Fetches a single member-service by member and service. Requester must be establishment owner.
- * Resolves the need to display or edit one service assignment (price, duration, commission) for a member.
+ * Busca um member-service por membro e serviço. O requester deve ser o dono do estabelecimento.
+ * Resolve a necessidade de exibir ou editar uma atribuição de serviço (preço, duração, comissão) para um membro.
  */
 @Injectable()
 export class MemberServiceFindOneService {
@@ -21,12 +21,12 @@ export class MemberServiceFindOneService {
   ) {}
 
   /**
-   * Returns the member-service with full details (service name, description, duration, price, commission).
+   * Retorna o member-service com todos os detalhes (nome do serviço, descrição, duração, preço, comissão).
    *
-   * @param params - Route params (memberId, serviceId)
-   * @param requesterId - ID of the user performing the request (must be establishment owner)
-   * @returns {@link MemberServiceFindOneResponseDTO} with member-service data
-   * @throws CustomHttpException when validation fails (not found, not owner, etc.)
+   * @param params - Parâmetros da rota (memberId, serviceId)
+   * @param requesterId - ID do usuário que faz a requisição (deve ser dono do estabelecimento)
+   * @returns {@link MemberServiceFindOneResponseDTO} com os dados do member-service
+   * @throws CustomHttpException quando a validação falha (não encontrado, não é dono, etc.)
    */
   async execute(
     params: MemberServiceFindOneParamDTO,

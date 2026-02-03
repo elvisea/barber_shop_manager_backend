@@ -40,7 +40,7 @@ describe('MemberServiceCreateService', () => {
   };
 
   const mockErrorMessageService = {
-    getMessage: jest.fn((code: ErrorCode) => `Message for ${code}`),
+    getMessage: jest.fn((code: ErrorCode) => `Mensagem para ${code}`),
   };
 
   const mockUserEstablishmentValidationService = {
