@@ -151,10 +151,10 @@ export interface IMemberServiceRepository {
 
   /**
    * Busca associação por membro, estabelecimento e serviço incluindo registros soft-deleted.
-   * 
-   * Usado principalmente no fluxo de criação para permitir a restauração de um registro 
+   *
+   * Usado principalmente no fluxo de criação para permitir a restauração de um registro
    * deletado anteriormente, evitando violação de restrição única.
-   * 
+   *
    * @param memberId - ID do membro
    * @param establishmentId - ID do estabelecimento
    * @param serviceId - ID do serviço
@@ -168,9 +168,9 @@ export interface IMemberServiceRepository {
 
   /**
    * Restaura um MemberService que foi soft-deleted.
-   * 
+   *
    * Limpa os campos deletedAt e deletedBy, e atualiza preço, comissão e duração com os novos valores fornecidos.
-   * 
+   *
    * @param id - ID do registro a ser restaurado
    * @param data - Novos dados de preço, comissão e duração
    * @returns O registro restaurado e atualizado

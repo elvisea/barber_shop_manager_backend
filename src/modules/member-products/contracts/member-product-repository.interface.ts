@@ -152,10 +152,10 @@ export interface IMemberProductRepository {
 
   /**
    * Busca associação por membro, estabelecimento e produto incluindo registros soft-deleted.
-   * 
-   * Usado principalmente no fluxo de criação para permitir a restauração de um registro 
+   *
+   * Usado principalmente no fluxo de criação para permitir a restauração de um registro
    * deletado anteriormente, evitando violação de restrição única.
-   * 
+   *
    * @param memberId - ID do membro
    * @param establishmentId - ID do estabelecimento
    * @param productId - ID do produto
@@ -169,9 +169,9 @@ export interface IMemberProductRepository {
 
   /**
    * Restaura um MemberProduct que foi soft-deleted.
-   * 
+   *
    * Limpa os campos deletedAt e deletedBy, e atualiza o preço e comissão com os novos valores fornecidos.
-   * 
+   *
    * @param id - ID do registro a ser restaurado
    * @param data - Novos dados de preço e comissão
    * @returns O registro restaurado e atualizado
