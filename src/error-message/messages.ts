@@ -80,14 +80,13 @@ export const messages: Record<ErrorCode, { message: string }> = {
   },
   ESTABLISHMENT_MEMBER_ALREADY_EXISTS: {
     message:
-      'Member with USER_ID [USER_ID] is already registered in establishment [ESTABLISHMENT_ID].',
+      'Member [USER_ID] is already registered in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.VALIDATION_ERROR]: {
     message: 'Validation failed for one or more fields.',
   },
   [ErrorCode.ESTABLISHMENT_MEMBER_NOT_FOUND]: {
-    message:
-      'Member with USER_ID [USER_ID] not found in establishment [ESTABLISHMENT_ID].',
+    message: 'Member [USER_ID] not found in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.USER_NOT_MEMBER_OF_ESTABLISHMENT]: {
     message:
@@ -95,19 +94,19 @@ export const messages: Record<ErrorCode, { message: string }> = {
   },
   [ErrorCode.MEMBER_PRODUCT_ALREADY_EXISTS]: {
     message:
-      'Product with PRODUCT_ID [PRODUCT_ID] is already assigned to member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      'Product [PRODUCT_ID] is already assigned to member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.MEMBER_SERVICE_ALREADY_EXISTS]: {
     message:
-      'Service with SERVICE_ID [SERVICE_ID] is already assigned to member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      'Service [SERVICE_ID] is already assigned to member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.MEMBER_SERVICE_NOT_FOUND]: {
     message:
-      'Service with SERVICE_ID [SERVICE_ID] not found for member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      'Service [SERVICE_ID] not found for member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.MEMBER_PRODUCT_NOT_FOUND]: {
     message:
-      'Product with PRODUCT_ID [PRODUCT_ID] not found for member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
+      'Product [PRODUCT_ID] not found for member [MEMBER_ID] in establishment [ESTABLISHMENT_ID].',
   },
   [ErrorCode.PLAN_NOT_FOUND]: {
     message: 'Plan with ID [PLAN_ID] not found.',

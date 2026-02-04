@@ -5,7 +5,10 @@ import {
 } from '@prisma/client';
 
 import { IMemberServiceRepository } from '../contracts/member-service-repository.interface';
-import { MemberServiceWithRelations } from '../types/member-service-with-relations.type';
+import {
+  MemberServiceWithEstablishmentService,
+  MemberServiceWithRelations,
+} from '../types/member-service-with-relations.type';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -199,6 +202,26 @@ export class MemberServiceRepository implements IMemberServiceRepository {
         commission: data.commission,
         duration: data.duration,
       },
+    });
+  }
+
+  async findManyByMemberAndServices(
+    memberId: string,
+    establishmentId: string,
+    serviceIds: string[],
+  ): Promise<MemberServiceWithEstablishmentService[]> {
+    this.logger.debug(
+      `Fetching member services for memberId=${memberId}, establishmentId=${establishmentId}, serviceIds=[${serviceIds.join(', ')}]`,
+    );
+
+    return this.prisma.userService.findMany({
+      where: {
+        userId: memberId,
+        establishmentId,
+        serviceId: { in: serviceIds },
+        deletedAt: null,
+      },
+      include: { service: true },
     });
   }
 }

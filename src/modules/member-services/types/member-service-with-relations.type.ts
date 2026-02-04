@@ -30,3 +30,24 @@ export type MemberServiceWithRelations = Prisma.UserServiceGetPayload<{
     };
   };
 }>;
+
+/**
+ * Tipo que representa um MemberService apenas com o relacionamento do serviço base.
+ *
+ * Usado no fluxo de criação de agendamentos para validação e cálculos
+ * que utilizam os dados personalizados do funcionário (preço, duração, comissão).
+ *
+ * @example
+ * ```typescript
+ * const services: MemberServiceWithEstablishmentService[] =
+ *   await repository.findManyByMemberAndServices(memberId, establishmentId, serviceIds);
+ *
+ * const totalPrice = services.reduce((sum, s) => sum + s.price, 0);
+ * ```
+ */
+export type MemberServiceWithEstablishmentService =
+  Prisma.UserServiceGetPayload<{
+    include: {
+      service: true;
+    };
+  }>;

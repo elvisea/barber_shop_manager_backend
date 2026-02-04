@@ -188,11 +188,13 @@ export function createMockAppointmentAccessValidationService(): {
  */
 export function createMockAppointmentCreateBusinessRulesService(): {
   calculateTotalsAndEndTime: jest.Mock;
+  calculateTotalsAndEndTimeFromMemberServices: jest.Mock;
   validateNoTimeConflict: jest.Mock;
   validateTimeRange: jest.Mock;
 } {
   return {
     calculateTotalsAndEndTime: jest.fn(),
+    calculateTotalsAndEndTimeFromMemberServices: jest.fn(),
     validateNoTimeConflict: jest.fn(),
     validateTimeRange: jest.fn(),
   };

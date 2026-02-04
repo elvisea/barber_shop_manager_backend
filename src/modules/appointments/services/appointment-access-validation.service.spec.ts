@@ -16,6 +16,7 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
+import { MemberServiceRepository } from '@/modules/member-services/repositories/member-service.repository';
 import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
 import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
 import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
@@ -38,6 +39,10 @@ describe('AppointmentAccessValidationService', () => {
 
   const mockEstablishmentServiceRepository = {
     findManyByIdsAndEstablishment: jest.fn(),
+  };
+
+  const mockMemberServiceRepository = {
+    findManyByMemberAndServices: jest.fn(),
   };
 
   const mockErrorMessageService = createMockErrorMessageService();
@@ -91,6 +96,10 @@ describe('AppointmentAccessValidationService', () => {
         {
           provide: EstablishmentServiceRepository,
           useValue: mockEstablishmentServiceRepository,
+        },
+        {
+          provide: MemberServiceRepository,
+          useValue: mockMemberServiceRepository,
         },
         {
           provide: ErrorMessageService,
@@ -540,27 +549,97 @@ describe('AppointmentAccessValidationService', () => {
   });
 
   describe('validateUserAllowedServices', () => {
-    it('deve passar quando validateUser passa', async () => {
-      const mockUserEstablishment = {
-        id: 'ue-1',
+    const mockMemberServices = [
+      {
+        id: 'member-svc-1',
         userId,
         establishmentId,
-        role: UserRole.BARBER,
-        isActive: true,
+        serviceId: 'svc-1',
+        price: 3000,
+        duration: 30,
+        commission: new Decimal(50),
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
-      mockUserEstablishmentRepository.findByUserAndEstablishment.mockResolvedValue(
-        mockUserEstablishment,
+        deletedAt: null,
+        deletedBy: null,
+        service: {
+          id: 'svc-1',
+          establishmentId,
+          name: 'Corte',
+          price: 2500,
+          duration: 25,
+          commission: new Decimal(40),
+          description: null,
+          deletedAt: null,
+          deletedBy: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      },
+    ];
+
+    it('deve retornar serviços do membro quando todos encontrados', async () => {
+      mockMemberServiceRepository.findManyByMemberAndServices.mockResolvedValue(
+        mockMemberServices,
       );
 
-      await service.validateUserAllowedServices(establishmentId, userId, [
-        'svc-1',
-      ]);
+      const result = await service.validateUserAllowedServices(
+        establishmentId,
+        userId,
+        ['svc-1'],
+      );
 
+      expect(result).toEqual(mockMemberServices);
       expect(
-        mockUserEstablishmentRepository.findByUserAndEstablishment,
-      ).toHaveBeenCalledWith(userId, establishmentId);
+        mockMemberServiceRepository.findManyByMemberAndServices,
+      ).toHaveBeenCalledWith(userId, establishmentId, ['svc-1']);
+    });
+
+    it('deve lançar exceção quando um serviço não está atribuído ao membro', async () => {
+      mockMemberServiceRepository.findManyByMemberAndServices.mockResolvedValue(
+        [],
+      );
+      mockErrorMessageService.getMessage.mockReturnValue(
+        'Serviço não encontrado para o membro',
+      );
+
+      await expect(
+        service.validateUserAllowedServices(establishmentId, userId, [
+          'svc-unknown',
+        ]),
+      ).rejects.toThrow(CustomHttpException);
+
+      expect(mockErrorMessageService.getMessage).toHaveBeenCalledWith(
+        ErrorCode.MEMBER_SERVICE_NOT_FOUND,
+        {
+          SERVICE_ID: 'svc-unknown',
+          MEMBER_ID: userId,
+        },
+      );
+    });
+
+    it('deve lançar exceção quando algum serviço da lista não está atribuído', async () => {
+      mockMemberServiceRepository.findManyByMemberAndServices.mockResolvedValue(
+        mockMemberServices,
+      );
+      mockErrorMessageService.getMessage.mockReturnValue(
+        'Serviço não encontrado para o membro',
+      );
+
+      await expect(
+        service.validateUserAllowedServices(establishmentId, userId, [
+          'svc-1',
+          'svc-2',
+        ]),
+      ).rejects.toThrow(CustomHttpException);
+
+      expect(mockErrorMessageService.getMessage).toHaveBeenCalledWith(
+        ErrorCode.MEMBER_SERVICE_NOT_FOUND,
+        {
+          SERVICE_ID: 'svc-2',
+          MEMBER_ID: userId,
+        },
+      );
     });
   });
 });

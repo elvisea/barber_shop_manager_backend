@@ -127,4 +127,43 @@ export class AppointmentCreateBusinessRulesService {
 
     return { totalAmount, totalDuration, endTime };
   }
+
+  /**
+   * Calcula o valor total, duração total e horário de fim baseado nos serviços
+   * personalizados do membro (UserService).
+   *
+   * @description
+   * Este método usa os dados do `UserService` (preço e duração personalizados
+   * por funcionário) ao invés do `EstablishmentService` (serviço base).
+   *
+   * @param startTime - Horário de início do agendamento
+   * @param memberServices - Lista de serviços do membro com preço e duração personalizados
+   * @returns Objeto com totalAmount, totalDuration e endTime calculados
+   */
+  calculateTotalsAndEndTimeFromMemberServices(
+    startTime: Date,
+    memberServices: { price: number; duration: number }[],
+  ): {
+    totalAmount: number;
+    totalDuration: number;
+    endTime: string;
+  } {
+    const totalAmount = memberServices.reduce(
+      (sum, service) => sum + service.price,
+      0,
+    );
+    const totalDuration = memberServices.reduce(
+      (sum, service) => sum + service.duration,
+      0,
+    );
+
+    const end = new Date(startTime.getTime() + totalDuration * 60000);
+    const endTime = end.toISOString();
+
+    this.logger.log(
+      `Calculated totals from member services: amount=${totalAmount}, duration=${totalDuration} minutes, endTime=${endTime}`,
+    );
+
+    return { totalAmount, totalDuration, endTime };
+  }
 }

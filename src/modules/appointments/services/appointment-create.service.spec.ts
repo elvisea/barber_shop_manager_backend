@@ -44,19 +44,32 @@ describe('AppointmentCreateService', () => {
     notes: 'Test notes',
   };
 
-  const mockEstablishmentServices = [
+  const mockMemberServices = [
     {
-      id: 'svc-1',
+      id: 'member-svc-1',
+      userId: 'user-barber',
       establishmentId,
-      name: 'Corte',
+      serviceId: 'svc-1',
       price: 3000,
       duration: 30,
       commission: new Decimal(50),
-      description: null,
-      deletedAt: null,
-      deletedBy: null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      deletedAt: null,
+      deletedBy: null,
+      service: {
+        id: 'svc-1',
+        establishmentId,
+        name: 'Corte',
+        price: 2500,
+        duration: 25,
+        commission: new Decimal(40),
+        description: null,
+        deletedAt: null,
+        deletedBy: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     },
   ];
 
@@ -121,10 +134,10 @@ describe('AppointmentCreateService', () => {
       mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
-        mockEstablishmentServices,
+      mockAppointmentAccessValidationService.validateUserAllowedServices.mockResolvedValue(
+        mockMemberServices,
       );
-      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTimeFromMemberServices.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
@@ -155,11 +168,15 @@ describe('AppointmentCreateService', () => {
         mockAppointmentAccessValidationService.validateUser,
       ).toHaveBeenCalledWith(establishmentId, createDto.userId);
       expect(
-        mockAppointmentAccessValidationService.validateServices,
-      ).toHaveBeenCalledWith(establishmentId, createDto.serviceIds);
+        mockAppointmentAccessValidationService.validateUserAllowedServices,
+      ).toHaveBeenCalledWith(
+        establishmentId,
+        createDto.userId,
+        createDto.serviceIds,
+      );
       expect(
-        mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime,
-      ).toHaveBeenCalledWith(startTime, mockEstablishmentServices);
+        mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTimeFromMemberServices,
+      ).toHaveBeenCalledWith(startTime, mockMemberServices);
       expect(
         mockAppointmentCreateBusinessRulesService.validateNoTimeConflict,
       ).toHaveBeenCalledWith(createDto.userId, startTime, expect.any(Date));
@@ -210,10 +227,10 @@ describe('AppointmentCreateService', () => {
       mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
-        mockEstablishmentServices,
+      mockAppointmentAccessValidationService.validateUserAllowedServices.mockResolvedValue(
+        mockMemberServices,
       );
-      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTimeFromMemberServices.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
@@ -239,10 +256,10 @@ describe('AppointmentCreateService', () => {
       mockAppointmentAccessValidationService.validateCanCreate.mockResolvedValue(
         mockAccessResult,
       );
-      mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
-        mockEstablishmentServices,
+      mockAppointmentAccessValidationService.validateUserAllowedServices.mockResolvedValue(
+        mockMemberServices,
       );
-      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTimeFromMemberServices.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,
@@ -279,13 +296,10 @@ describe('AppointmentCreateService', () => {
       mockAppointmentAccessValidationService.validateUser.mockResolvedValue(
         undefined,
       );
-      mockAppointmentAccessValidationService.validateServices.mockResolvedValue(
-        mockEstablishmentServices,
-      );
       mockAppointmentAccessValidationService.validateUserAllowedServices.mockResolvedValue(
-        undefined,
+        mockMemberServices,
       );
-      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTime.mockReturnValue(
+      mockAppointmentCreateBusinessRulesService.calculateTotalsAndEndTimeFromMemberServices.mockReturnValue(
         {
           totalAmount: 3000,
           totalDuration: 30,

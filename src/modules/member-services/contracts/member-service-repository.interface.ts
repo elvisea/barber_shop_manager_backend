@@ -1,6 +1,9 @@
 import { EstablishmentService, UserService } from '@prisma/client';
 
-import { MemberServiceWithRelations } from '../types/member-service-with-relations.type';
+import {
+  MemberServiceWithEstablishmentService,
+  MemberServiceWithRelations,
+} from '../types/member-service-with-relations.type';
 
 export interface IMemberServiceRepository {
   /**
@@ -179,4 +182,21 @@ export interface IMemberServiceRepository {
     id: string,
     data: { price: number; commission: number; duration: number },
   ): Promise<UserService>;
+
+  /**
+   * Busca múltiplos serviços de um membro pelo estabelecimento e IDs dos serviços.
+   *
+   * Usado no fluxo de criação de agendamentos para validar que os serviços
+   * selecionados estão atribuídos ao funcionário específico.
+   *
+   * @param memberId - ID do membro (funcionário)
+   * @param establishmentId - ID do estabelecimento
+   * @param serviceIds - Lista de IDs dos serviços a buscar
+   * @returns Lista de serviços do membro encontrados (apenas ativos)
+   */
+  findManyByMemberAndServices(
+    memberId: string,
+    establishmentId: string,
+    serviceIds: string[],
+  ): Promise<MemberServiceWithEstablishmentService[]>;
 }

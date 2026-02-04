@@ -11,6 +11,8 @@ import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
+import { MemberServiceRepository } from '@/modules/member-services/repositories/member-service.repository';
+import { MemberServiceWithEstablishmentService } from '@/modules/member-services/types/member-service-with-relations.type';
 import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
 import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
 import { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
@@ -38,6 +40,7 @@ export class AppointmentAccessValidationService {
     private readonly userEstablishmentRepository: UserEstablishmentRepository,
     private readonly establishmentCustomerRepository: EstablishmentCustomerRepository,
     private readonly establishmentServiceRepository: EstablishmentServiceRepository,
+    private readonly memberServiceRepository: MemberServiceRepository,
     private readonly errorMessageService: ErrorMessageService,
   ) {}
 
@@ -212,20 +215,58 @@ export class AppointmentAccessValidationService {
   }
 
   /**
-   * Validates that the given services are allowed for the user (member) in the establishment.
-   * TODO: Implement when member-services is ready; currently only validates user exists.
+   * Valida que os serviços estão atribuídos ao membro no estabelecimento.
+   *
+   * @description
+   * Busca os serviços personalizados do membro na tabela `user_services` e valida
+   * que **todos** os serviceIds solicitados estão atribuídos ao funcionário.
+   *
+   * @param establishmentId - UUID do estabelecimento
+   * @param userId - UUID do membro/funcionário
+   * @param serviceIds - Lista de IDs dos serviços a validar
+   * @returns Lista de serviços do membro (UserService) com dados personalizados
+   * @throws {CustomHttpException} com código MEMBER_SERVICE_NOT_FOUND se algum serviço não estiver atribuído
    */
   async validateUserAllowedServices(
     establishmentId: string,
     userId: string,
     serviceIds: string[],
-  ): Promise<void> {
+  ): Promise<MemberServiceWithEstablishmentService[]> {
     this.logger.log(
-      `Validating user ${userId} allowed services in establishment ${establishmentId}`,
+      `Validating member services: userId=${userId}, establishmentId=${establishmentId}, serviceIds=[${serviceIds.join(', ')}]`,
     );
-    await this.validateUser(establishmentId, userId);
+
+    // Busca serviços atribuídos ao membro
+    const memberServices =
+      await this.memberServiceRepository.findManyByMemberAndServices(
+        userId,
+        establishmentId,
+        serviceIds,
+      );
+
+    // Verifica se todos os serviços solicitados foram encontrados
+    const foundServiceIds = new Set(memberServices.map((ms) => ms.serviceId));
+
+    for (const serviceId of serviceIds) {
+      if (!foundServiceIds.has(serviceId)) {
+        const message = this.errorMessageService.getMessage(
+          ErrorCode.MEMBER_SERVICE_NOT_FOUND,
+          { SERVICE_ID: serviceId, MEMBER_ID: userId },
+        );
+        this.logger.warn(
+          `Service ${serviceId} not assigned to member ${userId} in establishment ${establishmentId}`,
+        );
+        throw new CustomHttpException(
+          message,
+          HttpStatus.NOT_FOUND,
+          ErrorCode.MEMBER_SERVICE_NOT_FOUND,
+        );
+      }
+    }
+
     this.logger.log(
-      `All ${serviceIds.length} services allowed for user ${userId} in establishment ${establishmentId}`,
+      `All ${serviceIds.length} services validated for member ${userId}`,
     );
+    return memberServices;
   }
 }
