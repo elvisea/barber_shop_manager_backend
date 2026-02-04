@@ -33,7 +33,9 @@ describe('EstablishmentAccessService', () => {
   };
 
   const mockErrorMessageService = {
-    getMessage: jest.fn((errorCode: ErrorCode) => `Mock message for ${errorCode}`),
+    getMessage: jest.fn(
+      (errorCode: ErrorCode) => `Mock message for ${errorCode}`,
+    ),
   };
 
   beforeEach(async () => {
@@ -51,7 +53,9 @@ describe('EstablishmentAccessService', () => {
       ],
     }).compile();
 
-    service = module.get<EstablishmentAccessService>(EstablishmentAccessService);
+    service = module.get<EstablishmentAccessService>(
+      EstablishmentAccessService,
+    );
   });
 
   afterEach(() => {

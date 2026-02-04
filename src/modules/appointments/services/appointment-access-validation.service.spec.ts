@@ -10,14 +10,15 @@ import {
 } from '../__tests__/test-utils';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
+
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
-import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
 import { EstablishmentCustomerRepository } from '@/modules/establishment-customers/repositories/establishment-customer.repository';
 import { EstablishmentServiceRepository } from '@/modules/establishment-services/repositories/establishment-service.repository';
 import { UserEstablishmentRepository } from '@/modules/user-establishments/repositories/user-establishment.repository';
+import { EstablishmentAccessService } from '@/shared/establishment-access/services/establishment-access.service';
+import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 
 describe('AppointmentAccessValidationService', () => {
   let service: AppointmentAccessValidationService;

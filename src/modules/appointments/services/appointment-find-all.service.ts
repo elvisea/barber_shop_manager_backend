@@ -7,8 +7,9 @@ import { AppointmentFindAllMapper } from '../mappers/appointment-find-all.mapper
 import { AppointmentRepository } from '../repositories/appointment.repository';
 import { calculatePagination } from '../utils/pagination.util';
 
-import { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
+
+import { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 
 const RESTRICT_TO_OWN_APPOINTMENTS_ROLES: UserRole[] = [
   UserRole.BARBER,

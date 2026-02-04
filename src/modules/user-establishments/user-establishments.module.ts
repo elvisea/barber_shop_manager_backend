@@ -15,9 +15,9 @@ import { UserEstablishmentDeleteService } from './services/user-establishment-de
 import { UserEstablishmentFindAllByEstablishmentService } from './services/user-establishment-find-all-by-establishment.service';
 import { UserEstablishmentFindAllService } from './services/user-establishment-find-all.service';
 import { UserEstablishmentFindByIdService } from './services/user-establishment-find-by-id.service';
+import { UserEstablishmentGetEstablishmentIdForMemberService } from './services/user-establishment-get-establishment-id-for-member.service';
 import { UserEstablishmentSummaryService } from './services/user-establishment-summary.service';
 import { UserEstablishmentUpdateService } from './services/user-establishment-update.service';
-import { UserEstablishmentGetEstablishmentIdForMemberService } from './services/user-establishment-get-establishment-id-for-member.service';
 import { UserEstablishmentValidateAccessService } from './services/user-establishment-validate-access.service';
 import { UserEstablishmentValidateOwnerAndMemberService } from './services/user-establishment-validate-owner-and-member.service';
 import { UserEstablishmentValidationService } from './services/user-establishment-validation.service';

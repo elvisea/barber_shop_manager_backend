@@ -5,8 +5,9 @@ import { AppointmentUpdateRequestDTO } from '../dtos/api/appointment-update-requ
 import { AppointmentWithRelations } from '../types/appointment-with-relations.type';
 
 import { AppointmentAccessValidationService } from './appointment-access-validation.service';
-import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 import { AppointmentCreateBusinessRulesService } from './appointment-create-business-rules.service';
+
+import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 
 export interface AppointmentUpdateBusinessRulesContext {
   establishmentId: string;

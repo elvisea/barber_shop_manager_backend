@@ -1,11 +1,12 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 
+import { IEstablishmentAccessService } from '../contracts/establishment-access-service.interface';
+import { EstablishmentAccessResult } from '../types/establishment-access-result.type';
+
 import { CustomHttpException } from '@/common/exceptions/custom-http-exception';
 import { ErrorCode } from '@/enums/error-code';
 import { ErrorMessageService } from '@/error-message/error-message.service';
 import { EstablishmentRepository } from '@/modules/establishment/repositories/establishment.repository';
-import { EstablishmentAccessResult } from '../types/establishment-access-result.type';
-import { IEstablishmentAccessService } from '../contracts/establishment-access-service.interface';
 
 /**
  * Single source of truth for the rule "user can access establishment (owner or active member)".

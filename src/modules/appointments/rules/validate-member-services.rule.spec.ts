@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { ValidateMemberServicesRule } from './validate-member-services.rule';
-
 import { AppointmentAccessValidationService } from '../services/appointment-access-validation.service';
+
+import { ValidateMemberServicesRule } from './validate-member-services.rule';
 
 describe('ValidateMemberServicesRule', () => {
   let rule: ValidateMemberServicesRule;

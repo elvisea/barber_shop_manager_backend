@@ -13,16 +13,11 @@ import { MemberProductFindOneService } from './services/member-product-find-one.
 import { MemberProductUpdateService } from './services/member-product-update.service';
 import { MemberProductValidationService } from './services/member-product-validation.service';
 
-import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { EstablishmentProductsModule } from '@/modules/establishment-products/establishment-products.module';
 import { UserEstablishmentsModule } from '@/modules/user-establishments/user-establishments.module';
 
 @Module({
-  imports: [
-    EstablishmentModule,
-    EstablishmentProductsModule,
-    UserEstablishmentsModule,
-  ],
+  imports: [EstablishmentProductsModule, UserEstablishmentsModule],
   controllers: [
     MemberProductCreateController,
     MemberProductFindAllController,

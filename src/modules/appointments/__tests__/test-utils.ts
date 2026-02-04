@@ -1,10 +1,10 @@
 import { AppointmentStatus, UserRole } from '@prisma/client';
 
-import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 import type { AppointmentWithRelations } from '../types/appointment-with-relations.type';
 
 import type { ErrorCode } from '@/enums/error-code';
 import type { ErrorMessageService } from '@/error-message/error-message.service';
+import type { EstablishmentAccessResult } from '@/shared/establishment-access/types/establishment-access-result.type';
 
 /**
  * Default IDs for appointment tests. Use these to keep specs consistent.
