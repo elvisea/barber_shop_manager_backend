@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Establishment } from '@prisma/client';
+import { Establishment, User } from '@prisma/client';
 
 import { IEstablishmentRepository } from '../contracts/establishment-repository.interface';
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
@@ -17,6 +17,18 @@ export class EstablishmentRepository implements IEstablishmentRepository {
         id: establishmentId,
         deletedAt: null,
       },
+    });
+  }
+
+  async findByIdWithOwner(
+    establishmentId: string,
+  ): Promise<(Establishment & { owner: User }) | null> {
+    return this.prisma.establishment.findFirst({
+      where: {
+        id: establishmentId,
+        deletedAt: null,
+      },
+      include: { owner: true },
     });
   }
 

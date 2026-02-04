@@ -1,4 +1,4 @@
-import { Establishment } from '@prisma/client';
+import { Establishment, User } from '@prisma/client';
 
 import { EstablishmentCreateRequestDTO } from '../dtos/establishment-create-request.dto';
 import { EstablishmentWithUserAccess } from '../types/establishment-with-user-access.type';
@@ -10,6 +10,14 @@ export interface IEstablishmentRepository {
   ): Promise<Establishment>;
 
   findById(establishmentId: string): Promise<Establishment | null>;
+
+  /**
+   * Busca estabelecimento por ID incluindo o dono (owner).
+   * Usado para validar acesso do owner sem depender de UserEstablishment.
+   */
+  findByIdWithOwner(
+    establishmentId: string,
+  ): Promise<(Establishment & { owner: User }) | null>;
 
   /**
    * Busca estabelecimento por ID com vínculo do usuário (se houver) em uma única query.
