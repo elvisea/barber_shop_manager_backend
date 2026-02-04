@@ -47,7 +47,7 @@ export class AppointmentCreateBusinessRulesService {
       const message = this.errorMessageService.getMessage(
         ErrorCode.MEMBER_APPOINTMENT_CONFLICT,
         {
-          USER_ID: userId,
+          MEMBER_ID: userId,
           START_TIME: conflictingAppointment.startTime.toISOString(),
           END_TIME: conflictingAppointment.endTime.toISOString(),
         },

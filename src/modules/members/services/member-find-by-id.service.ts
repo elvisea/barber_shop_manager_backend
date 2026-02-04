@@ -30,7 +30,7 @@ export class MemberFindByIdService {
     private readonly memberRepository: MemberRepository,
     private readonly userEstablishmentRepository: UserEstablishmentRepository,
     private readonly errorMessageService: ErrorMessageService,
-  ) { }
+  ) {}
 
   /**
    * Busca um membro por ID e valida permissão de acesso.
