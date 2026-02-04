@@ -63,6 +63,7 @@ export class MemberProductRepository implements IMemberProductRepository {
         userId: memberId,
         establishmentId,
         productId,
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -145,6 +146,35 @@ export class MemberProductRepository implements IMemberProductRepository {
         deletedAt: null,
       },
       include: { product: true },
+    });
+  }
+
+  async findOneByMemberEstablishmentProductIncludingDeleted(
+    memberId: string,
+    establishmentId: string,
+    productId: string,
+  ): Promise<UserProductModel | null> {
+    return this.prisma.userProduct.findFirst({
+      where: {
+        userId: memberId,
+        establishmentId,
+        productId,
+      },
+    });
+  }
+
+  async restoreMemberProduct(
+    id: string,
+    data: { price: number; commission: number },
+  ): Promise<UserProductModel> {
+    return this.prisma.userProduct.update({
+      where: { id },
+      data: {
+        deletedAt: null,
+        deletedBy: null,
+        price: data.price,
+        commission: data.commission,
+      },
     });
   }
 }

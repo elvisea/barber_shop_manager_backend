@@ -6,6 +6,12 @@ import {
 import { MemberProductWithRelations } from '../types/member-product-with-relations.type';
 
 export interface IMemberProductRepository {
+  /**
+   * Cria um novo relacionamento entre membro e produto do estabelecimento.
+   *
+   * @param data - Dados para criação (membro, estabelecimento, produto, preço e comissão)
+   * @returns O produto do membro criado
+   */
   createMemberProduct(data: {
     memberId: string;
     establishmentId: string;
@@ -68,12 +74,30 @@ export interface IMemberProductRepository {
     productId: string,
   ): Promise<MemberProductWithRelations | null>;
 
+  /**
+   * Verifica se existe um relacionamento entre membro e produto ativo.
+   *
+   * @param memberId - ID do membro
+   * @param establishmentId - ID do estabelecimento
+   * @param productId - ID do produto
+   * @returns true se existir, false caso contrário
+   */
   existsByMemberEstablishmentProduct(
     memberId: string,
     establishmentId: string,
     productId: string,
   ): Promise<boolean>;
 
+  /**
+   * Lista produtos de um membro de forma paginada.
+   *
+   * @param params - Parâmetros de filtro e paginação
+   * @param params.establishmentId - ID do estabelecimento
+   * @param params.memberId - ID do membro
+   * @param params.skip - Quantidade de registros para pular
+   * @param params.take - Quantidade de registros para retornar
+   * @returns Objeto contendo lista de dados e total de registros
+   */
   findAllByMemberPaginated({
     establishmentId,
     memberId,
@@ -89,6 +113,13 @@ export interface IMemberProductRepository {
     total: number;
   }>;
 
+  /**
+   * Atualiza dados de um produto de membro.
+   *
+   * @param id - ID do relacionamento
+   * @param data - Dados para atualização (preço e/ou comissão)
+   * @returns O produto do membro atualizado
+   */
   updateMemberProduct(
     id: string,
     data: {
@@ -97,11 +128,56 @@ export interface IMemberProductRepository {
     },
   ): Promise<UserProductModel>;
 
+  /**
+   * Realiza o soft delete de um produto de membro.
+   *
+   * @param id - ID do relacionamento
+   * @param deletedBy - ID do usuário que realizou a exclusão
+   */
   deleteMemberProduct(id: string, deletedBy: string): Promise<void>;
 
+  /**
+   * Busca um produto de membro específico incluindo dados do produto do estabelecimento.
+   *
+   * @param memberId - ID do membro
+   * @param establishmentId - ID do estabelecimento
+   * @param productId - ID do produto
+   * @returns Dados do produto do membro com o produto do estabelecimento incluso, ou null
+   */
   findOneByMemberProduct(
     memberId: string,
     establishmentId: string,
     productId: string,
   ): Promise<(UserProductModel & { product: EstablishmentProduct }) | null>;
+
+  /**
+   * Busca associação por membro, estabelecimento e produto incluindo registros soft-deleted.
+   * 
+   * Usado principalmente no fluxo de criação para permitir a restauração de um registro 
+   * deletado anteriormente, evitando violação de restrição única.
+   * 
+   * @param memberId - ID do membro
+   * @param establishmentId - ID do estabelecimento
+   * @param productId - ID do produto
+   * @returns O registro encontrado (mesmo se deletado) ou null
+   */
+  findOneByMemberEstablishmentProductIncludingDeleted(
+    memberId: string,
+    establishmentId: string,
+    productId: string,
+  ): Promise<UserProductModel | null>;
+
+  /**
+   * Restaura um MemberProduct que foi soft-deleted.
+   * 
+   * Limpa os campos deletedAt e deletedBy, e atualiza o preço e comissão com os novos valores fornecidos.
+   * 
+   * @param id - ID do registro a ser restaurado
+   * @param data - Novos dados de preço e comissão
+   * @returns O registro restaurado e atualizado
+   */
+  restoreMemberProduct(
+    id: string,
+    data: { price: number; commission: number },
+  ): Promise<UserProductModel>;
 }
