@@ -3,6 +3,12 @@ import { EstablishmentService, UserService } from '@prisma/client';
 import { MemberServiceWithRelations } from '../types/member-service-with-relations.type';
 
 export interface IMemberServiceRepository {
+  /**
+   * Cria um novo relacionamento entre membro e serviço do estabelecimento.
+   *
+   * @param data - Dados para criação (membro, estabelecimento, serviço, preço, comissão e duração)
+   * @returns O serviço do membro criado
+   */
   createMemberService(data: {
     memberId: string;
     establishmentId: string;
@@ -66,12 +72,30 @@ export interface IMemberServiceRepository {
     serviceId: string,
   ): Promise<MemberServiceWithRelations | null>;
 
+  /**
+   * Verifica se existe um relacionamento entre membro e serviço ativo.
+   *
+   * @param memberId - ID do membro
+   * @param establishmentId - ID do estabelecimento
+   * @param serviceId - ID do serviço
+   * @returns true se existir, false caso contrário
+   */
   existsByMemberEstablishmentService(
     memberId: string,
     establishmentId: string,
     serviceId: string,
   ): Promise<boolean>;
 
+  /**
+   * Lista serviços de um membro de forma paginada.
+   *
+   * @param params - Parâmetros de filtro e paginação
+   * @param params.establishmentId - ID do estabelecimento
+   * @param params.memberId - ID do membro
+   * @param params.skip - Quantidade de registros para pular
+   * @param params.take - Quantidade de registros para retornar
+   * @returns Objeto contendo lista de dados e total de registros
+   */
   findAllByMemberPaginated({
     establishmentId,
     memberId,
@@ -87,6 +111,13 @@ export interface IMemberServiceRepository {
     total: number;
   }>;
 
+  /**
+   * Atualiza dados de um serviço de membro.
+   *
+   * @param id - ID do relacionamento
+   * @param data - Dados para atualização (preço, comissão e/ou duração)
+   * @returns O serviço do membro atualizado
+   */
   updateMemberService(
     id: string,
     data: {
@@ -96,11 +127,56 @@ export interface IMemberServiceRepository {
     },
   ): Promise<UserService>;
 
+  /**
+   * Realiza o soft delete de um serviço de membro.
+   *
+   * @param id - ID do relacionamento
+   * @param deletedBy - ID do usuário que realizou a exclusão
+   */
   deleteMemberService(id: string, deletedBy: string): Promise<void>;
 
+  /**
+   * Busca um serviço de membro específico incluindo dados do serviço do estabelecimento.
+   *
+   * @param memberId - ID do membro
+   * @param establishmentId - ID do estabelecimento
+   * @param serviceId - ID do serviço
+   * @returns Dados do serviço do membro com o serviço do estabelecimento incluso, ou null
+   */
   findOneByMemberService(
     memberId: string,
     establishmentId: string,
     serviceId: string,
   ): Promise<(UserService & { service: EstablishmentService }) | null>;
+
+  /**
+   * Busca associação por membro, estabelecimento e serviço incluindo registros soft-deleted.
+   * 
+   * Usado principalmente no fluxo de criação para permitir a restauração de um registro 
+   * deletado anteriormente, evitando violação de restrição única.
+   * 
+   * @param memberId - ID do membro
+   * @param establishmentId - ID do estabelecimento
+   * @param serviceId - ID do serviço
+   * @returns O registro encontrado (mesmo se deletado) ou null
+   */
+  findOneByMemberEstablishmentServiceIncludingDeleted(
+    memberId: string,
+    establishmentId: string,
+    serviceId: string,
+  ): Promise<UserService | null>;
+
+  /**
+   * Restaura um MemberService que foi soft-deleted.
+   * 
+   * Limpa os campos deletedAt e deletedBy, e atualiza preço, comissão e duração com os novos valores fornecidos.
+   * 
+   * @param id - ID do registro a ser restaurado
+   * @param data - Novos dados de preço, comissão e duração
+   * @returns O registro restaurado e atualizado
+   */
+  restoreMemberService(
+    id: string,
+    data: { price: number; commission: number; duration: number },
+  ): Promise<UserService>;
 }

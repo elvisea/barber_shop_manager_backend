@@ -67,6 +67,7 @@ export class MemberServiceRepository implements IMemberServiceRepository {
         userId: memberId,
         establishmentId,
         serviceId,
+        deletedAt: null,
       },
     });
     return count > 0;
@@ -168,6 +169,36 @@ export class MemberServiceRepository implements IMemberServiceRepository {
         deletedAt: null,
       },
       include: { service: true },
+    });
+  }
+
+  async findOneByMemberEstablishmentServiceIncludingDeleted(
+    memberId: string,
+    establishmentId: string,
+    serviceId: string,
+  ): Promise<UserServiceModel | null> {
+    return this.prisma.userService.findFirst({
+      where: {
+        userId: memberId,
+        establishmentId,
+        serviceId,
+      },
+    });
+  }
+
+  async restoreMemberService(
+    id: string,
+    data: { price: number; commission: number; duration: number },
+  ): Promise<UserServiceModel> {
+    return this.prisma.userService.update({
+      where: { id },
+      data: {
+        deletedAt: null,
+        deletedBy: null,
+        price: data.price,
+        commission: data.commission,
+        duration: data.duration,
+      },
     });
   }
 }
