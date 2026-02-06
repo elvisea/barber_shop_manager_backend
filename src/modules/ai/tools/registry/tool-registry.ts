@@ -5,6 +5,7 @@ import { PlanToolHandlers } from '../handlers/plan-handlers';
 import {
   ToolHandler,
   ToolRegistry,
+  ToolContext,
   toChatCompletionTool,
 } from '../types/tool-definition.types';
 
@@ -159,7 +160,11 @@ export class ToolRegistryService {
    * @returns Resultado da execução da tool
    * @throws Error se a tool não for encontrada
    */
-  async executeTool(name: string, args: object, context?: any): Promise<any> {
+  async executeTool(
+    name: string,
+    args: object,
+    context?: ToolContext,
+  ): Promise<any> {
     this.logger.log(`🛠️ [EXECUÇÃO] Iniciando execução da tool: "${name}"`);
     this.logger.log(
       `🛠️ [EXECUÇÃO] Argumentos recebidos:`,
