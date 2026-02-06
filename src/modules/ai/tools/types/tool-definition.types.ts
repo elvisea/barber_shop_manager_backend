@@ -5,10 +5,15 @@ import { ChatCompletionTool } from 'openai/resources/chat/completions';
  * Baseado nas boas práticas da OpenAI Node.js SDK
  */
 
+export interface ParameterDefinition {
+  type: 'string' | 'number' | 'boolean' | 'object' | 'array';
+  description: string;
+}
+
 export interface ToolDefinition {
   name: string;
   description: string;
-  parameters: Record<string, any>;
+  parameters: Record<string, ParameterDefinition>;
   required?: string[];
 }
 
