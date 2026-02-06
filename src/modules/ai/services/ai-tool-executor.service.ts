@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { ToolRegistryService } from '../tools/registry/tool-registry';
+import { ToolContext, ToolResult } from '../tools/types/tool-definition.types';
 
 import { getErrorMessage } from '@/common/utils';
 
@@ -117,7 +118,7 @@ export class AIToolExecutorService {
    */
   async executeToolCall(
     toolCall: ToolCall,
-    context?: any,
+    context?: ToolContext,
   ): Promise<ToolExecutionResult> {
     this.logger.log(
       `🛠️ [EXECUTOR] Iniciando execução da tool: "${toolCall.name}"`,
@@ -144,11 +145,11 @@ export class AIToolExecutorService {
       this.logger.log(`✅ [EXECUTOR] Tool call validada, executando...`);
 
       // Executar a tool através do registry
-      const result = await this.toolRegistry.executeTool(
+      const result = (await this.toolRegistry.executeTool(
         toolCall.name,
         toolCall.arguments,
         context,
-      );
+      )) as ToolResult<any>;
 
       this.logger.log(
         `✅ [EXECUTOR] Tool "${toolCall.name}" executada com sucesso`,
@@ -161,7 +162,7 @@ export class AIToolExecutorService {
       // Retornar apenas o resultado bruto para ser usado em mensagem 'tool'
       return {
         toolCall,
-        result: result.data ?? result,
+        result: (result.data ?? result) as unknown,
         success: true,
       };
     } catch (error: unknown) {
@@ -207,7 +208,7 @@ export class AIToolExecutorService {
    */
   async executeToolCalls(
     toolCalls: ToolCall[],
-    context?: any,
+    context?: ToolContext,
   ): Promise<ToolExecutionResult[]> {
     this.logger.log(
       `🔄 [EXECUTOR] Iniciando execução de ${toolCalls.length} tool calls`,
