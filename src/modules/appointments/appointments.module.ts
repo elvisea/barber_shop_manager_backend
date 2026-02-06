@@ -17,9 +17,9 @@ import { AppointmentFindByIdService } from './services/appointment-find-by-id.se
 import { AppointmentUpdateBusinessRulesService } from './services/appointment-update-business-rules.service';
 import { AppointmentUpdateService } from './services/appointment-update.service';
 
+import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { EstablishmentCustomerModule } from '@/modules/establishment-customers/establishment-customer.module';
 import { EstablishmentServicesModule } from '@/modules/establishment-services/establishment-services.module';
-import { EstablishmentModule } from '@/modules/establishment/establishment.module';
 import { MemberServicesModule } from '@/modules/member-services/member-services.module';
 import { UserEstablishmentsModule } from '@/modules/user-establishments/user-establishments.module';
 import { EstablishmentAccessModule } from '@/shared/establishment-access/establishment-access.module';

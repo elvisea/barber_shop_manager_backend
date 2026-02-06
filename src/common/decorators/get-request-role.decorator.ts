@@ -7,8 +7,9 @@ import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
  */
 export const GetRequestRole = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): AuthenticatedUser['role'] => {
-    const request = ctx.switchToHttp().getRequest();
-    const user = request.user as AuthenticatedUser;
+    const { user } = ctx.switchToHttp().getRequest<{
+      user: AuthenticatedUser;
+    }>();
     return user.role;
   },
 );

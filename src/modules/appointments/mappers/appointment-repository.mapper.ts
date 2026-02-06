@@ -1,10 +1,10 @@
 import { AppointmentStatus, EstablishmentService } from '@prisma/client';
 
-import { MemberServiceWithEstablishmentService } from '@/modules/member-services/types/member-service-with-relations.type';
-
 import { AppointmentRepositoryCreateDTO } from '../dtos/repository/appointment-repository-create.dto';
 import { AppointmentRepositoryUpdateDTO } from '../dtos/repository/appointment-repository-update.dto';
 import { AppointmentServiceRepositoryCreateDTO } from '../dtos/repository/appointment-service-create.dto';
+
+import { MemberServiceWithEstablishmentService } from '@/modules/member-services/types/member-service-with-relations.type';
 
 /**
  * Converte EstablishmentService[] (Prisma) para o formato de serviços do repositório.

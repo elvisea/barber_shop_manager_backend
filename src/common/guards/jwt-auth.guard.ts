@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 
@@ -18,7 +19,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     info: Error | undefined,
     context: ExecutionContext,
   ): TUser {
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest<Request>();
 
     const logContext = {
       ip: req.ip,
