@@ -36,6 +36,6 @@ export class MemberListWithServicesService {
       );
 
     // 3. Mapeia para DTO usando Mapper
-    return members.map(MemberWithServicesMapper.toDTO);
+    return members.map((member) => MemberWithServicesMapper.toDTO(member));
   }
 }
