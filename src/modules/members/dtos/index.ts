@@ -8,3 +8,4 @@ export * from './member-summary-response.dto';
 export * from './member-update-request.dto';
 export * from './member-verify-email-request.dto';
 export * from './member-verify-email-response.dto';
+export * from './member-with-services-response.dto';

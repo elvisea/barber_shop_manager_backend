@@ -3,6 +3,7 @@ import { Prisma, Token, TokenType, User, UserRole } from '@prisma/client';
 
 import { IMemberRepository } from '../contracts/member-repository.interface';
 import { MemberRelationshipsSummaryDTO } from '../dtos/member-summary-response.dto';
+import { MemberWithServices } from '../types/member-with-services.type';
 
 import { PrismaService } from '@/prisma/prisma.service';
 
@@ -366,5 +367,48 @@ export class MemberRepository implements IMemberRepository {
       workingHours: { total: workingHoursCount },
       absencePeriods: { total: absencePeriodsCount },
     };
+  }
+
+  async findAllWithServicesByEstablishment(
+    establishmentId: string,
+  ): Promise<MemberWithServices[]> {
+    const userEstablishments = await this.prisma.userEstablishment.findMany({
+      where: {
+        establishmentId,
+        deletedAt: null,
+        isActive: true, // Only active members
+      },
+      include: {
+        user: {
+          include: {
+            userServices: {
+              where: {
+                deletedAt: null,
+                service: {
+                  deletedAt: null,
+                },
+              },
+              include: {
+                service: true, // Include full service object to satisfy type
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        user: {
+          name: 'asc',
+        },
+      },
+    });
+
+    // Cast needed because Prisma return type inference with nested includes can be tricky,
+    // but the structure matches MemberWithServices (which is a Prisma generated type).
+    // The previous implementation used 'select' which returned a partial object.
+    // We switched to 'include' to match the full generated type.
+
+    return userEstablishments.map(
+      (ue) => ue.user,
+    ) as unknown as MemberWithServices[];
   }
 }

@@ -1,6 +1,7 @@
 import { Prisma, Token, User, UserRole } from '@prisma/client';
 
 import { MemberRelationshipsSummaryDTO } from '../dtos/member-summary-response.dto';
+import { MemberWithServices } from '../types/member-with-services.type';
 
 type MemberWithEstablishment = Prisma.UserGetPayload<{
   include: { ownedEstablishments: true };
@@ -104,4 +105,8 @@ export interface IMemberRepository {
     memberId: string,
     establishmentId: string,
   ): Promise<MemberRelationshipsSummaryDTO>;
+
+  findAllWithServicesByEstablishment(
+    establishmentId: string,
+  ): Promise<MemberWithServices[]>;
 }

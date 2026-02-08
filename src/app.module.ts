@@ -17,6 +17,7 @@ import { EstablishmentServicesModule } from './modules/establishment-services/es
 import { MeModule } from './modules/me/me.module';
 import { MemberProductsModule } from './modules/member-products/member-products.module';
 import { MemberServicesModule } from './modules/member-services/member-services.module';
+import { MembersModule } from './modules/members/members.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { RefreshTokenModule } from './modules/refresh-token/refresh-token.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
@@ -51,6 +52,7 @@ import { TokenModule } from './shared/token/token.module';
     EstablishmentServicesModule,
     MemberProductsModule,
     MemberServicesModule,
+    MembersModule,
     PlansModule,
     SubscriptionsModule,
     RefreshTokenModule,
